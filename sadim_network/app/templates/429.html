@@ -1,224 +1,281 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>429 - طلبات كثيرة | شبكة سديم</title>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>429 - طلبات كثيرة | شبكة سديم</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* * Sadeem Network - 429 Too Many Requests Page
+         * Unified Cyberpunk / Dark Glassmorphism Architecture
+         */
 
-    :root {
-      --bg: #ffffff;
-      --bg-secondary: #f5f5f3;
-      --text-primary: #1a1a18;
-      --text-secondary: #6b6b67;
-      --text-tertiary: #a0a09c;
-      --border: rgba(0,0,0,0.12);
-      --border-light: rgba(0,0,0,0.07);
-      --accent: #E24B4A;
-    }
+        *, *::before, *::after { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
 
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #1a1a18;
-        --bg-secondary: #242422;
-        --text-primary: #f0efe8;
-        --text-secondary: #888780;
-        --text-tertiary: #555552;
-        --border: rgba(255,255,255,0.12);
-        --border-light: rgba(255,255,255,0.07);
-      }
-    }
+        :root {
+            --color-bg: #09090d;                  /* أسود كوني عميق ومستقبلي */
+            --color-primary: rgba(18, 18, 24, 0.75); /* الحاويات الشفافة الزجاجية المعتمدة */
+            --color-accent: #7c4dff;              /* الأرجواني النيون الحيوي */
+            --color-light: #b388ff;               /* لون النجوم/التوهجات المضيئة */
+            --color-deep: #ffffff;                /* أبيض ناصع للنصوص */
+            --text-muted: #9c9cab;                /* النص الثانوي الرمادي */
+            --border-color: rgba(255, 255, 255, 0.08); /* حدود الحاويات الشفافة */
+            --border-light: rgba(124, 77, 255, 0.03); /* شبكة ديجيتال نيون خلفية */
+            --blur: blur(18px);                   /* تأثير الضبابية الزجاجي الخلفي */
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 24px;                       /* الانحناء الموحد للحاويات الكبيره */
+            --radius-sm: 14px;                    /* انحناء الكروت والحقول والأزرار */
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            --error-neon: #ff5252;                /* أحمر سيبراني متوهج لحالات التحذير والمنع */
+        }
 
-    body {
-      font-family: 'IBM Plex Sans Arabic', sans-serif;
-      background: var(--bg);
-      color: var(--text-primary);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 3rem 2rem;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
+        body {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-deep);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(1rem, 4vw, 2rem);
+            position: relative;
+            overflow: hidden;
+            direction: rtl;
+        }
 
-    .grid-bg {
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--border-light) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-    }
+        /* شبكة التحكم الرقمية الخلفية المحسنة */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--border-light) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border-light) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -2;
+        }
 
-    .content {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+        /* عمق الإضاءة السديمية المتوهجة خلف بطاقة الخطأ */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(124, 77, 255, 0.08) 0%, transparent 60%);
+            z-index: -1;
+            pointer-events: none;
+        }
 
-    .sadim-logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 2.5rem;
-      text-decoration: none;
-    }
+        /* حاوية التصميم الزجاجية الموحدة */
+        .container {
+            background: var(--color-primary);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            width: 100%;
+            max-width: 460px;
+            padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 2.2rem);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--error-neon); /* شريط حماية تحذيري علوي */
+            box-shadow: var(--shadow);
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-    .sadim-name {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      letter-spacing: 0.02em;
-    }
+        .sadim-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+            text-decoration: none;
+        }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--bg-secondary);
-      border: 0.5px solid var(--border);
-      border-radius: 99px;
-      padding: 4px 14px;
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-bottom: 2rem;
-      letter-spacing: 0.05em;
-    }
+        .sadim-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--color-deep);
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+        }
 
-    .dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      flex-shrink: 0;
-    }
+        /* وسم الحالة السيبراني */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            padding: 6px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
 
-    .code {
-      font-size: 96px;
-      font-weight: 300;
-      color: var(--text-primary);
-      line-height: 1;
-      margin-bottom: 0.75rem;
-      letter-spacing: -4px;
-    }
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--error-neon);
+            flex-shrink: 0;
+            box-shadow: 0 0 8px var(--error-neon);
+        }
 
-    .code span { color: var(--accent); }
+        /* رمز الخطأ المتوهج */
+        .code {
+            font-size: 84px;
+            font-weight: 300;
+            color: var(--color-deep);
+            line-height: 1;
+            margin-bottom: 1rem;
+            letter-spacing: -2px;
+        }
 
-    .title {
-      font-size: 22px;
-      font-weight: 500;
-      color: var(--text-primary);
-      margin-bottom: 0.75rem;
-    }
+        .code span { 
+            color: var(--error-neon); 
+            font-weight: 700;
+            text-shadow: 0 0 20px rgba(255, 82, 82, 0.6);
+        }
 
-    .desc {
-      font-size: 15px;
-      color: var(--text-secondary);
-      line-height: 1.8;
-      max-width: 400px;
-      margin: 0 auto 2.5rem;
-    }
+        .title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--color-deep);
+            margin-bottom: 0.75rem;
+        }
 
-    .actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+        .desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            max-width: 360px;
+            margin-bottom: 2.5rem;
+        }
 
-    .btn-primary {
-      background: var(--text-primary);
-      color: var(--bg);
-      border: none;
-      border-radius: 8px;
-      padding: 10px 24px;
-      font-size: 14px;
-      font-family: 'IBM Plex Sans Arabic', sans-serif;
-      cursor: pointer;
-      transition: opacity 0.15s;
-      text-decoration: none;
-      display: inline-block;
-    }
+        /* مجموعات أزرار التحكم */
+        .actions {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            flex-direction: column; /* ترتيب عمودي مريح للمس بالهواتف */
+        }
 
-    .btn-primary:hover { opacity: 0.8; }
+        .btn-sadim {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.85rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+            min-height: 46px;
+            cursor: pointer;
+            box-sizing: border-box;
+            width: 100%;
+        }
 
-    .btn-secondary {
-      background: transparent;
-      color: var(--text-secondary);
-      border: 0.5px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 24px;
-      font-size: 14px;
-      font-family: 'IBM Plex Sans Arabic', sans-serif;
-      cursor: pointer;
-      transition: background 0.15s;
-      text-decoration: none;
-      display: inline-block;
-    }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--color-light), var(--color-accent));
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 4px 15px rgba(124, 77, 255, 0.25);
+        }
 
-    .btn-secondary:hover { background: var(--bg-secondary); }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 77, 255, 0.45);
+        }
 
-    .footer {
-      margin-top: 3rem;
-      font-size: 12px;
-      color: var(--text-tertiary);
-    }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--color-deep);
+            border: 1px solid var(--border-color);
+        }
 
-    .footer a {
-      color: var(--text-tertiary);
-      text-decoration: none;
-      border-bottom: 0.5px solid var(--border-light);
-    }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
 
-    .footer a:hover { color: var(--text-secondary); }
-  </style>
+        .btn-sadim:active {
+            transform: scale(0.98);
+        }
+
+        .footer {
+            margin-top: 2rem;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .footer a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer a:hover { 
+            color: var(--color-light); 
+            text-shadow: 0 0 8px rgba(179, 136, 255, 0.4);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 2.5rem 1.5rem;
+                background: rgba(18, 18, 24, 0.6);
+            }
+            .code { font-size: 72px; }
+        }
+    </style>
 </head>
 <body>
-  <div class="grid-bg"></div>
-  <div class="content">
+    <div class="grid-bg"></div>
+    
+    <div class="container">
+        <a href="/" class="sadim-logo">
+            <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
+                <circle cx="14" cy="14" r="13" stroke="rgba(255,255,255,0.15)" stroke-width="0.75"/>
+                <circle cx="14" cy="14" r="3" fill="#ffffff" opacity="0.9"/>
+                <circle cx="14" cy="5"  r="1.5" fill="var(--color-light)"/>
+                <circle cx="14" cy="23" r="1.5" fill="var(--color-light)"/>
+                <circle cx="5"  cy="14" r="1.5" fill="var(--color-light)"/>
+                <circle cx="23" cy="14" r="1.5" fill="var(--color-light)"/>
+            </svg>
+            <span class="sadim-name">شبكة سديم</span>
+        </a>
 
-    <a href="/" class="sadim-logo">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <circle cx="14" cy="14" r="13" stroke="var(--border)" stroke-width="0.5"/>
-        <circle cx="14" cy="14" r="3" fill="var(--text-primary)" opacity="0.9"/>
-        <circle cx="14" cy="5"  r="1.5" fill="var(--text-tertiary)"/>
-        <circle cx="14" cy="23" r="1.5" fill="var(--text-tertiary)"/>
-        <circle cx="5"  cy="14" r="1.5" fill="var(--text-tertiary)"/>
-        <circle cx="23" cy="14" r="1.5" fill="var(--text-tertiary)"/>
-        <circle cx="7.5"  cy="7.5"  r="1" fill="var(--text-tertiary)" opacity="0.5"/>
-        <circle cx="20.5" cy="7.5"  r="1" fill="var(--text-tertiary)" opacity="0.5"/>
-        <circle cx="7.5"  cy="20.5" r="1" fill="var(--text-tertiary)" opacity="0.5"/>
-        <circle cx="20.5" cy="20.5" r="1" fill="var(--text-tertiary)" opacity="0.5"/>
-      </svg>
-      <span class="sadim-name">شبكة سديم</span>
-    </a>
+        <div class="badge">
+            <span class="dot"></span>
+            طلبات كثيرة
+        </div>
 
-    <div class="badge">
-      <span class="dot"></span>
-      طلبات كثيرة
+        <div class="code">4<span>2</span>9</div>
+        <div class="title">تجاوزت الحد المسموح به</div>
+        <p class="desc">لقد أرسلت عدداً كبيراً من الطلبات في وقت قصير جداً.<br>انتظر لحظة ثم حاول مجدداً.</p>
+
+        <div class="actions">
+            <button class="btn-sadim btn-primary" onclick="window.location.reload()">حاول مجدداً</button>
+            <a href="/" class="btn-sadim btn-secondary">العودة للرئيسية</a>
+        </div>
+
+        <div class="footer">
+            <a href="https://sadim.cloud" target="_blank">sadim.cloud</a>
+        </div>
     </div>
-
-    <div class="code">4<span>2</span>9</div>
-    <div class="title">تجاوزت الحد المسموح به</div>
-    <p class="desc">لقد أرسلت عدداً كبيراً من الطلبات في وقت قصير.<br>انتظر لحظة ثم حاول مجدداً.</p>
-
-    <div class="actions">
-      <button class="btn-primary" onclick="window.location.reload()">حاول مجدداً</button>
-      <a href="/" class="btn-secondary">العودة للرئيسية</a>
-    </div>
-
-    <div class="footer">
-      <a href="https://sadim.cloud">sadim.cloud</a>
-    </div>
-
-  </div>
 </body>
 </html>

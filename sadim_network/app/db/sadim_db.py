@@ -235,7 +235,26 @@ def create_tables():
             description TEXT
         );
     """)
- 
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS bots (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            bot_token VARCHAR(255) NOT NULL,
+            channel  VARCHAR(80) NOT NULL,
+            is_active BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+     """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS quotes (
+            id SERIAL PRIMARY KEY,
+            bot_id INTEGER REFERENCES bots(id) ON DELETE CASCADE,
+            text TEXT NOT NULL,
+            author VARCHAR(100),
+            published BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+    """)
     conn.commit()
     cur.close()
     conn.close()

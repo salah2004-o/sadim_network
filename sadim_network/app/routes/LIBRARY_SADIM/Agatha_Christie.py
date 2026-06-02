@@ -73,7 +73,7 @@ def view_book(book_id):
     comments = Comments.get_comments_by_book(book_id)
     user = User.get_by_id(session['user_id']) if 'user_id' in session else None
     return render_template(
-        "Agatha Christie/Book_detail.html", 
+        "Agatha Christie/book_detail.html", 
         book=book, 
         comments=comments,
         user=user

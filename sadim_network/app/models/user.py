@@ -238,3 +238,25 @@ class User:
             created_at=row[12],
             updated_at=row[13]
         )
+    
+    @staticmethod
+    def google_authenticate(google_id, email, name, picture):
+       conn = sadim_db.get_db_connection()
+       cur = conn.cursor()
+        # هل المستخدم موجود؟
+       cur.execute("SELECT id, role, username FROM users WHERE google_id = %s OR email = %s", (google_id, email))
+       existing = cur.fetchone()
+
+       if existing:
+            user_id, role, username = existing
+            # تحديث google_id لو سجل قبل بإيميل
+            cur.execute("UPDATE users SET google_id = %s WHERE id = %s", (google_id, user_id))
+       else:
+            # مستخدم جديد
+            username = email.split('@')[0]
+            cur.execute("""
+                INSERT INTO users (username, name, email, google_id, is_verified, profile_image, password_hash)
+                VALUES (%s, %s, %s, %s, TRUE, %s, NULL)
+                RETURNING id, role
+            """, (username, name, email, google_id, picture))
+            user_id, role = cur.fetchone()

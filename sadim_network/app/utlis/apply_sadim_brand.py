@@ -31,7 +31,7 @@ def apply_sadim_brand(pdf_path):
             "قناتنا على التليجرام: t.me/SADIM_NETWORK\n\n"
             "قراءة ممتعة.. ولا تنسَ أن اللغز دائماً يبدأ من هنا!"
         )
-
+ 
         # السحر هنا: تهيئة النص للعربية (ربط الحروف وتعديل الاتجاه)
         reshaped_text = arabic_reshaper.reshape(raw_text)
         bidi_text = get_display(reshaped_text)

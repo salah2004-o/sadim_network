@@ -1,47 +1,57 @@
 /*
  * شبكة سديم - Sadeem Network
- * Professional RTL CSS Framework
- * High-End, Service-Oriented, Literary Aesthetic
+ * Professional RTL CSS Framework - Cyberpunk / Dark Edition
  */
 
 :root {
-  /* Color Palette */
-  --color-deep: #190019;
-  --color-primary: #3f2068;
-  --color-secondary: #5d2664;
-  --color-accent: #854F6C;
-  --color-light: #DFB6B2;
-  --color-bg: #FBE4D8;
+  /* Color Palette (المستخرجة من التصميم الداكن) */
+  --bg-main: #09090d;
+  --card-bg: rgba(18, 18, 24, .75);
+  --border-color: rgba(255, 255, 255, .08);
+  --text: #ffffff;
+  --muted: #9c9cab;
+  --accent: #b388ff;
+  --accent-2: #7c4dff;
+  --blur: blur(18px);
+  
+  /* ألوان الحالات */
+  --color-success: #00ff88;
+  --color-danger: #ff7675;
+  --color-warning: #f1c40f;
 
   /* Typography */
-  --font-family: 'Cairo', 'Tajawal', system-ui, -apple-system, sans-serif;
+  --font-family: 'Cairo', 'Tajawal', Tahoma, sans-serif;
   --line-height: 1.6;
 
   /* Spacing & Borders */
-  --radius: 12px;
-  --shadow: 0 4px 20px rgba(25, 0, 25, 0.08);
-  --transition: all 0.3s ease;
+  --radius: 24px; /* تم زيادة الانحناء ليتوافق مع التصميم الجديد */
+  --radius-sm: 12px;
+  --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --transition: all 0.35s ease;
 }
 
 /* Reset & Base */
 *, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
   direction: rtl;
   unicode-bidi: embed;
-  background-color: var(--color-bg);
-  color: var(--color-deep);
+  background: 
+    radial-gradient(circle at top right, rgba(124, 77, 255, .15), transparent 30%),
+    radial-gradient(circle at bottom left, rgba(179, 136, 255, .12), transparent 30%),
+    var(--bg-main);
+  color: var(--text);
   font-family: var(--font-family);
   line-height: var(--line-height);
-  margin: 0;
-  padding: 0;
   overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: var(--color-primary);
+  color: var(--text);
   margin-block-end: 1rem;
   font-weight: 700;
 }
@@ -49,11 +59,12 @@ h1, h2, h3, h4, h5, h6 {
 p {
   margin-block-end: 1.5rem;
   max-width: 75ch;
+  color: var(--muted);
 }
 
 a {
   text-decoration: none;
-  color: var(--color-accent);
+  color: var(--accent);
   transition: var(--transition);
 }
 
@@ -64,68 +75,75 @@ img {
 
 /* Layout Containers */
 .container {
-  width: 90%;
+  width: 92%;
   max-width: 1200px;
   margin-inline: auto;
 }
 
 /* Header & Navbar */
 .header {
-  background-color: var(--color-primary);
-  color: var(--color-bg);
-  padding-block: 1rem;
   position: sticky;
   top: 0;
   z-index: 1000;
+  backdrop-filter: blur(16px);
+  background: rgba(10, 10, 15, .6);
+  border-bottom: 1px solid rgba(255, 255, 255, .05);
   box-shadow: var(--shadow);
+  padding-block: 0.5rem;
 }
 
 .nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 80px;
 }
 
 .nav-brand {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--color-bg);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 1px;
 }
 
 .nav-links {
   display: none; /* Hidden on mobile by default */
-  gap: 2rem;
+  gap: 1.5rem;
   list-style: none;
   margin: 0;
   padding: 0;
+  align-items: center;
 }
 
 .nav-links a {
-  color: var(--color-light);
+  color: #ddd;
   font-size: 1rem;
 }
 
 .nav-links a:hover {
-  color: var(--color-bg);
+  color: var(--text);
 }
 
 /* Hero Section */
 .hero {
   padding-block: 4rem;
   text-align: center;
-  background-color: var(--color-primary);
-  color: var(--color-bg);
-  clip-path: ellipse(150% 100% at 50% 0%);
+  position: relative;
+  background: transparent; /* الاعتماد على خلفية الجسم المتوهجة */
 }
 
 .hero h1 {
-  color: var(--color-bg);
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--text);
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  line-height: 1.2;
 }
 
 .hero p {
   margin-inline: auto;
-  color: var(--color-light);
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1.9;
+  max-width: 650px;
 }
 
 /* Buttons */
@@ -133,60 +151,65 @@ img {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.8rem 2rem;
-  border-radius: var(--radius);
-  font-weight: 600;
+  padding: 1rem 1.5rem;
+  border-radius: 14px;
+  font-weight: 700;
   cursor: pointer;
   border: none;
   transition: var(--transition);
   font-family: var(--font-family);
+  text-decoration: none;
 }
 
 .btn-primary {
-  background-color: var(--color-accent);
-  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff !important;
 }
 
 .btn-primary:hover {
-  background-color: var(--color-secondary);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 5px 15px rgba(124, 77, 255, 0.4);
 }
 
 .btn-secondary {
   background-color: transparent;
-  border: 2px solid var(--color-accent);
-  color: var(--color-accent);
+  border: 1px solid var(--border-color);
+  color: var(--text);
 }
 
 .btn-secondary:hover {
-  background-color: var(--color-accent);
-  color: white;
+  transform: translateY(-4px);
+  border-color: rgba(179, 136, 255, .3);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 /* Service Cards */
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
   padding-block: 4rem;
 }
 
 .card {
-  background-color: var(--color-secondary);
-  color: var(--color-bg);
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  backdrop-filter: var(--blur);
   padding: 2rem;
-  border-radius: var(--radius);
+  border-radius: 28px;
   transition: var(--transition);
-  border: 1px solid rgba(223, 182, 178, 0.1);
+  overflow: hidden;
 }
 
 .card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 10px 30px rgba(25, 0, 25, 0.2);
+  transform: translateY(-8px);
+  border-color: rgba(179, 136, 255, .3);
 }
 
 .card h3 {
-  color: var(--color-light);
+  color: var(--text);
+  font-size: 1.4rem;
+  margin-bottom: 0.7rem;
 }
 
 /* Forms */
@@ -198,31 +221,33 @@ img {
   display: block;
   margin-block-end: 0.5rem;
   font-weight: 600;
-  color: var(--color-primary);
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .input {
   width: 100%;
   padding: 0.8rem 1rem;
-  border-radius: var(--radius);
-  border: 2px solid var(--color-light);
-  background-color: white;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: rgba(255, 255, 255, .03);
+  color: var(--text);
   font-family: var(--font-family);
   transition: var(--transition);
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 4px rgba(133, 79, 108, 0.1);
+  border-color: var(--accent);
+  background-color: rgba(255, 255, 255, .06);
 }
 
 /* Footer */
 .footer {
-  background-color: var(--color-deep);
-  color: var(--color-light);
+  background-color: transparent;
+  border-top: 1px solid rgba(255, 255, 255, .05);
   padding-block: 4rem 2rem;
-  margin-block-start: 4rem;
+  margin-block-start: 5rem;
 }
 
 .footer-grid {
@@ -233,7 +258,7 @@ img {
 }
 
 .footer-brand {
-  color: var(--color-bg);
+  color: var(--text);
   font-size: 1.5rem;
   font-weight: 700;
 }
@@ -241,8 +266,9 @@ img {
 .copyright {
   text-align: center;
   padding-block-start: 2rem;
-  border-block-start: 1px solid var(--color-secondary);
+  border-block-start: 1px solid rgba(255, 255, 255, .05);
   font-size: 0.9rem;
+  color: var(--muted);
 }
 
 /* Accessibility & Utility */
@@ -264,15 +290,11 @@ img {
   }
 
   .hero {
-    padding-block: 8rem;
+    padding-block: 6rem;
   }
 }
 
 @media (max-width: 767px) {
-  .nav {
-    flex-direction: row-reverse; /* Flip for RTL burger placement if needed */
-  }
-  
   .hero h1 {
     font-size: 2.2rem;
   }
@@ -280,6 +302,6 @@ img {
 
 /* Focus States for Accessibility */
 :focus-visible {
-  outline: 3px solid var(--color-accent);
+  outline: 2px solid var(--accent);
   outline-offset: 4px;
 }

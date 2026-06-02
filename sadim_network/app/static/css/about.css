@@ -1,261 +1,266 @@
-        :root {
-            --nebula-dark: #1a1a2e;
-            --nebula-purple: #2b124c;
-            --nebula-accent: #854f6c;
-            --nebula-gold: #dfb6b2;
-            --text-light: #f5f1eb;
-        }
+/* * Sadeem Network - Main Landing Page Styles
+ * Unified Cyberpunk / Dark Glassmorphism Architecture
+ */
 
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            line-height: 1.8; 
-            color: var(--text-light); 
-            margin: 0; 
-            padding: 0; 
-            background-color: var(--nebula-dark);
-        }
-
-        /* Header Styling */
-        header { 
-            background: var(--nebula-purple); 
-            color: var(--nebula-gold); 
-            padding: 1rem 5%; 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--nebula-accent);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .logo { font-size: 1.6rem; font-weight: 900; letter-spacing: 1px; }
-
-        nav ul { list-style: none; display: flex; gap: 1.5rem; margin: 0; padding: 0; }
-        nav ul li a { 
-            color: var(--text-light); 
-            text-decoration: none; 
-            font-weight: 600;
-            transition: 0.3s;
-        }
-        nav ul li a:hover { color: var(--nebula-gold); }
-
-        /* Hero Section */
-        .hero { 
-            background: linear-gradient(135deg, #2b124c 0%, #1a1a2e 100%);
-            padding: 5rem 1rem; 
-            text-align: center; 
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero h1 { font-size: 3rem; color: var(--nebula-gold); margin-bottom: 1rem; }
-        .hero p { max-width: 700px; margin: 0 auto; font-size: 1.2rem; opacity: 0.9; }
-
-        .hero img { 
-            max-width: 800px; 
-            width: 90%;
-            height: auto; 
-            margin-top: 3rem; 
-            border-radius: 20px; 
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            border: 1px solid rgba(223, 182, 178, 0.2);
-        }
-
-        /* Content Sections */
-        .content { max-width: 1000px; margin: 4rem auto; padding: 0 2rem; }
-        
-        .section-box {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 2.5rem;
-            border-radius: 15px;
-            margin-bottom: 3rem;
-            border-right: 5px solid var(--nebula-accent);
-            transition: 0.3s;
-        }
-        
-        .section-box:hover { background: rgba(255, 255, 255, 0.05); }
-
-        h2 { color: var(--nebula-gold); font-size: 1.8rem; margin-top: 0; }
-
-        /* Team Images */
-        .team-images { 
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem; 
-        }
-        
-        .team-card {
-            text-align: center;
-            background: var(--nebula-purple);
-            padding: 1rem;
-            border-radius: 15px;
-            border: 1px solid rgba(223, 182, 178, 0.1);
-        }
-
-        .team-card img { 
-            width: 100%; 
-            border-radius: 10px; 
-            filter: grayscale(40%);
-            transition: 0.4s;
-        }
-        
-        .team-card:hover img { filter: grayscale(0%); transform: scale(1.03); }
-
-        /* Values List */
-        .values-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            list-style: none;
-            padding: 0;
-        }
-
-        .values-grid li {
-            background: var(--nebula-purple);
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-            border-bottom: 3px solid var(--nebula-gold);
-        }
-
-        .values-grid li strong { color: var(--nebula-gold); display: block; margin-bottom: 0.5rem; }
-
-        footer { 
-            background: #0f0f1a; 
-            color: var(--nebula-gold); 
-            text-align: center; 
-            padding: 2rem; 
-            border-top: 1px solid var(--nebula-purple);
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            header { flex-direction: column; gap: 1rem; }
-            .hero h1 { font-size: 2rem; }
-        }
-.team-images {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 2rem;
-    max-width: 1100px;
-    margin: auto;
+*, *::before, *::after { 
+    box-sizing: border-box; 
 }
 
-/* الكرت */
+:root {
+    --color-bg: #09090d;                  /* أسود كوني عميق ومستقبلي */
+    --color-primary: rgba(18, 18, 24, 0.75); /* الحاويات الشفافة الزجاجية المعتمدة */
+    --color-accent: #7c4dff;              /* الأرجواني النيون الحيوي */
+    --color-light: #b388ff;               /* لون النجوم/التوهجات المضيئة */
+    --color-deep: #ffffff;                /* أبيض ناصع للنصوص */
+    --text-muted: #9c9cab;                /* النص الثانوي الرمادي */
+    --border-color: rgba(255, 255, 255, 0.08); /* حدود الحاويات الشفافة */
+    --blur: blur(18px);                   /* تأثير الضبابية الزجاجي الخلفي */
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --radius: 24px;                       /* الانحناء الموحد للحاويات الكبيرة */
+    --radius-sm: 16px;                    /* انحناء الكروت والحقول والأزرار */
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    line-height: 1.8; 
+    color: var(--color-deep); 
+    margin: 0; 
+    padding: 0; 
+    background-color: var(--color-bg);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* توهج سديمي خلفي ممتد للموقع بالكامل */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(124, 77, 255, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(179, 136, 255, 0.06) 0%, transparent 50%);
+    z-index: -1;
+}
+
+/* --- Header Styling --- */
+header { 
+    background: rgba(12, 12, 18, 0.8); 
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    padding: 1.2rem 5%; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo { 
+    font-size: 1.6rem; 
+    font-weight: 900; 
+    letter-spacing: 1px; 
+    color: var(--color-light);
+    text-shadow: 0 0 10px rgba(179, 136, 255, 0.4);
+}
+
+nav ul { list-style: none; display: flex; gap: 1.8rem; margin: 0; padding: 0; }
+nav ul li a { 
+    color: var(--text-muted); 
+    text-decoration: none; 
+    font-weight: 600;
+    transition: var(--transition);
+}
+nav ul li a:hover { 
+    color: var(--color-deep); 
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+/* --- Hero Section --- */
+.hero { 
+    text-align: center; 
+    padding: 6rem 1rem 4rem; 
+    position: relative;
+}
+
+.hero h1 { 
+    font-size: clamp(2.2rem, 5vw, 3.5rem); 
+    color: var(--color-deep); 
+    margin-bottom: 1.2rem; 
+    font-weight: 800;
+}
+
+.hero p { 
+    max-width: 700px; 
+    margin: 0 auto; 
+    font-size: clamp(1rem, 2.5vw, 1.25rem); 
+    color: var(--text-muted);
+}
+
+.hero-image {
+    width: 90%;
+    max-width: 850px;
+    height: 400px;
+    margin: 4rem auto 0;
+    border-radius: var(--radius);
+    background-image: linear-gradient(to bottom, rgba(9, 9, 13, 0.3), rgba(9, 9, 13, 0.75)), 
+                      url("/static/images/photo-1451187580459-43490279c0fa.avif");
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(179, 136, 255, 0.15);
+    transition: var(--transition);
+}
+.hero-image:hover {
+    border-color: rgba(179, 136, 255, 0.3);
+    box-shadow: 0 20px 60px rgba(124, 77, 255, 0.15);
+}
+
+/* --- Content Sections --- */
+.content { max-width: 1040px; margin: 4rem auto; padding: 0 2rem; }
+
+.section-box {
+    background: var(--color-primary);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    padding: 3rem 2.5rem;
+    border-radius: var(--radius);
+    margin-bottom: 3.5rem;
+    border: 1px solid var(--border-color);
+    border-right: 4px solid var(--color-accent);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
+.section-box:hover { 
+    border-right-color: var(--color-light);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+h2 { color: var(--color-deep); font-size: 1.8rem; margin-top: 0; font-weight: 700; }
+
+/* --- Grid التميز الإبداعي (الكروت السديمية المتطورة) --- */
+.team-images { 
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem; 
+}
+
 .team-card {
     position: relative;
-    padding: 1.2rem;
-    border-radius: 22px;
-    background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    padding: 1.5rem;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
     text-decoration: none;
-    color: #fff;
+    color: var(--color-deep);
     overflow: hidden;
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    transition: var(--transition);
+    box-shadow: var(--shadow);
 }
 
-/* توهج سديمي */
+/* توهج النيون الداخلي عند التمرير */
 .team-card::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(
-        circle at top left,
-        rgba(124, 58, 237, 0.35),
-        transparent 60%
-    );
+    background: radial-gradient(circle at top left, rgba(124, 77, 255, 0.15), transparent 60%);
     opacity: 0;
     transition: opacity 0.4s ease;
 }
-
-.team-card:hover::before {
-    opacity: 1;
-}
+.team-card:hover::before { opacity: 1; }
 
 .team-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 25px 60px rgba(124, 58, 237, 0.35);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 45px rgba(124, 77, 255, 0.18);
+    background: rgba(255, 255, 255, 0.04);
 }
 
-/* الصورة */
-.team-card img {
-    width: 100%;
+/* دمج الفئات الخاصة بصور الخلفية */
+.team-card img { 
+    width: 100%; 
     height: 180px;
     object-fit: cover;
-    border-radius: 16px;
-    margin-bottom: 1rem;
-    filter: brightness(0.85);
+    border-radius: 12px; 
+    margin-bottom: 1.2rem;
+    filter: brightness(0.5) blur(0.5px);
+    transition: var(--transition);
 }
+.team-card:hover img { filter: brightness(0.75) blur(0px); }
 
-/* النص */
-.team-card p {
-    font-size: 1.05rem;
-    font-weight: 600;
-    line-height: 1.6;
-}
-
-.team-card small {
-    font-size: 0.85rem;
-    opacity: 0.7;
-}
-
-/* تمييز ذكي لكل نوع */
-.team-card:nth-child(1) {
-    border: 1px solid rgba(34,197,94,0.35);
-}
-.team-card:nth-child(2) {
-    border: 1px solid rgba(59,130,246,0.35);
-}
-.team-card:nth-child(3) {
-    border: 1px solid rgba(168,85,247,0.35);
-}
-.team-card {
-    position: relative;
-    overflow: hidden;
-}
-
-/* الصورة تصبح خلفية هادئة */
-.team-card img {
-    filter: brightness(0.45) blur(1px);
-}
-
-/* الأيقونة */
+/* الأيقونات العائمة الفخمة المدمجة بالمنتصف */
 .card-icon {
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
-    transform: translate(-50%, -60%);
-    font-size: 3.2rem;
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(10px);
-    padding: 18px 22px;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    transform: translate(-50%, -50%);
+    font-size: 2.8rem;
+    background: rgba(12, 12, 18, 0.6);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    padding: 14px 20px;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    transition: var(--transition);
+    z-index: 2;
 }
-
-/* حركة فخمة */
 .team-card:hover .card-icon {
-    transform: translate(-50%, -70%) scale(1.1);
+    transform: translate(-50%, -55%) scale(1.08);
 }
 
-/* تمييز لوني ناعم */
-.folder .card-icon { border: 1px solid rgba(34,197,94,0.5); }
-.channel .card-icon { border: 1px solid rgba(59,130,246,0.5); }
-.group .card-icon { border: 1px solid rgba(168,85,247,0.5); }
+/* الألوان الخاصة بأنواع الكروت الذكية */
+.folder, .team-card:nth-child(1) { border-color: rgba(34, 197, 94, 0.25); }
+.folder .card-icon { border: 1px solid rgba(34, 197, 94, 0.4); color: #22c55e; }
 
-footer {
-    background: #0f0f1a;
-    color: var(--nebula-gold);
+.channel, .team-card:nth-child(2) { border-color: rgba(59, 130, 246, 0.25); }
+.channel .card-icon { border: 1px solid rgba(59, 130, 246, 0.4); color: #3b82f6; }
+
+.group, .team-card:nth-child(3) { border-color: rgba(168, 85, 247, 0.25); }
+.group .card-icon { border: 1px solid rgba(168, 85, 247, 0.4); color: #a855f7; }
+
+.team-card p { font-size: 1.1rem; font-weight: 700; margin: 0.5rem 0 0.2rem; position: relative; z-index: 3; }
+.team-card small { font-size: 0.85rem; color: var(--text-muted); position: relative; z-index: 3; }
+
+/* --- Values Grid --- */
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 2.5rem 0 0;
+}
+
+.values-grid li {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid var(--border-color);
+    padding: 1.8rem 1.5rem;
+    border-radius: var(--radius-sm);
     text-align: center;
-    padding: 2rem;
-    border-top: 1px solid var(--nebula-purple);
+    border-bottom: 3px solid var(--color-accent);
+    transition: var(--transition);
+}
+.values-grid li:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom-color: var(--color-light);
+    transform: translateY(-3px);
+}
+.values-grid li strong { color: var(--color-light); display: block; margin-bottom: 0.6rem; font-size: 1.1rem; }
+
+/* --- Footer & Social Links --- */
+footer { 
+    background: #050508; 
+    color: var(--text-muted); 
+    text-align: center; 
+    padding: 3rem 2rem; 
+    border-top: 1px solid var(--border-color);
     font-size: 0.9rem;
 }
+
 .social-links {
-    margin-top: 2rem;
+    margin-top: 1.8rem;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -264,99 +269,42 @@ footer {
 }
 
 .social-links a {
-    width: 52px;
-    height: 52px;
+    width: 50px;
+    height: 50px;
     display: flex;
     justify-content: center;
     align-items: center;
-
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 14px;
-
-    color: var(--nebula-gold);
-    font-size: 1.4rem;
-
+    color: var(--text-muted);
+    font-size: 1.3rem;
     text-decoration: none;
-    border: 1px solid rgba(223, 182, 178, 0.15);
-
-    transition: 
-        transform 0.35s ease,
-        box-shadow 0.35s ease,
-        background 0.35s ease,
-        color 0.35s ease;
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
 }
 
-/* Hover عام */
 .social-links a:hover {
-    transform: translateY(-6px);
-    background: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
-/* تلوين ذكي حسب المنصة */
-.social-links a:nth-child(1):hover { color: #ff0050; }   /* TikTok */
-.social-links a:nth-child(2):hover { color: #fffc00; }   /* Snapchat */
-.social-links a:nth-child(3):hover { color: #e1306c; }   /* Instagram */
-.social-links a:nth-child(4):hover { color: #1877f2; }   /* Facebook */
-.social-links a:nth-child(5):hover { color: #25d366; }   /* WhatsApp */
-.social-links a:nth-child(6):hover { color: #ffffff; }   /* Email */
+/* التلوين الهادئ والمحدد عند تمرير مؤشر الفأرة لحسابات التواصل */
+.social-links a:nth-child(1):hover { color: #ff0050; border-color: rgba(255,0,80,0.3); }   /* TikTok */
+.social-links a:nth-child(2):hover { color: #fffc00; border-color: rgba(255,252,0,0.3); }  /* Snapchat */
+.social-links a:nth-child(3):hover { color: #e1306c; border-color: rgba(225,48,108,0.3); } /* Instagram */
+.social-links a:nth-child(4):hover { color: #1877f2; border-color: rgba(24,119,242,0.3); } /* Facebook */
+.social-links a:nth-child(5):hover { color: #25d366; border-color: rgba(37,211,102,0.3); } /* WhatsApp */
+.social-links a:nth-child(6):hover { color: #ffffff; border-color: rgba(255,255,255,0.3); } /* Email */
 
-/* تأثير ضغط خفيف */
-.social-links a:active {
-    transform: scale(0.95);
-}
-/* Hero Section */
-.hero {
-    text-align: center;
-    padding: 5rem 1rem;
-    position: relative;
-    color: var(--nebula-gold);
-}
+.social-links a:active { transform: scale(0.95); }
 
-.hero h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-}
-
-.hero p {
-    max-width: 700px;
-    margin: 0 auto;
-    font-size: 1.2rem;
-    opacity: 0.9;
-}
-
-/* الصورة الخلفية */
-.hero-image {
-    width: 90%;
-    max-width: 800px;
-    height: 400px;
-    margin: 3rem auto 0;
-    border-radius: 20px;
-
-    /* الصورة مع overlay */
-    background-image: linear-gradient(rgba(43,18,76,0.5), rgba(26,26,46,0.5)), 
-        url("/static/images/photo-1451187580459-43490279c0fa.avif"); /* ضع مسار صورتك هنا */
-    background-size: cover;
-    background-position: center;
-    background-blend-mode: normal;
-
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    border: 1px solid rgba(223,182,178,0.2);
-}
-
-/* Responsive للجوال */
+/* --- Responsive Adjustments --- */
 @media (max-width: 768px) {
-    .hero h1 {
-        font-size: 2rem;
-    }
-
-    .hero p {
-        font-size: 1rem;
-    }
-
-    .hero-image {
-        width: 95%;
-        height: 250px;
-    }
+    header { flex-direction: column; gap: 1.2rem; padding: 1.5rem 1rem; }
+    nav ul { gap: 1.2rem; }
+    .hero { padding: 4rem 1rem 2rem; }
+    .hero-image { height: 260px; margin-top: 2.5rem; width: 95%; }
+    .content { padding: 0 1rem; margin: 2rem auto; }
+    .section-box { padding: 2rem 1.2rem; border-radius: var(--radius-sm); }
 }
-

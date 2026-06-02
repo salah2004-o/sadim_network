@@ -6,77 +6,63 @@
     <title>شبكة سديم</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
-
+    <!-- تم إزالة الرابط المكرر لمكتبة FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-
 </head>
 <body>
-<header class="header">
-    <nav class="navbar">
-        <div class="logo-container">
-            <span style="color: var(--color-accent); font-size: 0.8rem; letter-spacing: 3px;">شبكة</span>
-            <div class="logo">سديم</div>
-        </div>
+    <header class="header">
+        <nav class="navbar">
+            <div class="logo-container">
+                <span style="color: var(--color-accent); font-size: 0.8rem; letter-spacing: 3px;">شبكة</span>
+                <div class="logo">سديم</div>
+            </div>
 
-        <!-- القائمة العادية -->
-        <ul class="nav-menu">
+            <!-- القائمة العادية -->
+            <ul class="nav-menu">
+                <li><a href="#home">الرئيسية</a></li>
+                <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
+                <li><a href="{{ url_for('admin.show_services') }}">خدماتنا</a></li>
+                <li><a href="mailto:admin@sadim.cloud">اتصل بنا</a></li>
+                <li><a href="{{ url_for('main.about') }}">من نحن</a></li>
+            </ul>
+
+            <div class="nav-buttons">
+                <a href="{{ url_for('loading_bp.login') }}" class="btn-secondary">تسجيل دخول</a>
+                <a href="{{ url_for('register.register_user') }}" class="btn-primary">انضم إلينا</a>
+            </div>
+
+            <!-- زر الهامبرغر للجوال -->
+            <button id="open-sidebar" class="hamburger">☰</button>
+        </nav>
+    </header>
+
+    <!-- قائمة الجوال -->
+    <div id="mobile-sidebar" class="mobile-sidebar">
+        <button id="close-sidebar">×</button>
+        <ul class="mobile-nav-links">
             <li><a href="#home">الرئيسية</a></li>
             <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
-            <li><a href="{{url_for('admin.show_services')}}">خدماتنا</a></li>
+            <li><a href="{{ url_for('admin.show_services') }}">خدماتنا</a></li>
             <li><a href="mailto:admin@sadim.cloud">اتصل بنا</a></li>
-            <li><a href="{{url_for('main.about')}}">من نحن</a></li>
+            <li><a href="{{ url_for('main.about') }}">من نحن</a></li>
+            <li><a href="{{ url_for('main.support') }}">مركز الدعم</a></li>
         </ul>
 
-        <div class="nav-buttons">
+        <div class="mobile-buttons">
             <a href="{{ url_for('loading_bp.login') }}" class="btn-secondary">تسجيل دخول</a>
             <a href="{{ url_for('register.register_user') }}" class="btn-primary">انضم إلينا</a>
         </div>
-
-        <!-- زر الهامبرغر للجوال -->
-        <button id="open-sidebar" class="hamburger">☰</button>
-    </nav>
-</header>
-
-<!-- قائمة الجوال -->
-<div id="mobile-sidebar" class="mobile-sidebar">
-    <button id="close-sidebar">×</button>
-    <ul class="mobile-nav-links">
-        <li><a href="#home">الرئيسية</a></li>
-        <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
-        <li><a href="{{url_for('admin.show_services')}}">خدماتنا</a></li>
-        <li><a href="mailto:admin@sadim.cloud">اتصل بنا</a></li>
-        <li><a href="{{url_for('main.about')}}">من نحن</a></li>
-        <li><a href="{{url_for('main.support')}}">مركز الدعم</a></li>
-    </ul>
-
-    <div class="mobile-buttons">
-        <a href="{{ url_for('loading_bp.login') }}" class="btn-secondary">تسجيل دخول</a>
-        <a href="{{ url_for('register.register_user') }}" class="btn-primary">انضم إلينا</a>
     </div>
-</div>
-<script>const mobileSidebar = document.getElementById('mobile-sidebar');
-const closeBtn = document.getElementById('close-sidebar');
-const openBtn = document.getElementById('open-sidebar');
-
-openBtn.addEventListener('click', () => {
-    mobileSidebar.classList.add('active');
-});
-
-closeBtn.addEventListener('click', () => {
-    mobileSidebar.classList.remove('active');
-});
-</script>
 
     <section class="hero" id="home">
         <div class="hero-content">
-            <h1 class="hero-title">أهلاً بك في شبكة سديم </h1>
+            <h1 class="hero-title">أهلاً بك في شبكة سديم</h1>
             <p class="hero-subtitle">
                 هنا لا تنتهي الأفكار، بل تولد من جديد. سديم هو الكيان الرقمي الذي يدمج بين عمق المعرفة وجرأة التنفيذ، لنصنع معاً واقعاً يتجاوز التوقعات.
             </p>
         </div>
     </section>
+
     <section class="library-philosophy">
         <p>
             مكتبة سديم ليست مجرد مكان لتحميل الكتب أو تصفحها. 
@@ -85,6 +71,7 @@ closeBtn.addEventListener('click', () => {
             هنا، نجمع بين الاثنين لنقدم منتجات رقمية ذات معنى، حيث تُدار كل مكتبة وكل مشروع ثقافي بنفس الانضباط والدقة التي تُدار بها أنظمتنا التقنية: تحرير، تنظيم، هوية، ومسؤولية تجاه كل مستخدم.
         </p>
     </section>
+
     <section class="services" id="services">
         <div class="corner-logo">
             <h1 class="corner-main">سديم</h1>
@@ -101,22 +88,19 @@ closeBtn.addEventListener('click', () => {
             </div>
             <div class="cta-section">
                 <div style="max-width: 60%;">
-                    <h3>هنا  خدماتنا</h3>
+                    <h3>هنا خدماتنا</h3>
                     <p>
-خدماتنا من التقنية المتقدمة إلى التصميم الإبداعي، كلها مصممة لتلبية احتياجاتك الرقمية بأعلى معايير الجودة والابتكار.
+                        خدماتنا من التقنية المتقدمة إلى التصميم الإبداعي، كلها مصممة لتلبية احتياجاتك الرقمية بأعلى معايير الجودة والابتكار.
                     </p>
-
-
                 </div>
-                <a href="{{ url_for('admin.show_services') }}" class="btn-primary" style="background: white; color: var(--color-primary);"> انقر حتى تشاهد الخدمات </a>
+                <a href="{{ url_for('admin.show_services') }}" class="btn-primary" style="background: white; color: var(--color-primary);">انقر حتى تشاهد الخدمات</a>
             </div>
         </div>
 
         <div class="heritage-section">
-            <div class="heritage-text">
-                <center>
-                    <h2>نصنع المعرفة • نلهم العقول • نبني المستقبل</h2>
-                </center>
+            <!-- إزالة وسم <center> الميت واستخدام التنسيق المباشر -->
+            <div class="heritage-text" style="text-align: center;">
+                <h2>نصنع المعرفة • نلهم العقول • نبني المستقبل</h2>
             </div>
         </div>
 
@@ -142,53 +126,53 @@ closeBtn.addEventListener('click', () => {
         </div>
     </section>
 
-
-<!-- Footer Links بعد الخدمات -->
-<section class="footer-links-section" style="padding: 2rem 1rem; background: #19061f;  text-align:left;">
-    <ul style="list-style:none; padding:0; display:flex; gap:2rem; flex-wrap:wrap; justify-content:flex-start;">
-        <li><a href="#home" style="text-decoration:none; color:#f0ebeb;">الرئيسية</a></li>
-        <li><a href="{{url_for('admin.show_services')}}" style="text-decoration:none; color:#f5f0f0;">خدماتنا</a></li>
-        <li><a href="mailto:admin@sadim.cloud" style="text-decoration:none; color:#f0e9e9;">اتصل بنا</a></li>
-        <li><a href="{{url_for('main.about')}}" style="text-decoration:none; color:#e6e3e3;">من نحن</a></li>
-        <li><a href="{{ url_for('register.register_user') }}" style="text-decoration:none; color:#efeaea;">انضم إلينا</a></li>
-        <li><a href="{{ url_for('loading_bp.login') }}" style="text-decoration:none; color:#f3eeee;">تسجيل دخول</a></li>
-    </ul>
-</section>
+    <!-- Footer Links -->
+    <!-- تم تعديل text-align:left إلى center ليتناسب مع RTL -->
+    <section class="footer-links-section" style="padding: 2rem 1rem; background: #19061f; text-align: center;">
+        <ul style="list-style: none; padding: 0; display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
+            <li><a href="#home" style="text-decoration: none; color: #f0ebeb;">الرئيسية</a></li>
+            <li><a href="{{ url_for('admin.show_services') }}" style="text-decoration: none; color: #f5f0f0;">خدماتنا</a></li>
+            <li><a href="mailto:admin@sadim.cloud" style="text-decoration: none; color: #f0e9e9;">اتصل بنا</a></li>
+            <li><a href="{{ url_for('main.about') }}" style="text-decoration: none; color: #e6e3e3;">من نحن</a></li>
+            <li><a href="{{ url_for('register.register_user') }}" style="text-decoration: none; color: #efeaea;">انضم إلينا</a></li>
+            <li><a href="{{ url_for('loading_bp.login') }}" style="text-decoration: none; color: #f3eeee;">تسجيل دخول</a></li>
+        </ul>
+    </section>
 
     <footer>
         <h2 style="color: var(--color-light)">شبكة سديم</h2>
         <p style="opacity: 0.6; margin-top: 1rem;">بابك الأول للخدمات الرقمية المتكاملة</p>
         
-      <div class="social-links">
-          <a href="https://www.tiktok.com/@sadim_networks" target="_blank">
-              <i class="fab fa-tiktok"></i>
-          </a>
-      
-          <a href="https://www.snapchat.com/add/kyybs21" target="_blank">
-              <i class="fab fa-snapchat-ghost"></i>
-          </a>
-      
-          <a href="https://www.instagram.com/sadem_network" target="_blank">
-              <i class="fab fa-instagram"></i>
-          </a>
-      
+        <div class="social-links">
+            <a href="https://www.tiktok.com/@sadim_networks" target="_blank"><i class="fab fa-tiktok"></i></a>
+            <a href="https://www.snapchat.com/add/kyybs21" target="_blank"><i class="fab fa-snapchat-ghost"></i></a>
+            <a href="https://www.instagram.com/sadem_network" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://wa.me/966542980920?text=Hello" target="_blank"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://mail.google.com/mail/?view=cm&to=admin@sadim.cloud" target="_blank"><i class="fas fa-envelope"></i></a>
+        </div>
 
-      
-          <a href="https://wa.me/966542980920?text=Hello" target="_blank">
-              <i class="fab fa-whatsapp"></i>
-          </a>
-      
-          <a href="https://mail.google.com/mail/?view=cm&to=admin@sadim.cloud" target="_blank">
-              <i class="fas fa-envelope"></i>
-          </a>
-
-      </div>
-       <div class="support-link">
-         <a href="{{ url_for('main.support') }}">هل تحتاج إلى مساعدة؟ اتصل بالدعم</a>
-       </div>
-           
+        <div class="support-link">
+            <a href="{{ url_for('main.support') }}">هل تحتاج إلى مساعدة؟ اتصل بالدعم</a>
+        </div>
+            
         <p style="font-size: 0.8rem; opacity: 0.4;">صنع بكل حب &copy; SADEM_NETWORK® 2026</p>
     </footer>
-</body>
 
+    <!-- تم نقل السكربت إلى أسفل الصفحة -->
+    <script>
+        const mobileSidebar = document.getElementById('mobile-sidebar');
+        const closeBtn = document.getElementById('close-sidebar');
+        const openBtn = document.getElementById('open-sidebar');
+
+        if (openBtn && closeBtn && mobileSidebar) {
+            openBtn.addEventListener('click', () => {
+                mobileSidebar.classList.add('active');
+            });
+
+            closeBtn.addEventListener('click', () => {
+                mobileSidebar.classList.remove('active');
+            });
+        }
+    </script>
+</body>
 </html>

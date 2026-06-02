@@ -1,92 +1,188 @@
-<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - الصفحة غير موجودة | شبكة سديم</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <style>
+        /* * Sadeem Network - 404 Error Page (Lost in the Nebula)
+         * Unified Cyberpunk / Dark Glassmorphism Architecture
+         */
 
-<style>
-    /* * Sadeem Network - 404 Error Page Specific Styles
- * Theme: Lost in the Nebula
- */
+        *, *::before, *::after { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
 
-body {
-    background-color: var(--color-bg); /* اللون الداكن الأساسي */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 2rem;
-    text-align: center;
-    overflow: hidden;
-}
+        :root {
+            --color-bg: #09090d;                  /* أسود كوني عميق */
+            --color-primary: rgba(18, 18, 24, 0.75); /* الحاوية الزجاجية الشفافة */
+            --color-accent: #7c4dff;              /* أرجواني نيون */
+            --color-light: #b388ff;               /* توهج مضيء */
+            --color-deep: #ffffff;                /* أبيض ناصع */
+            --text-muted: #9c9cab;                /* رمادي رمزي */
+            --border-color: rgba(255, 255, 255, 0.08);
+            --blur: blur(18px);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 24px;                       /* انحناء الحاوية الأساسية */
+            --radius-sm: 14px;                    /* الانحناء الهندسي الموحد للأزرار */
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
 
-.error-container {
-    max-width: 600px;
-    animation: fadeIn 1s ease-in;
-}
+        body {
+            background-color: var(--color-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: clamp(1rem, 4vw, 2rem);
+            text-align: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--color-deep);
+            position: relative;
+            overflow: hidden;
+            direction: rtl;
+        }
 
-/* تنسيق الشعار ليكون مركزياً ومميزاً */
-.error-logo {
-    width: 180px;
-    height: auto;
-    margin-bottom: 2rem;
-    filter: drop-shadow(0 0 15px rgba(223, 182, 178, 0.3));
-    animation: float 4s ease-in-out infinite;
-}
+        /* الإضاءة الخلفية السديمية المحسنة (Nebula Glow Effect) */
+        .nebula-bg-effect {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(500px, 100vw);
+            height: min(500px, 100vw);
+            background: radial-gradient(circle, rgba(124, 77, 255, 0.07) 0%, transparent 65%);
+            z-index: -1;
+            pointer-events: none;
+        }
 
-h1 {
-    color: var(--color-accent); /* اللون الأرجواني أو الوردي المترب */
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    font-weight: 900;
-}
+        /* حاوية التصميم الزجاجية الموحدة */
+        .container {
+            background: var(--color-primary);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            width: 100%;
+            max-width: 460px;
+            padding: clamp(2.5rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 2.2rem);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--color-accent); /* شريط علوي يمثل هوية النظام البصرية */
+            box-shadow: var(--shadow);
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-p {
-    color: var(--color-secondary);
-    font-size: 1.2rem;
-    line-height: 1.6;
-    margin-bottom: 2.5rem;
-}
+        /* تنسيق الشعار مع أنيميشن الطفو الكوني */
+        .error-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 15px rgba(124, 77, 255, 0.3));
+            animation: float 4s ease-in-out infinite;
+        }
 
-/* زر العودة */
-.btn-home {
-    display: inline-block;
-    padding: 1rem 2.5rem;
-    background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-    color: white;
-    text-decoration: none;
-    border-radius: 50px;
-    font-weight: 700;
-    transition: var(--transition);
-    box-shadow: var(--shadow);
-}
+        /* رمز الخطأ الكبير */
+        .code-404 {
+            font-size: 72px;
+            font-weight: 300;
+            color: var(--color-deep);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
 
-.btn-home:hover {
-    transform: scale(1.05);
-    box-shadow: 0 10px 25px rgba(43, 18, 76, 0.4);
-}
+        .code-404 span {
+            color: var(--color-light);
+            font-weight: 700;
+            text-shadow: 0 0 15px rgba(179, 136, 255, 0.5);
+        }
 
-/* أنيميشن الطفو للشعار */
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
-}
+        h1 {
+            color: var(--color-deep);
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-}
+        p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+            max-width: 340px;
+        }
 
-/* تأثير خلفية سديمية بسيطة (اختياري) */
-.nebula-bg-effect {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(133, 79, 108, 0.1) 0%, transparent 70%);
-    transform: translate(-50%, -50%);
-    z-index: -1;
-    filter: blur(50px);
-}
-</style>
-<h1>الصفحة غير موجودة</h1>
-<p>عذرًا، الصفحة التي تحاول الوصول إليها غير موجودة.</p>
-<p>يرجى التحقق من الرابط أو العودة إلى <a href="{{ url_for('main.index') }}">الصفحة الرئيسية</a>.</p>
+        /* زر العودة الهندسي الموحد للشبكة */
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, var(--color-light), var(--color-accent));
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: var(--radius-sm); /* الالتزام بالهوية الهندسية الموحدة للشبكة */
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(124, 77, 255, 0.25);
+            border: none;
+        }
+
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 77, 255, 0.45);
+            color: #ffffff;
+        }
+
+        .btn-home:active {
+            transform: scale(0.98);
+        }
+
+        /* حركات الأنيميشن */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* استجابة الشاشات الصغيرة */
+        @media (max-width: 480px) {
+            .container {
+                padding: 2.5rem 1.5rem;
+                background: rgba(18, 18, 24, 0.6);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nebula-bg-effect"></div>
+
+    <div class="container">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Sadeem Logo" class="error-logo">
+        
+        <div class="code-404">4<span>0</span>4</div>
+        
+        <h1>الصفحة غير موجودة</h1>
+        <p>
+            عذرًا، يبدو أنك تهت في السديم! الصفحة التي تحاول الوصول إليها غير موجودة أو تم نقلها.
+        </p>
+
+        <a href="{{ url_for('main.index') }}" class="btn-home">
+            العودة إلى الصفحة الرئيسية
+        </a>
+    </div>
+
+</body>
+</html>

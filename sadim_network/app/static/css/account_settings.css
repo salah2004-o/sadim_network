@@ -1,13 +1,22 @@
+/* * Sadeem Network - Edit Profile Page Specific Styles
+ * Updated to Cyberpunk / Dark Glassmorphism Edition
+ */
+
 *, *::before, *::after { box-sizing: border-box; }
 
 :root {
-    --color-bg: #19061f;
-    --color-primary: #2b124c;
-    --color-accent: #854f6c;
-    --color-light: #dfb6b2;
-    --color-deep: #f5f1eb;
-    --transition: all 0.3s ease;
-    --radius: 15px;
+    --color-bg: #09090d;                  /* أسود كوني عميق ومستقبلي */
+    --color-primary: rgba(18, 18, 24, 0.75); /* الحاويات الشفافة الزجاجية المعتمدة */
+    --color-accent: #7c4dff;              /* الأرجواني النيون الحيوي */
+    --color-light: #b388ff;               /* لون النجوم/التوهجات المضيئة */
+    --color-deep: #ffffff;                /* أبيض ناصع للنصوص */
+    --text-muted: #9c9cab;                /* النص الثانوي الرمادي */
+    --border-color: rgba(255, 255, 255, 0.08); /* حدود الحاويات الشفافة */
+    --blur: blur(18px);                   /* تأثير الضبابية الزجاجي الخلفي */
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --radius: 24px;                       /* الانحناء الموحد للحاويات الكبيره */
+    --radius-sm: 14px;                    /* انحناء الكروت والحقول والأزرار */
+    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
 body {
@@ -18,25 +27,42 @@ body {
     background-color: var(--color-bg);
     margin: 0;
     padding: clamp(1rem, 4vw, 2rem);
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: var(--color-deep);
+    position: relative;
+    overflow-x: hidden;
 }
 
+/* خلفية سديمية متوهجة متناسقة خلف التصميم */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: 
+        radial-gradient(circle at 30% 30%, rgba(124, 77, 255, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(179, 136, 255, 0.08) 0%, transparent 50%);
+    z-index: -1;
+}
+
+/* Profile Card Container (Glassmorphic Box) */
 .container {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--color-primary);
+    backdrop-filter: var(--blur);
     width: 100%;
     max-width: 440px;
     padding: clamp(1.5rem, 5vw, 2.8rem) clamp(1.2rem, 5vw, 2.2rem);
     border-radius: var(--radius);
-    border: 1px solid rgba(223, 182, 178, 0.1);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
     text-align: center;
 }
 
 /* --- العنوان --- */
 h2 {
-    color: var(--color-light);
+    color: var(--color-deep);
     font-size: clamp(1.2rem, 4vw, 1.6rem);
     margin-bottom: 0.5rem;
+    font-weight: 800;
 }
 h2::after {
     content: '';
@@ -46,6 +72,7 @@ h2::after {
     background: var(--color-accent);
     margin: 0.6rem auto 1.8rem;
     border-radius: 2px;
+    box-shadow: 0 0 8px var(--color-accent);
 }
 
 /* --- قسم الصورة --- */
@@ -53,61 +80,72 @@ h2::after {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     margin-bottom: 1.8rem;
 }
 .avatar-ring {
     position: relative;
-    width: 86px;
-    height: 86px;
+    width: 90px;
+    height: 90px;
 }
 .avatar-ring img {
-    width: 86px;
-    height: 86px;
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    border: 2.5px solid var(--color-accent);
+    border: 2.5px solid rgba(179, 136, 255, 0.4);
+    box-shadow: 0 0 15px rgba(124, 77, 255, 0.2);
     display: block;
+    transition: var(--transition);
+}
+.avatar-ring:hover img {
+    border-color: var(--color-light);
+    box-shadow: 0 0 20px rgba(179, 136, 255, 0.5);
 }
 .edit-badge {
     position: absolute;
     bottom: 2px;
     left: 2px;
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     background: var(--color-accent);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: 2px solid var(--color-bg);
-    transition: background 0.2s;
-    color: var(--color-deep); /* تمت إضافة اللون لتوضيح الأيقونة */
+    border: 2px solid #0c0c12;
+    transition: var(--transition);
+    color: #ffffff;
     font-size: 11px;
 }
-.edit-badge:hover { background: #9a5f7e; }
+.edit-badge:hover { 
+    background: var(--color-light); 
+    transform: scale(1.1);
+    box-shadow: 0 0 10px var(--color-light);
+}
 .avatar-hint {
-    font-size: 0.72rem;
-    color: rgba(223, 182, 178, 0.45);
+    font-size: 0.75rem;
+    color: var(--text-muted);
 }
 
 /* --- الفاصل --- */
 .section-divider {
     height: 1px;
-    background: rgba(223, 182, 178, 0.1);
+    background: rgba(255, 255, 255, 0.05);
     margin: 0 0 1.5rem;
 }
 
-/* --- الحقول --- */
-form { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.2rem; }
+/* --- الحقول والمدخلات --- */
+form { display: flex; flex-direction: column; gap: 1.2rem; margin-bottom: 1.2rem; }
 
-.form-item { display: flex; flex-direction: column; gap: 0.35rem; text-align: right; }
+.form-item { display: flex; flex-direction: column; gap: 0.45rem; text-align: right; }
 
 .input-label {
     color: var(--color-light);
     font-size: 0.8rem;
-    opacity: 0.8;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .field-inner { position: relative; }
@@ -115,97 +153,117 @@ form { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.2rem; 
 .field-inner .field-icon {
     position: absolute;
     top: 50%;
-    right: 0.75rem;
+    right: 0.85rem;
     transform: translateY(-50%);
-    color: rgba(223, 182, 178, 0.3);
+    color: rgba(255, 255, 255, 0.2);
     pointer-events: none;
-    font-size: 13px;
+    font-size: 14px;
+    transition: var(--transition);
 }
 
 input[type="text"],
 input[type="email"] {
     width: 100%;
-    padding: 0.72rem 2.2rem 0.72rem 0.9rem;
-    border-radius: 10px;
-    border: 1px solid rgba(223, 182, 178, 0.18);
-    background: rgba(25, 6, 31, 0.7);
+    padding: 0.75rem 2.4rem 0.75rem 0.9rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, 0.25);
     color: var(--color-deep);
     font-family: inherit;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
     text-align: right;
     transition: var(--transition);
 }
 input[type="text"]::placeholder,
-input[type="email"]::placeholder { color: rgba(245, 241, 235, 0.2); }
+input[type="email"]::placeholder { color: rgba(255, 255, 255, 0.15); }
+
 input:focus {
     outline: none;
-    border-color: var(--color-accent);
-    background: rgba(43, 18, 76, 0.55);
+    border-color: rgba(179, 136, 255, 0.5);
+    background: rgba(124, 77, 255, 0.05);
+    box-shadow: 0 0 15px rgba(124, 77, 255, 0.1);
+}
+/* تفاعل الأيقونة عند التركيز على الحقل */
+input:focus + .field-icon {
+    color: var(--color-light);
 }
 
-/* --- زر الحذف --- */
+/* --- قسم زر الحذف التحذيري --- */
 .delete-section {
-    background: rgba(214, 48, 49, 0.05);
-    border: 1px dashed rgba(214, 48, 49, 0.28);
+    background: rgba(255, 118, 117, 0.05);
+    border: 1px dashed rgba(255, 118, 117, 0.25);
     padding: 0.9rem 1rem;
-    border-radius: 10px;
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     color: #ff7675;
     cursor: pointer;
-    font-size: 0.83rem;
+    font-size: 0.85rem;
+    font-weight: 600;
     margin: 0.4rem 0 0.2rem;
     user-select: none;
-    transition: 0.25s;
+    transition: var(--transition);
 }
 .delete-section input { display: none; }
-.delete-section:hover { background: rgba(214, 48, 49, 0.1); }
+.delete-section:hover { 
+    background: rgba(255, 118, 117, 0.1); 
+    border-color: rgba(255, 118, 117, 0.4);
+}
 .delete-section.checked {
-    background: rgba(214, 48, 49, 0.13);
-    border-color: rgba(214, 48, 49, 0.5);
+    background: #ff7675;
+    color: #ffffff;
+    border-style: solid;
+    border-color: #ff7675;
+    box-shadow: 0 4px 15px rgba(255, 118, 117, 0.3);
 }
 
-/* --- أزرار --- */
+/* --- أزرار التحكم --- */
 .btn-save {
-    background: var(--color-accent);
+    background: linear-gradient(135deg, var(--color-light), var(--color-accent));
     color: white;
-    padding: 0.85rem;
+    padding: 0.9rem;
     border: none;
-    border-radius: 50px;
+    border-radius: var(--radius-sm); /* تحويله ليتناسق هندسياً مع الحقول بدلاً من البيضاوي الدائري */
     font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
     width: 100%;
     margin-top: 1rem;
     transition: var(--transition);
+    box-shadow: 0 4px 15px rgba(124, 77, 255, 0.2);
 }
-.btn-save:hover { background: #9a5f7e; transform: translateY(-2px); }
+.btn-save:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 6px 20px rgba(124, 77, 255, 0.4);
+}
 
 .back-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    color: var(--color-light);
+    color: var(--text-muted);
     text-decoration: none;
-    font-size: 0.82rem;
-    opacity: 0.55;
-    margin-top: 1rem;
-    transition: 0.2s;
+    font-size: 0.85rem;
+    margin-top: 1.2rem;
+    transition: var(--transition);
 }
-.back-link:hover { opacity: 1; color: var(--color-accent); }
+.back-link:hover { 
+    color: var(--color-light); 
+    text-shadow: 0 0 8px rgba(179, 136, 255, 0.4);
+}
 
-/* --- Responsive --- */
+/* --- Responsive Adjustments --- */
 @media (max-width: 480px) {
     .container {
-        padding: 1.8rem 1.2rem;
-        background: rgba(255, 255, 255, 0.02);
-        border-color: rgba(223, 182, 178, 0.06);
+        padding: 2rem 1.4rem;
+        background: rgba(18, 18, 24, 0.55);
+        border-color: rgba(255, 255, 255, 0.04);
     }
 }
 @media (max-width: 360px) {
     body { padding: 0.75rem; }
-    .container { border-radius: 12px; }
+    .container { border-radius: var(--radius-sm); }
 }

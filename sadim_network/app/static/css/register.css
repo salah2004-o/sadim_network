@@ -1,5 +1,6 @@
+
 /* * Sadeem Network - Registration Page Specific Styles
- * Maintain consistent literary dark aesthetic while handling multi-field forms.
+ * Cyberpunk / Dark Mode Edition - Multi-field Forms
  */
 
 body {
@@ -8,17 +9,17 @@ body {
   justify-content: center;
   min-height: 100vh;
   padding: 2rem 1.5rem;
-  background-color: var(--color-bg);
 }
 
 .container {
-  background-color: white;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  backdrop-filter: var(--blur);
   width: 100%;
   max-width: 500px;
   padding: 2.5rem;
-  border-radius: var(--radius);
+  border-radius: 28px;
   box-shadow: var(--shadow);
-  border: 1px solid var(--color-light);
 }
 
 /* Logo & Header Section */
@@ -30,20 +31,21 @@ body {
 .logo-text {
   font-size: 2rem;
   font-weight: 800;
-  color: var(--color-primary);
+  color: var(--text);
   margin-block-end: 0.5rem;
 }
 
 .logo-subtitle {
-  color: var(--color-accent);
+  color: var(--accent);
   font-weight: 600;
   font-size: 1.1rem;
 }
 
 .clock {
   font-size: 0.85rem;
-  color: var(--color-secondary);
-  background-color: var(--color-bg);
+  color: var(--text);
+  background-color: rgba(255, 255, 255, .04);
+  border: 1px solid var(--border-color);
   padding: 0.5rem 1rem;
   border-radius: 50px;
   display: inline-block;
@@ -53,7 +55,7 @@ body {
 h2 {
   font-size: 1.4rem;
   text-align: center;
-  color: var(--color-primary);
+  color: var(--text);
   margin-block-end: 2rem;
   position: relative;
 }
@@ -63,7 +65,7 @@ h2::after {
   display: block;
   width: 50px;
   height: 2px;
-  background: var(--color-accent);
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
   margin: 0.5rem auto 0;
 }
 
@@ -77,33 +79,34 @@ h2::after {
   display: block;
   margin-block-end: 0.5rem;
   font-weight: 600;
-  color: var(--color-deep);
+  color: var(--muted);
   font-size: 0.95rem;
 }
 
 .form-control {
   width: 100%;
   padding: 0.8rem 1rem;
-  border-radius: var(--radius);
-  border: 2px solid var(--color-light);
-  background-color: #fff;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background-color: rgba(255, 255, 255, .03);
+  color: var(--text);
   font-family: var(--font-family);
   transition: var(--transition);
 }
 
 .form-control:focus {
   outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 4px rgba(133, 79, 108, 0.1);
+  border-color: var(--accent);
+  background-color: rgba(255, 255, 255, .06);
 }
 
 /* Animated Button */
 .btn-animated {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
   color: white;
   padding: 1rem;
   border: none;
-  border-radius: var(--radius);
+  border-radius: 14px;
   font-size: 1.1rem;
   font-weight: 700;
   cursor: pointer;
@@ -112,9 +115,8 @@ h2::after {
 }
 
 .btn-animated:hover {
-  background-color: var(--color-secondary);
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(43, 18, 76, 0.3);
+  box-shadow: 0 5px 15px rgba(124, 77, 255, 0.4);
 }
 
 .btn-animated:active {
@@ -123,11 +125,11 @@ h2::after {
 
 /* Error Message */
 .error-message {
-  background-color: #fff1f0;
-  color: #d85c5c;
+  background-color: rgba(255, 118, 117, 0.1);
+  color: var(--color-danger);
   padding: 0.8rem;
-  border-radius: var(--radius);
-  border-right: 4px solid #d85c5c;
+  border-radius: 12px;
+  border-right: 4px solid var(--color-danger);
   margin-block-end: 1.5rem;
   font-size: 0.9rem;
   text-align: right;
@@ -138,7 +140,7 @@ h2::after {
 .divider {
   margin-block: 2rem;
   position: relative;
-  border-top: 1px solid var(--color-light);
+  border-top: 1px solid var(--border-color);
 }
 
 .divider span {
@@ -146,20 +148,20 @@ h2::after {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: white;
+  background-color: #0d0d13; /* لون يفصل الخط متناسق مع الخلفية الداكنة */
   padding-inline: 1rem;
-  color: var(--color-secondary);
+  color: var(--muted);
   font-size: 0.9rem;
 }
 
 .text-center {
   text-align: center;
-  color: var(--color-secondary);
+  color: var(--muted);
   font-size: 0.95rem;
 }
 
 .text-center a {
-  color: var(--color-accent);
+  color: var(--accent);
   font-weight: 700;
   text-decoration: none;
   margin-inline-start: 0.3rem;
@@ -176,16 +178,16 @@ h2::after {
 
 /* Responsive Adjustments */
 @media (max-width: 576px) {
-  .container {
-    padding: 1.5rem;
-    box-shadow: none;
-    border: none;
-    background-color: transparent;
-  }
-  
   body {
-    background-color: white;
+    background: var(--bg-main);
     align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .container {
+    padding: 1.5rem 1.2rem;
+    border-radius: 20px;
+    background: rgba(18, 18, 24, .9);
   }
 
   .logo-text {

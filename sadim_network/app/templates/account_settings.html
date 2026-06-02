@@ -20,7 +20,7 @@
                     {% if user.profile_image %}
                         <img src="{{ url_for('static', filename='uploads/' + user.profile_image) }}?v=1" alt="الصورة الشخصية">
                     {% else %}
-                        <img src="{{ url_for('static', filename='uploads/default.png') }}" alt="الصورة الافتراضية">
+                        <img src="{{ url_for('static', filename='uploads/default_user.png') }}" alt="الصورة الافتراضية">
                     {% endif %}
                     
                     <label for="profile_image" class="edit-badge" title="تغيير الصورة">

@@ -1,21 +1,20 @@
 import os
-from app.routes.shared import UPLOAD_FOLDER, allowed_file, BASE_DIR, ALLOWED_EXTENSIONS
-
+from app.routes.shared import UPLOAD_FOLDER
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 import pytz
 from datetime import datetime
-from routes.Repository import user_update
 from models.user import User
 from db.sadim_db import get_db_connection
 from app.limiter import limiter
+from app import google_oauth
 from werkzeug.utils import secure_filename
 from werkzeug.utils import secure_filename
 from PIL import Image
+
 loading_bp = Blueprint('loading_bp', __name__)
 
 @loading_bp.route('/login')
-@limiter.limit("5 per minute")  
-
+@limiter.limit("5 per minute")
 def login_page():
     return render_template(
         'auth/login.html',
@@ -24,13 +23,10 @@ def login_page():
 
 @loading_bp.route('/login', methods=['POST'])
 @limiter.limit("5 per minute")  
-
 def login():
     try:
         email = request.form.get('email')
         password = request.form.get('password')
-    
-    
         if not email or not password:
             flash("erros")
             return render_template("auth/login.html", error="بيانات الدخول غير صحيحة")
@@ -48,9 +44,6 @@ def login():
         user.last_login = datetime.now()
 
         User.update_user(user)  # تأكد من أن update_user تقوم بتحديث last_login في قاعدة البيانات
-
-        
-
         session.clear()
         session['user_id'] = user.id
         session['role'] = user.role
@@ -60,18 +53,67 @@ def login():
         if user.role == 'admin':
             return redirect(url_for('admin.services_dashboard'))  # اسم الدالة في Blueprint dashboard
         else:
-            return redirect(url_for('admin.show_services'))
-        
+            return redirect(url_for('admin.show_services'))  # اسم الدالة في Blueprint show_services       
     except Exception as e:
         return render_template("auth/login.html", error="حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.")
     
-    
+@loading_bp.route('/auth/google')
+def google_login():
+    redirect_uri = url_for('loading_bp.google_auth_callback', _external=True)
+    return google_oauth.authorize_redirect(redirect_uri)
+
+
+@loading_bp.route('/auth/google/callback')
+def google_auth_callback():
+    try:
+        token = google_oauth.authorize_access_token()
+        user_info = token.get('userinfo')
+        email = user_info.get('email')
+        google_id = user_info.get('sub')
+        name = user_info.get('name', "")
+        picture = user_info.get('picture', '')
+
+        conn = get_db_connection()
+        cur = conn.cursor()
+        # هل المستخدم موجود؟
+        cur.execute("SELECT id, role, username FROM users WHERE google_id = %s OR email = %s", (google_id, email))
+        existing = cur.fetchone()
+
+        if existing:
+            user_id, role, username = existing
+            # تحديث google_id لو سجل قبل بإيميل
+            cur.execute("UPDATE users SET google_id = %s WHERE id = %s", (google_id, user_id))
+        else:
+            # مستخدم جديد
+            username = email.split('@')[0]
+            cur.execute("""
+                INSERT INTO users (username, name, email, google_id, is_verified, profile_image, password_hash)
+                VALUES (%s, %s, %s, %s, TRUE, %s, NULL)
+                RETURNING id, role
+            """, (username, name, email, google_id, picture))
+            user_id, role = cur.fetchone()
+
+        conn.commit()
+        cur.close()
+        conn.close()
+        session.clear()
+        session['user_id'] = user_id
+        session['role'] = role
+        session['username'] = username
+
+        if role == 'admin':
+            return redirect(url_for('admin.services_dashboard'))
+        else:
+            return redirect(url_for('admin.show_services'))
+
+    except Exception as e:
+        print(f"❌ خطأ في Google OAuth: {e}")
+        return render_template('auth/login.html', error="حدث خطأ أثناء تسجيل الدخول بـ Google")
+
 @loading_bp.route('/landing')
 def landing_page():
     if 'user_id' not in session:
         return redirect(url_for('loading_bp.login'))
- 
-
     # اسم المستخدم من session
     username = session.get('username', 'ضيف')
     user = User.get_by_id(session['user_id'])
@@ -117,7 +159,6 @@ def logout():
 def account_settings():
     if 'user_id' not in session:
         return redirect(url_for('loading_bp.login'))
-
     user = User.get_by_id(session['user_id'])
 
     if request.method == 'POST':
@@ -141,7 +182,6 @@ def account_settings():
             return redirect(url_for('main.index'))
         # استدعاء update وتخزين النتيجة
         result = user.update_user()
-        
         # التحقق من أي خطأ
         if "error" in result:
             if result["error"] == "email_exists":
@@ -156,13 +196,11 @@ def account_settings():
                     user=user,
                     error="حدث خطأ أثناء تحديث الحساب"
                 )
-
         # إذا كل شيء تمام
         return redirect(url_for('loading_bp.account'))
 
     # GET request
     return render_template('account_settings.html', user=user)
-
 
 @loading_bp.route('/verify_email/<token>')
 def verify_email(token):

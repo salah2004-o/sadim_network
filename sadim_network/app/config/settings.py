@@ -1,3 +1,7 @@
+#settings.py
+# هذا الملف يحتوي على إعدادات التطبيق، مثل إعدادات قاعدة البيانات، البريد الإلكتروني، وأي إعدادات أخرى يحتاجها التطبيق.
+# يتم تحميل المتغيرات من ملف .env باستخدام مكتبة python-dotenv، مما يسهل إدارة الإعدادات بشكل آمن ومرن.
+# evn file should be in the same directory as this settings.py file
 import os
 from dotenv import load_dotenv
 import redis
@@ -39,3 +43,7 @@ EMAIL_DEFAULT_SENDER = EMAIL_USER
 # ===== إعدادات البوت =====
 TOKEN = os.getenv("TOKEN")
 ADMIN_ID = int(os.getenv("ADMIN_ID"))
+
+# ===== إعدادات Google OAuth =====
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")

@@ -1,129 +1,199 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فشل التحقق</title>
-        <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-
+    <title>فشل التحقق - شبكة سديم</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <style>
+        /* * Sadeem Network - Verification Failure Page
+         * Updated to Cyberpunk / Dark Glassmorphism Edition
+         */
 
-<style>/* * Sadeem Network - Verification Failure Page Specific Styles
- * Focuses on error communication and clear support access.
- */
+        *, *::before, *::after { box-sizing: border-box; }
 
-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background-color: var(--color-bg);
-    padding: 2rem;
-    text-align: center;
-}
+        :root {
+            --color-bg: #09090d;                  /* أسود كوني عميق */
+            --color-primary: rgba(18, 18, 24, 0.75); /* الحاوية الزجاجية */
+            --color-accent: #7c4dff;              /* أرجواني نيون */
+            --color-light: #b388ff;               /* توهج مضيء */
+            --color-deep: #ffffff;                /* أبيض ناصع */
+            --text-muted: #9c9cab;                /* رمادي رمزي */
+            --border-color: rgba(255, 255, 255, 0.08);
+            --blur: blur(18px);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 24px;                       /* انحناء الحاوية الأساسية */
+            --radius-sm: 14px;                    /* الانحناء الهندسي الموحد للأزرار */
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            --error-color: #ff5252;               /* أحمر سيبراني متوهج للأخطاء */
+        }
 
-/* Error Container */
-.container {
-    background-color: white;
-    width: 100%;
-    max-width: 500px;
-    padding: 3rem;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    border-top: 5px solid #d85c5c; /* Error red */
-    margin-bottom: 2rem;
-}
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: var(--color-bg);
+            margin: 0;
+            padding: clamp(1rem, 4vw, 2rem);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--color-deep);
+            text-align: center;
+            position: relative;
+            overflow-x: hidden;
+        }
 
-h1 {
-    color: #d85c5c;
-    font-size: 2.2rem;
-    margin-bottom: 1.5rem;
-    font-weight: 800;
-}
+        /* الخلفية السديمية المتوهجة */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(255, 82, 82, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(124, 77, 255, 0.08) 0%, transparent 50%);
+            z-index: -1;
+        }
 
-p {
-    color: var(--color-secondary);
-    font-size: 1.1rem;
-    line-height: 1.8;
-}
+        /* حاوية التصميم الزجاجية الموحدة */
+        .container {
+            background: var(--color-primary);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            width: 100%;
+            max-width: 460px;
+            padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 2.2rem);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            border-top: 4px solid var(--error-color); /* شريط علوي يحذر من الخطأ */
+            box-shadow: var(--shadow);
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-/* Support Section */
-.support {
-    background-color: var(--color-primary);
-    width: 100%;
-    max-width: 500px;
-    padding: 2rem;
-    border-radius: var(--radius);
-    color: white;
-    box-shadow: var(--shadow);
-}
+        /* أيقونة التحذير السيبرانية */
+        .error-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background-color: rgba(255, 82, 82, 0.1);
+            color: var(--error-color);
+            font-size: 2.5rem;
+            border-radius: 50%;
+            margin: 0 auto 1.8rem;
+            border: 2px solid var(--error-color);
+            box-shadow: 0 0 20px rgba(255, 82, 82, 0.2);
+        }
 
-.support h2 {
-    font-size: 1.3rem;
-    margin-bottom: 1.2rem;
-    opacity: 0.9;
-}
+        h1 {
+            color: var(--color-deep);
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
 
-/* Telegram Button Styling */
-.support button {
-    background-color: #0088cc; /* Telegram Blue */
-    border: none;
-    padding: 0;
-    border-radius: 50px;
-    width: 100%;
-    transition: var(--transition);
-}
+        p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
 
-.support button a {
-    display: block;
-    color: white;
-    text-decoration: none;
-    padding: 1rem 2rem;
-    font-weight: 700;
-    font-size: 1.1rem;
-}
+        /* الفاصل السديمي */
+        .section-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 2rem 0;
+        }
 
-.support button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 136, 204, 0.4);
-    filter: brightness(1.1);
-}
+        /* قسم الدعم الفني المدمج */
+        .support-section h2 {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 1.2rem;
+            font-weight: 700;
+        }
 
-/* Icon / Graphic for Error (Optional Placeholder) */
-.container::before {
-    content: '⚠️';
-    display: block;
-    font-size: 4rem;
-    margin-bottom: 1rem;
-}
+        /* أزرار الدعم الموحدة */
+        .btn-sadim_network, .btn-telegram {
+            display: block;
+            width: 100%;
+            padding: 0.9rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+            border: none;
+        }
 
-/* Responsive Adjustments */
-@media (max-width: 600px) {
-    .container, .support {
-        padding: 2rem 1.5rem;
-        max-width: 100%;
-    }
-    
-    h1 {
-        font-size: 1.8rem;
-    }
-}
-</style>
+        /* زر دعم شبكة سديم الأساسي */
+        .btn-sadim_network {
+            background: linear-gradient(135deg, var(--color-light), var(--color-accent));
+            color: #ffffff;
+            margin-bottom: 1rem; /* مسافة تفصل بين الزرين */
+            box-shadow: 0 4px 15px rgba(124, 77, 255, 0.2);
+        }
+
+        .btn-sadim_network:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 77, 255, 0.4);
+            color: #ffffff;
+        }
+
+        /* زر تيليجرام الثانوي */
+        .btn-telegram {
+            background: #0088cc;
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.2);
+        }
+
+        .btn-telegram:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 136, 204, 0.4);
+            color: #ffffff;
+            filter: brightness(1.1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* استجابة الشاشات الصغيرة */
+        @media (max-width: 480px) {
+            .container {
+                padding: 2.5rem 1.5rem;
+                background: rgba(18, 18, 24, 0.6);
+            }
+        }
+    </style>
 </head>
 <body>
 
     <div class="container">
+        <div class="error-icon">⚠️</div>
+        
         <h1>فشل التحقق</h1>
-        <p>نأسف! حدث خطأ أثناء محاولة التحقق من بريدك الإلكتروني.<br>
-           يرجى المحاولة مرة أخرى أو التواصل مع الدعم الفني.</p>
-    </div>
+        <p>
+            نأسف! حدث خطأ أثناء محاولة التحقق من بريدك الإلكتروني.<br>
+            يرجى المحاولة مرة أخرى أو التواصل مباشرة مع فريق الدعم.
+        </p>
 
-    <div class="support">
-        <h2>الدعم الفني</h2>
-        <button>
-            <a href="https://t.me/SADIM_SUPPORT" target="_blank">الاتصال عبر تيليجرام</a>
-        </button>
+        <div class="section-divider"></div>
+
+        <div class="support-section">
+            <h2>هل تواجه مشكلة مستمرة؟</h2>
+
+            <a href="{{ url_for('main.support') }}" target="_blank" class="btn-sadim_network">
+                هل تحتاج إلى مساعدة؟ اتصل بالدعم
+            </a>
+
+            <a href="https://t.me/SADIM_SUPPORT" target="_blank" class="btn-telegram">
+                الاتصال بالدعم عبر تيليجرام
+            </a>
+        </div>
     </div>
 
 </body>

@@ -1,144 +1,300 @@
+/* * Sadeem Network - Services Dashboard & Admin Navigation Grid
+ * Premium Cyberpunk / Dark Glassmorphism Standard Edition
+ */
 
-        /* التنسيقات الأساسية - مع الحفاظ على الألوان */
-        body {
-            padding: 1rem; /* تقليل الحواف للجوال */
-            background-color: var(--color-bg);
-            color: var(--color-deep);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+*, *::before, *::after {
+    box-sizing: border-box;
+}
 
-        /* شريط الترحيب العلوي - متجاوب */
-        .admin-header {
-            background-color: var(--color-primary);
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            display: flex;
-            flex-direction: column; /* عمودي في الجوال */
-            gap: 8px;
-            text-align: center;
-            border: 1px solid rgba(223, 182, 178, 0.1);
-        }
+:root {
+    --color-bg: #0d0211;
+    --color-primary: rgba(25, 6, 31, 0.6);
+    --color-light: #ffffff;
+    --color-deep: #f5f1eb;
+    --color-accent: #85506c;
+    --color-accent-light: #a66b8f;
+    --border-color: rgba(223, 182, 178, 0.12);
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --blur: blur(20px);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --radius-lg: 16px;
+    --radius-sm: 8px;
+    --shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
 
-        .greeting {
-            color: var(--color-light);
-            font-size: 0.85rem;
-            margin: 0;
-        }
+body {
+    background-color: var(--color-bg);
+    color: var(--color-deep);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 2rem;
+    margin: 0;
+    direction: rtl;
+    overflow-x: hidden;
+}
 
-        h1 {
-            text-align: center;
-            color: var(--color-light);
-            margin-bottom: 1.5rem;
-            font-size: 1.8rem;
-            border-bottom: 2px solid var(--color-accent);
-            padding-bottom: 10px;
-        }
+/* --- شريط الترحيب والمستند العلوي (Admin Header) --- */
+.admin-header {
+    background-color: var(--color-primary);
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    padding: 1.25rem 2rem;
+    border-radius: var(--radius-lg);
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
 
-        /* شبكة الأزرار - تحسين للجوال */
-        .nav-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr); /* زرين في كل صف للجوال */
-            gap: 8px;
-            margin-bottom: 2rem;
-        }
+.greeting {
+    color: var(--color-light);
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+    opacity: 0.9;
+}
 
-        .nav-grid a {
-            padding: 0.8rem 0.5rem;
-            background-color: rgba(255, 255, 255, 0.03);
-            color: var(--color-light);
-            border: 1px solid rgba(223, 182, 178, 0.2);
-            border-radius: 8px;
-            text-align: center;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.8rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
+h1 {
+    color: var(--color-light);
+    margin: 0 0 2rem 0;
+    font-size: 2rem;
+    font-weight: 800;
+    text-align: center;
+    border-bottom: 2px solid var(--color-accent);
+    padding-bottom: 12px;
+    text-shadow: 0 0 10px rgba(133, 79, 108, 0.3);
+}
 
-        .nav-grid a i { font-size: 1.1rem; }
+/* --- شبكة أزرار التنقل السريعة (Navigation Grid) --- */
+.nav-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 2.5rem;
+}
 
-        .nav-grid a:active { transform: scale(0.95); } /* تأثير الضغط للمس */
+.nav-grid a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 1.2rem 1rem;
+    background-color: var(--glass-bg);
+    color: var(--color-light);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
 
-        .special { background-color: var(--color-primary) !important; border-color: var(--color-accent) !important; }
+.nav-grid a i {
+    font-size: 1.25rem;
+    color: var(--color-accent-light);
+    transition: var(--transition);
+}
 
-        /* شبكة الخدمات - بطاقة كاملة العرض في الجوال */
-        .services-dashboard {
-            display: grid;
-            grid-template-columns: 1fr; /* عمود واحد للجوال */
-            gap: 1rem;
-        }
+.nav-grid a:hover {
+    background-color: rgba(133, 79, 108, 0.08);
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
 
-        .service-card {
-            background-color: rgba(255, 255, 255, 0.02);
-            border-radius: var(--radius);
-            padding: 1rem;
-            display: flex;
-            flex-direction: row; /* الصورة بجانب النص */
-            gap: 1rem;
-            border: 1px solid rgba(223, 182, 178, 0.1);
-        }
+.nav-grid a:hover i {
+    transform: scale(1.1);
+    color: var(--color-light);
+}
 
-        .service-card img {
-            width: 80px;
-            height: 80px;
-            border-radius: 8px;
-            object-fit: cover;
-        }
+.nav-grid a:active {
+    transform: scale(0.97);
+}
 
-        .service-info { flex-grow: 1; min-width: 0; }
+.nav-grid .special {
+    background-color: var(--color-accent) !important;
+    border-color: var(--color-accent-light) !important;
+    box-shadow: 0 4px 15px rgba(133, 79, 108, 0.3);
+}
+.nav-grid .special i {
+    color: var(--color-light) !important;
+}
+.nav-grid .special:hover {
+    background-color: var(--color-accent-light) !important;
+}
 
-        .service-info h3 {
-            margin: 0 0 4px 0;
-            font-size: 1rem;
-            color: var(--color-light);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+/* --- لوحة التحكم بالخدمات (Services Dashboard) --- */
+.services-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.5rem;
+}
 
-        .service-info p {
-            margin: 0;
-            font-size: 0.75rem;
-            color: var(--color-deep);
-            opacity: 0.8;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
+.service-card {
+    background-color: var(--glass-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: row;
+    gap: 1.25rem;
+    backdrop-filter: var(--blur);
+    -webkit-backdrop-filter: var(--blur);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+}
 
-        .price-tag { color: var(--color-accent); font-weight: bold; margin-top: 5px !important; }
+.service-card:hover {
+    border-color: rgba(133, 79, 108, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
+}
 
-        /* أزرار الحذف والتعديل - تحسين للمس */
-        .service-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            justify-content: center;
-        }
+.service-card img {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
 
-        .service-actions a {
-            padding: 8px 12px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-align: center;
-            border-radius: 6px;
-            text-decoration: none;
-        }
+.service-info {
+    flex-grow: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
 
-        .btn-edit { background: rgba(223, 182, 178, 0.1); color: var(--color-light); border: 1px solid var(--color-light); }
-        .btn-delete { background: rgba(216, 92, 92, 0.1); color: #ff7675; border: 1px solid #d85c5c; }
+.service-info h3 {
+    margin: 0 0 6px 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-light);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
-        /* شاشات الكمبيوتر والتابلت */
-        @media (min-width: 768px) {
-            body { padding: 2rem; }
-            .admin-header { flex-direction: row; justify-content: space-between; }
-            .nav-grid { grid-template-columns: repeat(4, 1fr); }
-            .services-dashboard { grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); }
-            .service-card img { width: 100px; height: 100px; }
-            .service-info h3 { font-size: 1.1rem; }
-        }
+.service-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-deep);
+    opacity: 0.75;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.price-tag {
+    color: var(--color-accent-light);
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin-top: 8px !important;
+}
+
+/* أزرار العمليات والتحكم (Actions) */
+.service-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+}
+
+.service-actions a {
+    padding: 10px 14px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    transition: var(--transition);
+    min-width: 75px;
+    box-sizing: border-box;
+}
+
+.btn-edit {
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-light);
+    border: 1px solid var(--border-color);
+}
+.btn-edit:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--color-light);
+}
+
+.btn-delete {
+    background: rgba(216, 92, 92, 0.08);
+    color: #ff7675;
+    border: 1px solid rgba(216, 92, 92, 0.25);
+}
+.btn-delete:hover {
+    background: #d85c5c;
+    color: #ffffff;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(216, 92, 92, 0.2);
+}
+
+/* ==========================================================================
+   MEDIA QUERIES (الهواتف الذكية والأجهزة المحمولة الأصغر من 768 بكسل)
+   ========================================================================== */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+
+    .admin-header {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+        padding: 1.2rem;
+    }
+
+    h1 {
+        font-size: 1.6rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .nav-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .nav-grid a {
+        padding: 1rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .services-dashboard {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .service-card {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .service-card img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .service-info h3 {
+        font-size: 1rem;
+    }
+    
+    .service-info p {
+        font-size: 0.8rem;
+    }
+
+    .service-actions a {
+        padding: 12px; /* مساحة ضغط أكبر ومريحة للمس بالإصبع على شاشات الموبايل */
+        width: 100%;
+    }
+}

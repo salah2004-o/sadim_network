@@ -19,7 +19,7 @@
          {% if user.profile_image %}
              <img src="{{ url_for('static', filename='uploads/' + user.profile_image) }}?v=1" width="150">
          {% else %}
-             <img src="{{ url_for('static', filename='uploads/default.png') }}" width="150">
+             <img src="{{ url_for('static', filename='uploads/default_user.png') }}" width="150">
          {% endif %}
 
         </div>

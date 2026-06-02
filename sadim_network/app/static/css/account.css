@@ -1,6 +1,24 @@
 /* * Sadeem Network - Profile Page Specific Styles
- * Focuses on identity presentation and clear navigation actions.
+ * Updated to Cyberpunk / Dark Glassmorphism Edition
+ * Fully matched with Edit Profile variables and layout system
  */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+    --color-bg: #09090d;                  /* أسود كوني عميق ومستقبلي */
+    --color-primary: rgba(18, 18, 24, 0.75); /* الحاويات الشفافة الزجاجية المعتمدة */
+    --color-accent: #7c4dff;              /* الأرجواني النيون الحيوي */
+    --color-light: #b388ff;               /* لون النجوم/التوهجات المضيئة */
+    --color-deep: #ffffff;                /* أبيض ناصع للنصوص */
+    --text-muted: #9c9cab;                /* النص الثانوي الرمادي */
+    --border-color: rgba(255, 255, 255, 0.08); /* حدود الحاويات الشفافة */
+    --blur: blur(18px);                   /* تأثير الضبابية الزجاجي الخلفي */
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --radius: 24px;                       /* الانحناء الموحد للحاويات الكبيره */
+    --radius-sm: 14px;                    /* انحناء الكروت والحقول والأزرار */
+    --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
 
 body {
     display: flex;
@@ -8,145 +26,201 @@ body {
     justify-content: center;
     min-height: 100vh;
     background-color: var(--color-bg);
-    padding: 2rem;
+    margin: 0;
+    padding: clamp(1rem, 4vw, 2rem);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--color-deep);
+    position: relative;
+    overflow-x: hidden;
+    direction: rtl; /* ضمان المحاذاة العربية الموحدة */
 }
 
-/* Profile Card Container */
+/* خلفية سديمية متوهجة متناسقة خلف التصميم */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: 
+        radial-gradient(circle at 30% 30%, rgba(124, 77, 255, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(179, 136, 255, 0.08) 0%, transparent 50%);
+    z-index: -1;
+}
+
+/* Profile Card Container (Glassmorphic Box) */
 .container {
-    background-color: white;
+    background: var(--color-primary);
+    backdrop-filter: var(--blur);
     width: 100%;
-    max-width: 500px;
-    padding: 3rem;
+    max-width: 440px;
+    padding: clamp(1.5rem, 5vw, 2.8rem) clamp(1.2rem, 5vw, 2.2rem);
     border-radius: var(--radius);
+    border: 1px solid var(--border-color);
     box-shadow: var(--shadow);
-    border: 1px solid var(--color-light);
     text-align: center;
 }
 
+/* --- العنوان --- */
 h2 {
-    color: var(--color-primary);
-    font-size: 2rem;
-    margin-block-end: 2rem;
+    color: var(--color-deep);
+    font-size: clamp(1.2rem, 4vw, 1.6rem);
+    margin-bottom: 0.5rem;
     font-weight: 800;
 }
+h2::after {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 3px;
+    background: var(--color-accent);
+    margin: 0.6rem auto 1.8rem;
+    border-radius: 2px;
+    box-shadow: 0 0 8px var(--color-accent);
+}
 
-/* Avatar / Profile Picture Section */
+/* --- قسم الصورة الشخصية الموحد --- */
+.profile-pic-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.8rem;
+}
+
 .profile-pic-wrapper {
-    width: 150px;
-    height: 150px;
-    margin: 0 auto 2rem;
+    position: relative;
+    width: 90px;
+    height: 90px;
+}
+
+.profile-pic-wrapper img {
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
-    overflow: hidden;
-    border: 4px solid var(--color-light);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    background-color: var(--color-bg);
+    object-fit: cover;
+    border: 2.5px solid rgba(179, 136, 255, 0.4);
+    box-shadow: 0 0 15px rgba(124, 77, 255, 0.2);
+    display: block;
     transition: var(--transition);
 }
 
-.profile-pic-wrapper:hover {
-    transform: scale(1.05);
-    border-color: var(--color-accent);
+.profile-pic-wrapper:hover img {
+    border-color: var(--color-light);
+    box-shadow: 0 0 20px rgba(179, 136, 255, 0.5);
 }
 
-.profile-pic {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+/* --- الفاصل السديمي --- */
+.section-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    margin: 0 0 1.5rem;
 }
 
-/* User Data Display */
+/* --- لوحة عرض بيانات المستخدم (Profile Info) --- */
 .profile-info {
-    background-color: #fafafa;
-    padding: 1.5rem;
-    border-radius: var(--radius);
-    margin-block-end: 2.5rem;
-    text-align: right; /* Ensuring RTL feel */
+    background: rgba(0, 0, 0, 0.25);
+    padding: 0.5rem 1.2rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    text-align: right;
 }
 
 .profile-info p {
-    margin: 0.8rem 0;
-    font-size: 1.1rem;
+    margin: 0;
+    padding: 0.85rem 0;
+    font-size: 0.9rem;
     color: var(--color-deep);
-    border-bottom: 1px solid #eee;
-    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+}
+
+.profile-info p:first-child {
+    padding-top: 0.4rem;
 }
 
 .profile-info p:last-child {
     border-bottom: none;
+    padding-bottom: 0.4rem;
 }
 
 .profile-info strong {
-    color: var(--color-primary);
-    margin-left: 10px;
+    color: var(--color-light);
+    margin-left: 12px;
+    font-weight: 600;
+    min-width: 80px;
+    display: inline-block;
 }
 
-/* Action Buttons Layout */
+/* --- أزرار التحكم والعمليات --- */
 .btn-container {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.85rem;
 }
 
 .btn {
     display: block;
-    padding: 1rem;
-    border-radius: var(--radius);
+    padding: 0.85rem;
+    border-radius: var(--radius-sm);
     font-weight: 700;
     text-decoration: none;
     transition: var(--transition);
-    font-size: 1rem;
+    font-size: 0.95rem;
+    text-align: center;
+    box-sizing: border-box;
 }
 
-/* Primary Action: Edit */
+/* زر التعديل الأساسي (نفس تأثير زر الحفظ تماماً) */
 .btn:not(.logout) {
-    background-color: var(--color-primary);
+    background: linear-gradient(135deg, var(--color-light), var(--color-accent));
     color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(124, 77, 255, 0.2);
 }
 
 .btn:not(.logout):hover {
-    background-color: var(--color-secondary);
     transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124, 77, 255, 0.4);
 }
 
-/* Secondary Actions: Logout & Back */
+/* أزرار الخدمات الثانوية وتجانس الخروج النهائي */
 .btn.logout {
-    background-color: white;
-    color: var(--color-accent);
-    border: 2px solid var(--color-accent);
+    background-color: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
 }
 
 .btn.logout:hover {
-    background-color: var(--color-accent);
-    color: white;
+    background-color: rgba(255, 255, 255, 0.06);
+    color: var(--color-deep);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Special styling for the very last logout button */
-.btn-container a:last-child {
-    background-color: #fff1f0;
-    color: #d85c5c;
-    border-color: #d85c5c;
+/* تخصيص زر الخروج الفعلي إذا كان الأخير في الحاوية */
+.btn-container a:last-child.logout {
+    background: rgba(255, 118, 117, 0.05);
+    color: #ff7675;
+    border: 1px dashed rgba(255, 118, 117, 0.25);
 }
 
-.btn-container a:last-child:hover {
-    background-color: #d85c5c;
-    color: white;
+.btn-container a:last-child.logout:hover {
+    background: rgba(255, 118, 117, 0.15);
+    border-color: rgba(255, 118, 117, 0.4);
+    color: #ff7675;
+    box-shadow: 0 4px 15px rgba(255, 118, 117, 0.1);
 }
 
-/* Responsive Adjustments */
-@media (max-width: 500px) {
+/* --- Responsive Adjustments --- */
+@media (max-width: 480px) {
     .container {
-        padding: 2rem 1.2rem;
-        box-shadow: none;
-        border: none;
-        background-color: transparent;
+        padding: 2rem 1.4rem;
+        background: rgba(18, 18, 24, 0.55);
+        border-color: rgba(255, 255, 255, 0.04);
     }
-    
-    body {
-        background-color: white;
-        align-items: flex-start;
-    }
+}
 
-    h2 {
-        font-size: 1.7rem;
-    }
+@media (max-width: 360px) {
+    body { padding: 0.75rem; }
+    .container { border-radius: var(--radius-sm); }
 }

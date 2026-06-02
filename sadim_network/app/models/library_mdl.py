@@ -24,7 +24,7 @@ class Library:
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
-        cur.execute("SELECT id, title, desc_text, cover_path, pdf_path FROM books WHERE id=%s", (book_id,))
+        cur.execute("SELECT id, title, desc_text, cover_path, pdf_path, download_count  FROM books WHERE id=%s", (book_id,))
         book = cur.fetchone() # جلب مسارات الملفات القديمة من قاعدة البيانات
 
         conn.commit()

@@ -1,128 +1,148 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>تم التحقق</title>
-        <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>تم التحقق - شبكة سديم</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <style>
+        /* * Sadeem Network - Verification Success Page
+         * Updated to Cyberpunk / Dark Glassmorphism Edition
+         */
+        
+        *, *::before, *::after { box-sizing: border-box; }
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-<style>/* * Sadeem Network - Verification Success Page Specific Styles
- * Focuses on positive feedback and clear call-to-action.
- */
+        :root {
+            --color-bg: #09090d;
+            --color-primary: rgba(18, 18, 24, 0.75);
+            --color-accent: #7c4dff;
+            --color-light: #b388ff;
+            --color-deep: #ffffff;
+            --text-muted: #9c9cab;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --blur: blur(18px);
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 24px;
+            --radius-sm: 14px;
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            --success-color: #00e676; /* أخضر نيون متوافق مع النمط المظلم */
+        }
 
-body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    background-color: var(--color-bg);
-    padding: 2rem;
-    text-align: center;
-}
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: var(--color-bg);
+            margin: 0;
+            padding: clamp(1rem, 4vw, 2rem);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--color-deep);
+            text-align: center;
+            position: relative;
+            overflow-x: hidden;
+        }
 
-/* Success Container */
-.container {
-    background-color: white;
-    width: 100%;
-    max-width: 550px;
-    padding: 4rem 2rem;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    border-bottom: 6px solid #25D366; /* Success Green */
-    animation: slideUp 0.6s ease-out;
-}
+        /* خلفية سديمية متوهجة */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 30% 30%, rgba(124, 77, 255, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 70% 70%, rgba(179, 136, 255, 0.08) 0%, transparent 50%);
+            z-index: -1;
+        }
 
-/* Success Icon/Graphic */
-.container::before {
-    content: '✓';
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 80px;
-    height: 80px;
-    background-color: rgba(37, 211, 102, 0.1);
-    color: #25D366;
-    font-size: 3rem;
-    font-weight: bold;
-    border-radius: 50%;
-    margin: 0 auto 2rem;
-    border: 3px solid #25D366;
-}
+        /* حاوية زجاجية شفافة متوافقة مع الهوية */
+        .container {
+            background: var(--color-primary);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            width: 100%;
+            max-width: 480px;
+            padding: 3.5rem 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            border-bottom: 4px solid var(--success-color); /* شريط سفلي للنجاح */
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-h1 {
-    color: var(--color-primary);
-    font-size: 2rem;
-    margin-block-end: 1rem;
-    font-weight: 800;
-}
+        /* أيقونة النجاح السيبرانية */
+        .success-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            background-color: rgba(0, 230, 118, 0.1);
+            color: var(--success-color);
+            font-size: 3rem;
+            font-weight: bold;
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            border: 2px solid var(--success-color);
+            box-shadow: 0 0 20px rgba(0, 230, 118, 0.2);
+        }
 
-p {
-    color: var(--color-secondary);
-    font-size: 1.2rem;
-    line-height: 1.6;
-    margin-block-end: 2.5rem;
-}
+        h1 {
+            color: var(--color-deep);
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
 
-/* Success Button */
-.button {
-    display: inline-block;
-    background-color: var(--color-primary);
-    color: white;
-    padding: 1rem 2.5rem;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 1.1rem;
-    transition: var(--transition);
-    box-shadow: 0 4px 15px rgba(43, 18, 76, 0.2);
-}
+        p {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+        }
 
-.button:hover {
-    background-color: var(--color-secondary);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(43, 18, 76, 0.3);
-}
+        /* الزر الموحد */
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--color-light), var(--color-accent));
+            color: white;
+            padding: 0.9rem 2.5rem;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(124, 77, 255, 0.2);
+            border: none;
+        }
 
-/* Simple Entrance Animation */
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 77, 255, 0.4);
+            color: white;
+        }
 
-/* Responsive */
-@media (max-width: 600px) {
-    .container {
-        padding: 3rem 1.5rem;
-        border: none;
-        box-shadow: none;
-        background-color: transparent;
-    }
-    
-    body {
-        background-color: white;
-    }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    h1 {
-        font-size: 1.6rem;
-    }
-}
-</style>
-
+        /* استجابة الجوال وحماية اللون المظلم */
+        @media (max-width: 480px) {
+            .container {
+                padding: 3rem 1.5rem;
+                background: rgba(18, 18, 24, 0.6);
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>تم التحقق من بريدك الإلكتروني</h1>
-    <p>شكرًا لك! تم تفعيل حسابك بنجاح، ويمكنك الآن تسجيل الدخول.</p>
-    <a href="{{ url_for('loading_bp.login') }}" class="button">العودة لتسجيل الدخول</a>
-
-  </div>
+    <div class="container">
+        <div class="success-icon">✓</div>
+        <h1>تم التحقق من بريدك الإلكتروني</h1>
+        <p>شكرًا لك! تم تفعيل حسابك بنجاح في شبكة سديم، ويمكنك الآن تسجيل الدخول.</p>
+        <a href="{{ url_for('loading_bp.login') }}" class="button">العودة لتسجيل الدخول</a>
+    </div>
 </body>
 </html>

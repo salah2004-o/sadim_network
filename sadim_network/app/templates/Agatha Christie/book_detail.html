@@ -386,7 +386,9 @@
         <p class="book-desc">{{ book['desc_text'] }}</p>
 
         <div class="actions">
-          <a href="{{ url_for('Library_Agatha.download_file', book_id=book['id']) }}" class="btn-download" onclick="updateCount({{ book['id'] }})">
+          <a href="{{ url_for('Library_Agatha.download_file', book_id=book['id']) }}" 
+             class="btn-download" 
+             onclick="updateCount(event, {{ book['id'] }}, this.href)">
             <i class="fa-solid fa-download"></i> تحميل PDF ملكي
           </a>
           <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="btn-back">
@@ -419,11 +421,10 @@
           {% for comment in comments %}
           <div class="comment-item" data-date="{{ comment.created_at }}">
             
-                <div class="user-avatar">
-                 {% set c_img = comment.profile_image if comment.profile_image else 'default.png' %}
-                 <img src="{{ url_for('static', filename='uploads/' + c_img) }}?v=1" alt="Avatar">
-               </div>
-               
+            <div class="user-avatar">
+              {% set c_img = comment.profile_image if comment.profile_image else 'default.png' %}
+              <img src="{{ url_for('static', filename='uploads/' + c_img) }}?v=1" alt="Avatar">
+            </div>
 
             <div class="comment-content-wrap">
               <div class="comment-user">
@@ -465,23 +466,25 @@
   </footer>
 
   <script>
-    // تحديث العداد ديناميكياً باستخدام AJAX
-    function updateCount(bookId) {
-      fetch(`/library/increment_download/${bookId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          const badgeNumber = document.getElementById('download-count-number');
-          if (badgeNumber) badgeNumber.textContent = data.new_count;
-        }
-      })
-      .catch(err => console.error('Error updating count:', err));
+    function updateCount(event, bookId, downloadUrl) {
+        fetch(`/library/increment_download/${bookId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const countSpan = document.getElementById('download-count-number');
+                if (countSpan) {
+                    countSpan.innerText = data.new_count;
+                    countSpan.style.color = "#fff";
+                    setTimeout(() => { countSpan.style.color = "var(--soft-gold)"; }, 500);
+                }
+            }
+        })
+        .catch(err => console.error("Error updating counter:", err));
     }
 
-    // فرز التعليقات
     function sortComments(order) {
       const list = document.getElementById('comments-list');
       const items = Array.from(list.getElementsByClassName('comment-item'));

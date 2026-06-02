@@ -1,48 +1,100 @@
-<!-- app/templates/base.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}لوحة التحكم{% endblock %}</title>
+    <title>{% block title %}لوحة التحكم - شبكة سديم{% endblock %}</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --color-bg: #09090d;
+            --color-card: rgba(18, 18, 24, 0.75);
+            --color-accent: #7c4dff;
+            --color-light: #b388ff;
+            --color-deep: #ffffff;
+            --text-muted: #9c9cab;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --blur: blur(18px);
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-deep);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* تخصيص شريط التنقل ليتناسب مع الهوية المظلمة */
+        .navbar-sadim {
+            background: rgba(10, 10, 15, 0.85) !important;
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .navbar-sadim .navbar-brand {
+            font-weight: 800;
+            color: var(--color-deep);
+            letter-spacing: 0.5px;
+        }
+
+        .navbar-sadim .nav-link {
+            color: var(--text-muted);
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .navbar-sadim .nav-link:hover, 
+        .navbar-sadim .nav-item.active .nav-link {
+            color: var(--color-light);
+        }
+    </style>
+    {% block extra_styles %}{% endblock %}
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('admin.services_dashboard') }}">لوحة الإدارة</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin.admin_users_list') }}">المستخدمون</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin.dashboard_home') }}">الزوار</a>
-                </li>
-            </ul>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-sadim sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('admin.services_dashboard') }}">لوحة الإدارة</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.admin_users_list') }}">المستخدمون</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin.dashboard_home') }}">الزوار</a>
+                    </li>
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
-<div class="container mt-4">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages-container">
+                    {% for category, message in messages %}
+                        {% set alert_class = 'danger' if category == 'error' else category %}
+                        <div class="alert alert-{{ alert_class }} alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: var(--radius-sm);">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
                 </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
+            {% endif %}
+        {% endwith %}
 
-    {% block content %}{% endblock %}
-</div>
+        {% block content %}{% endblock %}
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>

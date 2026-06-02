@@ -15,12 +15,15 @@ if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
 
 
+
 def text_to_binary(text):
     return ' '.join(format(byte, '08b') for byte in text.encode('utf-8'))
 
 
+
 def sdm_header(title):
     return f"✨ **شبكة سديم | {title}**\n" + "—" * 22
+
 
 
 def get_ydl_opts(chat_id, extra=None):
