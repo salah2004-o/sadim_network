@@ -62,6 +62,22 @@
     .chip{background:rgba(255,255,255,.07);border:1px solid rgba(212,160,23,.4);border-radius:30px;padding:.5rem 1.2rem;display:flex;align-items:center;gap:.4rem;font-size:.9rem;font-weight:700;backdrop-filter:blur(4px);}
     .chip .g{color:var(--gold2);}
 
+    /* ── MAP REVIEW BUTTON ── */
+    .map-review-wrap{margin-top:1.8rem;}
+    .map-review-btn{
+      display:inline-flex;align-items:center;gap:.6rem;
+      background:linear-gradient(135deg, var(--gold) 0%, var(--gold2) 100%);
+      color:#0c0c0c;font-size:.95rem;font-weight:900;
+      padding:.75rem 2rem;border-radius:30px;
+      text-decoration:none;
+      box-shadow:0 4px 15px rgba(212,160,23,.3);
+      transition:transform .25s, box-shadow .25s;
+    }
+    .map-review-btn:hover{
+      transform:translateY(-3px);
+      box-shadow:0 6px 20px rgba(212,160,23,.5);
+    }
+
     /* NAV */
     .nav-tabs{position:sticky;top:0;z-index:100;background:rgba(10,10,10,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(212,160,23,.25);display:flex;overflow-x:auto;scrollbar-width:none;}
     .nav-tabs::-webkit-scrollbar{display:none;}
@@ -153,6 +169,12 @@
       <div class="chip">⭐ <span class="g">4.3</span> <span style="color:#666;font-size:.8rem;">(204)</span></div>
       <div class="chip" data-ar="🕐 11:00 ص — 02:00 ص" data-en="🕐 11:00 AM — 02:00 AM">🕐 11:00 ص — 02:00 ص</div>
       <div class="chip">💰 <span class="g">3.5 — 63 <span data-ar="ر.س" data-en="SAR">ر.س</span></span></div>
+    </div>
+
+    <div class="map-review-wrap">
+      <a href="https://www.google.com/maps/place/%D8%B4%D9%88%D8%A7%D9%8A%D8%A9+%D9%88%D9%85%D9%82%D9%84%D9%8A%E2%80%AD/@21.5867691,39.2072505,915m/data=!3m1!1e3!4m15!1m8!3m7!1s0x15c3d1b22265f603:0x21607a097a2031c0!2z2LTZiNin2YrYqSDZiNmF2YLZhNmK!8m2!3d21.5867691!4d39.2072505!10e9!16s%2Fg%2F11vcmds1pp!3m5!1s0x15c3d1b22265f603:0x21607a097a2031c0!8m2!3d21.5867691!4d39.2072505!16s%2Fg%2F11vcmds1pp!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDYwMS4wIKXMDSoASAFQAw%3D%3D" target="_blank" rel="noopener" class="map-review-btn">
+        📍 <span data-ar="شاركونا رأيكم وقيمونا على قوقل ماب" data-en="Share your feedback & rate us on Google Maps">شاركونا رأيكم وقيمونا على قوقل ماب</span>
+      </a>
     </div>
   </div>
 </section>
@@ -271,7 +293,7 @@
     </div>
 
     <div class="card">
-      <div class="iw"><img class="ci2" loading="lazy" decoding="async" src="{{ url_for('static', filename='images/client/chicken_haraq.jpg') }}" alt="حبة دجاج مقلي مقرمش مع الأرز - Whole Fried Chicken with Rice"></div>
+      <div class="iw"><img class="ci2" loading="lazy" decoding="async" src="{{ url_for('static', filename='images/client/magle.jpg') }}" alt="حبة دجاج مقلي مقرمش مع الأرز - Whole Fried Chicken with Rice"></div>
       <div class="cb">
         <div class="cn" data-ar="حبة دجاج مقلي مع الرز"             data-en="Whole Fried Chicken with Rice">حبة دجاج مقلي مع الرز</div>
         <div class="cd" data-ar="دجاج مقلي كامل مقرمش مع رز"        data-en="Whole crispy fried chicken with rice">دجاج مقلي كامل مقرمش مع رز</div>
@@ -281,7 +303,7 @@
     </div>
 
     <div class="card">
-      <div class="iw"><img class="ci2" loading="lazy" decoding="async" src="{{ url_for('static', filename='images/client/chicken_haraq.jpg') }}" alt="نصف دجاجة مقلية مقرمشة مع الأرز - Half Fried Chicken with Rice"></div>
+      <div class="iw"><img class="ci2" loading="lazy" decoding="async" src="{{ url_for('static', filename='images/client/magle.jpg') }}" alt="نصف دجاجة مقلية مقرمشة مع الأرز - Half Fried Chicken with Rice"></div>
       <div class="cb">
         <div class="cn" data-ar="نص دجاج مقلي مع الرز"               data-en="Half Fried Chicken with Rice">نص دجاج مقلي مع الرز</div>
         <div class="cd" data-ar="نصف دجاجة مقلية مقرمشة مع رز"       data-en="Half crispy fried chicken with rice">نصف دجاجة مقلية مقرمشة مع رز</div>
@@ -291,7 +313,7 @@
     </div>
 
     <div class="card">
-      <div class="iw"><img class="ci2" loading="lazy" decoding="async" src="{{ url_for('static', filename='images/client/chicken_haraq.jpg') }}" alt="حبة دجاج مقلي سادة - Whole Fried Chicken Plain"></div>
+      <div class="iw"><img class="ci2" loading="lazy" decoding="async" src="{{ url_for('static', filename='images/client/magle.jpg') }}" alt="حبة دجاج مقلي سادة - Whole Fried Chicken Plain"></div>
       <div class="cb">
         <div class="cn" data-ar="حبة دجاج مقلي سادة"               data-en="Whole Fried Chicken Plain">حبة دجاج مقلي سادة</div>
         <div class="cd" data-ar="حبة دجاجة مقلية مقرمشة سادة"       data-en="Whole crispy fried chicken plain">حبة دجاجة مقلية مقرمشة سادة</div>
@@ -301,7 +323,7 @@
     </div>
 
     <div class="card">
-      <div class="iw"><img class="ci2" loading="lazy" decoding="async" src="{{ url_for('static', filename='images/client/chicken_haraq.jpg') }}" alt="نصف دجاجة مقلية سادة - Half Fried Chicken Plain"></div>
+      <div class="iw"><img class="ci2" loading="lazy" decoding="async" src="{{ url_for('static', filename='images/client/magle.jpg') }}" alt="نصف دجاجة مقلية سادة - Half Fried Chicken Plain"></div>
       <div class="cb">
         <div class="cn" data-ar="نصف دجاج مقلي سادة"               data-en="Half Fried Chicken Plain">نصف دجاج مقلي سادة</div>
         <div class="cd" data-ar="نصف دجاجة مقلية مقرمشة سادة"       data-en="Half crispy fried chicken plain">نصف دجاجة مقلية مقرمشة سادة</div>
@@ -373,28 +395,28 @@
   <div class="sec-hdr"><h2 data-ar="🥘 الأيدامات" data-en="🥘 Side Dishes">🥘 الأيدامات</h2></div>
   <div class="list-grid">
     <div class="list-row">
-      <div><div class="lr-name" data-ar="إيدام خضار مشكل"  data-en="Mixed Vegetable Stew">إيدام خضار مشكل</div><div class="lr-cal" data-ar="75 سعرة حرارية" data-en="75 kcal">75 سعرة حرارية</div></div>
-      <div class="lr-price">7 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div><div class="lr-name" data-ar="إيدام خضار مشكل صغير"  data-en="Mixed Vegetable Stew (Small)">إيدام خضار مشكل صغير</div><div class="lr-cal" data-ar="75 سعرة حرارية" data-en="75 kcal">75 سعرة حرارية</div></div>
+      <div class="lr-price">5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
-      <div><div class="lr-name" data-ar="فاصوليا بيضاء"    data-en="White Beans">فاصوليا بيضاء</div><div class="lr-cal" data-ar="72 سعرة حرارية" data-en="72 kcal">72 سعرة حرارية</div></div>
-      <div class="lr-price">7 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div><div class="lr-name" data-ar="إيدام فاصوليا صغير"    data-en="White Beans (Small)">إيدام فاصوليا صغير</div><div class="lr-cal" data-ar="72 سعرة حرارية" data-en="72 kcal">72 سعرة حرارية</div></div>
+      <div class="lr-price">5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
-      <div><div class="lr-name" data-ar="إيدام بامية"      data-en="Okra Stew">إيدام بامية</div><div class="lr-cal" data-ar="76 سعرة حرارية" data-en="76 kcal">76 سعرة حرارية</div></div>
-      <div class="lr-price">8 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div><div class="lr-name" data-ar="بامية صغير"      data-en="Okra Stew (Small)">بامية صغير</div><div class="lr-cal" data-ar="76 سعرة حرارية" data-en="76 kcal">76 سعرة حرارية</div></div>
+      <div class="lr-price">5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
-      <div><div class="lr-name" data-ar="إيدام مصقعة"      data-en="Moussaka">إيدام مصقعة</div><div class="lr-cal" data-ar="76 سعرة حرارية" data-en="76 kcal">76 سعرة حرارية</div></div>
-      <div class="lr-price">8 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div><div class="lr-name" data-ar="مصقع صغير"      data-en="Moussaka (Small)">مصقع صغير</div><div class="lr-cal" data-ar="76 سعرة حرارية" data-en="76 kcal">76 سعرة حرارية</div></div>
+      <div class="lr-price">5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
-      <div><div class="lr-name" data-ar="إيدام دجاج"       data-en="Chicken Stew">إيدام دجاج</div><div class="lr-cal" data-ar="72 سعرة حرارية" data-en="72 kcal">72 سعرة حرارية</div></div>
-      <div class="lr-price">10 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div><div class="lr-name" data-ar="إيدام دجاج صغير"       data-en="Chicken Stew (Small)">إيدام دجاج صغير</div><div class="lr-cal" data-ar="72 سعرة حرارية" data-en="72 kcal">72 سعرة حرارية</div></div>
+      <div class="lr-price">5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
-      <div><div class="lr-name" data-ar="ملوخية"           data-en="Molokhia">ملوخية</div><div class="lr-cal" data-ar="60 سعرة حرارية" data-en="60 kcal">60 سعرة حرارية</div></div>
-      <div class="lr-price">7 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div><div class="lr-name" data-ar="ملوخية صغير"           data-en="Molokhia (Small)">ملوخية صغير</div><div class="lr-cal" data-ar="60 سعرة حرارية" data-en="60 kcal">60 سعرة حرارية</div></div>
+      <div class="lr-price">5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
       <div><div class="lr-name" data-ar="مكرونة"            data-en="Pasta">مكرونة</div><div class="lr-cal" data-ar="60 سعرة حرارية" data-en="60 kcal">60 سعرة حرارية</div></div>
@@ -409,31 +431,32 @@
   <div class="list-grid">
     <div class="list-row">
       <div><div class="lr-name" data-ar="سلطة لبن"                    data-en="Yogurt Salad">سلطة لبن</div><div class="lr-cal" data-ar="335 سعرة حرارية" data-en="335 kcal">335 سعرة حرارية</div></div>
-      <div class="lr-price">4 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div class="lr-price">3 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
-      <div><div class="lr-name" data-ar="طحينة"                       data-en="Tahini">طحينة</div><div class="lr-cal" data-ar="325 سعرة حرارية" data-en="325 kcal">325 سعرة حرارية</div></div>
+      <div><div class="lr-name" data-ar="طحينية صغير"                       data-en="Tahini (Small)">طحينية صغير</div><div class="lr-cal" data-ar="325 سعرة حرارية" data-en="325 kcal">325 سعرة حرارية</div></div>
+      <div class="lr-price">2 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+    </div>
+    <div class="list-row">
+      <div><div class="lr-name" data-ar="سلطة أمريكي "        data-en="Green Salad American (Large)">سلطة أمريكي </div><div class="lr-cal" data-ar="342 سعرة حرارية" data-en="342 kcal">342 سعرة حرارية</div></div>
       <div class="lr-price">5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
+
     <div class="list-row">
-      <div><div class="lr-name" data-ar="سلطة خضراء أمريكي كبير"        data-en="Green Salad American (Large)">سلطة خضراء أمريكي كبير</div><div class="lr-cal" data-ar="342 سعرة حرارية" data-en="342 kcal">342 سعرة حرارية</div></div>
-      <div class="lr-price">8 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div><div class="lr-name" data-ar="سلطه حار احمر "               data-en="Red Spicy Salad (Small)">سلطه حار احمر صغير</div></div>
+      <div class="lr-price">2 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
-      <div><div class="lr-name" data-ar="سلطة خضراء أمريكي صغير"             data-en="Green Salad American (Small)">سلطة خضراء أمريكي صغير</div><div class="lr-cal" data-ar="335 سعرة حرارية" data-en="335 kcal">335 سعرة حرارية</div></div>
-      <div class="lr-price">5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
-    </div>
-    <div class="list-row">
-      <div><div class="lr-name" data-ar="سلطة حارة"               data-en="Spicy Salad">سلطة حارة</div></div>
-      <div class="lr-price">4 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
-    </div>
-    <div class="list-row">
-      <div><div class="lr-name" data-ar="سلطة حارة خضراء"              data-en="Green Spicy Salad">سلطة حارة خضراء</div><div class="lr-cal" data-ar="71 سعرة حرارية" data-en="71 kcal">71 سعرة حرارية</div></div>
-      <div class="lr-price">4 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div><div class="lr-name" data-ar="سلطه حار اخضر "              data-en="Green Spicy Salad (Small)">سلطه حار اخضر صغير</div><div class="lr-cal" data-ar="71 سعرة حرارية" data-en="71 kcal">71 سعرة حرارية</div></div>
+      <div class="lr-price">2 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
       <div><div class="lr-name" data-ar="حمص"                         data-en="Hummus">حمص</div><div class="lr-cal" data-ar="48 سعرة حرارية" data-en="48 kcal">48 سعرة حرارية</div></div>
       <div class="lr-price">5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+    </div>
+    <div class="list-row">
+      <div><div class="lr-name" data-ar="بصل مقلي"                         data-en="Fried Onion">بصل مقلي</div></div>
+      <div class="lr-price">2 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
   </div>
 </section>
@@ -444,45 +467,51 @@
   <div class="grid grid-sm">
 
     <div class="card"><div class="cb">
-      <div class="cn" data-ar="طرمبة"            data-en="Turamba">طرمبة</div>
+      <div class="cn" data-ar="طرمبه"            data-en="Turamba">طرمبه</div>
       <div class="cd" data-ar="دقيق · بيض · سكر" data-en="Flour · Eggs · Sugar">دقيق · بيض · سكر</div>
-      <div class="cp">6 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div class="cp">5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
       <div class="cc" data-ar="70 سعرة للقطعة"   data-en="70 kcal/piece">70 سعرة للقطعة</div>
     </div></div>
 
     <div class="card"><div class="cb">
-      <div class="cn" data-ar="كنافة بالقشطة"               data-en="Kunafa with Cream">كنافة بالقشطة</div>
+      <div class="cn" data-ar="كنافه"               data-en="Kunafa">كنافه</div>
       <div class="cd" data-ar="كنافة · سكر · نشا · قشطة"   data-en="Kunafa · Sugar · Starch · Cream">كنافة · سكر · نشا · قشطة</div>
-      <div class="cp">11 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div class="cp">8 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
       <div class="cc" data-ar="750 سعرة للقطعة"             data-en="750 kcal/piece">750 سعرة للقطعة</div>
     </div></div>
 
     <div class="card"><div class="cb">
-      <div class="cn" data-ar="سمبوسة"                  data-en="Sambosa">سمبوسة</div>
+      <div class="cn" data-ar="سمبوسه"                  data-en="Sambosa">سمبوسه</div>
       <div class="cd" data-ar="لحم · بصل · بهارات"     data-en="Meat · Onion · Spices">لحم · بصل · بهارات</div>
-      <div class="cp">3 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div class="cp">1 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
       <div class="cc" data-ar="130 سعرة للقطعة"         data-en="130 kcal/piece">130 سعرة للقطعة</div>
     </div></div>
 
     <div class="card"><div class="cb">
-      <div class="cn" data-ar="أم علي"                          data-en="Om Ali">أم علي</div>
+      <div class="cn" data-ar="ام علي"                          data-en="Om Ali">ام علي</div>
       <div class="cd" data-ar="زبد · زبيب · محلى · حليب"       data-en="Butter · Raisins · Sweetener · Milk">زبد · زبيب · محلى · حليب</div>
-      <div class="cp">11 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
-      <div class="cc" data-ar="167 سعرة للقطعة"                 data-en="167 kcal/piece">167 سعرة للقطعة</div>
+      <div class="cp">10 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div class="cc" data-ar="167 سعرة للقطعة"                 data-en="167 kcal/piece">167 kcal/piece</div>
     </div></div>
 
     <div class="card"><div class="cb">
-      <div class="cn" data-ar="بسبوسة"                  data-en="Basbousa">بسبوسة</div>
+      <div class="cn" data-ar="بسبوسه"                  data-en="Basbousa">بسبوسه</div>
       <div class="cd" data-ar="سميد · بيض · سكر"        data-en="Semolina · Eggs · Sugar">سميد · بيض · سكر</div>
-      <div class="cp">8 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div class="cp">5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
       <div class="cc" data-ar="358 سعرة للقطعة"          data-en="358 kcal/piece">358 سعرة للقطعة</div>
     </div></div>
 
     <div class="card"><div class="cb">
       <div class="cn" data-ar="كريم كراميل"             data-en="Crème Caramel">كريم كراميل</div>
       <div class="cd" data-ar="حليب · بيض · سكر"        data-en="Milk · Eggs · Sugar">حليب · بيض · سكر</div>
-      <div class="cp">7 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div class="cp">8 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
       <div class="cc" data-ar="172 سعرة للقطعة"          data-en="172 kcal/piece">172 سعرة للقطعة</div>
+    </div></div>
+
+    <div class="card"><div class="cb">
+      <div class="cn" data-ar="حلي سندس"             data-en="Hali Sondos">حلي سندس</div>
+      <div class="cd" data-ar="حلى تقليدي مميز"        data-en="Special traditional dessert">حلى تقليدي مميز</div>
+      <div class="cp">5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div></div>
 
   </div>
@@ -494,19 +523,19 @@
   <div class="list-grid">
     <div class="list-row">
       <div><div class="lr-name">Pepsi</div></div>
-      <div class="lr-price">3 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div class="lr-price">2.5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
       <div><div class="lr-name">7Up</div></div>
-      <div class="lr-price">3 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div class="lr-price">2.5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
       <div><div class="lr-name">Mirinda</div></div>
-      <div class="lr-price">3 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div class="lr-price">2.5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
       <div><div class="lr-name">Mountain Dew</div></div>
-      <div class="lr-price">3 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
+      <div class="lr-price">2.5 <small data-ar="ر.س" data-en="SAR">ر.س</small></div>
     </div>
     <div class="list-row">
       <div><div class="lr-name" data-ar="مياه معدنية" data-en="Mineral Water">مياه معدنية</div></div>
