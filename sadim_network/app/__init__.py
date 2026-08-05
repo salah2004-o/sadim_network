@@ -25,7 +25,7 @@ from app.routes.errors import errors_bp
 from app.routes.admin.admin import admin_bp
 from app.routes.loding import loading_bp
 from app.routes.register import register_bp
-from app.routes.apis.chatbot_api import bot_bp
+
 from app.routes.LIBRARY_SADIM.Agatha_Christie import Library_Agatha_bp
 from app.routes.admin.profile import profile_bp
 from app.routes.menu_route import menu_bp
@@ -37,5 +37,5 @@ app.register_blueprint(menu_bp)
 app.register_blueprint(errors_bp)
 app.register_blueprint(main_bp)
 app.register_blueprint(register_bp)
-app.register_blueprint(bot_bp)
+
 app.register_blueprint(Library_Agatha_bp)
