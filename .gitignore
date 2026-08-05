@@ -1,6 +1,14 @@
+venv/
 .venv/
+
 .env
+
 __pycache__/
 *.pyc
+
 *.log
 *.tmp
+
+sadim_network/app/static/uploads/
+
+*.sql
