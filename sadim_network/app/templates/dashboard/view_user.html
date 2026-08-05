@@ -1,188 +1,85 @@
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-
-{% extends "base.html" %}
-
-{% block title %}عرض تفاصيل المستخدم | سديم{% endblock %}
+{% extends "layouts/dashboard.html" %}
+{% block title %}عرض تفاصيل المستخدم — شبكة سديم{% endblock %}
+{% block page_title %}ملف المستخدم{% endblock %}
 
 {% block content %}
-<style>
-    /* --- تصميم بطاقة بيانات المستخدم - سديم --- */
-    .profile-card {
-        max-width: 650px;
-        margin: 3rem auto;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(223, 182, 178, 0.1);
-        border-radius: var(--radius);
-        padding: 2.5rem;
-        backdrop-filter: blur(15px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-    }
 
-    .profile-header {
-        text-align: center;
-        margin-bottom: 2rem;
-        border-bottom: 1px solid rgba(223, 182, 178, 0.1);
-        padding-bottom: 1.5rem;
-    }
-
-    .profile-header i {
-        font-size: 4rem;
-        color: var(--color-accent);
-        margin-bottom: 1rem;
-        display: block;
-    }
-
-    .profile-header h2 {
-        color: var(--color-light);
-        margin: 0;
-        font-size: 1.8rem;
-    }
-
-    /* شبكة البيانات */
-    .info-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-    .info-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.8rem 1rem;
-        background: rgba(25, 6, 31, 0.5);
-        border-radius: 8px;
-        border-right: 3px solid var(--color-primary);
-        transition: 0.3s;
-    }
-
-    .info-item:hover {
-        background: rgba(133, 79, 108, 0.1);
-        transform: translateX(-5px);
-    }
-
-    .info-label {
-        color: var(--color-light);
-        font-weight: 600;
-        font-size: 0.9rem;
-        opacity: 0.8;
-    }
-
-    .info-value {
-        color: var(--color-deep);
-        font-weight: 500;
-        text-align: left;
-    }
-
-    /* تنسيق الحالات الخاصة */
-    .badge-status {
-        padding: 4px 12px;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        font-weight: bold;
-    }
-    .status-active { background: rgba(46, 213, 115, 0.2); color: #2ed573; }
-    .status-alert { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
-
-    .btn-back-nebula {
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin-top: 2rem;
-        padding: 0.8rem;
-        background: var(--color-primary);
-        color: var(--color-light);
-        text-decoration: none;
-        border-radius: 50px;
-        border: 1px solid var(--color-accent);
-        font-weight: 600;
-        transition: var(--transition);
-    }
-
-    .btn-back-nebula:hover {
-        background: var(--color-accent);
-        color: white;
-    }
-
-    @media (max-width: 500px) {
-        .profile-card { padding: 1.5rem; margin: 1.5rem; }
-        .info-item { flex-direction: column; align-items: flex-start; gap: 5px; }
-        .info-value { text-align: right; width: 100%; }
-    }
-</style>
-
-<div class="profile-card">
-    <div class="profile-header">
-        <i class="fas fa-user-circle"></i>
-        <h2>ملف المستخدم: {{ user.username }}</h2>
+<div class="sd-card" style="max-width: 650px; margin-inline: auto;">
+    <div style="text-align:center; margin-bottom: var(--sd-sp-5); border-bottom: 1px solid var(--sd-border); padding-bottom: var(--sd-sp-4);">
+        <i class="fas fa-user-circle" style="font-size: 4rem; color: var(--sd-accent-light); display:block; margin-bottom: var(--sd-sp-3);"></i>
+        <h2 style="margin:0; font-size: var(--sd-fs-lg);">ملف المستخدم: {{ user.username }}</h2>
     </div>
 
-    <div class="info-grid">
-        <div class="info-item">
-            <span class="info-label">صورة الملف الشخصي</span>
-            <span class="info-value">
+    <div style="display:flex; flex-direction:column; gap: var(--sd-sp-3);">
+        <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">صورة الملف الشخصي</span>
+            <span>
                 {% if user.profile_image %}
-                    <img src="{{ url_for('static', filename='uploads/' + user.profile_image) }}?v=1" width="80" style="border-radius: 50%;">
+                    <img src="{{ url_for('static', filename='uploads/' + user.profile_image) }}?v=1" width="70" style="border-radius: 50%;">
                 {% else %}
-                    <img src="{{ url_for('static', filename='uploads/default_user.png') }}" width="80" style="border-radius: 50%;">
+                    <img src="{{ url_for('static', filename='uploads/default_user.png') }}" width="70" style="border-radius: 50%;">
                 {% endif %}
             </span>
         </div>
-        <div class="info-item">
-            <span class="info-label">المعرف الرقمي (ID)</span>
-            <span class="info-value">#{{ user.id }}</span>
-        </div>
-        
-        <div class="info-item">
-            <span class="info-label">الاسم الكامل</span>
-            <span class="info-value">{{ user.name }}</span>
+
+        <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">المعرف الرقمي (ID)</span>
+            <span style="color: var(--sd-text);">#{{ user.id }}</span>
         </div>
 
-        <div class="info-item">
-            <span class="info-label">اسم المستخدم</span>
-            <span class="info-value" style="color: var(--color-accent);">@{{ user.username }}</span>
+        <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">الاسم الكامل</span>
+            <span style="color: var(--sd-text);">{{ user.name }}</span>
         </div>
 
-        <div class="info-item">
-            <span class="info-label">البريد الإلكتروني</span>
-            <span class="info-value">{{ user.email }}</span>
+        <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">اسم المستخدم</span>
+            <span style="color: var(--sd-accent-light);">@{{ user.username }}</span>
         </div>
 
-        <div class="info-item">
-            <span class="info-label">مستوى الصلاحية</span>
-            <span class="info-value">
-                <i class="fas {{ 'fa-shield-alt' if user.role == 'admin' else 'fa-user' }}"></i> 
+        <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">البريد الإلكتروني</span>
+            <span style="color: var(--sd-text);">{{ user.email }}</span>
+        </div>
+
+        <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">مستوى الصلاحية</span>
+            <span style="color: var(--sd-text);">
+                <i class="fas {{ 'fa-shield-alt' if user.role == 'admin' else 'fa-user' }}"></i>
                 {{ 'مدير نظام' if user.role == 'admin' else 'مستخدم' }}
             </span>
         </div>
 
-        <div class="info-item">
-            <span class="info-label">حالة الحساب</span>
-            <span class="info-value badge-status {{ 'status-active' if user.status == 'active' else 'status-alert' }}">
-                {{ user.status }}
-            </span>
+        <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">حالة الحساب</span>
+            {% if user.status == 'active' %}
+                <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> {{ user.status }}</span>
+            {% else %}
+                <span class="sd-badge sd-badge-danger"><span class="sd-badge-dot"></span> {{ user.status }}</span>
+            {% endif %}
         </div>
 
-        <div class="info-item">
-            <span class="info-label">حالة التوثيق</span>
-            <span class="info-value" style="color: {{ '#2ed573' if user.is_verified else '#ff4757' }}">
+        <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">حالة التوثيق</span>
+            <span style="color: {{ 'var(--sd-success)' if user.is_verified else 'var(--sd-danger)' }};">
                 {{ '✔ موثق' if user.is_verified else '✖ غير موثق' }}
             </span>
         </div>
 
-        <div class="info-item">
-            <span class="info-label">آخر ظهور</span>
-            <span class="info-value" style="font-size: 0.85rem; opacity: 0.8;">{{ user.last_login or 'لم يدخل بعد' }}</span>
+        <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">آخر ظهور</span>
+            <span style="color: var(--sd-text); font-size: var(--sd-fs-sm); opacity:0.8;">{{ user.last_login or 'لم يدخل بعد' }}</span>
         </div>
 
-        <div class="info-item">
-            <span class="info-label">تاريخ التسجيل</span>
-            <span class="info-value" style="font-size: 0.85rem; opacity: 0.8;">{{ user.created_at }}</span>
+        <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">تاريخ التسجيل</span>
+            <span style="color: var(--sd-text); font-size: var(--sd-fs-sm); opacity:0.8;">{{ user.created_at }}</span>
         </div>
     </div>
 
-    <a href="{{ url_for('admin.admin_users_list') }}" class="btn-back-nebula">
+    <a href="{{ url_for('admin.admin_users_list') }}" class="sd-btn sd-btn-secondary sd-btn-block sd-ripple" style="margin-top: var(--sd-sp-5);">
         <i class="fas fa-arrow-right"></i> العودة لقائمة الإدارة
     </a>
 </div>
+
 {% endblock %}

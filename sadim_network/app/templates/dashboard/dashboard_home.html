@@ -1,26 +1,37 @@
+{% extends "layouts/dashboard.html" %}
+{% block title %}إحصائيات الزوار — شبكة سديم{% endblock %}
+{% block page_title %}إحصائيات الزوار الرقمية{% endblock %}
+
+{% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard/dashboard_home.css') }}">
+<style>
+    /* الأنماط الوظيفية (الفلاتر/الجدول/الرسوم) تبقى من dashboard_home.css كما هي —
+       هذي فقط تعديلات لتناسب حاوية القالب الجديد بدون كسر أي سلوك JS مرتبط بالأصناف. */
+    .dashboard-controls, .admin-controls, .stats-container, .table-wrapper { width: 100%; }
+    .card { background: var(--sd-surface); border: 1px solid var(--sd-border); }
+</style>
+{% endblock %}
 
-<h2 class="title">إحصائيات الزوار الرقمية</h2>
+{% block content %}
 
-<div class="admin-controls" style="margin-top: 2rem; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+<div class="admin-controls" style="margin-bottom: var(--sd-sp-5); display: flex; gap: 10px; flex-wrap: wrap;">
     <form action="{{ url_for('admin.delete_visits') }}" method="post" style="display:inline;">
-        <button type="submit" class="btn-action btn-delete" onclick="return confirm('هل أنت متأكد من مسح كافة السجلات؟ لا يمكن التراجع!');">
+        <button type="submit" class="sd-btn sd-btn-danger sd-ripple" onclick="return confirm('هل أنت متأكد من مسح كافة السجلات؟ لا يمكن التراجع!');">
             <i class="fas fa-trash-alt"></i> حذف السجل بالكامل
         </button>
     </form>
-    
-    <a href="{{ url_for('admin.admin_users_list') }}" class="btn-action btn-nav">
+
+    <a href="{{ url_for('admin.admin_users_list') }}" class="sd-btn sd-btn-secondary sd-ripple">
         <i class="fas fa-users"></i> إدارة المستخدمين
     </a>
-    <a href="{{ url_for('admin.add_user') }}" class="btn-action btn-nav">
+    <a href="{{ url_for('admin.add_user') }}" class="sd-btn sd-btn-secondary sd-ripple">
         <i class="fas fa-user-plus"></i> إضافة عضو
     </a>
-    <a href="{{ url_for('admin.services_dashboard') }}" class="btn-action btn-nav">
+    <a href="{{ url_for('admin.services_dashboard') }}" class="sd-btn sd-btn-secondary sd-ripple">
         <i class="fas fa-arrow-right"></i> لوحة التحكم
     </a>
-    <a href="{{ url_for('profile_bp.profile_dashboard') }}" class="btn-action btn-nav">
+    <a href="{{ url_for('profile_bp.profile_dashboard') }}" class="sd-btn sd-btn-secondary sd-ripple">
         <i class="fas fa-user"></i> البروفايل
     </a>
 </div>
@@ -32,28 +43,28 @@
         <button class="btn-filter" onclick="SadeemDash.applyTimeFilter('hour', this)">آخر ساعة</button>
     </div>
     <input type="text" class="search-box" id="dashSearch" placeholder="🔍 ابحث عن IP أو صفحة...">
-    <button class="btn-action btn-nav" onclick="SadeemDash.exportToCSV()">
+    <button class="sd-btn sd-btn-secondary sd-ripple" onclick="SadeemDash.exportToCSV()">
         <i class="fas fa-file-download"></i> تحميل الأرشيف التحليلي (CSV)
     </button>
 </div>
 
-<div class="stats-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
-    <div class="card" style="flex: 1; min-width: 300px;">
-        <h4 style="color: var(--color-light); margin-bottom: 15px;">📊 نوع الزيارات</h4>
+<div class="stats-container" style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: var(--sd-sp-5);">
+    <div class="card sd-card" style="flex: 1; min-width: 300px;">
+        <h4 style="color: var(--sd-accent-light); margin-bottom: 15px;">📊 نوع الزيارات</h4>
         <canvas id="typeChart" style="max-height: 200px;"></canvas>
     </div>
-    <div class="card" style="flex: 1; min-width: 300px;">
-        <h4 style="color: var(--color-light); margin-bottom: 15px;">📱 الأجهزة</h4>
+    <div class="card sd-card" style="flex: 1; min-width: 300px;">
+        <h4 style="color: var(--sd-accent-light); margin-bottom: 15px;">📱 الأجهزة</h4>
         <canvas id="deviceChart" style="max-height: 200px;"></canvas>
     </div>
-    <div class="card" style="flex: 1; min-width: 300px;">
-        <h4 style="color: var(--color-light); margin-bottom: 15px;">🔝 الأكثر طلباً (بشر)</h4>
-        <ul id="topPaths" style="text-align: right; color: var(--color-light); list-style: none; padding: 0;"></ul>
+    <div class="card sd-card" style="flex: 1; min-width: 300px;">
+        <h4 style="color: var(--sd-accent-light); margin-bottom: 15px;">🔝 الأكثر طلباً (بشر)</h4>
+        <ul id="topPaths" style="text-align: right; color: var(--sd-text); list-style: none; padding: 0;"></ul>
     </div>
 </div>
 
-<div class="table-wrapper" style="margin-top: 2rem;">
-    <table class="styled-table" id="logsTable">
+<div class="table-wrapper sd-table-wrapper" style="margin-top: var(--sd-sp-5);">
+    <table class="styled-table sd-table" id="logsTable">
         <thead>
             <tr>
                 <th>IP العنوان</th>
@@ -75,8 +86,9 @@
     </table>
 </div>
 
+{% endblock %}
 
-
+{% block extra_scripts %}
 <script>
 const SadeemDash = {
     store: [],
@@ -143,7 +155,7 @@ const SadeemDash = {
 
         visible.forEach(item => {
             const isFile = item.path.match(/\.(css|js|jpg|jpeg|png|gif|svg|ico|webp)$/i);
-            
+
             if (item.ua.includes('bot') || item.ua.includes('crawl')) {
                 stats.type.bot++;
             } else if (isFile) {
@@ -161,7 +173,7 @@ const SadeemDash = {
 
     refresh() {
         const stats = this.getVisibleStats();
-        
+
         if (this.charts.type) {
             this.charts.type.data.datasets[0].data = [stats.type.human, stats.type.bot, stats.type.files];
             this.charts.type.update();
@@ -174,8 +186,8 @@ const SadeemDash = {
 
         const topPathsEl = document.getElementById('topPaths');
         const sortedPaths = Object.entries(stats.paths).sort((a,b) => b[1] - a[1]).slice(0,5);
-        
-        topPathsEl.innerHTML = sortedPaths.length ? sortedPaths.map(([p,c]) => 
+
+        topPathsEl.innerHTML = sortedPaths.length ? sortedPaths.map(([p,c]) =>
             `<li><span>${p}</span><strong style="color:#00cec9">${c}</strong></li>`
         ).join('') : '<li style="opacity:0.5; font-size:0.8rem">لا توجد بيانات سلوكية...</li>';
     },
@@ -194,10 +206,10 @@ const SadeemDash = {
             type: 'doughnut',
             data: {
                 labels: ['بشر','بوتات','ملفات'],
-                datasets: [{ 
-                    data: [0,0,0], 
-                    backgroundColor: ['#00cec9','#d63031','#854f6c'], 
-                    borderWidth: 0 
+                datasets: [{
+                    data: [0,0,0],
+                    backgroundColor: ['#00cec9','#d63031','#854f6c'],
+                    borderWidth: 0
                 }]
             },
             options: chartOptions
@@ -207,10 +219,10 @@ const SadeemDash = {
             type: 'doughnut',
             data: {
                 labels: ['كمبيوتر','جوال'],
-                datasets: [{ 
-                    data: [0,0], 
-                    backgroundColor: ['#fdcb6e','#0984e3'], 
-                    borderWidth: 0 
+                datasets: [{
+                    data: [0,0],
+                    backgroundColor: ['#fdcb6e','#0984e3'],
+                    borderWidth: 0
                 }]
             },
             options: chartOptions
@@ -218,13 +230,13 @@ const SadeemDash = {
     },
 
     exportToCSV() {
-        let csv = "\uFEFF"; 
+        let csv = "﻿";
         csv += "الرقم,IP العنوان,المسار المستهدف,التوقيت المحلي,نوع الجهاز,التصنيف السلوكي,بيانات الجهاز الكاملة\n";
-        
+
         this.store.forEach((l, index) => {
             const isMobile = /mobile|android|iphone|ipad/i.test(l.ua);
             const deviceType = isMobile ? "جوال" : "كمبيوتر";
-            
+
             let category = "بشر";
             if (l.ua.includes('bot') || l.ua.includes('crawl')) category = "بوت/زاحف";
             else if (l.path.match(/\.(css|js|jpg|png|ico|svg|webp)$/i)) category = "طلب ملفات";
@@ -245,3 +257,4 @@ const SadeemDash = {
 
 document.addEventListener("DOMContentLoaded", () => SadeemDash.init());
 </script>
+{% endblock %}

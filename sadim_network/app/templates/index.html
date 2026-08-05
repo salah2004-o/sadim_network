@@ -21,6 +21,7 @@
             <ul class="nav-menu">
                 <li><a href="#home">الرئيسية</a></li>
                 <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
+                <li><a href="{{ url_for('articles.list_articles') }}">المقالات</a></li>
                 <li><a href="{{ url_for('admin.show_services') }}">خدماتنا</a></li>
                 <li><a href="mailto:admin@sadim.cloud">اتصل بنا</a></li>
                 <li><a href="{{ url_for('main.about') }}">من نحن</a></li>
@@ -42,6 +43,7 @@
         <ul class="mobile-nav-links">
             <li><a href="#home">الرئيسية</a></li>
             <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
+            <li><a href="{{ url_for('articles.list_articles') }}">المقالات</a></li>
             <li><a href="{{ url_for('admin.show_services') }}">خدماتنا</a></li>
             <li><a href="mailto:admin@sadim.cloud">اتصل بنا</a></li>
             <li><a href="{{ url_for('main.about') }}">من نحن</a></li>
@@ -131,6 +133,7 @@
     <section class="footer-links-section" style="padding: 2rem 1rem; background: #19061f; text-align: center;">
         <ul style="list-style: none; padding: 0; display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
             <li><a href="#home" style="text-decoration: none; color: #f0ebeb;">الرئيسية</a></li>
+            <li><a href="{{ url_for('articles.list_articles') }}" style="text-decoration: none; color: #f0ebeb;">المقالات</a></li>
             <li><a href="{{ url_for('admin.show_services') }}" style="text-decoration: none; color: #f5f0f0;">خدماتنا</a></li>
             <li><a href="mailto:admin@sadim.cloud" style="text-decoration: none; color: #f0e9e9;">اتصل بنا</a></li>
             <li><a href="{{ url_for('main.about') }}" style="text-decoration: none; color: #e6e3e3;">من نحن</a></li>

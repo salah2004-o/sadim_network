@@ -1,0 +1,53 @@
+{% extends "layouts/dashboard.html" %}
+{% block title %}إدارة المقالات — شبكة سديم{% endblock %}
+{% block page_title %}لوحة إدارة المقالات{% endblock %}
+
+{% block extra_head %}
+<style>
+    .article-card { background: var(--sd-surface); border: 1px solid var(--sd-border); border-radius: var(--sd-radius-lg); margin-bottom: var(--sd-sp-4); padding: var(--sd-sp-5); transition: var(--sd-transition); }
+    .article-card:hover { border-color: var(--sd-accent-soft-strong); transform: translateY(-3px); box-shadow: var(--sd-shadow-md); }
+    .article-content-box { background: rgba(0, 0, 0, 0.25); border-inline-start: 3px solid var(--sd-accent); padding: var(--sd-sp-4); border-radius: var(--sd-radius-sm); margin-top: var(--sd-sp-3); }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sd-sp-5); flex-wrap: wrap; gap: var(--sd-sp-2);">
+    <h2 style="margin:0; font-size: var(--sd-fs-lg);"><i class="fa-solid fa-newspaper" style="color: var(--sd-accent-light);"></i> لوحة إدارة المقالات</h2>
+    <span class="sd-badge sd-badge-neutral">الإجمالي: {{ posts|length }}</span>
+</div>
+
+{% for post in posts %}
+<div class="article-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sd-sp-3); flex-wrap: wrap; gap: var(--sd-sp-2);">
+        <div>
+            <h5 style="margin:0; color: var(--sd-accent-light); font-weight:700;">{{ post.title }}</h5>
+            <small style="color: var(--sd-text-secondary); font-size: var(--sd-fs-xs);">
+                <i class="fa-regular fa-user"></i> {{ post.username }}
+                <span style="margin-inline-start: var(--sd-sp-2);"><i class="fa-regular fa-clock"></i> {{ post.created_at.strftime('%Y-%m-%d | %H:%M') if post.created_at else '' }}</span>
+            </small>
+        </div>
+        <div style="display:flex; gap: var(--sd-sp-2);">
+            <a href="{{ url_for('articles.view_article', post_id=post.id) }}" class="sd-btn sd-btn-secondary sd-btn-sm sd-ripple" target="_blank">
+                <i class="fa-solid fa-eye"></i> عرض
+            </a>
+            <form action="{{ url_for('admin.manage_articles') }}" method="POST" style="display:inline;">
+                <input type="hidden" name="post_id" value="{{ post.id }}">
+                <button type="submit" class="sd-btn sd-btn-danger sd-btn-sm sd-ripple" onclick="return confirm('إجراء إداري: هل أنت متأكد من حذف هذا المقال نهائياً؟')">
+                    <i class="fa-solid fa-trash-can"></i> حذف
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="article-content-box">
+        <p style="margin:0; color: var(--sd-text);">{{ post.content|truncate(220) }}</p>
+    </div>
+</div>
+{% else %}
+<div class="sd-state sd-state-empty">
+    <i class="fa-solid fa-newspaper"></i>
+    <p>لا توجد مقالات منشورة حالياً.</p>
+</div>
+{% endfor %}
+
+{% endblock %}

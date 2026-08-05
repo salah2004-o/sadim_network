@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from app.db.sadim_db import get_db_connection
 from app.utlis.permissions import admin_required
+from app.utlis.login_required import login_required
 
 # تم توليد هذا الملف بواسطة AI، قد يحتوي على أخطاء أو يحتاج إلى تحسينات. يرجى مراجعته بعناية قبل الاستخدام.
 # رغم انني استطيع بناء هذا الملف من الصفر، الا انني استخدمت بعض الكود من ملفات اخرى لتسريع العملية، لذا قد تجد بعض التشابهات في الكود مع ملفات اخرى في المشروع.
@@ -66,6 +67,7 @@ def get_certs():
 # ── Dashboard ────────────────────────────────────────────────────────────────
 
 @profile_bp.route('/profile')
+@login_required
 @admin_required
 def profile_dashboard():
     return render_template('dashboard/profile_dashboard.html',
@@ -77,6 +79,7 @@ def profile_dashboard():
 # ── General Info ─────────────────────────────────────────────────────────────
 
 @profile_bp.route('/profile/info', methods=['POST'])
+@login_required
 @admin_required
 def profile_update_info():
     conn = get_db_connection()
@@ -98,6 +101,7 @@ def profile_update_info():
 # ── Stats ─────────────────────────────────────────────────────────────────────
 
 @profile_bp.route('/profile/stats/add', methods=['POST'])
+@login_required
 @admin_required
 def profile_stat_add():
     label = request.form.get('label', '').strip()
@@ -114,6 +118,7 @@ def profile_stat_add():
 
 
 @profile_bp.route('/profile/stats/update/<int:stat_id>', methods=['POST'])
+@login_required
 @admin_required
 def profile_stat_update(stat_id):
     label = request.form.get('label', '').strip()
@@ -129,6 +134,7 @@ def profile_stat_update(stat_id):
 
 
 @profile_bp.route('/profile/stats/delete/<int:stat_id>', methods=['POST'])
+@login_required
 @admin_required
 def profile_stat_delete(stat_id):
     conn = get_db_connection()
@@ -144,6 +150,7 @@ def profile_stat_delete(stat_id):
 # ── Skills ────────────────────────────────────────────────────────────────────
 
 @profile_bp.route('/profile/skills/add', methods=['POST'])
+@login_required
 @admin_required
 def profile_skill_add():
     name = request.form.get('name', '').strip()
@@ -160,6 +167,7 @@ def profile_skill_add():
 
 
 @profile_bp.route('/profile/skills/update/<int:skill_id>', methods=['POST'])
+@login_required
 @admin_required
 def profile_skill_update(skill_id):
     name = request.form.get('name', '').strip()
@@ -175,6 +183,7 @@ def profile_skill_update(skill_id):
 
 
 @profile_bp.route('/profile/skills/delete/<int:skill_id>', methods=['POST'])
+@login_required
 @admin_required
 def profile_skill_delete(skill_id):
     conn = get_db_connection()
@@ -190,6 +199,7 @@ def profile_skill_delete(skill_id):
 # ── Projects ──────────────────────────────────────────────────────────────────
 
 @profile_bp.route('/profile/projects/add', methods=['POST'])
+@login_required
 @admin_required
 def profile_project_add():
     name = request.form.get('name', '').strip()
@@ -211,6 +221,7 @@ def profile_project_add():
 
 
 @profile_bp.route('/profile/projects/update/<int:proj_id>', methods=['POST'])
+@login_required
 @admin_required
 def profile_project_update(proj_id):
     name = request.form.get('name', '').strip()
@@ -231,6 +242,7 @@ def profile_project_update(proj_id):
 
 
 @profile_bp.route('/profile/projects/delete/<int:proj_id>', methods=['POST'])
+@login_required
 @admin_required
 def profile_project_delete(proj_id):
     conn = get_db_connection()
@@ -246,6 +258,7 @@ def profile_project_delete(proj_id):
 # ── Certificates ──────────────────────────────────────────────────────────────
 
 @profile_bp.route('/profile/certs/add', methods=['POST'])
+@login_required
 @admin_required
 def profile_cert_add():
     title  = request.form.get('title', '').strip()
@@ -267,6 +280,7 @@ def profile_cert_add():
 
 
 @profile_bp.route('/profile/certs/update/<int:cert_id>', methods=['POST'])
+@login_required
 @admin_required
 def profile_cert_update(cert_id):
     title  = request.form.get('title', '').strip()
@@ -287,6 +301,7 @@ def profile_cert_update(cert_id):
 
 
 @profile_bp.route('/profile/certs/delete/<int:cert_id>', methods=['POST'])
+@login_required
 @admin_required
 def profile_cert_delete(cert_id):
     conn = get_db_connection()

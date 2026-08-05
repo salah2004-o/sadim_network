@@ -47,6 +47,14 @@
                 </div>
             </div>
 
+            <div class="form-item">
+                <label class="input-label" for="bio">نبذة مختصرة (تظهر بصفحتك العامة)</label>
+                <div class="field-inner">
+                    <i class="fas fa-align-right field-icon"></i>
+                    <textarea id="bio" name="bio" rows="3" maxlength="300" placeholder="اكتب نبذة قصيرة عنك...">{{ user.bio or '' }}</textarea>
+                </div>
+            </div>
+
             <div class="section-divider"></div>
 
             <label class="delete-section" for="delete_account">

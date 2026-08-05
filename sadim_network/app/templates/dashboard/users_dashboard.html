@@ -1,237 +1,82 @@
-<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-        <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+{% extends "layouts/dashboard.html" %}
+{% block title %}لوحة المستخدمين — شبكة سديم{% endblock %}
+{% block page_title %}لوحة المستخدمين{% endblock %}
 
-
-
-<style>/* * Sadeem Network - Users Management Dashboard Specific Styles
- * Focuses on activity monitoring, status differentiation, and grid layouts.
- */
-
-body {
-    background-color: var(--color-bg);
-    padding: 2rem;
-}
-
-.title {
-    color: var(--color-primary);
-    text-align: center;
-    font-size: 2.2rem;
-    font-weight: 800;
-    margin-block-end: 1rem;
-}
-
-/* Dashboard Navigation Link */
-a[href*="dashboard_home"] {
-    display: block;
-    text-align: center;
-    color: var(--color-accent);
-    text-decoration: none;
-    font-weight: 600;
-    margin-block-end: 3rem;
-    transition: var(--transition);
-}
-
-a[href*="dashboard_home"]:hover {
-    color: var(--color-primary);
-    text-decoration: underline;
-}
-
-/* Statistics Grid */
-.stats-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-block-end: 4rem;
-}
-
-.stats-card {
-    background: white;
-    padding: 2rem;
-    border-radius: var(--radius);
-    text-align: center;
-    box-shadow: var(--shadow);
-    border-bottom: 4px solid var(--color-light);
-    transition: var(--transition);
-}
-
-.stats-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--color-accent);
-}
-
-.stats-label {
-    color: var(--color-secondary);
-    font-size: 0.95rem;
-    margin-block-end: 0.5rem;
-}
-
-.stats-number {
-    color: var(--color-primary);
-    font-size: 2.2rem;
-    font-weight: 900;
-}
-
-/* Tables Styling */
-.table-title {
-    color: var(--color-deep);
-    border-right: 4px solid var(--color-accent);
-    padding-right: 1rem;
-    margin-block: 2rem 1rem;
-    font-size: 1.4rem;
-}
-
-.user-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    margin-block-end: 3rem;
-}
-
-.user-table thead {
-    background-color: var(--color-primary);
-    color: white;
-}
-
-.user-table th, 
-.user-table td {
-    padding: 1.2rem;
-    text-align: right;
-    font-size: 0.9rem;
-}
-
-.user-table tbody tr {
-    border-bottom: 1px solid var(--color-light);
-}
-
-/* Row Status Differentiation */
-.online-row {
-    background-color: rgba(37, 211, 102, 0.03); /* Soft green glow */
-}
-
-.online-row td:first-child {
-    font-weight: 700;
-    color: #1a7f37;
-    position: relative;
-}
-
-.online-row td:first-child::before {
-    content: '';
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background-color: #25D366;
-    border-radius: 50%;
-    margin-left: 8px;
-}
-
-.offline-row {
-    opacity: 0.85;
-}
-
-/* Specific Column Handling */
-.user-table td:nth-child(3) { /* IP Column */
-    font-family: monospace;
-    color: var(--color-secondary);
-}
-
-.user-table td:nth-child(4) { /* User Agent */
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    font-size: 0.8rem;
-    color: #999;
-}
-
-/* Responsive Table */
-@media (max-width: 1024px) {
-    .user-table {
-        display: block;
-        overflow-x: auto;
+{% block extra_head %}
+<style>
+    .sd-online-row td:first-child { font-weight: 700; color: var(--sd-success); position: relative; }
+    .sd-online-row td:first-child .sd-online-dot {
+        display: inline-block; width: 8px; height: 8px; background: var(--sd-success);
+        border-radius: 50%; margin-inline-start: 8px;
     }
-}
-
-@media (max-width: 600px) {
-    .stats-container {
-        grid-template-columns: 1fr;
+    .sd-offline-row { opacity: 0.75; }
+    .sd-ua-cell {
+        max-width: 220px; white-space: nowrap; overflow: hidden;
+        text-overflow: ellipsis; font-size: var(--sd-fs-xs); color: var(--sd-text-secondary);
     }
-    
-    .title {
-        font-size: 1.8rem;
-    }
-}
+    .sd-ip-cell { font-family: monospace; color: var(--sd-text-secondary); }
 </style>
-<h2 class="title">لوحة المستخدمين</h2>
-    <a href="{{ url_for('admin.dashboard_home') }}">  لوحة الزوار</a>
-    
+{% endblock %}
 
-<!-- إحصائيات -->
-<div class="stats-container">
-    <div class="stats-card">
-        <p class="stats-label">آخر ظهور خلال 24 ساعة</p>
-        <p class="stats-number">{{ stats.day }}</p>
+{% block content %}
+
+<a href="{{ url_for('admin.dashboard_home') }}" class="sd-btn sd-btn-secondary sd-ripple" style="margin-bottom: var(--sd-sp-5);">
+    <i class="fas fa-chart-line"></i> لوحة الزوار
+</a>
+
+<div class="sd-services-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sd-sp-4); margin-bottom: var(--sd-sp-6);">
+    <div class="sd-card" style="text-align:center;">
+        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin: 0 0 var(--sd-sp-2);">آخر ظهور خلال 24 ساعة</p>
+        <p style="color: var(--sd-text); font-size: var(--sd-fs-xl); font-weight: 900; margin:0;">{{ stats.day }}</p>
     </div>
-
-    <div class="stats-card">
-        <p class="stats-label">آخر ظهور خلال أسبوع</p>
-        <p class="stats-number">{{ stats.week }}</p>
+    <div class="sd-card" style="text-align:center;">
+        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin: 0 0 var(--sd-sp-2);">آخر ظهور خلال أسبوع</p>
+        <p style="color: var(--sd-text); font-size: var(--sd-fs-xl); font-weight: 900; margin:0;">{{ stats.week }}</p>
     </div>
-
-    <div class="stats-card">
-        <p class="stats-label">آخر ظهور خلال شهر</p>
-        <p class="stats-number">{{ stats.month }}</p>
+    <div class="sd-card" style="text-align:center;">
+        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin: 0 0 var(--sd-sp-2);">آخر ظهور خلال شهر</p>
+        <p style="color: var(--sd-text); font-size: var(--sd-fs-xl); font-weight: 900; margin:0;">{{ stats.month }}</p>
     </div>
 </div>
 
-<!-- المتصلين -->
-<h3 class="table-title">المتصلين الآن</h3>
-<table class="user-table">
-    <thead>
-        <tr>
-            <th>البريد</th>
-            <th>الاسم</th>
-            <th>IP</th>
-            <th>User Agent</th>
-            <th>آخر ظهور</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for u in online_users %}
-        <tr class="online-row">
-            <td>{{ u[0] }}</td>
-            <td>{{ u[1] }}</td>
-            <td>{{ u[2] }}</td>
-            <td>{{ u[3] }}</td>
-            <td>{{ u[4] }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<h3 style="font-size: var(--sd-fs-md); border-inline-start: 4px solid var(--sd-accent); padding-inline-start: var(--sd-sp-3); margin-block: var(--sd-sp-5) var(--sd-sp-3);">المتصلين الآن</h3>
+<div class="sd-table-wrapper">
+    <table class="sd-table">
+        <thead>
+            <tr><th>البريد</th><th>الاسم</th><th>IP</th><th>User Agent</th><th>آخر ظهور</th></tr>
+        </thead>
+        <tbody>
+            {% for u in online_users %}
+            <tr class="sd-online-row">
+                <td><span class="sd-online-dot"></span>{{ u[0] }}</td>
+                <td>{{ u[1] }}</td>
+                <td class="sd-ip-cell">{{ u[2] }}</td>
+                <td class="sd-ua-cell" title="{{ u[3] }}">{{ u[3] }}</td>
+                <td>{{ u[4] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-<!-- غير المتصلين -->
-<h3 class="table-title">غير المتصلين</h3>
-<table class="user-table">
-    <thead>
-        <tr>
-            <th>البريد</th>
-            <th>الاسم</th>
-            <th>IP</th>
-            <th>User Agent</th>
-            <th>آخر ظهور</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for u in offline_users %}
-        <tr class="offline-row">
-            <td>{{ u[0] }}</td>
-            <td>{{ u[1] }}</td>
-            <td>{{ u[2] }}</td>
-            <td>{{ u[3] }}</td>
-            <td>{{ u[4] }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<h3 style="font-size: var(--sd-fs-md); border-inline-start: 4px solid var(--sd-accent); padding-inline-start: var(--sd-sp-3); margin-block: var(--sd-sp-6) var(--sd-sp-3);">غير المتصلين</h3>
+<div class="sd-table-wrapper">
+    <table class="sd-table">
+        <thead>
+            <tr><th>البريد</th><th>الاسم</th><th>IP</th><th>User Agent</th><th>آخر ظهور</th></tr>
+        </thead>
+        <tbody>
+            {% for u in offline_users %}
+            <tr class="sd-offline-row">
+                <td>{{ u[0] }}</td>
+                <td>{{ u[1] }}</td>
+                <td class="sd-ip-cell">{{ u[2] }}</td>
+                <td class="sd-ua-cell" title="{{ u[3] }}">{{ u[3] }}</td>
+                <td>{{ u[4] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

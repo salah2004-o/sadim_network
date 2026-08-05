@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}شبكة سديم{% endblock %}</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/interactions.css') }}">
+{% block extra_head %}{% endblock %}
+</head>
+<body class="sd-app sd-root">
+
+<header class="sd-navbar">
+    <a href="{{ url_for('loading_bp.landing_page') }}" class="sd-navbar-brand">
+        <i class="fas fa-circle-nodes" style="color: var(--sd-accent-light);"></i> شبكة سديم
+    </a>
+
+    <nav aria-label="التنقل الرئيسي" class="sd-navbar-links-wrap" style="display:flex; align-items:center; gap: var(--sd-sp-2);">
+        <ul class="sd-navbar-links" id="sd-desktop-nav">
+            <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}"><i class="fas fa-book"></i> مكتبة أجاثا</a></li>
+            {% if session.get('user_id') %}
+            <li><a href="{{ url_for('bots.my_bots') }}"><i class="fas fa-robot"></i> أنظمتي</a></li>
+            {% endif %}
+            <li><a href="{{ url_for('articles.list_articles') }}"><i class="fas fa-newspaper"></i> المقالات</a></li>
+            <li><a href="{{ url_for('admin.show_services') }}"><i class="fas fa-toolbox"></i> خدماتنا</a></li>
+            <li><a href="{{ url_for('main.about') }}"><i class="fas fa-circle-info"></i> من نحن</a></li>
+            {% if session.get('role') == 'admin' %}
+            <li><a href="{{ url_for('admin.services_dashboard') }}"><i class="fas fa-gauge"></i> لوحة التحكم</a></li>
+            {% endif %}
+        </ul>
+
+        {% if session.get('user_id') %}
+        <div class="sd-dropdown">
+            <button type="button" class="sd-btn sd-btn-ghost sd-ripple" data-sd-dropdown-trigger aria-expanded="false" aria-haspopup="true">
+                <i class="fas fa-user-circle"></i> {{ session.get('username', '') }} <i class="fas fa-chevron-down" style="font-size:.7em;"></i>
+            </button>
+            <div class="sd-dropdown-menu" role="menu">
+                <a href="{{ url_for('loading_bp.account') }}" class="sd-dropdown-item" role="menuitem"><i class="fas fa-id-badge"></i> حسابي</a>
+                <div class="sd-dropdown-divider"></div>
+                <a href="{{ url_for('loading_bp.logout') }}" class="sd-dropdown-item is-danger" role="menuitem"><i class="fas fa-right-from-bracket"></i> تسجيل الخروج</a>
+            </div>
+        </div>
+        {% else %}
+        <a href="{{ url_for('loading_bp.login') }}" class="sd-btn sd-btn-primary sd-ripple sd-btn-sm">تسجيل الدخول</a>
+        {% endif %}
+
+        <button type="button" id="menu-toggle" class="sd-btn sd-btn-icon sd-btn-ghost" aria-expanded="false" aria-controls="mobile-sidebar" aria-label="فتح القائمة" style="display:none;">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+</header>
+
+<div id="mobile-sidebar" class="sd-sidebar sd-mobile-drawer">
+    <button id="close-sidebar" class="sd-btn sd-btn-icon sd-btn-ghost" style="align-self:flex-end;" aria-label="إغلاق القائمة"><i class="fas fa-xmark"></i></button>
+    <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-sidebar-item"><i class="fas fa-book"></i> مكتبة أجاثا</a>
+    {% if session.get('user_id') %}
+    <a href="{{ url_for('bots.my_bots') }}" class="sd-sidebar-item"><i class="fas fa-robot"></i> أنظمتي</a>
+    {% endif %}
+    <a href="{{ url_for('articles.list_articles') }}" class="sd-sidebar-item"><i class="fas fa-newspaper"></i> المقالات</a>
+    <a href="{{ url_for('admin.show_services') }}" class="sd-sidebar-item"><i class="fas fa-toolbox"></i> خدماتنا</a>
+    <a href="{{ url_for('main.about') }}" class="sd-sidebar-item"><i class="fas fa-circle-info"></i> من نحن</a>
+    {% if session.get('role') == 'admin' %}
+    <a href="{{ url_for('admin.services_dashboard') }}" class="sd-sidebar-item"><i class="fas fa-gauge"></i> لوحة التحكم</a>
+    {% endif %}
+    {% if session.get('user_id') %}
+    <a href="{{ url_for('loading_bp.account') }}" class="sd-sidebar-item"><i class="fas fa-id-badge"></i> حسابي</a>
+    <a href="{{ url_for('loading_bp.logout') }}" class="sd-sidebar-item" style="color:var(--sd-danger);"><i class="fas fa-right-from-bracket"></i> تسجيل الخروج</a>
+    {% else %}
+    <a href="{{ url_for('loading_bp.login') }}" class="sd-sidebar-item"><i class="fas fa-right-to-bracket"></i> تسجيل الدخول</a>
+    {% endif %}
+</div>
+
+<main class="sd-fade-in">
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="sd-container" style="padding-top: var(--sd-sp-5); display:flex; flex-direction:column; gap: var(--sd-sp-2);">
+        {% for category, message in messages %}
+        <div class="sd-alert sd-alert-{{ 'danger' if category == 'error' else category }}">
+            <i class="fas {{ 'fa-circle-check' if category == 'success' else 'fa-triangle-exclamation' if category in ('error','danger') else 'fa-circle-info' }} sd-alert-icon"></i>
+            <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+</main>
+
+<footer class="sd-footer">
+    SADEEM NETWORK® 2026 — بابك الأول للخدمات الرقمية المتكاملة
+</footer>
+
+<script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui-kit.js') }}"></script>
+<script>
+    // إظهار زر الهامبرغر بالجوال فقط (النطاق العريض يبقى على القائمة الأفقية)
+    function sdSyncNavForWidth() {
+        const toggle = document.getElementById('menu-toggle');
+        const desktopNav = document.getElementById('sd-desktop-nav');
+        if (window.innerWidth <= 860) {
+            toggle.style.display = 'inline-flex';
+            desktopNav.style.display = 'none';
+        } else {
+            toggle.style.display = 'none';
+            desktopNav.style.display = 'flex';
+        }
+    }
+    sdSyncNavForWidth();
+    window.addEventListener('resize', sdSyncNavForWidth);
+</script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

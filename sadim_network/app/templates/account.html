@@ -6,6 +6,7 @@
         <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
 
     <title>حسابي</title>
 
@@ -29,6 +30,32 @@
             <p><strong>الإيميل:</strong> {{ user.email }}</p>
             </p>
         </div>
+
+        {% if limit_status and limit_status.status != 'default' %}
+        <div class="sd-card" dir="rtl" style="text-align:start; margin:1.5rem auto; max-width: 420px; font-family: 'Segoe UI', Tahoma, sans-serif;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-3);">
+                <strong style="font-size: var(--sd-fs-md); color: var(--sd-text);">حد البوتات</strong>
+                {% if limit_status.status == 'active' %}
+                    <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> نشط</span>
+                {% elif limit_status.status == 'expiring_soon' %}
+                    <span class="sd-badge sd-badge-warning"><span class="sd-badge-dot"></span> ينتهي قريباً</span>
+                {% elif limit_status.status == 'expired' %}
+                    <span class="sd-badge sd-badge-danger"><span class="sd-badge-dot"></span> منتهي</span>
+                {% endif %}
+            </div>
+            <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-base); margin:0 0 .5rem;">
+                البوتات: <strong style="color: var(--sd-text);">{{ limit_status.current_bot_count }} / {{ 'غير محدود' if limit_status.is_unlimited else limit_status.effective_limit }}</strong>
+            </p>
+            {% if limit_status.expires_at %}
+            <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0 0 .5rem;">
+                ينتهي بتاريخ: <strong style="color: var(--sd-text);">{{ limit_status.expires_at.strftime('%Y-%m-%d') }}</strong>
+            </p>
+            <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0;">
+                المتبقي: <strong style="color: var(--sd-text);">{{ limit_status.days_left }} يوم</strong>
+            </p>
+            {% endif %}
+        </div>
+        {% endif %}
 
         <div class="btn-container">
             <a class="btn" href="{{ url_for('loading_bp.account_settings') }}">تعديل البيانات</a>

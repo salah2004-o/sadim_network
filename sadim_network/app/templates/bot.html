@@ -398,6 +398,21 @@
             font-size: 0.9rem;
         }
 
+        /* تنبيهات */
+        .alert {
+            padding: 0.9rem 1.2rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            animation: fadeUp 0.5s ease forwards;
+        }
+        .alert.success { background: rgba(0, 230, 118, 0.08); border: 1px solid rgba(0, 230, 118, 0.25); color: var(--green); }
+        .alert.error { background: rgba(255, 82, 82, 0.08); border: 1px solid rgba(255, 82, 82, 0.25); color: var(--red); }
+        .alert.info, .alert.message { background: rgba(124, 77, 255, 0.07); border: 1px solid rgba(124, 77, 255, 0.2); color: var(--color-light); }
+
         /* حد الخطة */
         .quota-bar {
             background: var(--color-primary);
@@ -462,8 +477,8 @@
 
 <header class="page-header">
     <div class="header-right">
-        <a href="{{ url_for('dashboard.home') }}" class="back-btn">
-            <i class="fas fa-arrow-right"></i> لوحة التحكم
+        <a href="{{ url_for('loading_bp.landing_page') }}" class="back-btn">
+            <i class="fas fa-arrow-right"></i> الرئيسية
         </a>
     </div>
     <div class="page-title">
@@ -477,10 +492,29 @@
 
 <div class="container">
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert {{ category }}">
+                <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-triangle-exclamation' if category == 'error' else 'fa-info-circle' }}"></i>
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
+    {% endwith %}
+
     <!-- حصة البوتات -->
     <div class="quota-bar">
         <div class="quota-info">
-            <div class="quota-label">البوتات النشطة — الحد المجاني ١ بوت</div>
+            <div class="quota-label">
+                البوتات النشطة —
+                {% if limit_status and limit_status.is_unlimited %}
+                    حد غير محدود
+                {% else %}
+                    الحد المسموح {{ limit_status.effective_limit if limit_status else 1 }} بوت
+                {% endif %}
+                {% if limit_status and limit_status.expires_at %}
+                    (ينتهي بعد {{ limit_status.days_left }} يوم)
+                {% endif %}
+            </div>
             <div class="quota-track">
                 <div class="quota-fill" id="quotaFill" style="width: 0%"></div>
             </div>
@@ -492,7 +526,7 @@
     <div class="add-bot-card">
         <div class="card-title">
             <i class="fas fa-plus-circle"></i>
-            ربط بوت اقتباسات
+            ربط بوت شبكة سديم
         </div>
 
         <form method="POST" action="{{ url_for('bots.add_bot') }}">
@@ -529,7 +563,7 @@
                     <i class="fas fa-robot"></i>
                 </div>
                 <div class="bot-info">
-                    <div class="bot-name">بوت اقتباسات</div>
+                    <div class="bot-name">بوت شبكة سديم</div>
                     <div class="bot-meta">
                         <span class="bot-channel">
                             <i class="fab fa-telegram"></i>
@@ -567,12 +601,13 @@
 </div>
 
 <script>
-    // حساب نسبة الاستخدام
+    // حساب نسبة الاستخدام — يعتمد على الحد الفعلي الحقيقي لهذا المستخدم (افتراضي/مخصص/غير محدود)
     const bots = {{ bots|length if bots else 0 }};
-    const limit = 1;
-    const pct = Math.min((bots / limit) * 100, 100);
+    const isUnlimited = {{ 'true' if limit_status and limit_status.is_unlimited else 'false' }};
+    const limit = {{ limit_status.effective_limit if limit_status and not limit_status.is_unlimited else 1 }};
+    const pct = isUnlimited ? 12 : Math.min((bots / limit) * 100, 100);
     document.getElementById('quotaFill').style.width = pct + '%';
-    document.getElementById('quotaCount').textContent = bots + ' / ' + limit;
+    document.getElementById('quotaCount').textContent = isUnlimited ? (bots + ' / ∞') : (bots + ' / ' + limit);
 </script>
 
 </body>

@@ -162,7 +162,8 @@ form { display: flex; flex-direction: column; gap: 1.2rem; margin-bottom: 1.2rem
 }
 
 input[type="text"],
-input[type="email"] {
+input[type="email"],
+textarea {
     width: 100%;
     padding: 0.75rem 2.4rem 0.75rem 0.9rem;
     border-radius: var(--radius-sm);
@@ -174,10 +175,13 @@ input[type="email"] {
     text-align: right;
     transition: var(--transition);
 }
+textarea { resize: vertical; min-height: 4.5rem; }
 input[type="text"]::placeholder,
-input[type="email"]::placeholder { color: rgba(255, 255, 255, 0.15); }
+input[type="email"]::placeholder,
+textarea::placeholder { color: rgba(255, 255, 255, 0.15); }
 
-input:focus {
+input:focus,
+textarea:focus {
     outline: none;
     border-color: rgba(179, 136, 255, 0.5);
     background: rgba(124, 77, 255, 0.05);

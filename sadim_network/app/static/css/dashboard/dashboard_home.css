@@ -6,6 +6,11 @@
     box-sizing: border-box;
 }
 
+.table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 :root {
     --color-light: #ffffff;
     --color-dark: #121212;

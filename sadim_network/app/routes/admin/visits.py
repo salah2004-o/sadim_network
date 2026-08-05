@@ -13,17 +13,6 @@ from app.models.visitor_logs import visitor_logs
 # ------------------ صفحة لوحة التحكم الرئيسية ------------------
 
 
-@admin_bp.before_request
-def log_visitors():
-    # تجاهل كل الملفات الثابتة
-    if request.path.startswith('/static/'):
-        return
-    
-    ip = request.remote_addr
-    user_agent = request.headers.get("User-Agent")
-    path = request.path
-
-    visitor_logs.log_visit(ip, user_agent, path)
 #------------------ صفحة عرض الزيارات ------------------
 @admin_bp.route('/')
 @login_required

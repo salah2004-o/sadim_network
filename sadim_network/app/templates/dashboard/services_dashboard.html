@@ -1,219 +1,121 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard/services_dashboard.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <title>لوحة الخدمات - شبكة سديم</title>
+{% extends "layouts/dashboard.html" %}
+{% block title %}لوحة الخدمات — شبكة سديم{% endblock %}
+{% block page_title %}إدارة الخدمات{% endblock %}
 
-    <style>
-        /* * Sadeem Network - Dashboard Core Variables & Welcome Modal
-         * Dark Glassmorphism Integration
-         */
-        :root {
-            --color-bg: #09090d;
-            --color-primary: rgba(18, 18, 24, 0.75);
-            --color-accent: #7c4dff;
-            --color-light: #b388ff;
-            --color-deep: #ffffff;
-            --text-muted: #9c9cab;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --blur: blur(18px);
-            --radius: 24px;
-            --radius-sm: 14px;
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            --shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
-        }
+{% block extra_head %}
+<style>
+    .sd-welcome-icon {
+        width: 72px; height: 72px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto var(--sd-sp-4);
+        background: rgba(124, 77, 255, 0.1);
+        color: var(--sd-accent-light);
+        border: 2px solid rgba(124, 77, 255, 0.3);
+        font-size: 1.75rem;
+    }
+    .sd-services-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: var(--sd-sp-5);
+        margin-top: var(--sd-sp-5);
+    }
+    .sd-service-card img {
+        width: 100%; height: 160px; object-fit: cover;
+        border-radius: var(--sd-radius-md);
+        margin-bottom: var(--sd-sp-3);
+    }
+    .sd-service-price {
+        color: var(--sd-accent-light);
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
 
-        /* حاوية النافذة الترحيبية الخلفية */
-        .welcome-overlay {
-            position: fixed;
-            inset: 0;
-            background-color: rgba(5, 5, 8, 0.85);
-            backdrop-filter: var(--blur);
-            -webkit-backdrop-filter: var(--blur);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition);
-            padding: 1.5rem;
-        }
+{% block content %}
 
-        /* النمط النشط للنافذة عند الاستدعاء */
-        .welcome-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        /* بطاقة النافذة الترحيبية */
-        .welcome-card {
-            background: var(--color-primary);
-            border: 1px solid var(--border-color);
-            border-top: 4px solid var(--color-accent);
-            border-radius: var(--radius);
-            padding: 3rem 2rem;
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-            box-shadow: var(--shadow);
-            transform: scale(0.9) translateY(20px);
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .welcome-overlay.active .welcome-card {
-            transform: scale(1) translateY(0);
-        }
-
-        .welcome-icon {
-            width: 80px;
-            height: 80px;
-            background: rgba(124, 77, 255, 0.1);
-            color: var(--color-light);
-            border: 2px solid rgba(124, 77, 255, 0.3);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin: 0 auto 1.5rem;
-            box-shadow: 0 0 20px rgba(124, 77, 255, 0.15);
-            animation: pulseGlow 3s infinite alternate;
-        }
-
-        .welcome-card h2 {
-            color: var(--color-deep);
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-        }
-
-        .welcome-card .admin-name {
-            color: var(--color-light);
-            text-shadow: 0 0 10px rgba(179, 136, 255, 0.3);
-        }
-
-        .welcome-card p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-        }
-
-        .btn-enter-dashboard {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 0.9rem;
-            background: linear-gradient(135deg, var(--color-light), var(--color-accent));
-            color: #ffffff;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-size: 1px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 4px 15px rgba(124, 77, 255, 0.25);
-        }
-
-        .btn-enter-dashboard:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(124, 77, 255, 0.45);
-        }
-
-        .btn-enter-dashboard i {
-            margin-right: 8px;
-        }
-
-        @keyframes pulseGlow {
-            from { box-shadow: 0 0 15px rgba(124, 77, 255, 0.15); transform: scale(1); }
-            to { box-shadow: 0 0 25px rgba(124, 77, 255, 0.35); transform: scale(1.03); }
-        }
-    </style>
-</head>
-<body>
-
-    <div id="welcomeModal" class="welcome-overlay">
-        <div class="welcome-card">
-            <div class="welcome-icon">
-                <i class="fas fa-user-shield"></i>
-            </div>
-            <h2>مرحباً بك مجدداً</h2>
-            <p>المشرف الحركي: <span class="admin-name">{{ username }}</span></p>
-            <p>نظام التشغيل آمن، تم تسجيل الدخول وجاهز لاستقبال العمليات الإدارية وتحديث شبكة سديم.</p>
-            
-            <button class="btn-enter-dashboard" onclick="closeWelcomeModal()">
+<div class="sd-modal-overlay is-open" id="welcomeModal" role="dialog" aria-modal="true" aria-labelledby="welcomeModalTitle">
+    <div class="sd-modal">
+        <div class="sd-welcome-icon"><i class="fas fa-user-shield"></i></div>
+        <h2 class="sd-modal-title" id="welcomeModalTitle" style="text-align:center;">مرحباً بك مجدداً</h2>
+        <p class="sd-modal-desc" style="text-align:center;">
+            المشرف: <strong style="color: var(--sd-accent-light);">{{ username }}</strong><br>
+            نظام التشغيل آمن، تم تسجيل الدخول وجاهز لاستقبال العمليات الإدارية.
+        </p>
+        <div class="sd-modal-actions" style="justify-content:center;">
+            <button type="button" class="sd-btn sd-btn-primary sd-ripple" id="closeWelcomeBtn">
                 دخول لوحة التحكم <i class="fas fa-arrow-left"></i>
             </button>
         </div>
     </div>
+</div>
 
-    <div class="admin-header">
-        <p class="greeting"><i class="fas fa-user-shield"></i> {{ username }}</p>
-        <p class="greeting"><i class="fas fa-clock"></i> {{ current_time }}</p>
+<div style="display:flex; flex-wrap:wrap; gap: var(--sd-sp-3); align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-5);">
+    <div style="display:flex; flex-wrap:wrap; gap: var(--sd-sp-4); color: var(--sd-text-secondary); font-size: var(--sd-fs-sm);">
+        <span><i class="fas fa-user-shield"></i> {{ username }}</span>
+        <span><i class="fas fa-clock"></i> {{ current_time }}</span>
     </div>
+    <a href="{{ url_for('admin.add_service') }}" class="sd-btn sd-btn-primary sd-ripple">
+        <i class="fas fa-plus"></i> إضافة خدمة
+    </a>
+</div>
 
-    <h1>إدارة الخدمات</h1>
-
-    <div class="nav-grid">
-        <a href="{{ url_for('admin.add_service') }}" class="special"><i class="fas fa-plus"></i> إضافة خدمة</a>
-        <a href="{{ url_for('admin.dashboard_home') }}"><i class="fas fa-chart-bar"></i> الزوار</a>
-        <a href="{{ url_for('admin.dashboard_users') }}"><i class="fas fa-users"></i> المستخدمين</a>
-        <a href="{{ url_for('admin.admin_users_list') }}"><i class="fas fa-id-card"></i> عرض الكل</a>
-        <a href="{{ url_for('loading_bp.landing_page') }}"><i class="fas fa-home"></i> الموقع</a>
-        <a href="{{ url_for('admin.manage_library')}}"><i class="fas fa-book"></i> المكتبة</a>
-        <a href="{{ url_for('profile_bp.profile_dashboard') }}"><i class="fas fa-user"></i> البروفايل</a>
-        <a href="{{ url_for('admin.manage_comments') }}"><i class="fas fa-comments"></i> التعليقات</a>
-        <a href="{{ url_for('loading_bp.logout') }}" style="color: #ff7675;"><i class="fas fa-power-off"></i> خروج</a>
+<div class="sd-card" style="margin-bottom: var(--sd-sp-5);">
+    <h3 style="margin-top:0; font-size: var(--sd-fs-md);"><i class="fas fa-compass"></i> اختصارات سريعة</h3>
+    <div class="sd-services-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--sd-sp-3);">
+        <a href="{{ url_for('admin.dashboard_home') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-chart-bar"></i> الزوار</a>
+        <a href="{{ url_for('admin.dashboard_users') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-users"></i> المستخدمين</a>
+        <a href="{{ url_for('admin.admin_users_list') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-id-card"></i> عرض الكل</a>
+        <a href="{{ url_for('loading_bp.landing_page') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-home"></i> الموقع</a>
+        <a href="{{ url_for('admin.manage_library') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-book"></i> المكتبة</a>
+        <a href="{{ url_for('bots.my_bots') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-robot"></i> أنظمتي</a>
+        <a href="{{ url_for('admin.manage_bots') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-satellite-dish"></i> بوتات المستخدمين</a>
+        <a href="{{ url_for('admin.bot_limits_list') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-gauge-high"></i> حدود البوتات</a>
+        <a href="{{ url_for('admin.manage_articles') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-newspaper"></i> إدارة المقالات</a>
+        <a href="{{ url_for('profile_bp.profile_dashboard') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-user"></i> البروفايل</a>
+        <a href="{{ url_for('admin.manage_comments') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-comments"></i> التعليقات</a>
+        <a href="{{ url_for('loading_bp.logout') }}" class="sd-btn sd-btn-outline sd-ripple" style="color: var(--sd-danger); border-color: var(--sd-danger);"><i class="fas fa-power-off"></i> خروج</a>
     </div>
+</div>
 
-    <div class="services-dashboard">
-        {% if services %}
-          {% for s in services %}
-            <div class="service-card">
-                <img src="{{ url_for('static', filename=s.image_url or 'uploads/default.jpg') }}" alt="خدمة">
-                
-                <div class="service-info">
-                    <h3>{{ s.title }}</h3>
-                    <p>{{ s.description }}</p>
-                    {% if s.price %}<p class="price-tag">{{ s.price }} ريال</p>{% endif %}
-                </div>
+<h3 style="font-size: var(--sd-fs-md);"><i class="fas fa-briefcase"></i> الخدمات الحالية</h3>
 
-                <div class="service-actions">
-                    <a href="{{ url_for('admin.edit_service', service_id=s.id) }}" class="btn-edit">تعديل</a>
-                    <a href="{{ url_for('admin.delete_service', service_id=s.id) }}" class="btn-delete" onclick="return confirm('حذف الخدمة؟')">حذف</a>
-                </div>
-            </div>
-          {% endfor %}
-        {% else %}
-          <div style="text-align: center; padding: 2rem; opacity: 0.4;">
-              <i class="fas fa-folder-open fa-2x"></i>
-              <p>لا توجد خدمات حالياً</p>
-          </div>
-        {% endif %}
+{% if services %}
+<div class="sd-services-grid">
+    {% for s in services %}
+    <div class="sd-card sd-service-card">
+        <img src="{{ url_for('static', filename=s.image_url or 'uploads/default.jpg') }}" alt="خدمة">
+        <h3 style="margin: 0 0 var(--sd-sp-2);">{{ s.title }}</h3>
+        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm);">{{ s.description }}</p>
+        {% if s.price %}<p class="sd-service-price">{{ s.price }} ريال</p>{% endif %}
+        <div style="display:flex; gap: var(--sd-sp-2); margin-top: var(--sd-sp-3);">
+            <a href="{{ url_for('admin.edit_service', service_id=s.id) }}" class="sd-btn sd-btn-outline sd-btn-sm sd-ripple" style="flex:1;">تعديل</a>
+            <a href="{{ url_for('admin.delete_service', service_id=s.id) }}" class="sd-btn sd-btn-danger sd-btn-sm sd-ripple" style="flex:1;" onclick="return confirm('حذف الخدمة؟')">حذف</a>
+        </div>
     </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="sd-state sd-state-empty">
+    <i class="fas fa-folder-open"></i>
+    <p>لا توجد خدمات حالياً</p>
+</div>
+{% endif %}
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // التحقق من وجود بصمة التحقق في الجلسة الحالية لمنع الظهور العشوائي مع التحديث
-            if (!sessionStorage.getItem("sadeem_admin_welcomed")) {
-                document.getElementById("welcomeModal").classList.add("active");
-            }
-        });
+{% endblock %}
 
-        function closeWelcomeModal() {
-            document.getElementById("welcomeModal").classList.remove("active");
-            // تسجيل البصمة لمنع إطلاقها مجدداً حتى يتم إغلاق المتصفح أو إنهاء الجلسة
-            sessionStorage.setItem("sadeem_admin_welcomed", "true");
+{% block extra_scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var modal = document.getElementById("welcomeModal");
+        if (sessionStorage.getItem("sadeem_admin_welcomed")) {
+            modal.classList.remove("is-open");
+            modal.style.display = "none";
         }
-    </script>
-
-</body>
-</html>
+        document.getElementById("closeWelcomeBtn").addEventListener("click", function () {
+            modal.classList.remove("is-open");
+            modal.style.display = "none";
+            sessionStorage.setItem("sadeem_admin_welcomed", "true");
+        });
+    });
+</script>
+{% endblock %}

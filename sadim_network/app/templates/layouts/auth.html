@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}شبكة سديم{% endblock %}</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/interactions.css') }}">
+<style>
+    .sd-auth-wrap {
+        min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        padding: var(--sd-sp-6);
+        background:
+            radial-gradient(circle at 15% 10%, rgba(124,77,255,.16), transparent 45%),
+            radial-gradient(circle at 85% 90%, rgba(179,136,255,.10), transparent 45%),
+            var(--sd-bg);
+    }
+    .sd-auth-card { width: 100%; max-width: 420px; }
+    .sd-auth-logo { display: flex; align-items: center; justify-content: center; gap: var(--sd-sp-2); margin-bottom: var(--sd-sp-6); font-weight: var(--sd-fw-black); font-size: var(--sd-fs-lg); text-decoration: none; color: var(--sd-text); }
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body class="sd-app sd-root">
+<div class="sd-auth-wrap">
+    <div class="sd-auth-card sd-fade-in">
+        <a href="{{ url_for('loading_bp.landing_page') }}" class="sd-auth-logo">
+            <i class="fas fa-circle-nodes" style="color: var(--sd-accent-light);"></i> شبكة سديم
+        </a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2); margin-bottom: var(--sd-sp-4);">
+                {% for category, message in messages %}
+                <div class="sd-alert sd-alert-{{ 'danger' if category == 'error' else category }}">
+                    <i class="fas {{ 'fa-circle-check' if category == 'success' else 'fa-triangle-exclamation' }} sd-alert-icon"></i>
+                    <span>{{ message }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="sd-card">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/ui-kit.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

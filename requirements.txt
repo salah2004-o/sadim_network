@@ -21,13 +21,20 @@ gevent==24.11.1
 
 # Telegram Bot
 pyTelegramBotAPI==4.14.0
+qrcode==8.2
+
+# Task Scheduling
+APScheduler==3.11.3
 
 # Video Download
-yt-dlp==2024.12.6
+yt-dlp==2026.7.4
 
 # PDF Processing
 PyMuPDF==1.24.1
 arabic-reshaper>=3.0.0
+
+# Image Processing
+Pillow==12.2.0
 
 python-bidi==0.4.2
 

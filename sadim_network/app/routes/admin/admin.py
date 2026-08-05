@@ -62,12 +62,8 @@ def dashboard_users():
 
 @admin_bp.route('/manage/comments', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def manage_comments():
-    # التأكد أن من يدخل هنا هو أدمن فقط
-    if session.get('role') != 'admin':
-        flash('غير مصرح لك بالدخول', 'danger')
-        return redirect(url_for('loading_bp.landing_page'))
-
     if request.method == 'POST':
         comment_id = request.form.get('comment_id')
         user_id = session.get('user_id')
@@ -83,4 +79,4 @@ def manage_comments():
 
     comments = Comments.get_all_comments()
     return render_template('dashboard/comments_dashboard.html', comments=comments)
-from app.routes.admin import users, visits, services, library
+from app.routes.admin import users, visits, services, library, bots_admin, articles, bot_limits

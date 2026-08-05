@@ -1,12 +1,14 @@
 # FILE: app/__init__.py
 # sadim_network/app/__init__.py
 from flask import Flask, render_template
+from werkzeug.middleware.proxy_fix import ProxyFix
 from app import config
 from app.limiter import limiter
 from authlib.integrations.flask_client import OAuth
 app = Flask(__name__)
 app.config.from_object('app.config.settings')
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 ميجا
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 limiter.init_app(app)
 
 oauth = OAuth(app)
@@ -25,10 +27,13 @@ from app.routes.errors import errors_bp
 from app.routes.admin.admin import admin_bp
 from app.routes.loding import loading_bp
 from app.routes.register import register_bp
-from app.routes.apis.chatbot_api import bot_bp
 from app.routes.LIBRARY_SADIM.Agatha_Christie import Library_Agatha_bp
 from app.routes.admin.profile import profile_bp
 from app.routes.menu_route import menu_bp
+from app.routes.bots.bot import bot_bp as bots_bp
+from app.routes.articles.articles import articles_bp
+from app.routes.shortlinks import shortlinks_bp
+
 #blueprint
 app.register_blueprint(loading_bp)
 app.register_blueprint(admin_bp)
@@ -37,5 +42,10 @@ app.register_blueprint(menu_bp)
 app.register_blueprint(errors_bp)
 app.register_blueprint(main_bp)
 app.register_blueprint(register_bp)
-app.register_blueprint(bot_bp)
 app.register_blueprint(Library_Agatha_bp)
+app.register_blueprint(bots_bp)
+app.register_blueprint(articles_bp)
+app.register_blueprint(shortlinks_bp)
+
+from app.bot.bot_runner import restore_all_bots
+restore_all_bots()

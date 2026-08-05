@@ -1,0 +1,30 @@
+<div class="sd-form-group">
+    <label class="sd-label" style="display:flex; align-items:center; gap: var(--sd-sp-2); cursor:pointer;">
+        <input type="checkbox" name="is_unlimited" class="sd-limit-unlimited-toggle" {{ 'checked' if g.is_unlimited }}
+               onchange="this.closest('form').querySelector('.sd-limit-number-group').style.display = this.checked ? 'none' : 'flex';">
+        غير محدود
+    </label>
+</div>
+
+<div class="sd-form-group sd-limit-number-group" style="display: {{ 'none' if g.is_unlimited else 'flex' }};">
+    <label class="sd-label" for="bot_limit_{{ g.user_id or 'new' }}">الحد الأقصى لعدد البوتات <span class="sd-required">*</span></label>
+    <input type="number" min="1" class="sd-input" id="bot_limit_{{ g.user_id or 'new' }}" name="bot_limit" value="{{ g.bot_limit or 1 }}">
+</div>
+
+<div class="sd-form-group">
+    <label class="sd-label" for="duration_{{ g.user_id or 'new' }}">مدة الصلاحية</label>
+    <select class="sd-select" id="duration_{{ g.user_id or 'new' }}" name="duration_preset"
+            onchange="this.closest('form').querySelector('.sd-limit-custom-date').style.display = this.value === 'custom' ? 'block' : 'none';">
+        <option value="">بلا انتهاء (دائم)</option>
+        <option value="1m">شهر واحد</option>
+        <option value="3m">3 أشهر</option>
+        <option value="6m">6 أشهر</option>
+        <option value="1y">سنة</option>
+        <option value="custom">تاريخ مخصّص...</option>
+    </select>
+</div>
+
+<div class="sd-form-group sd-limit-custom-date" style="display:none;">
+    <label class="sd-label" for="custom_date_{{ g.user_id or 'new' }}">تاريخ الانتهاء</label>
+    <input type="date" class="sd-input" id="custom_date_{{ g.user_id or 'new' }}" name="custom_date">
+</div>

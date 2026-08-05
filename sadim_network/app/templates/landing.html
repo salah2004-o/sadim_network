@@ -114,6 +114,12 @@ body{
     border:none;
     color:white;
     font-size:1.5rem;
+    padding:.6rem;
+    min-width:44px;
+    min-height:44px;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
 }
 
 /* ========================= */
@@ -130,6 +136,8 @@ body{
     z-index:9999;
     transition:.4s;
     padding:2rem;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
 }
 
 .mobile-sidebar.active{
@@ -147,6 +155,9 @@ body{
 .mobile-nav-links a{
     color:white;
     text-decoration:none;
+    display:block;
+    padding:.7rem 0;
+    font-size:1.05rem;
 }
 
 #close-sidebar{
@@ -154,6 +165,10 @@ body{
     border:none;
     color:white;
     font-size:2rem;
+    padding:.4rem;
+    min-width:44px;
+    min-height:44px;
+    cursor:pointer;
 }
 
 .overlay{
@@ -452,6 +467,23 @@ body{
     transform:scale(1.08);
 }
 
+.tool-image.icon-style{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));
+}
+
+.tool-image.icon-style i{
+    font-size:3.2rem;
+    color:rgba(255,255,255,.92);
+    transition:1s;
+}
+
+.tool-card:hover .tool-image.icon-style i{
+    transform:scale(1.08);
+}
+
 .tool-content{
     padding:1.5rem;
 }
@@ -609,7 +641,7 @@ footer{
     }
 
     #menu-toggle{
-        display:block;
+        display:flex;
     }
 
     .hero-title{
@@ -631,7 +663,7 @@ footer{
         <!-- LOGO -->
 
         <div class="logo-container">
-            <a href="#" class="logo">شبكة سديم</a>
+            <a href="{{ url_for('loading_bp.landing_page') }}" class="logo">شبكة سديم</a>
         </div>
 
         <!-- DESKTOP NAV -->
@@ -641,6 +673,18 @@ footer{
             <li>
                 <a href="{{ url_for('Library_Agatha.agatha_christie') }}">
                     مكتبة أجاثا
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('bots.my_bots') }}">
+                    أنظمتي
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ url_for('articles.list_articles') }}">
+                    المقالات
                 </a>
             </li>
 
@@ -655,6 +699,14 @@ footer{
                     من نحن
                 </a>
             </li>
+
+            {% if session.get('role') == 'admin' %}
+            <li>
+                <a href="{{ url_for('admin.services_dashboard') }}">
+                    لوحة التحكم
+                </a>
+            </li>
+            {% endif %}
 
             <!-- USER PROFILE -->
 
@@ -691,7 +743,7 @@ footer{
 
         <!-- MENU -->
 
-        <button id="menu-toggle">
+        <button id="menu-toggle" aria-expanded="false" aria-controls="mobile-sidebar" aria-label="فتح القائمة">
             <i class="fas fa-bars"></i>
         </button>
 
@@ -738,6 +790,18 @@ footer{
         </li>
 
         <li>
+            <a href="{{ url_for('bots.my_bots') }}">
+                أنظمتي
+            </a>
+        </li>
+
+        <li>
+            <a href="{{ url_for('articles.list_articles') }}">
+                المقالات
+            </a>
+        </li>
+
+        <li>
             <a href="{{ url_for('admin.show_services') }}">
                 خدماتنا
             </a>
@@ -748,6 +812,14 @@ footer{
                 من نحن
             </a>
         </li>
+
+        {% if session.get('role') == 'admin' %}
+        <li>
+            <a href="{{ url_for('admin.services_dashboard') }}">
+                لوحة التحكم
+            </a>
+        </li>
+        {% endif %}
 
         <li>
             <a href="{{ url_for('loading_bp.logout') }}"
@@ -894,7 +966,7 @@ footer{
 
         </a>
 
-        <a href="{{ url_for('admin.show_services') }}"
+        <a href="{{ url_for('bots.my_bots') }}"
            class="quick-card">
 
             <div class="quick-icon">
@@ -961,7 +1033,7 @@ footer{
                 <div class="tool-footer">
 
                     <span class="tool-status">
-                        قريبا
+                        قريباً
                     </span>
 
                     <a href="https://t.me/SAP1O"
@@ -1037,7 +1109,7 @@ footer{
                 <div class="tool-footer">
 
                     <span class="tool-status">
-                        قرييباً
+                        قريباً
                     </span>
 
                     <a href="https://t.me/SAP1O"
@@ -1045,6 +1117,276 @@ footer{
                         طلب مسبق →
                     </a>
 
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="tool-card">
+
+            <div class="tool-image icon-style">
+                <i class="fas fa-server"></i>
+            </div>
+
+            <div class="tool-content">
+
+                <span class="tool-tag">
+                    HOSTING
+                </span>
+
+                <h3>استضافة المواقع</h3>
+
+                <p>
+                    استضافة سريعة وموثوقة
+                    لمواقعك ومشاريعك.
+                </p>
+
+                <div class="tool-footer">
+                    <span class="tool-status">قريباً</span>
+                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="tool-card">
+
+            <div class="tool-image icon-style">
+                <i class="fas fa-layer-group"></i>
+            </div>
+
+            <div class="tool-content">
+
+                <span class="tool-tag">
+                    NO-CODE
+                </span>
+
+                <h3>إنشاء مواقع بدون كود</h3>
+
+                <p>
+                    بناء موقعك الاحترافي
+                    بدون أي خبرة برمجية.
+                </p>
+
+                <div class="tool-footer">
+                    <span class="tool-status">قريباً</span>
+                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="tool-card">
+
+            <div class="tool-image icon-style">
+                <i class="fas fa-briefcase"></i>
+            </div>
+
+            <div class="tool-content">
+
+                <span class="tool-tag">
+                    BUSINESS
+                </span>
+
+                <h3>أنظمة إدارة الأعمال</h3>
+
+                <p>
+                    إدارة فريقك ومشاريعك
+                    من مكان واحد.
+                </p>
+
+                <div class="tool-footer">
+                    <span class="tool-status">قريباً</span>
+                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="tool-card">
+
+            <div class="tool-image icon-style">
+                <i class="fas fa-cart-shopping"></i>
+            </div>
+
+            <div class="tool-content">
+
+                <span class="tool-tag">
+                    E-COMMERCE
+                </span>
+
+                <h3>أنظمة المتاجر الإلكترونية</h3>
+
+                <p>
+                    متجرك الرقمي جاهز
+                    للبيع والدفع أونلاين.
+                </p>
+
+                <div class="tool-footer">
+                    <span class="tool-status">قريباً</span>
+                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="tool-card">
+
+            <div class="tool-image icon-style">
+                <i class="fas fa-box-archive"></i>
+            </div>
+
+            <div class="tool-content">
+
+                <span class="tool-tag">
+                    ARCHIVE
+                </span>
+
+                <h3>أنظمة الأرشفة</h3>
+
+                <p>
+                    حفظ وتنظيم مستنداتك
+                    بشكل آمن ومنظّم.
+                </p>
+
+                <div class="tool-footer">
+                    <span class="tool-status">قريباً</span>
+                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="tool-card">
+
+            <div class="tool-image icon-style">
+                <i class="fas fa-brain"></i>
+            </div>
+
+            <div class="tool-content">
+
+                <span class="tool-tag">
+                    AI
+                </span>
+
+                <h3>حلول الذكاء الاصطناعي</h3>
+
+                <p>
+                    أدوات ذكاء اصطناعي
+                    مخصصة لمشروعك.
+                </p>
+
+                <div class="tool-footer">
+                    <span class="tool-status">قريباً</span>
+                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="tool-card">
+
+            <div class="tool-image icon-style">
+                <i class="fas fa-gears"></i>
+            </div>
+
+            <div class="tool-content">
+
+                <span class="tool-tag">
+                    AUTOMATION
+                </span>
+
+                <h3>أتمتة الأعمال</h3>
+
+                <p>
+                    أتمتة مهامك المتكررة
+                    وتوفير وقتك.
+                </p>
+
+                <div class="tool-footer">
+                    <span class="tool-status">قريباً</span>
+                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="tool-card">
+
+            <div class="tool-image icon-style">
+                <i class="fas fa-plug"></i>
+            </div>
+
+            <div class="tool-content">
+
+                <span class="tool-tag">
+                    API
+                </span>
+
+                <h3>خدمات API</h3>
+
+                <p>
+                    ربط أنظمتك ببعض
+                    عبر واجهات برمجية.
+                </p>
+
+                <div class="tool-footer">
+                    <span class="tool-status">قريباً</span>
+                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- CARD -->
+
+        <div class="tool-card">
+
+            <div class="tool-image icon-style">
+                <i class="fas fa-cloud"></i>
+            </div>
+
+            <div class="tool-content">
+
+                <span class="tool-tag">
+                    CLOUD
+                </span>
+
+                <h3>الاستضافة السحابية</h3>
+
+                <p>
+                    بنية سحابية مرنة
+                    تنمو مع مشروعك.
+                </p>
+
+                <div class="tool-footer">
+                    <span class="tool-status">قريباً</span>
+                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
                 </div>
 
             </div>
@@ -1095,34 +1437,7 @@ footer{
 
 </footer>
 
-<script>
-
-const menuToggle = document.getElementById('menu-toggle');
-const mobileSidebar = document.getElementById('mobile-sidebar');
-const closeSidebar = document.getElementById('close-sidebar');
-
-const overlay = document.createElement('div');
-overlay.className = 'overlay';
-document.body.appendChild(overlay);
-
-menuToggle.addEventListener('click', () => {
-
-    mobileSidebar.classList.add('active');
-    overlay.classList.add('active');
-
-});
-
-const hideSidebar = () => {
-
-    mobileSidebar.classList.remove('active');
-    overlay.classList.remove('active');
-
-};
-
-closeSidebar.addEventListener('click', hideSidebar);
-overlay.addEventListener('click', hideSidebar);
-
-</script>
+<script src="{{ url_for('static', filename='js/nav.js') }}"></script>
 
 </body>
 </html>

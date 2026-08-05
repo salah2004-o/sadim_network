@@ -146,7 +146,13 @@ def account():
     if 'user_id' not in session:
         return redirect(url_for('loading_bp.login'))
     user = User.get_by_id(session['user_id'])
-    return render_template('account.html', user=user)
+
+    from app.models.bot_model import Bot
+    from app.models.bot_limit_model import BotLimitGrant
+    bot_count = len(Bot.get_by_user(session['user_id']))
+    limit_status = BotLimitGrant.get_status_for_user(session['user_id'], current_bot_count=bot_count)
+
+    return render_template('account.html', user=user, limit_status=limit_status)
 
 
 @loading_bp.route('/logout')
@@ -165,16 +171,17 @@ def account_settings():
         # معالجة تحديث الإعدادات
         name = request.form.get('name')
         email = request.form.get('email')
+        bio = request.form.get('bio', '').strip()
         profile_image = request.files.get('profile_image')
         user.username = name
         user.email = email
+        user.bio = bio or None
         if profile_image and profile_image.filename != "":
             filename = secure_filename(profile_image.filename)
             filepath = os.path.join(UPLOAD_FOLDER, filename)
     
             profile_image.save(filepath)
-            user.profile_image = filename  # ✔ نخزن الاسم  
-        user.update_user()      
+            user.profile_image = filename  # ✔ نخزن الاسم
         if delete := request.form.get('delete_account'):
             # معالجة حذف الحساب
             User.delete(user.id)

@@ -1,0 +1,390 @@
+/*
+  نظام التصميم الموحّد لمنصة شبكة سديم — "Cyberpunk Purple"
+  ملف واحد: رموز التصميم (Design Tokens) + مكتبة المكوّنات الأساسية + حالات النظام.
+  كل قيمة قياس تستخدم خصائص RTL-آمنة (inline/block) بدل left/right المباشرة.
+*/
+
+/* ==================== 1. الرموز (Design Tokens) ==================== */
+:root {
+    /* ألوان الخلفية */
+    --sd-bg: #09090d;
+    --sd-bg-elevated: #121218;
+    --sd-bg-elevated-2: #1a1a22;
+    --sd-bg-overlay: rgba(5, 5, 8, 0.72);
+
+    /* ألوان الحدود */
+    --sd-border: rgba(255, 255, 255, 0.08);
+    --sd-border-strong: rgba(255, 255, 255, 0.16);
+
+    /* ألوان النص */
+    --sd-text: #f2f2f7;
+    --sd-text-secondary: #b8b8c4;
+    --sd-text-muted: #83838f;
+    --sd-text-on-accent: #ffffff;
+
+    /* اللون الأساسي (Brand) */
+    --sd-accent: #7c4dff;
+    --sd-accent-hover: #6c3ce0;
+    --sd-accent-light: #b388ff;
+    --sd-accent-soft: rgba(124, 77, 255, 0.12);
+    --sd-accent-soft-strong: rgba(124, 77, 255, 0.24);
+    --sd-gradient: linear-gradient(135deg, var(--sd-accent-light), var(--sd-accent));
+
+    /* ألوان الحالة (Semantic) */
+    --sd-success: #00e676;
+    --sd-success-soft: rgba(0, 230, 118, 0.12);
+    --sd-warning: #ffb020;
+    --sd-warning-soft: rgba(255, 176, 32, 0.12);
+    --sd-danger: #ff5252;
+    --sd-danger-soft: rgba(255, 82, 82, 0.12);
+    --sd-info: #29b6f6;
+    --sd-info-soft: rgba(41, 182, 246, 0.12);
+
+    /* الخط */
+    --sd-font: "Tajawal", "Segoe UI", system-ui, -apple-system, Tahoma, Arial, sans-serif;
+    --sd-fs-xs: 0.75rem;
+    --sd-fs-sm: 0.85rem;
+    --sd-fs-base: 0.95rem;
+    --sd-fs-md: 1.05rem;
+    --sd-fs-lg: 1.25rem;
+    --sd-fs-xl: 1.6rem;
+    --sd-fs-2xl: 2rem;
+    --sd-fs-3xl: 2.6rem;
+    --sd-lh-tight: 1.25;
+    --sd-lh-normal: 1.6;
+    --sd-lh-loose: 1.9;
+    --sd-fw-regular: 400;
+    --sd-fw-medium: 500;
+    --sd-fw-bold: 700;
+    --sd-fw-black: 800;
+
+    /* المسافات (Spacing scale, base 4px) */
+    --sd-sp-1: 0.25rem;
+    --sd-sp-2: 0.5rem;
+    --sd-sp-3: 0.75rem;
+    --sd-sp-4: 1rem;
+    --sd-sp-5: 1.25rem;
+    --sd-sp-6: 1.5rem;
+    --sd-sp-8: 2rem;
+    --sd-sp-10: 2.5rem;
+    --sd-sp-12: 3rem;
+    --sd-sp-16: 4rem;
+
+    /* الاستدارة */
+    --sd-radius-sm: 8px;
+    --sd-radius-md: 12px;
+    --sd-radius-lg: 18px;
+    --sd-radius-xl: 24px;
+    --sd-radius-full: 999px;
+
+    /* الظلال */
+    --sd-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+    --sd-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+    --sd-shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.5);
+    --sd-shadow-glow: 0 0 0 1px rgba(124, 77, 255, 0.25), 0 8px 30px rgba(124, 77, 255, 0.18);
+
+    /* طبقات Z-index */
+    --sd-z-dropdown: 200;
+    --sd-z-sticky: 300;
+    --sd-z-overlay: 900;
+    --sd-z-modal: 1000;
+    --sd-z-toast: 1100;
+    --sd-z-tooltip: 1200;
+
+    /* مقاسات لمس دنيا (إتاحة الوصول) */
+    --sd-tap-min: 44px;
+
+    color-scheme: dark;
+}
+
+/* ==================== 2. القواعد الأساسية ==================== */
+.sd-root, body.sd-app {
+    background: var(--sd-bg);
+    color: var(--sd-text);
+    font-family: var(--sd-font);
+    font-size: var(--sd-fs-base);
+    line-height: var(--sd-lh-normal);
+    -webkit-font-smoothing: antialiased;
+}
+
+.sd-app * { box-sizing: border-box; }
+
+html, body.sd-app { overflow-x: hidden; max-width: 100%; }
+
+.sd-app ::selection { background: var(--sd-accent-soft-strong); color: var(--sd-text); }
+
+/* حلقة تركيز واضحة وموحّدة لكل عنصر قابل للتفاعل (إتاحة الوصول + لوحة المفاتيح) */
+.sd-app a:focus-visible,
+.sd-app button:focus-visible,
+.sd-app input:focus-visible,
+.sd-app textarea:focus-visible,
+.sd-app select:focus-visible,
+.sd-app [tabindex]:focus-visible {
+    outline: 2px solid var(--sd-accent-light);
+    outline-offset: 2px;
+    border-radius: var(--sd-radius-sm);
+}
+
+.sd-sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+.sd-container { max-width: 1180px; margin-inline: auto; padding-inline: var(--sd-sp-6); }
+
+/* ==================== 3. العناوين والنصوص ==================== */
+.sd-h1 { font-size: var(--sd-fs-3xl); font-weight: var(--sd-fw-black); line-height: var(--sd-lh-tight); }
+.sd-h2 { font-size: var(--sd-fs-2xl); font-weight: var(--sd-fw-bold); line-height: var(--sd-lh-tight); }
+.sd-h3 { font-size: var(--sd-fs-xl); font-weight: var(--sd-fw-bold); line-height: var(--sd-lh-tight); }
+.sd-h4 { font-size: var(--sd-fs-md); font-weight: var(--sd-fw-bold); }
+.sd-text-secondary { color: var(--sd-text-secondary); }
+.sd-text-muted { color: var(--sd-text-muted); }
+.sd-eyebrow {
+    font-size: var(--sd-fs-xs); font-weight: var(--sd-fw-bold); letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--sd-accent-light);
+}
+
+/* ==================== 4. الأزرار (Buttons) ==================== */
+.sd-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--sd-sp-2);
+    min-height: var(--sd-tap-min); padding-inline: var(--sd-sp-5); padding-block: var(--sd-sp-2);
+    border-radius: var(--sd-radius-md); border: 1px solid transparent;
+    font-family: inherit; font-size: var(--sd-fs-sm); font-weight: var(--sd-fw-bold);
+    cursor: pointer; text-decoration: none; white-space: nowrap; position: relative; overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+    user-select: none;
+}
+.sd-btn:active { transform: translateY(1px) scale(0.98); }
+.sd-btn:disabled, .sd-btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+.sd-btn-primary { background: var(--sd-gradient); color: var(--sd-text-on-accent); box-shadow: var(--sd-shadow-sm); }
+.sd-btn-primary:hover { box-shadow: var(--sd-shadow-glow); transform: translateY(-1px); }
+
+.sd-btn-secondary { background: var(--sd-bg-elevated-2); color: var(--sd-text); border-color: var(--sd-border-strong); }
+.sd-btn-secondary:hover { background: var(--sd-bg-elevated); border-color: var(--sd-accent-light); }
+
+.sd-btn-outline { background: transparent; color: var(--sd-accent-light); border-color: var(--sd-accent-soft-strong); }
+.sd-btn-outline:hover { background: var(--sd-accent-soft); }
+
+.sd-btn-ghost { background: transparent; color: var(--sd-text-secondary); }
+.sd-btn-ghost:hover { background: var(--sd-bg-elevated-2); color: var(--sd-text); }
+
+.sd-btn-danger { background: var(--sd-danger); color: #fff; }
+.sd-btn-danger:hover { background: #e04343; box-shadow: 0 8px 24px rgba(255, 82, 82, 0.28); }
+
+.sd-btn-sm { min-height: 34px; padding-inline: var(--sd-sp-3); font-size: var(--sd-fs-xs); }
+.sd-btn-lg { min-height: 52px; padding-inline: var(--sd-sp-8); font-size: var(--sd-fs-md); }
+.sd-btn-icon { min-width: var(--sd-tap-min); padding-inline: 0; }
+.sd-btn-block { width: 100%; }
+
+/* ==================== 5. حقول الإدخال (Forms) ==================== */
+.sd-form-group { display: flex; flex-direction: column; gap: var(--sd-sp-2); margin-bottom: var(--sd-sp-5); }
+.sd-label { font-size: var(--sd-fs-sm); font-weight: var(--sd-fw-medium); color: var(--sd-text-secondary); }
+.sd-label .sd-required { color: var(--sd-danger); margin-inline-start: var(--sd-sp-1); }
+.sd-hint { font-size: var(--sd-fs-xs); color: var(--sd-text-muted); }
+.sd-error-text { font-size: var(--sd-fs-xs); color: var(--sd-danger); display: flex; align-items: center; gap: var(--sd-sp-1); }
+
+.sd-input, .sd-textarea, .sd-select {
+    width: 100%; min-height: var(--sd-tap-min); padding-inline: var(--sd-sp-4); padding-block: var(--sd-sp-2);
+    background: var(--sd-bg-elevated); border: 1px solid var(--sd-border-strong); border-radius: var(--sd-radius-md);
+    color: var(--sd-text); font-family: inherit; font-size: var(--sd-fs-base);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.sd-textarea { min-height: 110px; padding-block: var(--sd-sp-3); resize: vertical; }
+.sd-input::placeholder, .sd-textarea::placeholder { color: var(--sd-text-muted); }
+.sd-input:focus, .sd-textarea:focus, .sd-select:focus {
+    outline: none; border-color: var(--sd-accent); box-shadow: 0 0 0 3px var(--sd-accent-soft);
+}
+.sd-input:disabled, .sd-textarea:disabled, .sd-select:disabled { opacity: 0.5; cursor: not-allowed; }
+.sd-form-group.has-error .sd-input,
+.sd-form-group.has-error .sd-textarea,
+.sd-form-group.has-error .sd-select { border-color: var(--sd-danger); box-shadow: 0 0 0 3px var(--sd-danger-soft); }
+
+/* ==================== 6. البطاقات (Cards) ==================== */
+.sd-card {
+    background: var(--sd-bg-elevated); border: 1px solid var(--sd-border); border-radius: var(--sd-radius-lg);
+    padding: var(--sd-sp-6); box-shadow: var(--sd-shadow-sm); transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.sd-card-hover:hover { border-color: var(--sd-accent-soft-strong); transform: translateY(-2px); }
+.sd-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sd-sp-4); gap: var(--sd-sp-3); }
+.sd-card-footer { margin-top: var(--sd-sp-4); padding-top: var(--sd-sp-4); border-top: 1px solid var(--sd-border); }
+
+/* ==================== 7. الجداول (Tables) ==================== */
+.sd-table-wrapper { overflow-x: auto; border: 1px solid var(--sd-border); border-radius: var(--sd-radius-lg); }
+.sd-table { width: 100%; border-collapse: collapse; min-width: 560px; font-size: var(--sd-fs-sm); }
+.sd-table thead th {
+    position: sticky; top: 0; z-index: 1; background: var(--sd-bg-elevated-2); color: var(--sd-text-secondary);
+    font-weight: var(--sd-fw-bold); text-align: start; padding: var(--sd-sp-3) var(--sd-sp-4);
+    border-bottom: 1px solid var(--sd-border-strong); white-space: nowrap;
+}
+.sd-table tbody td { padding: var(--sd-sp-3) var(--sd-sp-4); border-bottom: 1px solid var(--sd-border); vertical-align: middle; }
+.sd-table tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+.sd-table tbody tr:hover { background: var(--sd-accent-soft); }
+.sd-table tbody tr:last-child td { border-bottom: none; }
+.sd-table-actions { display: flex; gap: var(--sd-sp-2); align-items: center; }
+.sd-table-toolbar { display: flex; flex-wrap: wrap; gap: var(--sd-sp-3); align-items: center; justify-content: space-between; margin-bottom: var(--sd-sp-4); }
+.sd-pagination { display: flex; gap: var(--sd-sp-2); align-items: center; justify-content: center; margin-top: var(--sd-sp-5); }
+.sd-pagination .sd-btn-icon { min-width: 38px; min-height: 38px; }
+
+/* ==================== 8. الشارات والتنبيهات (Badges & Alerts) ==================== */
+.sd-badge {
+    display: inline-flex; align-items: center; gap: var(--sd-sp-1); padding: 0.2rem var(--sd-sp-3);
+    border-radius: var(--sd-radius-full); font-size: var(--sd-fs-xs); font-weight: var(--sd-fw-bold);
+    background: var(--sd-accent-soft); color: var(--sd-accent-light);
+}
+.sd-badge-success { background: var(--sd-success-soft); color: var(--sd-success); }
+.sd-badge-warning { background: var(--sd-warning-soft); color: var(--sd-warning); }
+.sd-badge-danger { background: var(--sd-danger-soft); color: var(--sd-danger); }
+.sd-badge-info { background: var(--sd-info-soft); color: var(--sd-info); }
+.sd-badge-neutral { background: var(--sd-bg-elevated-2); color: var(--sd-text-secondary); }
+.sd-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+.sd-alert {
+    display: flex; align-items: flex-start; gap: var(--sd-sp-3); padding: var(--sd-sp-4);
+    border-radius: var(--sd-radius-md); border: 1px solid var(--sd-border); font-size: var(--sd-fs-sm);
+}
+.sd-alert-icon { flex-shrink: 0; font-size: var(--sd-fs-lg); margin-top: 0.1em; }
+.sd-alert-success { background: var(--sd-success-soft); border-color: rgba(0, 230, 118, 0.25); color: var(--sd-success); }
+.sd-alert-warning { background: var(--sd-warning-soft); border-color: rgba(255, 176, 32, 0.25); color: var(--sd-warning); }
+.sd-alert-danger { background: var(--sd-danger-soft); border-color: rgba(255, 82, 82, 0.25); color: var(--sd-danger); }
+.sd-alert-info { background: var(--sd-info-soft); border-color: rgba(41, 182, 246, 0.25); color: var(--sd-info); }
+
+/* ==================== 9. النوافذ المنبثقة (Dialogs / Modals) ==================== */
+.sd-modal-overlay {
+    position: fixed; inset: 0; background: var(--sd-bg-overlay); backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center; padding: var(--sd-sp-5);
+    z-index: var(--sd-z-modal); opacity: 0; visibility: hidden; transition: opacity 0.25s ease;
+}
+.sd-modal-overlay.is-open { opacity: 1; visibility: visible; }
+.sd-modal {
+    width: 100%; max-width: 460px; background: var(--sd-bg-elevated); border: 1px solid var(--sd-border-strong);
+    border-radius: var(--sd-radius-xl); box-shadow: var(--sd-shadow-lg); padding: var(--sd-sp-8);
+    text-align: center; transform: translateY(16px) scale(0.97); transition: transform 0.25s ease;
+}
+.sd-modal-overlay.is-open .sd-modal { transform: translateY(0) scale(1); }
+.sd-modal-icon {
+    width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem; margin-inline: auto; margin-bottom: var(--sd-sp-5);
+    background: var(--sd-warning-soft); color: var(--sd-warning);
+}
+.sd-modal-title { font-size: var(--sd-fs-lg); font-weight: var(--sd-fw-bold); margin-bottom: var(--sd-sp-2); }
+.sd-modal-desc { color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); line-height: var(--sd-lh-normal); margin-bottom: var(--sd-sp-6); }
+.sd-modal-actions { display: flex; gap: var(--sd-sp-3); justify-content: center; flex-wrap: wrap; }
+.sd-modal-close {
+    position: absolute; inset-inline-end: var(--sd-sp-4); inset-block-start: var(--sd-sp-4);
+    width: 34px; height: 34px; border-radius: 50%; border: none; background: var(--sd-bg-elevated-2);
+    color: var(--sd-text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.sd-modal-close:hover { background: var(--sd-danger-soft); color: var(--sd-danger); }
+.sd-modal { position: relative; }
+
+/* ==================== 10. القوائم المنسدلة (Dropdowns) ==================== */
+.sd-dropdown { position: relative; display: inline-block; }
+.sd-dropdown-menu {
+    position: absolute; inset-inline-end: 0; top: calc(100% + 6px); min-width: 200px;
+    background: var(--sd-bg-elevated-2); border: 1px solid var(--sd-border-strong); border-radius: var(--sd-radius-md);
+    box-shadow: var(--sd-shadow-md); padding: var(--sd-sp-2); z-index: var(--sd-z-dropdown);
+    opacity: 0; visibility: hidden; transform: translateY(-6px); transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+.sd-dropdown-menu.is-open { opacity: 1; visibility: visible; transform: translateY(0); }
+.sd-dropdown-item {
+    display: flex; align-items: center; gap: var(--sd-sp-2); width: 100%; padding: var(--sd-sp-2) var(--sd-sp-3);
+    border-radius: var(--sd-radius-sm); background: none; border: none; color: var(--sd-text); font-size: var(--sd-fs-sm);
+    text-align: start; cursor: pointer; text-decoration: none;
+}
+.sd-dropdown-item:hover { background: var(--sd-accent-soft); color: var(--sd-accent-light); }
+.sd-dropdown-item.is-danger:hover { background: var(--sd-danger-soft); color: var(--sd-danger); }
+.sd-dropdown-divider { height: 1px; background: var(--sd-border); margin: var(--sd-sp-2) 0; }
+
+/* ==================== 11. الشريط الجانبي والعلوي (Sidebar / Navbar / Footer) ==================== */
+.sd-navbar {
+    position: sticky; top: 0; z-index: var(--sd-z-sticky); display: flex; align-items: center; justify-content: space-between;
+    gap: var(--sd-sp-3); padding: var(--sd-sp-4) var(--sd-sp-6); background: rgba(9, 9, 13, 0.85);
+    backdrop-filter: blur(16px); border-bottom: 1px solid var(--sd-border); flex-wrap: nowrap; min-width: 0;
+}
+.sd-navbar-brand {
+    display: flex; align-items: center; gap: var(--sd-sp-2); font-weight: var(--sd-fw-black); font-size: var(--sd-fs-md);
+    color: var(--sd-text); text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 0; flex-shrink: 1;
+}
+@media (max-width: 480px) {
+    .sd-navbar { padding-inline: var(--sd-sp-3); gap: var(--sd-sp-2); }
+    .sd-navbar-brand { font-size: var(--sd-fs-sm); }
+}
+.sd-navbar-links { display: flex; align-items: center; gap: var(--sd-sp-2); list-style: none; margin: 0; padding: 0; }
+.sd-navbar-links a {
+    display: flex; align-items: center; gap: var(--sd-sp-2); min-height: var(--sd-tap-min); padding-inline: var(--sd-sp-3);
+    color: var(--sd-text-secondary); text-decoration: none; font-size: var(--sd-fs-sm); font-weight: var(--sd-fw-medium);
+    border-radius: var(--sd-radius-md); transition: background 0.2s ease, color 0.2s ease;
+}
+.sd-navbar-links a:hover, .sd-navbar-links a.is-active { background: var(--sd-accent-soft); color: var(--sd-accent-light); }
+
+.sd-sidebar { display: flex; flex-direction: column; gap: var(--sd-sp-1); padding: var(--sd-sp-4); background: var(--sd-bg-elevated); border-inline-end: 1px solid var(--sd-border); min-height: 100%; }
+.sd-sidebar-item {
+    display: flex; align-items: center; gap: var(--sd-sp-3); min-height: var(--sd-tap-min); padding-inline: var(--sd-sp-4);
+    border-radius: var(--sd-radius-md); color: var(--sd-text-secondary); text-decoration: none; font-size: var(--sd-fs-sm); font-weight: var(--sd-fw-medium);
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.sd-sidebar-item:hover { background: var(--sd-bg-elevated-2); color: var(--sd-text); }
+.sd-sidebar-item.is-active { background: var(--sd-accent-soft); color: var(--sd-accent-light); }
+
+.sd-footer { border-top: 1px solid var(--sd-border); padding: var(--sd-sp-8) var(--sd-sp-6); text-align: center; color: var(--sd-text-muted); font-size: var(--sd-fs-xs); }
+
+/* درج الجوال (Mobile Drawer) — يتوافق مع عقد app/static/js/nav.js: يبدّل صنف .active
+   على #mobile-sidebar وينشئ .overlay بنفسه، هذا الملف يوفر فقط شكل الحالتين. */
+.sd-mobile-drawer {
+    position: fixed; inset-block: 0; inset-inline-end: -100%; width: min(280px, 82vw);
+    z-index: var(--sd-z-overlay); transition: inset-inline-end 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: var(--sd-shadow-lg); overflow-y: auto;
+}
+.sd-mobile-drawer.active { inset-inline-end: 0; }
+.overlay {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55); z-index: calc(var(--sd-z-overlay) - 1);
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease;
+}
+.overlay.active { opacity: 1; pointer-events: auto; }
+
+/* ==================== 12. حالات النظام (System States) ==================== */
+.sd-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    padding: var(--sd-sp-12) var(--sd-sp-6); gap: var(--sd-sp-3);
+}
+.sd-state-icon { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: var(--sd-sp-2); }
+.sd-state-title { font-size: var(--sd-fs-lg); font-weight: var(--sd-fw-bold); }
+.sd-state-desc { color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); max-width: 420px; line-height: var(--sd-lh-normal); }
+
+.sd-state-empty .sd-state-icon,
+.sd-state-no-results .sd-state-icon { background: var(--sd-bg-elevated-2); color: var(--sd-text-muted); }
+.sd-state-success .sd-state-icon { background: var(--sd-success-soft); color: var(--sd-success); }
+.sd-state-error .sd-state-icon { background: var(--sd-danger-soft); color: var(--sd-danger); }
+.sd-state-permission-denied .sd-state-icon { background: var(--sd-danger-soft); color: var(--sd-danger); }
+.sd-state-subscription-expired .sd-state-icon { background: var(--sd-warning-soft); color: var(--sd-warning); }
+.sd-state-disabled .sd-state-icon { background: var(--sd-bg-elevated-2); color: var(--sd-text-muted); }
+.sd-state-offline .sd-state-icon { background: var(--sd-info-soft); color: var(--sd-info); }
+
+/* تحميل: دوّار */
+.sd-spinner {
+    width: 32px; height: 32px; border-radius: 50%; border: 3px solid var(--sd-border-strong);
+    border-top-color: var(--sd-accent); animation: sd-spin 0.7s linear infinite;
+}
+@keyframes sd-spin { to { transform: rotate(360deg); } }
+.sd-state-loading .sd-state-desc { margin-top: calc(-1 * var(--sd-sp-2)); }
+
+/* تحميل هيكلي: Skeleton */
+.sd-skeleton {
+    background: linear-gradient(90deg, var(--sd-bg-elevated-2) 25%, var(--sd-bg-elevated) 50%, var(--sd-bg-elevated-2) 75%);
+    background-size: 200% 100%; animation: sd-shimmer 1.4s ease-in-out infinite; border-radius: var(--sd-radius-sm);
+}
+@keyframes sd-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.sd-skeleton-text { height: 0.9em; margin-bottom: var(--sd-sp-2); }
+.sd-skeleton-title { height: 1.4em; width: 40%; margin-bottom: var(--sd-sp-4); }
+.sd-skeleton-avatar { width: 44px; height: 44px; border-radius: 50%; }
+.sd-skeleton-card { height: 140px; border-radius: var(--sd-radius-lg); }
+
+/* معطّل / غير متصل */
+.sd-badge-offline { background: var(--sd-bg-elevated-2); color: var(--sd-text-muted); }
+
+@media (prefers-reduced-motion: reduce) {
+    .sd-app *, .sd-app *::before, .sd-app *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

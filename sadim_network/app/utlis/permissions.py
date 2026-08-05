@@ -5,7 +5,7 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
-            return redirect(url_for('login.login'))
+            return redirect(url_for('loading_bp.login'))
 
         if session.get("role") != "admin":
             abort(403)

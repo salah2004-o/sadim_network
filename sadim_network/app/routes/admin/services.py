@@ -112,9 +112,9 @@ def edit_service(service_id):
         return redirect(url_for('admin.show_services'))
 
     # عرض البيانات في النموذج للتعديل
-    services = service.get_service()
+    current_service = service.get_service(service_id)
 
-    return render_template('dashboard/service_form.html', services=services)
+    return render_template('dashboard/service_form.html', service=current_service)
 
 
 # ------------------ حذف خدمة ------------------

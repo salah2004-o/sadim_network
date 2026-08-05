@@ -1,0 +1,78 @@
+/*
+  حركات وانتقالات نظام التصميم — خفيفة، سلسة، وتحترم prefers-reduced-motion.
+  منفصلة عن design-system.css حتى يقدر أي متصفح/صفحة يحمّلها بشكل مستقل لاحقاً لو احتجنا.
+*/
+
+/* دخول تدريجي للصفحة عند التحميل (يقلل من الوميض/القفزة البصرية) */
+.sd-fade-in { animation: sd-fadeIn 0.35s ease both; }
+@keyframes sd-fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* دخول متدرّج لعناصر قائمة (بطاقات، صفوف) بفارق بسيط بينها */
+.sd-stagger > * { animation: sd-fadeIn 0.35s ease both; }
+.sd-stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.sd-stagger > *:nth-child(2) { animation-delay: 0.06s; }
+.sd-stagger > *:nth-child(3) { animation-delay: 0.10s; }
+.sd-stagger > *:nth-child(4) { animation-delay: 0.14s; }
+.sd-stagger > *:nth-child(5) { animation-delay: 0.18s; }
+.sd-stagger > *:nth-child(n+6) { animation-delay: 0.20s; }
+
+/* تأثير Ripple عند الضغط على أي عنصر بصنف sd-ripple (المصدر: ui-kit.js يضيف span.sd-ripple-dot) */
+.sd-ripple { position: relative; overflow: hidden; }
+.sd-ripple-dot {
+    position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.35);
+    transform: scale(0); animation: sd-ripple 0.55s ease-out forwards; pointer-events: none;
+}
+.sd-btn-outline .sd-ripple-dot, .sd-btn-ghost .sd-ripple-dot, .sd-btn-secondary .sd-ripple-dot {
+    background: rgba(124, 77, 255, 0.25);
+}
+@keyframes sd-ripple {
+    to { transform: scale(2.6); opacity: 0; }
+}
+
+/* دروب داون: مُعرَّف أصلاً بـdesign-system.css (opacity/transform transition) — نضيف هنا فقط منحنى الحركة */
+.sd-dropdown-menu { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+.sd-modal { transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1); }
+
+/* تنبيهات Toast */
+.sd-toast-stack {
+    position: fixed; inset-block-start: var(--sd-sp-5); inset-inline-end: var(--sd-sp-5);
+    z-index: var(--sd-z-toast); display: flex; flex-direction: column; gap: var(--sd-sp-3);
+    width: min(360px, calc(100vw - 2 * var(--sd-sp-5)));
+}
+.sd-toast {
+    display: flex; align-items: flex-start; gap: var(--sd-sp-3); padding: var(--sd-sp-4);
+    background: var(--sd-bg-elevated-2); border: 1px solid var(--sd-border-strong); border-radius: var(--sd-radius-md);
+    box-shadow: var(--sd-shadow-md); font-size: var(--sd-fs-sm); animation: sd-toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.sd-toast.is-leaving { animation: sd-toastOut 0.25s ease forwards; }
+@keyframes sd-toastIn {
+    from { opacity: 0; transform: translateX(var(--sd-toast-dir, 24px)); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes sd-toastOut {
+    to { opacity: 0; transform: translateX(var(--sd-toast-dir, 24px)) scale(0.95); }
+}
+[dir="rtl"] .sd-toast { --sd-toast-dir: -24px; }
+
+/* دوّار التحميل فوق زر أثناء الإرسال */
+.sd-btn.is-loading { color: transparent !important; pointer-events: none; }
+.sd-btn.is-loading::after {
+    content: ""; position: absolute; inset: 0; margin: auto; width: 18px; height: 18px;
+    border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.4); border-top-color: #fff;
+    animation: sd-spin 0.6s linear infinite;
+}
+.sd-btn-outline.is-loading::after, .sd-btn-ghost.is-loading::after, .sd-btn-secondary.is-loading::after {
+    border-color: var(--sd-accent-soft-strong); border-top-color: var(--sd-accent);
+}
+
+/* انتقال ناعم لأي عنصر يتغيّر ارتفاعه/ظهوره (accordion-like) */
+.sd-collapse { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.28s ease; }
+.sd-collapse.is-open { grid-template-rows: 1fr; }
+.sd-collapse > * { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+    .sd-fade-in, .sd-stagger > *, .sd-ripple-dot, .sd-toast, .sd-toast.is-leaving { animation: none !important; }
+}

@@ -67,3 +67,28 @@ class Library:
         conn.close()
         return books
 
+    @staticmethod
+    def get_next_for_bot(last_announced_book_id):
+        """أقدم رواية أحدث من آخر رواية أعلنها هذا البوت — تُستخدم بجدولة النشر التلقائي بالقنوات."""
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        if last_announced_book_id:
+            cur.execute("SELECT * FROM books WHERE id > %s ORDER BY id ASC LIMIT 1", (last_announced_book_id,))
+        else:
+            cur.execute("SELECT * FROM books ORDER BY id ASC LIMIT 1")
+        book = cur.fetchone()
+        cur.close()
+        conn.close()
+        return book
+
+    @staticmethod
+    def search_books(query):
+        """بحث عن كتب بعنوان يحتوي على النص المُعطى"""
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute("SELECT * FROM books WHERE title ILIKE %s ORDER BY id DESC;", (f"%{query}%",))
+        books = cur.fetchall()
+        cur.close()
+        conn.close()
+        return books
+

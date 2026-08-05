@@ -41,6 +41,7 @@ def create_tables():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
+    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT;")
 
 # ---------جدول المستخدمين بالبوت---------#
     cur.execute('''
@@ -166,6 +167,8 @@ def create_tables():
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
+    # عمود صورة الغلاف — أُضيف لاحقاً، ALTER منفصل حتى يطبَّق على قاعدة بيانات موجودة فعلاً
+    cur.execute("ALTER TABLE posts ADD COLUMN IF NOT EXISTS image_path TEXT;")
 #----------COMMENTS TABLE----------#
     cur.execute("""
         CREATE TABLE IF NOT EXISTS comments (
@@ -245,6 +248,36 @@ def create_tables():
             created_at TIMESTAMP DEFAULT NOW()
         );
      """)
+    # مؤشر "آخر رواية أُعلنت بقناة هذا البوت" — المكتبة مشتركة بين كل البوتات، فكل بوت يحتاج مؤشره الخاص
+    cur.execute("ALTER TABLE bots ADD COLUMN IF NOT EXISTS last_announced_book_id INTEGER;")
+    # لميزة "التواصل عبر البوت": كود ربط لمرة واحدة + معرف تيليجرام لصاحب البوت بعد التفعيل
+    cur.execute("ALTER TABLE bots ADD COLUMN IF NOT EXISTS claim_code VARCHAR(10);")
+    cur.execute("ALTER TABLE bots ADD COLUMN IF NOT EXISTS owner_telegram_id BIGINT;")
+    # بيانات البوت من تيليجرام (getMe) — تُحدَّث عند الربط ويدوياً من لوحة الأدمن
+    cur.execute("ALTER TABLE bots ADD COLUMN IF NOT EXISTS telegram_username VARCHAR(80);")
+    cur.execute("ALTER TABLE bots ADD COLUMN IF NOT EXISTS telegram_first_name VARCHAR(120);")
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS bot_features (
+            id SERIAL PRIMARY KEY,
+            bot_id INTEGER REFERENCES bots(id) ON DELETE CASCADE,
+            feature_key VARCHAR(50) NOT NULL,
+            enabled BOOLEAN NOT NULL DEFAULT TRUE,
+            updated_at TIMESTAMP DEFAULT NOW(),
+            UNIQUE(bot_id, feature_key)
+        );
+    """)
+    # نشاط البوت لكل مستخدم تيليجرام تفاعل معه — يُستخدم لإحصائيات لوحة الأدمن
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS bot_activity (
+            id SERIAL PRIMARY KEY,
+            bot_id INTEGER REFERENCES bots(id) ON DELETE CASCADE,
+            chat_id BIGINT NOT NULL,
+            message_count INTEGER DEFAULT 0,
+            command_count INTEGER DEFAULT 0,
+            last_seen TIMESTAMP DEFAULT NOW(),
+            UNIQUE(bot_id, chat_id)
+        );
+    """)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS quotes (
             id SERIAL PRIMARY KEY,
@@ -253,6 +286,32 @@ def create_tables():
             author VARCHAR(100),
             published BOOLEAN DEFAULT FALSE,
             created_at TIMESTAMP DEFAULT NOW()
+        );
+    """)
+#----------SHORT LINKS TABLE (أداة اختصار الروابط بالبوت)----------#
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS short_links (
+            id SERIAL PRIMARY KEY,
+            code VARCHAR(12) UNIQUE NOT NULL,
+            original_url TEXT NOT NULL,
+            bot_id INTEGER REFERENCES bots(id) ON DELETE SET NULL,
+            clicks INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+    """)
+#----------BOT LIMIT GRANTS TABLE (حد عدد البوتات لكل مستخدم — استثناء عن الحد الافتراضي 1)----------#
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS bot_limit_grants (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+            bot_limit INTEGER,
+            is_unlimited BOOLEAN NOT NULL DEFAULT FALSE,
+            starts_at TIMESTAMP NOT NULL DEFAULT NOW(),
+            expires_at TIMESTAMP,
+            reminder_7d_sent BOOLEAN NOT NULL DEFAULT FALSE,
+            reminder_expiry_sent BOOLEAN NOT NULL DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
         );
     """)
     conn.commit()

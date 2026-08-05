@@ -13,7 +13,7 @@
 
 
 <header class="nebula-header">
-    <div class="logo-brand">SADEEM NETWORK</div>
+    <a href="{{ url_for('loading_bp.landing_page') }}" class="logo-brand" style="text-decoration:none;color:inherit;">SADEEM NETWORK</a>
     <div class="user-info">مرحباً، {{ username }} | {{ current_time }}</div>
 
     <!-- قائمة الكمبيوتر -->
@@ -21,15 +21,20 @@
         <ul>
             <li><a href="{{ url_for('loading_bp.landing_page') }}">الرئيسية</a></li>
             <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
+            <li><a href="{{ url_for('bots.my_bots') }}">أنظمتي</a></li>
+            <li><a href="{{ url_for('articles.list_articles') }}">المقالات</a></li>
 
             <li><a href="mailto:admin@sadim.cloud">اتصل بنا</a></li>
             <li><a href="{{ url_for('loading_bp.account') }}">حسابي</a></li>
+            {% if session.get('role') == 'admin' %}
+            <li><a href="{{ url_for('admin.services_dashboard') }}">لوحة التحكم</a></li>
+            {% endif %}
             <li><a href="{{ url_for('loading_bp.logout') }}" class="btn-logout">خروج</a></li>
         </ul>
     </nav>
 
     <!-- زر الهامبرغر -->
-    <button id="menu-toggle" class="hamburger"><i class="fas fa-bars"></i></button>
+    <button id="menu-toggle" class="hamburger" aria-expanded="false" aria-controls="mobile-sidebar" aria-label="فتح القائمة"><i class="fas fa-bars"></i></button>
 </header>
 
 <!-- القائمة الجانبية للجوال -->
@@ -38,37 +43,19 @@
     <ul class="mobile-nav-links">
         <li><a href="{{ url_for('loading_bp.landing_page') }}">الرئيسية</a></li>
         <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
+        <li><a href="{{ url_for('bots.my_bots') }}">أنظمتي</a></li>
+        <li><a href="{{ url_for('articles.list_articles') }}">المقالات</a></li>
 
         <li><a href="mailto:admin@sadim.cloud">اتصل بنا</a></li>
         <li><a href="{{ url_for('loading_bp.account') }}">حسابي</a></li>
+        {% if session.get('role') == 'admin' %}
+        <li><a href="{{ url_for('admin.services_dashboard') }}">لوحة التحكم</a></li>
+        {% endif %}
         <li><a href="{{ url_for('loading_bp.logout') }}" style="color: #ff7675;">تسجيل الخروج</a></li>
     </ul>
 </div>
 
-    <script>
-    const menuToggle = document.getElementById('menu-toggle');
-const mobileSidebar = document.getElementById('mobile-sidebar');
-const closeSidebar = document.getElementById('close-sidebar');
-
-// الغطاء الشفاف
-const overlay = document.createElement('div');
-overlay.className = 'overlay';
-document.body.appendChild(overlay);
-
-menuToggle.addEventListener('click', () => {
-    mobileSidebar.classList.add('active');
-    overlay.classList.add('active');
-});
-
-const hideSidebar = () => {
-    mobileSidebar.classList.remove('active');
-    overlay.classList.remove('active');
-};
-
-closeSidebar.addEventListener('click', hideSidebar);
-overlay.addEventListener('click', hideSidebar);
-
-    </script>
+    <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
 
 <main class="services-layout">
 

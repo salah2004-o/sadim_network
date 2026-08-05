@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>إدارة البوت — شبكة سديم</title>
+    <style>
+        :root {
+            --color-bg: #09090d;
+            --color-primary: rgba(18, 18, 24, 0.75);
+            --color-accent: #7c4dff;
+            --color-light: #b388ff;
+            --color-deep: #ffffff;
+            --text-muted: #9c9cab;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --blur: blur(18px);
+            --radius: 24px;
+            --radius-sm: 14px;
+            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
+            --green: #00e676;
+            --red: #ff5252;
+            --yellow: #ffd740;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--color-bg);
+            color: var(--color-deep);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 20%, rgba(124, 77, 255, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(179, 136, 255, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .page-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(9, 9, 13, 0.85);
+            backdrop-filter: var(--blur);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-right { display: flex; align-items: center; gap: 1rem; }
+
+        .back-btn {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+        .back-btn:hover { color: var(--color-light); }
+
+        .page-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--color-deep);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .page-title i { color: var(--color-light); }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+
+        /* بطاقة معلومات البوت الرئيسية */
+        .bot-hero {
+            background: var(--color-primary);
+            border: 1px solid var(--border-color);
+            border-top: 3px solid var(--color-accent);
+            border-radius: var(--radius);
+            padding: 2rem;
+            backdrop-filter: var(--blur);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            animation: fadeUp 0.4s ease forwards;
+        }
+
+        .bot-avatar {
+            width: 64px;
+            height: 64px;
+            background: rgba(124, 77, 255, 0.12);
+            border: 1px solid rgba(124, 77, 255, 0.25);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-light);
+            font-size: 1.6rem;
+            flex-shrink: 0;
+        }
+
+        .bot-hero-info { flex: 1; min-width: 0; }
+
+        .bot-hero-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .bot-hero-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .meta-chip i { color: var(--color-light); font-size: 0.75rem; }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .status-badge.active {
+            background: rgba(0, 230, 118, 0.1);
+            color: var(--green);
+            border: 1px solid rgba(0, 230, 118, 0.2);
+        }
+
+        .status-badge.inactive {
+            background: rgba(255, 82, 82, 0.1);
+            color: var(--red);
+            border: 1px solid rgba(255, 82, 82, 0.2);
+        }
+
+        .status-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.inactive::before { animation: none; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* شبكة الإحصائيات */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            animation: fadeUp 0.45s ease forwards;
+        }
+
+        .stat-card {
+            background: var(--color-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 1.2rem 1.5rem;
+            backdrop-filter: var(--blur);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-light);
+            line-height: 1;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        /* التوكن */
+        .token-card {
+            background: var(--color-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 1.2rem 1.5rem;
+            backdrop-filter: var(--blur);
+            margin-bottom: 1.5rem;
+            animation: fadeUp 0.5s ease forwards;
+        }
+
+        .token-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+        }
+
+        .token-row {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .token-value {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 0.82rem;
+            color: var(--color-light);
+            background: rgba(124, 77, 255, 0.05);
+            border: 1px solid rgba(124, 77, 255, 0.15);
+            border-radius: 8px;
+            padding: 0.5rem 0.8rem;
+            direction: ltr;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn-copy {
+            background: rgba(124, 77, 255, 0.1);
+            border: 1px solid rgba(124, 77, 255, 0.25);
+            color: var(--color-light);
+            border-radius: 8px;
+            padding: 0.5rem 0.8rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-copy:hover { background: rgba(124, 77, 255, 0.2); }
+
+        /* الأزرار الرئيسية */
+        .actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            animation: fadeUp 0.55s ease forwards;
+        }
+
+        .action-btn {
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-color);
+            background: var(--color-primary);
+            color: var(--color-deep);
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            text-decoration: none;
+            backdrop-filter: var(--blur);
+        }
+
+        .action-btn.toggle-on {
+            border-color: rgba(0, 230, 118, 0.3);
+            color: var(--green);
+        }
+        .action-btn.toggle-on:hover { background: rgba(0, 230, 118, 0.08); }
+
+        .action-btn.toggle-off {
+            border-color: rgba(255, 215, 64, 0.3);
+            color: var(--yellow);
+        }
+        .action-btn.toggle-off:hover { background: rgba(255, 215, 64, 0.08); }
+
+        .action-btn.danger {
+            border-color: rgba(255, 82, 82, 0.3);
+            color: var(--red);
+        }
+        .action-btn.danger:hover { background: rgba(255, 82, 82, 0.08); }
+
+        /* سجل النشاط */
+        .section-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.15em;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .info-card {
+            background: var(--color-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            backdrop-filter: var(--blur);
+            overflow: hidden;
+            animation: fadeUp 0.6s ease forwards;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.9rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-row:last-child { border-bottom: none; }
+
+        .info-key {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-key i { color: var(--color-light); }
+
+        .info-val {
+            font-size: 0.82rem;
+            color: var(--color-deep);
+            font-weight: 600;
+            direction: ltr;
+        }
+
+        /* تنبيه */
+        .alert {
+            padding: 0.9rem 1.2rem;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            animation: fadeUp 0.5s ease forwards;
+        }
+
+        .alert.info, .alert.message { background: rgba(124, 77, 255, 0.07); border: 1px solid rgba(124, 77, 255, 0.2); color: var(--color-light); }
+        .alert.success { background: rgba(0, 230, 118, 0.08); border: 1px solid rgba(0, 230, 118, 0.25); color: var(--green); }
+        .alert.error { background: rgba(255, 82, 82, 0.08); border: 1px solid rgba(255, 82, 82, 0.25); color: var(--red); }
+
+        .alert i { margin-top: 0.1rem; flex-shrink: 0; }
+
+        /* الاقتباسات */
+        .quote-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 0.7rem;
+            margin-bottom: 1.2rem;
+        }
+
+        .quote-form input {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.7rem 1rem;
+            color: var(--color-deep);
+            font-size: 0.88rem;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .quote-form input:focus {
+            border-color: rgba(124, 77, 255, 0.5);
+        }
+
+        .quote-form button {
+            background: linear-gradient(135deg, var(--color-light), var(--color-accent));
+            border: none;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0 1.3rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .quote-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem; }
+
+        .quote-item {
+            background: var(--color-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.8rem 1.1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .quote-item .quote-text { font-size: 0.85rem; color: var(--color-deep); }
+        .quote-item .quote-author { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+        @media (max-width: 600px) {
+            .quote-form { grid-template-columns: 1fr; }
+        }
+
+        /* الميزات */
+        .feature-list { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem; }
+        .feature-item {
+            background: var(--color-primary); border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm); padding: 0.9rem 1.1rem;
+            display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+        }
+        .feature-info { min-width: 0; }
+        .feature-label { font-size: 0.9rem; font-weight: 700; color: var(--color-deep); }
+        .feature-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch-slider {
+            position: absolute; cursor: pointer; inset: 0;
+            background-color: rgba(255,255,255,0.12); transition: var(--transition); border-radius: 24px;
+        }
+        .switch-slider::before {
+            position: absolute; content: ""; height: 18px; width: 18px; right: 3px; bottom: 3px;
+            background-color: white; transition: var(--transition); border-radius: 50%;
+        }
+        .switch input:checked + .switch-slider { background: linear-gradient(135deg, var(--color-light), var(--color-accent)); }
+        .switch input:checked + .switch-slider::before { transform: translateX(-20px); }
+
+        .claim-box {
+            background: rgba(124,77,255,0.06); border: 1px solid rgba(124,77,255,0.2);
+            border-radius: var(--radius-sm); padding: 1rem 1.2rem; margin-bottom: 1.5rem;
+            font-size: 0.82rem; line-height: 1.8; color: var(--text-muted);
+        }
+        .claim-box code {
+            background: rgba(0,0,0,0.3); padding: 0.15rem 0.6rem; border-radius: 6px;
+            color: var(--color-light); font-weight: 700; direction: ltr; display: inline-block;
+        }
+        .btn-unlink {
+            background: rgba(255,82,82,0.1); border: 1px solid rgba(255,82,82,0.35);
+            color: var(--red); padding: 0.55rem 1rem; border-radius: var(--radius-sm);
+            font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: var(--transition);
+        }
+        .btn-unlink:hover { background: rgba(255,82,82,0.2); }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .actions-grid { grid-template-columns: 1fr; }
+            .bot-hero { flex-direction: column; text-align: center; }
+            .bot-hero-meta { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="page-header">
+    <div class="header-right">
+        <a href="{{ url_for('bots.my_bots') }}" class="back-btn">
+            <i class="fas fa-arrow-right"></i> أنظمتي
+        </a>
+    </div>
+    <div class="page-title">
+        <i class="fas fa-sliders-h"></i> إدارة البوت
+    </div>
+    <div class="header-left">
+        <i class="fas fa-user-circle"></i>
+        <span>{{ username }}</span>
+    </div>
+</header>
+
+<div class="container">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert {{ category }}">
+                <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-triangle-exclamation' if category == 'error' else 'fa-info-circle' }}"></i>
+                <span>{{ message }}</span>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- البوت Hero -->
+    <div class="bot-hero">
+        <div class="bot-avatar">
+            <i class="fas fa-robot"></i>
+        </div>
+        <div class="bot-hero-info">
+            <div class="bot-hero-name">بوت شبكة سديم</div>
+            <div class="bot-hero-meta">
+                <span class="meta-chip">
+                    <i class="fab fa-telegram"></i>
+                    {{ bot.channel }}
+                </span>
+                <span class="meta-chip">
+                    <i class="fas fa-calendar-alt"></i>
+                    {{ bot.created_at.strftime('%Y-%m-%d') if bot.created_at else '—' }}
+                </span>
+                <span class="status-badge {{ 'active' if bot.is_active else 'inactive' }}">
+                    {{ 'نشط' if bot.is_active else 'موقوف' }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- إحصائيات -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ quotes|length }}</div>
+            <div class="stat-label">إجمالي الاقتباسات</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ quotes|selectattr('published')|list|length }}</div>
+            <div class="stat-label">اقتباسات نُشرت</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ quotes|rejectattr('published')|list|length }}</div>
+            <div class="stat-label">بانتظار النشر</div>
+        </div>
+    </div>
+
+    <!-- التوكن -->
+    <div class="token-card">
+        <div class="token-label">BOT TOKEN</div>
+        <div class="token-row">
+            <div class="token-value" id="tokenVal">
+                {{ bot.bot_token[:10] }}••••••••••••••••••••••••••••••••••
+            </div>
+            <button class="btn-copy" onclick="copyToken()">
+                <i class="fas fa-copy"></i> نسخ
+            </button>
+        </div>
+    </div>
+
+    <!-- الأزرار -->
+    <div class="actions-grid">
+        {% if bot.is_active %}
+        <a href="{{ url_for('bots.toggle_bot', bot_id=bot.id) }}"
+           class="action-btn toggle-off"
+           onclick="return confirm('إيقاف البوت؟')">
+            <i class="fas fa-pause-circle"></i>
+            إيقاف البوت مؤقتاً
+        </a>
+        {% else %}
+        <a href="{{ url_for('bots.toggle_bot', bot_id=bot.id) }}"
+           class="action-btn toggle-on">
+            <i class="fas fa-play-circle"></i>
+            تشغيل البوت
+        </a>
+        {% endif %}
+
+        <a href="{{ url_for('bots.delete_bot', bot_id=bot.id) }}"
+           class="action-btn danger"
+           onclick="return confirm('حذف البوت نهائياً؟ لا يمكن التراجع.')">
+            <i class="fas fa-trash-alt"></i>
+            حذف البوت
+        </a>
+    </div>
+
+    <!-- الاقتباسات -->
+    <div class="section-label">
+        <i class="fas fa-quote-right"></i>
+        الاقتباسات
+    </div>
+
+    <form method="POST" action="{{ url_for('bots.add_quote', bot_id=bot.id) }}" class="quote-form">
+        <input type="text" name="text" placeholder="نص الاقتباس" required>
+        <input type="text" name="author" placeholder="الكاتب (اختياري)">
+        <button type="submit"><i class="fas fa-plus"></i> إضافة</button>
+    </form>
+
+    <div class="quote-list">
+        {% for quote in quotes %}
+        <div class="quote-item">
+            <div>
+                <div class="quote-text">{{ quote.text }}</div>
+                {% if quote.author %}<div class="quote-author">— {{ quote.author }}</div>{% endif %}
+            </div>
+            <span class="status-badge {{ 'active' if quote.published else 'inactive' }}">
+                {{ 'نُشر' if quote.published else 'بالانتظار' }}
+            </span>
+        </div>
+        {% else %}
+        <div class="quote-item" style="justify-content: center; color: var(--text-muted);">
+            ما أضفت أي اقتباس بعد. أضف اقتباسات من الأعلى وبيقدر أي مستخدم بالمحادثة يجيبها بأمر /quote.
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- الميزات -->
+    <div class="section-label">
+        <i class="fas fa-toggle-on"></i>
+        الميزات
+    </div>
+
+    <div class="feature-list">
+        {% for feature in features %}
+        <div class="feature-item">
+            <div class="feature-info">
+                <div class="feature-label">{{ feature.label }}</div>
+                <div class="feature-desc">{{ feature.description }}</div>
+            </div>
+            <form method="POST" action="{{ url_for('bots.toggle_feature', bot_id=bot.id) }}">
+                <input type="hidden" name="feature_key" value="{{ feature.key }}">
+                <label class="switch">
+                    <input type="checkbox" onchange="this.form.submit()" {{ 'checked' if feature.enabled else '' }}>
+                    <span class="switch-slider"></span>
+                </label>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if features|selectattr('key', 'equalto', 'contact_owner')|selectattr('enabled')|list %}
+    <div class="claim-box">
+        {% if bot.owner_telegram_id %}
+            <i class="fas fa-circle-check" style="color: var(--green);"></i>
+            ميزة "التواصل عبر البوت" مفعّلة ومرتبطة بحساب تيليجرام (ID: <code>{{ bot.owner_telegram_id }}</code>) — أي رسالة يرسلها مستخدم توصلك مباشرة.
+            <form method="POST" action="{{ url_for('bots.unlink_owner', bot_id=bot.id) }}" style="margin-top:0.8rem;"
+                  onsubmit="return confirm('متأكد؟ بعد فك الربط راح يتولّد كود جديد، وأي شخص يعرفه يقدر يربط حسابه بدل حسابك.');">
+                <button type="submit" class="btn-unlink">
+                    <i class="fas fa-link-slash"></i> فك الربط / تغيير الحساب
+                </button>
+            </form>
+        {% else %}
+            <i class="fas fa-circle-info"></i>
+            ميزة "التواصل عبر البوت" مفعّلة — لتستقبل رسائل المستخدمين على تيليجرامك، أرسل للبوت:
+            <br><code>/claim {{ bot.claim_code }}</code>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- معلومات تفصيلية -->
+    <div class="section-label">
+        <i class="fas fa-info-circle"></i>
+        تفاصيل النظام
+    </div>
+
+    <div class="info-card">
+        <div class="info-row">
+            <span class="info-key"><i class="fas fa-hashtag"></i> معرف البوت</span>
+            <span class="info-val">#{{ bot.id }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-key"><i class="fab fa-telegram"></i> القناة المربوطة</span>
+            <span class="info-val">{{ bot.channel }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-key"><i class="fas fa-calendar-plus"></i> تاريخ الإضافة</span>
+            <span class="info-val">{{ bot.created_at.strftime('%Y-%m-%d %H:%M') if bot.created_at else '—' }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-key"><i class="fas fa-server"></i> الخادم</span>
+            <span class="info-val">sadim.cloud / VPS</span>
+        </div>
+        <div class="info-row">
+            <span class="info-key"><i class="fas fa-layer-group"></i> ميزات البوت</span>
+            <span class="info-val">مكتبة + تحميل سوشيال ميديا + اقتباسات</span>
+        </div>
+        <div class="info-row">
+            <span class="info-key"><i class="fas fa-circle"></i> الحالة</span>
+            <span class="info-val" style="color: {{ '#00e676' if bot.is_active else '#ff5252' }}">
+                {{ 'يعمل' if bot.is_active else 'موقوف' }}
+            </span>
+        </div>
+    </div>
+
+    <!-- تنبيه -->
+    <div class="alert info">
+        <i class="fas fa-lightbulb"></i>
+        <span>البوت يعمل على خوادم سديم مباشرةً. أي تغيير يُطبّق فوراً دون الحاجة لإعادة التشغيل.</span>
+    </div>
+
+</div>
+
+<script>
+    function copyToken() {
+        const fullToken = "{{ bot.bot_token }}";
+        navigator.clipboard.writeText(fullToken).then(() => {
+            const btn = document.querySelector('.btn-copy');
+            btn.innerHTML = '<i class="fas fa-check"></i> تم النسخ';
+            btn.style.color = 'var(--green)';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-copy"></i> نسخ';
+                btn.style.color = '';
+            }, 2000);
+        });
+    }
+</script>
+
+</body>
+</html>

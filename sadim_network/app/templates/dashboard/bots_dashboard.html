@@ -1,0 +1,169 @@
+{% extends "layouts/dashboard.html" %}
+{% block title %}بوتات المستخدمين — شبكة سديم{% endblock %}
+{% block page_title %}بوتات المستخدمين{% endblock %}
+
+{% block extra_head %}
+<style>
+    .bot-card {
+        background: var(--sd-surface);
+        border: 1px solid var(--sd-border);
+        border-radius: var(--sd-radius-lg);
+        padding: var(--sd-sp-5);
+        margin-bottom: var(--sd-sp-4);
+    }
+    .bot-card-head {
+        display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+        gap: var(--sd-sp-2); margin-bottom: var(--sd-sp-4); padding-bottom: var(--sd-sp-4);
+        border-bottom: 1px solid var(--sd-border);
+    }
+    .bot-title { font-size: var(--sd-fs-md); font-weight: 800; }
+    .bot-subtitle { font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); margin-top: 0.15rem; }
+
+    .info-grid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: var(--sd-sp-3); margin-bottom: var(--sd-sp-4);
+    }
+    .info-box { background: var(--sd-bg-elevated); border-radius: var(--sd-radius-sm); padding: var(--sd-sp-3); }
+    .info-label { font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); margin-bottom: 0.25rem; }
+    .info-value { font-size: var(--sd-fs-base); font-weight: 700; color: var(--sd-accent-light); }
+
+    .token-row {
+        display: flex; align-items: center; gap: var(--sd-sp-2); background: rgba(0,0,0,0.25);
+        border: 1px solid var(--sd-border); border-radius: var(--sd-radius-sm); padding: var(--sd-sp-3);
+        margin-bottom: var(--sd-sp-4); font-family: monospace; font-size: var(--sd-fs-sm); direction: ltr; text-align: left;
+    }
+    .token-value { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; letter-spacing: 1px; }
+    .token-btn { background: none; border: none; color: var(--sd-accent-light); cursor: pointer; font-size: var(--sd-fs-sm); flex-shrink: 0; }
+    .token-btn:hover { color: var(--sd-text); }
+
+    .actions-row { display: flex; flex-wrap: wrap; gap: var(--sd-sp-2); }
+
+    @media (max-width: 576px) {
+        .bot-card { padding: var(--sd-sp-4); }
+        .actions-row { flex-direction: column; }
+        .actions-row form, .actions-row a { width: 100%; }
+        .actions-row .sd-btn { width: 100%; text-align: center; justify-content: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sd-sp-5); flex-wrap: wrap; gap: var(--sd-sp-2);">
+    <h2 style="margin:0; font-size: var(--sd-fs-lg);">
+        <i class="fa-solid fa-robot" style="color: var(--sd-accent-light);"></i> بوتات المستخدمين
+    </h2>
+    <span class="sd-badge sd-badge-neutral">الإجمالي: {{ bots|length }}</span>
+</div>
+
+{% for bot in bots %}
+<div class="bot-card">
+    <div class="bot-card-head">
+        <div>
+            <div class="bot-title">
+                {{ bot.telegram_first_name or 'بوت #' ~ bot.id }}
+                {% if bot.telegram_username %}<span style="color: var(--sd-text-secondary); font-weight: 400;">@{{ bot.telegram_username }}</span>{% endif %}
+            </div>
+            <div class="bot-subtitle">
+                <i class="fa-regular fa-user"></i> {{ bot.username }}
+                · <i class="fab fa-telegram"></i> {{ bot.channel }}
+            </div>
+        </div>
+        {% if bot.is_active %}
+            <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> نشط</span>
+        {% else %}
+            <span class="sd-badge sd-badge-danger"><span class="sd-badge-dot"></span> موقوف</span>
+        {% endif %}
+    </div>
+
+    <div class="info-grid">
+        <div class="info-box">
+            <div class="info-label">معرف البوت</div>
+            <div class="info-value">#{{ bot.id }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">تاريخ الربط</div>
+            <div class="info-value">{{ bot.created_at.strftime('%Y-%m-%d') if bot.created_at else '—' }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">آخر نشاط</div>
+            <div class="info-value">{{ bot.stats.last_seen.strftime('%Y-%m-%d %H:%M') if bot.stats.last_seen else '—' }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">المستخدمون</div>
+            <div class="info-value">{{ bot.stats.users }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">الرسائل</div>
+            <div class="info-value">{{ bot.stats.messages }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">الأوامر المنفذة</div>
+            <div class="info-value">{{ bot.stats.commands }}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">الميزات المفعّلة</div>
+            <div class="info-value">{{ bot.enabled_features_count }} / {{ bot.total_features_count }}</div>
+        </div>
+    </div>
+
+    <div class="token-row">
+        <span class="token-value" id="token-{{ bot.id }}">{{ '•' * 30 }}</span>
+        <button type="button" class="token-btn" onclick="toggleToken({{ bot.id }}, '{{ bot.bot_token }}')" title="إظهار/إخفاء">
+            <i class="fas fa-eye" id="token-icon-{{ bot.id }}"></i>
+        </button>
+        <button type="button" class="token-btn" onclick="copyToken('{{ bot.bot_token }}')" title="نسخ">
+            <i class="fas fa-copy"></i>
+        </button>
+    </div>
+
+    <div class="actions-row">
+        <a href="{{ url_for('bots.manage_bot', bot_id=bot.id) }}" class="sd-btn sd-btn-secondary sd-btn-sm sd-ripple">
+            <i class="fa-solid fa-eye"></i> عرض التفاصيل
+        </a>
+        <form action="{{ url_for('bots.refresh_bot_info', bot_id=bot.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="sd-btn sd-btn-ghost sd-btn-sm sd-ripple"><i class="fa-solid fa-arrows-rotate"></i> تحديث من تيليجرام</button>
+        </form>
+        {% if bot.is_active %}
+        <form action="{{ url_for('bots.restart_bot', bot_id=bot.id) }}" method="POST" style="display:inline;">
+            <button type="submit" class="sd-btn sd-btn-outline sd-btn-sm sd-ripple" style="color:#ffd740; border-color:rgba(255,215,64,0.4);"><i class="fa-solid fa-rotate"></i> إعادة تشغيل</button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('bots.toggle_bot', bot_id=bot.id) }}" class="sd-btn sd-btn-outline sd-btn-sm sd-ripple" style="color: var(--sd-success); border-color: var(--sd-success);">
+            <i class="fa-solid fa-power-off"></i> {{ 'إيقاف' if bot.is_active else 'تشغيل' }}
+        </a>
+        <a href="{{ url_for('bots.delete_bot', bot_id=bot.id) }}" class="sd-btn sd-btn-danger sd-btn-sm sd-ripple"
+           onclick="return confirm('حذف هذا البوت نهائياً؟')">
+            <i class="fa-solid fa-trash-can"></i> حذف
+        </a>
+    </div>
+</div>
+{% else %}
+<div class="sd-state sd-state-empty">
+    <i class="fa-solid fa-robot"></i>
+    <p>لا يوجد بوتات مربوطة من أي مستخدم بعد.</p>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const tokenState = {};
+    function toggleToken(botId, token) {
+        const el = document.getElementById('token-' + botId);
+        const icon = document.getElementById('token-icon-' + botId);
+        tokenState[botId] = !tokenState[botId];
+        if (tokenState[botId]) {
+            el.textContent = token;
+            icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash');
+        } else {
+            el.textContent = '•'.repeat(30);
+            icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye');
+        }
+    }
+    function copyToken(token) {
+        navigator.clipboard.writeText(token);
+    }
+</script>
+{% endblock %}

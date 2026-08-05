@@ -1,67 +1,68 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-    
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/services/service_form.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% extends "layouts/dashboard.html" %}
+{% block title %}{% if service %}تعديل الخدمة{% else %}إضافة خدمة جديدة{% endif %} — شبكة سديم{% endblock %}
+{% block page_title %}{% if service %}تعديل الخدمة{% else %}إضافة خدمة جديدة{% endif %}{% endblock %}
 
-  <title>{% if service %}تعديل الخدمة | سديم{% else %}إضافة خدمة جديدة | سديم{% endif %}</title>
+{% block content %}
 
+<div class="sd-card" style="max-width: 620px; margin-inline: auto;">
+    <form method="POST" enctype="multipart/form-data">
 
+        <div class="sd-form-group">
+            <label class="sd-label">تصنيف الخدمة</label>
+            <select class="sd-select" name="category" required>
+                <option value="books" {% if service and service.category == 'books' %}selected{% endif %}>📚 الرواق الكلاسيكي (كتب وملخصات)</option>
+                <option value="tech" {% if service and service.category == 'tech' %}selected{% endif %}>💻 المختبر التقني (قوالب وسكربتات)</option>
+            </select>
+        </div>
 
-</head>
+        <div class="sd-form-group">
+            <label class="sd-label">عنوان الخدمة</label>
+            <input type="text" class="sd-input" name="title" value="{{ service.title if service else '' }}" placeholder="مثلاً: كتاب لغة الروح" required>
+        </div>
 
-<body>
-  <h1>{% if service %}تعديل الخدمة{% else %}إضافة خدمة جديدة{% endif %}</h1>
+        <div class="sd-form-group">
+            <label class="sd-label">الوصف</label>
+            <textarea class="sd-textarea" name="description" rows="4" placeholder="اكتب وصفاً جذاباً للخدمة...">{{ service.description if service else '' }}</textarea>
+        </div>
 
-  <form class="service-form" method="POST" enctype="multipart/form-data">
-    
-    <label>تصنيف الخدمة</label>
-    <select name="category" required>
-        <option value="books" {% if service and service.category == 'books' %}selected{% endif %}>📚 الرواق الكلاسيكي (كتب وملخصات)</option>
-        <option value="tech" {% if service and service.category == 'tech' %}selected{% endif %}>💻 المختبر التقني (قوالب وسكربتات)</option>
-    </select>
+        <div class="sd-form-group">
+            <label class="sd-label">السعر (ضع 0 للخدمات المجانية)</label>
+            <input type="number" step="0.01" class="sd-input" name="price" value="{{ service.price if service else '0' }}" required>
+        </div>
 
-    <label>عنوان الخدمة</label>
-    <input type="text" name="title" value="{{ service.title if service else '' }}" placeholder="مثلاً: كتاب لغة الروح" required>
+        <div class="sd-form-group">
+            <label class="sd-label">رابط التحميل / القناة (للمجاني فقط)</label>
+            <input type="url" class="sd-input" name="download_url" value="{{ service.download_url if service else '' }}" placeholder="https://t.me/your_channel">
+            <span class="sd-hint">اتركه فارغاً إذا كانت الخدمة مدفوعة (سيتم تحويلهم للواتساب تلقائياً).</span>
+        </div>
 
-    <label>الوصف</label>
-    <textarea name="description" rows="4" placeholder="اكتب وصفاً جذاباً للخدمة...">{{ service.description if service else '' }}</textarea>
+        <div class="sd-form-group">
+            <label class="sd-label">مدة التسليم (بالأيام)</label>
+            <input type="number" class="sd-input" name="delivery_time" value="{{ service.delivery_time if service else '1' }}">
+        </div>
 
-    <label>السعر (ضع 0 للخدمات المجانية)</label>
-    <input type="number" step="0.01" name="price" value="{{ service.price if service else '0' }}" required>
+        <div class="sd-form-group">
+            <label class="sd-label">صورة الخدمة</label>
+            <input type="file" class="sd-input" name="image" accept="image/*">
+        </div>
 
-    <label>رابط التحميل / القناة (للمجاني فقط)</label>
-    <input type="url" name="download_url" value="{{ service.download_url if service else '' }}" placeholder="https://t.me/your_channel">
-    <span class="hint">اتركه فارغاً إذا كانت الخدمة مدفوعة (سيتم تحويلهم للواتساب تلقائياً).</span>
+        {% if service and service.image_url %}
+        <div style="text-align: center; margin-bottom: var(--sd-sp-4);">
+            <p style="font-size: var(--sd-fs-xs); color: var(--sd-text-secondary);">الصورة الحالية:</p>
+            <img src="{{ url_for('static', filename=service.image_url) }}" width="150" style="border-radius: var(--sd-radius-md);" alt="صورة الخدمة">
+        </div>
+        {% endif %}
 
-    <label>مدة التسليم (بالأيام)</label>
-    <input type="number" name="delivery_time" value="{{ service.delivery_time if service else '1' }}">
+        <button type="submit" class="sd-btn sd-btn-primary sd-btn-block sd-ripple">
+            {% if service %}حفظ التعديلات{% else %}نشر الخدمة في سديم{% endif %}
+        </button>
+    </form>
 
-    <label>صورة الخدمة</label>
-    <input type="file" name="image" accept="image/*">
+    <div style="display:flex; flex-wrap:wrap; gap: var(--sd-sp-3); justify-content:center; margin-top: var(--sd-sp-5);">
+        <a href="{{ url_for('admin.services_dashboard') }}" class="sd-btn sd-btn-ghost sd-ripple">← العودة للوحة التحكم</a>
+        <a href="{{ url_for('admin.dashboard_home') }}" class="sd-btn sd-btn-ghost sd-ripple">لوحة الزوار</a>
+        <a href="{{ url_for('admin.dashboard_users') }}" class="sd-btn sd-btn-ghost sd-ripple">لوحة المستخدمين</a>
+    </div>
+</div>
 
-    {% if service and service.image_url %}
-      <div style="text-align: center;">
-          <p style="font-size: 0.8rem;">الصورة الحالية:</p>
-          <img src="{{ url_for('static', filename=service.image_url) }}" class="image-preview" width="150" alt="صورة الخدمة">
-      </div>
-    {% endif %}
-
-    <button type="submit">{% if service %}حفظ التعديلات{% else %}نشر الخدمة في سديم{% endif %}</button>
-  </form>
-
-  <p style="text-align: center; margin-top: 20px;">
-     <a href="{{ url_for('admin.services_dashboard') }}" style="color: var(--primary-gold); text-decoration: none;">
-     ← العودة للوحة التحكم
-     </a>
-
-     <a href="{{ url_for('admin.dashboard_home') }}">  لوحة الزوار</a>
-     <a href="{{ url_for('admin.dashboard_users') }}">لوحة المستخدمين</a>
-
-  </p>
-</body>
-</html>
+{% endblock %}

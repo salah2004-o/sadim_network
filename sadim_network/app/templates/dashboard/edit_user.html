@@ -1,80 +1,70 @@
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-
-{% extends "base.html" %}
-
-{% block title %}تعديل المستخدم | سديم{% endblock %}
+{% extends "layouts/dashboard.html" %}
+{% block title %}تعديل المستخدم — شبكة سديم{% endblock %}
+{% block page_title %}تعديل المستخدم{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard/edit_user.css') }}">
 
-<div class="edit-user-container">
-    <h2 class="edit-title">
+<div class="sd-card" style="max-width: 620px; margin-inline: auto;">
+    <h2 style="margin-top:0; font-size: var(--sd-fs-lg);">
         <i class="fas fa-user-edit"></i> تعديل المستخدم: {{ user.username }}
     </h2>
-    
+
     <form method="POST">
-        <div class="info-item">
-            <span class="info-label">صورة الملف الشخصي</span>
-            <span class="info-value">
-                {% if user.profile_image %}
-                    <img src="{{ url_for('static', filename='uploads/' + user.profile_image) }}?v=1" width="80" style="border-radius: 50%;">
-                {% else %}
-                    <img src="{{ url_for('static', filename='uploads/default_user.png') }}" width="80" style="border-radius: 50%;">
-                {% endif %}
-            </span>
-        </div>
-        <div class="nebula-form-group">
-            <label for="name"><i class="fas fa-id-card"></i> الاسم الكامل</label>
-            <input type="text" class="nebula-input" id="name" name="name" value="{{ user.name }}" required>
+        <div style="display:flex; align-items:center; gap: var(--sd-sp-3); margin-bottom: var(--sd-sp-5);">
+            {% if user.profile_image %}
+                <img src="{{ url_for('static', filename='uploads/' + user.profile_image) }}?v=1" width="70" style="border-radius: 50%;">
+            {% else %}
+                <img src="{{ url_for('static', filename='uploads/default_user.png') }}" width="70" style="border-radius: 50%;">
+            {% endif %}
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm);">صورة الملف الشخصي</span>
         </div>
 
-        <div class="nebula-form-group">
-            <label for="email"><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
-            <input type="email" class="nebula-input" id="email" name="email" value="{{ user.email }}" required>
+        <div class="sd-form-group">
+            <label class="sd-label" for="name"><i class="fas fa-id-card"></i> الاسم الكامل</label>
+            <input type="text" class="sd-input" id="name" name="name" value="{{ user.name }}" required>
         </div>
 
-        <div class="nebula-form-group">
-            <label for="password_hash"><i class="fas fa-lock"></i> كلمة المرور الجديدة</label>
-            <input type="password" class="nebula-input" id="password_hash" name="password_hash" value="{{ user.password_hash }}" placeholder="اتركها فارغة لعدم التغيير">
+        <div class="sd-form-group">
+            <label class="sd-label" for="email"><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
+            <input type="email" class="sd-input" id="email" name="email" value="{{ user.email }}" required>
         </div>
 
-        <div class="nebula-form-group">
-            <label for="role"><i class="fas fa-user-tag"></i> مستوى الصلاحية</label>
-            <select class="nebula-select" id="role" name="role">
+        <div class="sd-form-group">
+            <label class="sd-label" for="password_hash"><i class="fas fa-lock"></i> كلمة المرور الجديدة</label>
+            <input type="password" class="sd-input" id="password_hash" name="password_hash" value="{{ user.password_hash }}" placeholder="اتركها فارغة لعدم التغيير">
+        </div>
+
+        <div class="sd-form-group">
+            <label class="sd-label" for="role"><i class="fas fa-user-tag"></i> مستوى الصلاحية</label>
+            <select class="sd-select" id="role" name="role">
                 <option value="user" {% if user.role == 'user' %}selected{% endif %}>👤 مستخدم</option>
                 <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>🛡️ أدمن (مدير نظام)</option>
             </select>
         </div>
 
-        <div class="nebula-form-group">
-         <label><i class="fas fa-check-circle"></i> حالة التحقق من البريد</label>
-           <div class="verification-wrapper">
-               <span class="verification-status-text">تم التحقق من الحساب</span>
-               <label class="switch-container">
-                   <input type="checkbox" id="is_verified" name="is_verified" class="nebula-checkbox" {% if user.is_verified %}checked{% endif %}>
-                   <div class="toggle-switch"></div>
-               </label>
-           </div>
+        <div class="sd-form-group" style="display:flex; align-items:center; gap: var(--sd-sp-2);">
+            <input type="checkbox" id="is_verified" name="is_verified" style="width:18px; height:18px;" {% if user.is_verified %}checked{% endif %}>
+            <label class="sd-label" for="is_verified" style="margin:0;"><i class="fas fa-check-circle"></i> تم التحقق من البريد الإلكتروني</label>
         </div>
-        <div class="nebula-form-group">
-            <label for="status"><i class="fas fa-toggle-on"></i> حالة الحساب</label>
-            <select class="nebula-select" id="status" name="status">
+
+        <div class="sd-form-group">
+            <label class="sd-label" for="status"><i class="fas fa-toggle-on"></i> حالة الحساب</label>
+            <select class="sd-select" id="status" name="status">
                 <option value="active" {% if user.status == 'active' %}selected{% endif %}>🟢 نشط (Active)</option>
                 <option value="suspended" {% if user.status == 'suspended' %}selected{% endif %}>🟡 معلق (Suspended)</option>
                 <option value="deleted" {% if user.status == 'deleted' %}selected{% endif %}>🔴 محذوف (Soft Delete)</option>
             </select>
         </div>
 
-        <div class="btn-group">
-            <button type="submit" class="btn-save">
+        <div style="display:flex; gap: var(--sd-sp-3); margin-top: var(--sd-sp-5);">
+            <button type="submit" class="sd-btn sd-btn-primary sd-ripple" style="flex:1;">
                 <i class="fas fa-save"></i> حفظ التغييرات
             </button>
-            <a href="{{ url_for('admin.admin_users_list') }}" class="btn-cancel">
+            <a href="{{ url_for('admin.admin_users_list') }}" class="sd-btn sd-btn-secondary" style="flex:1; text-align:center;">
                 إلغاء
             </a>
         </div>
     </form>
 </div>
+
 {% endblock %}

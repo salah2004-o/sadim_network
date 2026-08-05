@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>{{ post.title }} — شبكة سديم</title>
+    {% set article_url = url_for('articles.view_article', post_id=post.id, _external=True) %}
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="{{ post.title }}">
+    <meta property="og:description" content="{{ post.content|truncate(160) }}">
+    <meta property="og:url" content="{{ article_url }}">
+    {% if post.image_path %}
+    <meta property="og:image" content="{{ url_for('static', filename=post.image_path, _external=True) }}">
+    {% endif %}
+    <meta name="twitter:card" content="summary_large_image">
+    <style>
+        :root {
+            --color-bg: #09090d;
+            --color-primary: rgba(18, 18, 24, 0.75);
+            --color-accent: #7c4dff;
+            --color-light: #b388ff;
+            --color-deep: #ffffff;
+            --text-muted: #9c9cab;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --blur: blur(18px);
+            --radius: 24px;
+            --radius-sm: 14px;
+            --red: #ff5252;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--color-bg); color: var(--color-deep); font-family: 'Segoe UI', Tahoma, sans-serif; min-height: 100vh; }
+        .page-header {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(9, 9, 13, 0.85); backdrop-filter: var(--blur);
+            border-bottom: 1px solid var(--border-color); padding: 1rem 2rem;
+        }
+        .back-btn { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; width: fit-content; }
+        .back-btn:hover { color: var(--color-light); }
+        .container { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+        .alert { padding: 0.9rem 1.2rem; border-radius: var(--radius-sm); font-size: 0.85rem; margin-bottom: 1.2rem; background: rgba(124,77,255,0.08); border: 1px solid rgba(124,77,255,0.25); color: var(--color-light); }
+        .post-cover { width: 100%; max-height: 400px; object-fit: cover; border-radius: var(--radius); margin-bottom: 1.5rem; }
+        .avatar { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+        .avatar.sm { width: 28px; height: 28px; }
+        .post-author-row { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; }
+        .post-author-name { font-size: 0.88rem; font-weight: 700; }
+        .post-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.8rem; }
+        .post-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1.5rem; }
+        .post-content { font-size: 1rem; line-height: 1.9; white-space: pre-line; margin-bottom: 2rem; }
+        .share-bar { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-bottom: 1.8rem; }
+        .share-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: rgba(255,255,255,0.04); border: 1px solid var(--border-color);
+            color: var(--text-muted); padding: 0.5rem 0.9rem; border-radius: var(--radius-sm);
+            font-size: 0.8rem; font-family: inherit; cursor: pointer; text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        .share-btn:hover { border-color: var(--color-accent); color: var(--color-light); }
+        .share-btn.icon-only { padding: 0.5rem 0.7rem; font-size: 0.95rem; }
+        .post-actions { display: flex; gap: 0.6rem; margin-bottom: 2.5rem; }
+        .btn-action {
+            padding: 0.5rem 1rem; border-radius: var(--radius-sm); font-size: 0.8rem;
+            text-decoration: none; border: 1px solid var(--border-color); color: var(--text-muted);
+        }
+        .btn-action.danger { color: var(--red); border-color: rgba(255,82,82,0.3); background: rgba(255,82,82,0.06); }
+        .btn-action:hover { border-color: var(--color-accent); color: var(--color-light); }
+
+        .section-label { font-size: 0.72rem; letter-spacing: 0.15em; color: var(--text-muted); font-weight: 700; margin-bottom: 1rem; }
+        .comment-form { display: flex; gap: 0.6rem; margin-bottom: 1.5rem; }
+        .comment-form textarea {
+            flex: 1; background: rgba(255,255,255,0.04); border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm); padding: 0.7rem 1rem; color: var(--color-deep);
+            font-family: inherit; font-size: 0.88rem; resize: vertical; min-height: 46px;
+        }
+        .comment-form button {
+            background: linear-gradient(135deg, var(--color-light), var(--color-accent));
+            border: none; border-radius: var(--radius-sm); color: white; font-weight: 700;
+            padding: 0 1.3rem; cursor: pointer;
+        }
+        .comment-item { display: flex; gap: 0.7rem; padding: 0.9rem 0; border-bottom: 1px solid var(--border-color); }
+        .comment-item:last-child { border-bottom: none; }
+        .comment-body { flex: 1; min-width: 0; }
+        .comment-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.6rem; margin-bottom: 0.2rem; }
+        .comment-head-left { display: flex; align-items: baseline; gap: 0.5rem; }
+        .comment-author { font-size: 0.85rem; font-weight: 700; }
+        .comment-date { font-size: 0.72rem; color: var(--text-muted); }
+        .comment-text { font-size: 0.88rem; line-height: 1.6; white-space: pre-line; color: var(--color-deep); }
+        .comment-delete { font-size: 0.72rem; color: var(--text-muted); background: none; border: none; cursor: pointer; }
+        .comment-delete:hover { color: var(--red); }
+    </style>
+</head>
+<body>
+
+<header class="page-header">
+    <a href="{{ url_for('articles.list_articles') }}" class="back-btn"><i class="fas fa-arrow-right"></i> كل المقالات</a>
+</header>
+
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    {% if post.image_path %}
+        <img src="{{ url_for('static', filename=post.image_path) }}" class="post-cover" alt="">
+    {% endif %}
+
+    <h1 class="post-title">{{ post.title }}</h1>
+    <a href="{{ url_for('articles.author_profile', user_id=post.user_id) }}" class="post-author-row">
+        {% set author_img = post.profile_image if post.profile_image else 'default_user.png' %}
+        <img src="{{ url_for('static', filename='uploads/' + author_img) }}" class="avatar" alt="">
+        <div>
+            <div class="post-author-name">{{ post.username }}</div>
+            <div class="post-meta">{{ post.created_at.strftime('%Y-%m-%d') if post.created_at else '—' }}</div>
+        </div>
+    </a>
+
+    <div class="share-bar">
+        <button class="share-btn" onclick="copyArticleLink(this)" data-url="{{ article_url }}">
+            <i class="fas fa-link"></i> نسخ الرابط
+        </button>
+        <button class="share-btn" id="native-share-btn" style="display:none;" onclick="nativeShare()"
+                data-url="{{ article_url }}" data-title="{{ post.title }}">
+            <i class="fas fa-share-nodes"></i> مشاركة
+        </button>
+        <a class="share-btn icon-only" title="واتساب" target="_blank" rel="noopener"
+           href="https://wa.me/?text={{ (post.title ~ ' - ' ~ article_url)|urlencode }}"><i class="fab fa-whatsapp"></i></a>
+        <a class="share-btn icon-only" title="تيليجرام" target="_blank" rel="noopener"
+           href="https://t.me/share/url?url={{ article_url|urlencode }}&text={{ post.title|urlencode }}"><i class="fab fa-telegram"></i></a>
+        <a class="share-btn icon-only" title="إكس" target="_blank" rel="noopener"
+           href="https://twitter.com/intent/tweet?url={{ article_url|urlencode }}&text={{ post.title|urlencode }}"><i class="fab fa-x-twitter"></i></a>
+        <a class="share-btn icon-only" title="فيسبوك" target="_blank" rel="noopener"
+           href="https://www.facebook.com/sharer/sharer.php?u={{ article_url|urlencode }}"><i class="fab fa-facebook"></i></a>
+    </div>
+
+    <div class="post-content">{{ post.content }}</div>
+
+    {% if session.get('user_id') and (session.get('user_id') == post.user_id or session.get('role') == 'admin') %}
+    <div class="post-actions">
+        <a href="{{ url_for('articles.edit_article', post_id=post.id) }}" class="btn-action"><i class="fas fa-pen"></i> تعديل</a>
+        <form method="POST" action="{{ url_for('articles.delete_article', post_id=post.id) }}"
+              onsubmit="return confirm('حذف هذا المقال نهائياً؟')">
+            <button type="submit" class="btn-action danger" style="cursor:pointer;"><i class="fas fa-trash"></i> حذف</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="section-label">التعليقات ({{ comments|length }})</div>
+
+    {% if session.get('user_id') %}
+    <form method="POST" action="{{ url_for('articles.add_comment', post_id=post.id) }}" class="comment-form">
+        <textarea name="content" placeholder="اكتب تعليقك..." required></textarea>
+        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+    </form>
+    {% else %}
+    <div class="alert">
+        <a href="{{ url_for('loading_bp.login') }}" style="color: var(--color-light);">سجّل دخولك</a> عشان تقدر تعلّق.
+    </div>
+    {% endif %}
+
+    {% for comment in comments %}
+    {% set c_img = comment.profile_image if comment.profile_image else 'default_user.png' %}
+    <div class="comment-item">
+        <img src="{{ url_for('static', filename='uploads/' + c_img) }}" class="avatar sm" alt="">
+        <div class="comment-body">
+            <div class="comment-head">
+                <div class="comment-head-left">
+                    <span class="comment-author">{{ comment.username }}</span>
+                    <span class="comment-date">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') if comment.created_at else '' }}</span>
+                </div>
+                {% if session.get('user_id') and (session.get('user_id') == comment.user_id or session.get('role') == 'admin') %}
+                <form method="POST" action="{{ url_for('articles.delete_comment', comment_id=comment.id, post_id=post.id) }}"
+                      onsubmit="return confirm('حذف هذا التعليق؟')">
+                    <button type="submit" class="comment-delete">حذف</button>
+                </form>
+                {% endif %}
+            </div>
+            <div class="comment-text">{{ comment.content }}</div>
+        </div>
+    </div>
+    {% else %}
+    <p style="color: var(--text-muted); font-size: 0.85rem;">لا توجد تعليقات بعد، كن أول من يعلّق.</p>
+    {% endfor %}
+</div>
+
+<script>
+function copyArticleLink(btn) {
+    const url = btn.getAttribute('data-url');
+    const done = () => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> تم النسخ';
+        setTimeout(() => { btn.innerHTML = original; }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done).catch(() => fallbackCopy(url, done));
+    } else {
+        fallbackCopy(url, done);
+    }
+}
+
+function fallbackCopy(text, cb) {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    document.body.removeChild(ta);
+    if (cb) cb();
+}
+
+function nativeShare() {
+    const btn = document.getElementById('native-share-btn');
+    navigator.share({ title: btn.getAttribute('data-title'), url: btn.getAttribute('data-url') }).catch(() => {});
+}
+
+if (navigator.share) {
+    document.getElementById('native-share-btn').style.display = 'inline-flex';
+}
+</script>
+
+</body>
+</html>

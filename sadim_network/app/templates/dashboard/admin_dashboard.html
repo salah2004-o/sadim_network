@@ -1,24 +1,24 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة المكتبة الملكية | سديم</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;500;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% extends "layouts/dashboard.html" %}
+{% block title %}إدارة المكتبة الملكية — شبكة سديم{% endblock %}
+{% block page_title %}إدارة المكتبة الملكية{% endblock %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard/admin_dashboard.css') }}">
-</head>
-<body>
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;500;700&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard/admin_dashboard.css') }}">
+<style>
+    /* إبقاء هوية "الأرشيف الملكي" (الخطوط/الألوان/بطاقات النموذج والجدول) كما هي،
+       فقط تحييد أبعاد الحاوية القديمة بما إنها أصبحت داخل قالب لوحة التحكم الموحّد. */
+    #agatha-admin-scope > .container { max-width: 100%; margin: 0; padding: 0; }
+    #agatha-admin-scope > header { margin-bottom: var(--sd-sp-5); }
+</style>
+{% endblock %}
 
+{% block content %}
+
+<div id="agatha-admin-scope">
 <header>
     <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="nav-back">
         <i class="fas fa-arrow-right"></i> العودة للمكتبة
-    </a>
-    <a href="{{ url_for('admin.services_dashboard') }}" class="nav-back">
-        <i class="fas fa-arrow-right">العود للوحة التحكم</i>
     </a>
     <div class="admin-title">SADEEM <span>ADMIN</span></div>
 </header>
@@ -30,7 +30,7 @@
             <i class="fa-solid fa-feather-pointed"></i>
             <h2>أضف رواية للأرشيف الملكي</h2>
         </div>
-        
+
         <form action="{{ url_for('admin.add_book_to_library') }}" method="POST" enctype="multipart/form-data" class="form-grid">
             <div class="input-group">
                 <label><i class="fa-solid fa-heading"></i> عنوان الرواية</label>
@@ -84,7 +84,7 @@
                             <button class="action-btn edit-trigger" onclick="toggleEdit({{ book.id }})" title="تعديل">
                                 <i class="fas fa-pen-nib"></i>
                             </button>
-                            
+
                             <form action="{{ url_for('admin.delete_book_from_library', book_id=book.id) }}" method="POST" onsubmit="return confirm('هل أنت متأكد من سحب هذا العمل؟')">
                                 <button type="submit" class="action-btn delete-btn" title="حذف">
                                     <i class="fas fa-trash-alt"></i>
@@ -121,19 +121,19 @@
         </table>
     </div>
 </div>
+</div>
 
+{% endblock %}
+
+{% block extra_scripts %}
 <script>
     function toggleEdit(bookId) {
         const editRow = document.getElementById(`edit-row-${bookId}`);
         const isVisible = editRow.style.display === 'table-row';
-        
-        // إغلاق أي نماذج تعديل أخرى مفتوحة
+
         document.querySelectorAll('.edit-row-container').forEach(row => row.style.display = 'none');
-        
-        // تبديل حالة النموذج الحالي
+
         editRow.style.display = isVisible ? 'none' : 'table-row';
     }
 </script>
-
-</body>
-</html>
+{% endblock %}

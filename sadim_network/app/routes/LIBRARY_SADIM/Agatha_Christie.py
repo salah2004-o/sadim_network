@@ -35,7 +35,6 @@ BASE_DIR = os.path.abspath(os.path.join(current_dir, "..", ".."))
 # الآن ندمج المسار مع static/uploads
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
 
-print(f"🎯 CORRECT PATH: {UPLOAD_FOLDER}")
 # =========================
 # عرض المكتبة للجمهور
 # =========================

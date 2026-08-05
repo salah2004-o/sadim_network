@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}لوحة التحكم — شبكة سديم{% endblock %}</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/interactions.css') }}">
+<style>
+    .sd-dash-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+    .sd-dash-sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .sd-dash-main { min-width: 0; }
+    .sd-dash-content { padding: var(--sd-sp-6); }
+    #menu-toggle { display: none; }
+    @media (max-width: 900px) {
+        .sd-dash-shell { grid-template-columns: 1fr; }
+        .sd-dash-sidebar.sd-static-sidebar { display: none; }
+        #menu-toggle { display: inline-flex; }
+    }
+    /* النوافذ المنبثقة (modal) تتمركز افتراضياً على كامل الشاشة — بس بهذا الشل فيه
+       شريط جانبي ثابت (240px) بعرض ≥901px، فنعوّض عنه حتى تتمركز النافذة فعلياً
+       بمنطقة المحتوى المرئية، مو بمنتصف الشاشة كاملة (يشمل مساحة الشريط الجانبي). */
+    @media (min-width: 901px) {
+        .sd-modal-overlay { inset-inline-start: 240px; }
+    }
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body class="sd-app sd-root">
+
+<div class="sd-dash-shell">
+    <aside class="sd-dash-sidebar sd-static-sidebar sd-sidebar">
+        <a href="{{ url_for('admin.services_dashboard') }}" class="sd-navbar-brand" style="padding-inline: var(--sd-sp-3); margin-bottom: var(--sd-sp-4);">
+            <i class="fas fa-circle-nodes" style="color: var(--sd-accent-light);"></i> لوحة سديم
+        </a>
+        {% block sidebar_items %}
+        <a href="{{ url_for('admin.services_dashboard') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.services_dashboard' }}"><i class="fas fa-gauge"></i> الرئيسية</a>
+        <a href="{{ url_for('admin.dashboard_home') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.dashboard_home' }}"><i class="fas fa-chart-line"></i> الزوار</a>
+        <a href="{{ url_for('admin.admin_users_list') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.admin_users_list' }}"><i class="fas fa-users"></i> المستخدمون</a>
+        <a href="{{ url_for('admin.manage_bots') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.manage_bots' }}"><i class="fas fa-robot"></i> البوتات</a>
+        <a href="{{ url_for('admin.bot_limits_list') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.bot_limits_list' }}"><i class="fas fa-gauge-high"></i> حدود البوتات</a>
+        <a href="{{ url_for('admin.manage_articles') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.manage_articles' }}"><i class="fas fa-newspaper"></i> المقالات</a>
+        <a href="{{ url_for('admin.manage_comments') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.manage_comments' }}"><i class="fas fa-comments"></i> التعليقات</a>
+        <a href="{{ url_for('admin.manage_library') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.manage_library' }}"><i class="fas fa-book"></i> المكتبة</a>
+        <a href="{{ url_for('profile_bp.profile_dashboard') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'profile_bp.profile_dashboard' }}"><i class="fas fa-id-badge"></i> البروفايل</a>
+        {% endblock %}
+        <div class="sd-dropdown-divider"></div>
+        <a href="{{ url_for('loading_bp.landing_page') }}" class="sd-sidebar-item"><i class="fas fa-arrow-right-from-bracket"></i> الموقع الرئيسي</a>
+        <a href="{{ url_for('loading_bp.logout') }}" class="sd-sidebar-item" style="color: var(--sd-danger);"><i class="fas fa-right-from-bracket"></i> تسجيل الخروج</a>
+    </aside>
+
+    <div id="mobile-sidebar" class="sd-sidebar sd-mobile-drawer">
+        <button id="close-sidebar" class="sd-btn sd-btn-icon sd-btn-ghost" style="align-self:flex-end;" aria-label="إغلاق القائمة"><i class="fas fa-xmark"></i></button>
+        {{ self.sidebar_items() }}
+        <div class="sd-dropdown-divider"></div>
+        <a href="{{ url_for('loading_bp.landing_page') }}" class="sd-sidebar-item"><i class="fas fa-arrow-right-from-bracket"></i> الموقع الرئيسي</a>
+        <a href="{{ url_for('loading_bp.logout') }}" class="sd-sidebar-item" style="color: var(--sd-danger);"><i class="fas fa-right-from-bracket"></i> تسجيل الخروج</a>
+    </div>
+
+    <div class="sd-dash-main">
+        <header class="sd-navbar">
+            <button type="button" id="menu-toggle" class="sd-btn sd-btn-icon sd-btn-ghost" aria-expanded="false" aria-controls="mobile-sidebar" aria-label="فتح القائمة">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 style="font-size: var(--sd-fs-md); margin: 0;">{% block page_title %}لوحة التحكم{% endblock %}</h1>
+            <div class="sd-dropdown">
+                <button type="button" class="sd-btn sd-btn-ghost sd-ripple" data-sd-dropdown-trigger aria-expanded="false" aria-haspopup="true">
+                    <i class="fas fa-user-circle"></i> {{ session.get('username', '') }}
+                </button>
+                <div class="sd-dropdown-menu" role="menu">
+                    <a href="{{ url_for('loading_bp.account') }}" class="sd-dropdown-item" role="menuitem"><i class="fas fa-id-badge"></i> حسابي</a>
+                    <div class="sd-dropdown-divider"></div>
+                    <a href="{{ url_for('loading_bp.logout') }}" class="sd-dropdown-item is-danger" role="menuitem"><i class="fas fa-right-from-bracket"></i> تسجيل الخروج</a>
+                </div>
+            </div>
+        </header>
+
+        <div class="sd-dash-content sd-fade-in">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2); margin-bottom: var(--sd-sp-5);">
+                    {% for category, message in messages %}
+                    <div class="sd-alert sd-alert-{{ 'danger' if category == 'error' else category }}">
+                        <i class="fas {{ 'fa-circle-check' if category == 'success' else 'fa-triangle-exclamation' }} sd-alert-icon"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ui-kit.js') }}"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

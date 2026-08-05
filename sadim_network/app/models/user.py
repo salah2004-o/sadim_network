@@ -20,7 +20,8 @@ class User:
         last_login=None,
         status='active',
         created_at=None,
-        updated_at=None
+        updated_at=None,
+        bio=None
     ):
         self.id = id
         self.username = username
@@ -38,6 +39,7 @@ class User:
         self.status = status
         self.created_at = created_at
         self.updated_at = updated_at
+        self.bio = bio
 
     # ---------- CREATE ----------
     def add_to_db(self):
@@ -184,6 +186,7 @@ class User:
                 profile_image=%s,
                 last_login=%s,
                 is_verified=%s,
+                bio=%s,
                 updated_at=%s
             WHERE id=%s;
         """, (
@@ -197,6 +200,7 @@ class User:
             self.profile_image,
             self.last_login,
             self.is_verified,
+            self.bio,
             datetime.now(),
             self.id
         ))
@@ -222,7 +226,7 @@ class User:
         if last_login and isinstance(last_login, str):
             last_login = datetime.strptime(last_login, "%Y-%m-%d %H:%M:%S.%f")
     
-        return User(
+        user = User(
             id=row[0],
             username=row[1],
             user_agent=row[2],
@@ -238,6 +242,20 @@ class User:
             created_at=row[12],
             updated_at=row[13]
         )
+        # bio عمود جديد أُضيف لاحقاً بنهاية الجدول — نجيبه بستعلام منفصل حتى ما نعتمد
+        # على ترتيب أعمدة SELECT * الهش (فيه أعمدة زي google_id مو موجودة بهالماپر أصلاً)
+        user.bio = User.get_bio(row[0])
+        return user
+
+    @staticmethod
+    def get_bio(user_id):
+        conn = sadim_db.get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT bio FROM users WHERE id=%s", (user_id,))
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        return result[0] if result else None
     
     @staticmethod
     def google_authenticate(google_id, email, name, picture):

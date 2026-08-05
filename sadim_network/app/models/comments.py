@@ -40,10 +40,16 @@ class Comments:
 
     @staticmethod
     def get_comments_by_post(post_id):
-        """جلب جميع التعليقات الخاصة بمنشور معين"""
+        """جلب جميع التعليقات الخاصة بمنشور معين، مع اسم صاحب كل تعليق"""
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cur.execute("SELECT * FROM comments WHERE post_id = %s ORDER BY created_at DESC", (post_id,))
+        cur.execute("""
+            SELECT c.*, u.username, u.profile_image
+            FROM comments c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.post_id = %s
+            ORDER BY c.created_at DESC
+        """, (post_id,))
         rows = cur.fetchall()
         cur.close()
         conn.close()

@@ -1,164 +1,67 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة التعليقات | SADEEM</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        :root {
-            --bg: #0d0b08;
-            --bg-card: #1a1713;
-            --gold: #c9a84c;
-            --text-secondary: #9a9080;
-            --border: rgba(201,168,76,0.15);
-        }
+{% extends "layouts/dashboard.html" %}
+{% block title %}إدارة التعليقات — شبكة سديم{% endblock %}
+{% block page_title %}لوحة إدارة التعليقات{% endblock %}
 
-        body {
-            background-color: var(--bg);
-            color: #ede8df;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-        }
+{% block extra_head %}
+<style>
+    :root { --gold: #c9a84c; }
+    .comment-card { background: var(--sd-surface); border: 1px solid rgba(201,168,76,0.2); border-radius: var(--sd-radius-lg); margin-bottom: var(--sd-sp-4); padding: var(--sd-sp-5); transition: var(--sd-transition); }
+    .comment-card:hover { border-color: var(--gold); transform: translateY(-3px); box-shadow: var(--sd-shadow-md); }
+    .comment-user-img { width: 50px; height: 50px; object-fit: cover; border-radius: 50%; border: 1px solid var(--gold); }
+    .comment-content-box { background: rgba(0, 0, 0, 0.25); border-inline-start: 3px solid var(--gold); padding: var(--sd-sp-4); border-radius: var(--sd-radius-sm); margin-top: var(--sd-sp-3); }
+    .text-gold { color: var(--gold); }
+    .btn-gold-delete { color: #ff4d4d; background: rgba(255, 77, 77, 0.1); border: 1px solid rgba(255, 77, 77, 0.2); }
+    .btn-gold-delete:hover { background: #ff4d4d; color: #fff; }
+</style>
+{% endblock %}
 
-        .comment-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            transition: all 0.2s ease-in-out;
-            margin-bottom: 1.5rem;
-        }
+{% block content %}
 
-        .comment-card:hover {
-            border-color: var(--gold);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
-        }
-
-        .user-img {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 1px solid var(--gold);
-        }
-
-        .admin-badge {
-            background: var(--gold);
-            color: #0d0b08;
-            font-size: 0.85rem;
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            font-weight: bold;
-        }
-
-        .btn-delete {
-            color: #ff4d4d;
-            background: rgba(255, 77, 77, 0.1);
-            border: 1px solid rgba(255, 77, 77, 0.2);
-            padding: 8px 18px;
-            border-radius: 8px;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-delete:hover {
-            background: #ff4d4d;
-            color: white;
-            box-shadow: 0 0 15px rgba(255, 77, 77, 0.3);
-        }
-
-        .comment-content-box {
-            background: rgba(0, 0, 0, 0.25);
-            border-right: 3px solid var(--gold);
-            padding: 1.25rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-        }
-
-        .text-gold { color: var(--gold); }
-        .text-muted-custom { color: var(--text-secondary); font-size: 0.85rem; }
-    </style>
-</head>
-<body>
-
-<div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <h2 class="fw-bold">
-            <i class="fa-solid fa-shield-halved text-gold me-2"></i>
-            لوحة إدارة التعليقات 
-        </h2>
-        <span class="admin-badge">إجمالي العمليات: {{ comments|length }}</span>
-    </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-            <div class="alert alert-{{ category }} bg-dark text-light border-secondary alert-dismissible fade show mb-4">
-                {{ message }}
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-            </div>
-        {% endfor %}
-    {% endwith %}
-
-    <div class="row">
-        {% for comment in comments %}
-        <div class="col-12">
-            <div class="card comment-card shadow-sm">
-                <div class="card-body p-4">
-                    
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        
-                        <div class="d-flex align-items-center">
-                            {% set profile_img = comment.profile_image if comment.profile_image else 'default.png' %}
-                            <img src="{{ url_for('static', filename='uploads/' + profile_img) }}?v=1" class="user-img me-3">
-                            
-                            <div>
-                                <h6 class="mb-0 text-gold fw-bold">
-                                    {{ comment.username }} 
-                                    <span class="ms-2 badge bg-dark text-muted-custom border-secondary" style="font-size: 10px;">ID: {{ comment.user_id }}</span>
-                                </h6>
-                                <small class="text-muted-custom">
-                                    <i class="fa-regular fa-clock me-1"></i>
-                                    {{ comment.created_at.strftime('%Y-%m-%d | %H:%M') if comment.created_at else 'تاريخ غير معروف' }}
-                                </small>
-                            </div>
-                        </div>
-
-                        <form action="{{ url_for('admin.manage_comments') }}" method="POST" class="m-0">
-                            <input type="hidden" name="comment_id" value="{{ comment.id }}">
-                            <input type="hidden" name="book_id" value="{{ comment.book_id }}">
-                            <button type="submit" class="btn-delete" 
-                                    onclick="return confirm('إجراء إداري: هل أنت متأكد من حذف هذا التعليق نهائياً؟')">
-                                <i class="fa-solid fa-trash-can"></i>
-                                <span>حذف</span>
-                            </button>
-                        </form>
-                    </div>
-
-                    <div class="comment-content-box">
-                        <p class="card-text mb-0" style="color: #ede8df;">
-                            {{ comment.content if comment.content else 'لا يوجد محتوى لهذا التعليق' }}
-                        </p>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <div class="col-12 text-center py-5">
-            <div class="opacity-25 mb-3">
-                <i class="fa-solid fa-comment-slash fa-4xl"></i>
-            </div>
-            <p class="text-muted">لا توجد تعليقات نشطة حالياً في النظام.</p>
-        </div>
-        {% endfor %}
-    </div>
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sd-sp-5); flex-wrap: wrap; gap: var(--sd-sp-2);">
+    <h2 style="margin:0; font-size: var(--sd-fs-lg);"><i class="fa-solid fa-shield-halved text-gold"></i> لوحة إدارة التعليقات</h2>
+    <span class="sd-badge" style="background: rgba(201,168,76,0.15); color: var(--gold);">إجمالي العمليات: {{ comments|length }}</span>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% for comment in comments %}
+<div class="comment-card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sd-sp-3); flex-wrap: wrap; gap: var(--sd-sp-2);">
+        <div style="display:flex; align-items:center; gap: var(--sd-sp-3);">
+            {% set profile_img = comment.profile_image if comment.profile_image else 'default.png' %}
+            <img src="{{ url_for('static', filename='uploads/' + profile_img) }}?v=1" class="comment-user-img">
+            <div>
+                <h6 class="text-gold" style="margin:0; font-weight:700;">
+                    {{ comment.username }}
+                    <span class="sd-badge sd-badge-neutral" style="font-size: 10px; margin-inline-start: var(--sd-sp-2);">ID: {{ comment.user_id }}</span>
+                </h6>
+                <small style="color: var(--sd-text-secondary); font-size: var(--sd-fs-xs);">
+                    <i class="fa-regular fa-clock"></i>
+                    {{ comment.created_at.strftime('%Y-%m-%d | %H:%M') if comment.created_at else 'تاريخ غير معروف' }}
+                </small>
+            </div>
+        </div>
+
+        <form action="{{ url_for('admin.manage_comments') }}" method="POST" style="margin:0;">
+            <input type="hidden" name="comment_id" value="{{ comment.id }}">
+            <input type="hidden" name="book_id" value="{{ comment.book_id }}">
+            <button type="submit" class="sd-btn sd-btn-sm sd-ripple btn-gold-delete"
+                    onclick="return confirm('إجراء إداري: هل أنت متأكد من حذف هذا التعليق نهائياً؟')">
+                <i class="fa-solid fa-trash-can"></i>
+                <span>حذف</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="comment-content-box">
+        <p style="margin:0; color: #ede8df;">
+            {{ comment.content if comment.content else 'لا يوجد محتوى لهذا التعليق' }}
+        </p>
+    </div>
+</div>
+{% else %}
+<div class="sd-state sd-state-empty">
+    <i class="fa-solid fa-comment-slash"></i>
+    <p>لا توجد تعليقات نشطة حالياً في النظام.</p>
+</div>
+{% endfor %}
+
+{% endblock %}
