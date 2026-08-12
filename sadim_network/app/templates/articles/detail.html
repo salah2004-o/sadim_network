@@ -87,6 +87,30 @@
         .comment-text { font-size: 0.88rem; line-height: 1.6; white-space: pre-line; color: var(--color-deep); }
         .comment-delete { font-size: 0.72rem; color: var(--text-muted); background: none; border: none; cursor: pointer; }
         .comment-delete:hover { color: var(--red); }
+
+        /* مقالات أخرى */
+        .related-posts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+        .related-post-card { display: block; text-decoration: none; color: inherit; background: var(--color-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 1rem; transition: all 0.2s ease; }
+        .related-post-card:hover { border-color: rgba(124,77,255,0.35); transform: translateY(-2px); }
+        .related-post-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.4rem; line-height: 1.4; }
+        .related-post-excerpt { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+        /* جسر النظام البيئي — يربط المقال بالمكتبة (هوية ذهبية مقصودة) */
+        .ecosystem-bridge {
+            display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; flex-wrap: wrap;
+            background: linear-gradient(135deg, rgba(225,177,44,0.12), rgba(225,177,44,0.04));
+            border: 1px solid rgba(225,177,44,0.3); border-radius: var(--radius); padding: 1.6rem 1.8rem;
+            margin-bottom: 2.5rem;
+        }
+        .ecosystem-bridge h4 { margin: 0 0 6px; font-size: 1rem; }
+        .ecosystem-bridge p { margin: 0; color: var(--text-muted); font-size: 0.83rem; }
+        .btn-bridge-gold {
+            display: inline-flex; align-items: center; gap: 8px; padding: 0.65rem 1.3rem; border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, #e1b12c, #f1d38e); color: #1a1200; text-decoration: none;
+            font-weight: 700; font-size: 0.82rem; white-space: nowrap; transition: all 0.2s ease;
+        }
+        .btn-bridge-gold:hover { box-shadow: 0 6px 18px rgba(225,177,44,0.35); transform: translateY(-2px); }
+        @media (max-width: 600px) { .ecosystem-bridge { flex-direction: column; text-align: center; } }
     </style>
 </head>
 <body>
@@ -145,6 +169,28 @@
         </form>
     </div>
     {% endif %}
+
+    {% if related_posts %}
+    <div class="section-label">مقالات أخرى</div>
+    <div class="related-posts-grid">
+        {% for rp in related_posts %}
+        <a href="{{ url_for('articles.view_article', post_id=rp.id) }}" class="related-post-card">
+            <div class="related-post-title">{{ rp.title }}</div>
+            <div class="related-post-excerpt">{{ rp.content|truncate(90) }}</div>
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="ecosystem-bridge">
+        <div>
+            <h4><i class="fa-solid fa-book"></i> مكتبة أجاثا كريستي</h4>
+            <p>روايات بوليسية كلاسيكية ضمن نفس شبكة سديم.</p>
+        </div>
+        <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="btn-bridge-gold">
+            استكشف المكتبة <i class="fa-solid fa-arrow-left"></i>
+        </a>
+    </div>
 
     <div class="section-label">التعليقات ({{ comments|length }})</div>
 

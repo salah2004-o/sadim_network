@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, flash, redirect, url_for
+from flask import Blueprint, request, render_template, flash, redirect, url_for, session
 from models.user import User
 from models.verification_token import Email
 from datetime import datetime, timedelta
@@ -58,8 +58,15 @@ def register_user():
             # لا نوقف التسجيل لو فشل الإرسال لكن نعلم المطور
             print('Failed to send verification email:', e)
 
-        flash('تم إنشاء الحساب بنجاح! وصلَك رابط التحقق على بريدك، تحقق منه.', 'success')
-        return redirect(url_for('loading_bp.login')) # هنا صححنا المسار ليشير للبلوبرنت الصحيح
+        # تسجيل دخول تلقائي فور إنشاء الحساب (بنفس نمط مسار Google OAuth تماماً) —
+        # التحقق من البريد يبقى مطلوباً لاحقاً لكنه لا يمنع الوصول الأساسي للموقع
+        session.clear()
+        session['user_id'] = user_id
+        session['role'] = 'user'
+        session['username'] = username
+
+        flash('تم إنشاء حسابك بنجاح! وصلَك رابط تفعيل على بريدك — يمكنك تصفّح الموقع الآن.', 'success')
+        return redirect(url_for('loading_bp.landing_page'))
     except Exception as e:
      import traceback
      traceback.print_exc()

@@ -11,6 +11,18 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50 ميجا
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
 limiter.init_app(app)
 
+
+@app.context_processor
+def inject_nav_user():
+    """يوفر بيانات المستخدم الحالي (وأهمها صورة البروفايل) لكل القوالب تلقائياً —
+    خصوصاً شل التنقل الموحّد (layouts/public.html) اللي يُستخدم بكل صفحة عامة،
+    بدون ما يحتاج كل route يتذكر يمرر user بنفسه."""
+    from flask import session
+    if 'user_id' not in session:
+        return {}
+    from app.models.user import User
+    return {'nav_user': User.get_by_id(session['user_id'])}
+
 oauth = OAuth(app)
 google_oauth = oauth.register(
     name='google',

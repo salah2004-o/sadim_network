@@ -57,9 +57,17 @@ def list_articles():
     total = Post.get_count()
     has_next = offset + POSTS_PER_PAGE < total
     has_prev = page > 1
+
+    comment_counts = Comments.get_post_comment_counts()
+    featured = posts[0] if (page == 1 and posts) else None
+    feed_posts = posts[1:] if featured else posts
+    most_discussed = sorted(posts, key=lambda p: comment_counts.get(p['id'], 0), reverse=True)[:3]
+
     return render_template(
         "articles/list.html",
-        posts=posts, page=page, has_next=has_next, has_prev=has_prev
+        posts=posts, page=page, has_next=has_next, has_prev=has_prev,
+        featured=featured, feed_posts=feed_posts,
+        comment_counts=comment_counts, most_discussed=most_discussed,
     )
 
 
@@ -82,7 +90,10 @@ def view_article(post_id):
         return redirect(url_for('articles.list_articles'))
 
     comments = Comments.get_comments_by_post(post_id)
-    return render_template("articles/detail.html", post=post, comments=comments)
+    related_posts = Post.get_recent(limit=4, exclude_id=post_id)
+    return render_template(
+        "articles/detail.html", post=post, comments=comments, related_posts=related_posts
+    )
 
 
 @articles_bp.route("/new", methods=["GET", "POST"])

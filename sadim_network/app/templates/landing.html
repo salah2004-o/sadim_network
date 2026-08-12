@@ -1,1443 +1,181 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+{% extends "layouts/public.html" %}
+{% block title %}شبكة سديم | النظام المركزي{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شبكة سديم | النظام المركزي</title>
-
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/lading.css') }}">
-
-    <link rel="icon" type="image/png"
-        href="{{ url_for('static', filename='images/logo.png') }}">
-
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+{% block extra_head %}
 <style>
-
-:root{
-    --bg-main:#09090d;
-    --card-bg:rgba(18,18,24,.75);
-    --border-color:rgba(255,255,255,.08);
-    --text:#ffffff;
-    --muted:#9c9cab;
-    --accent:#b388ff;
-    --accent-2:#7c4dff;
-    --blur:blur(18px);
-}
-
-/* ========================= */
-/* BASE */
-/* ========================= */
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    background:
-    radial-gradient(circle at top right, rgba(124,77,255,.15), transparent 30%),
-    radial-gradient(circle at bottom left, rgba(179,136,255,.12), transparent 30%),
-    #09090d;
-
-    color:var(--text);
-    font-family:Tahoma,sans-serif;
-    overflow-x:hidden;
-}
-
-/* ========================= */
-/* HEADER */
-/* ========================= */
-
-.header{
-    position:sticky;
-    top:0;
-    z-index:999;
-    backdrop-filter:blur(16px);
-    background:rgba(10,10,15,.6);
-    border-bottom:1px solid rgba(255,255,255,.05);
-}
-
-.navbar{
-    width:92%;
-    margin:auto;
-    height:80px;
-
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-}
-
-.logo{
-    color:#fff;
-    text-decoration:none;
-    font-size:1.3rem;
-    font-weight:700;
-    letter-spacing:1px;
-}
-
-.nav-menu{
-    display:flex;
-    align-items:center;
-    gap:1rem;
-    list-style:none;
-}
-
-.nav-menu a{
-    color:#ddd;
-    text-decoration:none;
-    transition:.3s;
-}
-
-.nav-menu a:hover{
-    color:#fff;
-}
-
-.btn-primary{
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
-    padding:.7rem 1.2rem;
-    border-radius:12px;
-    color:#fff !important;
-}
-
-.btn-logout{
-    color:#ff7675 !important;
-}
-
-#menu-toggle{
-    display:none;
-    background:none;
-    border:none;
-    color:white;
-    font-size:1.5rem;
-    padding:.6rem;
-    min-width:44px;
-    min-height:44px;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-}
-
-/* ========================= */
-/* MOBILE */
-/* ========================= */
-
-.mobile-sidebar{
-    position:fixed;
-    top:0;
-    right:-100%;
-    width:280px;
-    height:100%;
-    background:#111117;
-    z-index:9999;
-    transition:.4s;
-    padding:2rem;
-    overflow-y:auto;
-    -webkit-overflow-scrolling:touch;
-}
-
-.mobile-sidebar.active{
-    right:0;
-}
-
-.mobile-nav-links{
-    list-style:none;
-    display:flex;
-    flex-direction:column;
-    gap:1.2rem;
-    margin-top:2rem;
-}
-
-.mobile-nav-links a{
-    color:white;
-    text-decoration:none;
-    display:block;
-    padding:.7rem 0;
-    font-size:1.05rem;
-}
-
-#close-sidebar{
-    background:none;
-    border:none;
-    color:white;
-    font-size:2rem;
-    padding:.4rem;
-    min-width:44px;
-    min-height:44px;
-    cursor:pointer;
-}
-
-.overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.55);
-    opacity:0;
-    pointer-events:none;
-    transition:.3s;
-    z-index:999;
-}
-
-.overlay.active{
-    opacity:1;
-    pointer-events:auto;
-}
-
-/* ========================= */
-/* HERO */
-/* ========================= */
-
-.sadim-home{
-    width:92%;
-    margin:auto;
-    padding:4rem 0;
-    position:relative;
-}
-
-.nebula-orb{
-    position:absolute;
-    border-radius:50%;
-    filter:blur(120px);
-    z-index:-1;
-}
-
-.orb-1{
-    width:320px;
-    height:320px;
-    background:rgba(124,77,255,.18);
-    top:0;
-    right:0;
-}
-
-.orb-2{
-    width:280px;
-    height:280px;
-    background:rgba(179,136,255,.12);
-    bottom:0;
-    left:0;
-}
-
-.hero-grid{
-    display:grid;
-    grid-template-columns:1.2fr .9fr;
-    gap:2rem;
-    align-items:center;
-}
-
-/* ========================= */
-/* LEFT */
-/* ========================= */
-
-.system-badge{
-    display:inline-flex;
-    align-items:center;
-    gap:.6rem;
-
-    background:rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.08);
-
-    padding:.6rem 1rem;
-    border-radius:999px;
-
-    font-size:.8rem;
-    margin-bottom:1.4rem;
-}
-
-.live-dot{
-    width:10px;
-    height:10px;
-    border-radius:50%;
-    background:#00ff88;
-    box-shadow:0 0 15px #00ff88;
-}
-
-.hero-title{
-    font-size:3.2rem;
-    line-height:1.2;
-    margin-bottom:1rem;
-}
-
-.hero-subtitle{
-    color:var(--muted);
-    font-size:1.1rem;
-    line-height:1.9;
-    max-width:650px;
-}
-
-.hero-actions{
-    display:flex;
-    gap:1rem;
-    margin-top:2rem;
-}
-
-.hero-btn{
-    padding:1rem 1.5rem;
-    border-radius:14px;
-    text-decoration:none;
-    font-weight:700;
-    transition:.3s;
-}
-
-.hero-btn.primary{
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
-    color:white;
-}
-
-.hero-btn.secondary{
-    border:1px solid rgba(255,255,255,.08);
-    color:white;
-}
-
-.hero-btn:hover{
-    transform:translateY(-4px);
-}
-
-/* ========================= */
-/* STATUS PANEL */
-/* ========================= */
-
-.system-panel{
-    background:var(--card-bg);
-    border:1px solid var(--border-color);
-    backdrop-filter:var(--blur);
-
-    border-radius:28px;
-    padding:1.5rem;
-}
-
-.panel-head{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:1.5rem;
-}
-
-.online-circle{
-    width:14px;
-    height:14px;
-    background:#00ff88;
-    border-radius:50%;
-    box-shadow:0 0 15px #00ff88;
-}
-
-.panel-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:1rem;
-}
-
-.panel-box{
-    background:rgba(255,255,255,.03);
-    border:1px solid rgba(255,255,255,.05);
-
-    padding:1.3rem;
-    border-radius:20px;
-}
-
-.panel-box h3{
-    font-size:1.8rem;
-    margin-bottom:.5rem;
-}
-
-.panel-box p{
-    color:var(--muted);
-    font-size:.9rem;
-}
-
-/* ========================= */
-/* SECTION TITLE */
-/* ========================= */
-
-.section-title{
-    margin:4rem 0 2rem;
-}
-
-.section-title h2{
-    font-size:2rem;
-    margin-bottom:.5rem;
-}
-
-.section-title p{
-    color:var(--muted);
-}
-
-/* ========================= */
-/* QUICK ACCESS */
-/* ========================= */
-
-.quick-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-    gap:1.2rem;
-}
-
-.quick-card{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-
-    text-decoration:none;
-    color:white;
-
-    background:var(--card-bg);
-    border:1px solid var(--border-color);
-
-    border-radius:24px;
-    padding:1.3rem;
-
-    transition:.35s;
-}
-
-.quick-card:hover{
-    transform:translateY(-5px);
-    border-color:rgba(179,136,255,.3);
-}
-
-.quick-icon{
-    width:60px;
-    height:60px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    border-radius:18px;
-
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
-
-    font-size:1.4rem;
-}
-
-.quick-info{
-    flex:1;
-    padding-right:1rem;
-}
-
-.quick-info p{
-    color:var(--muted);
-    font-size:.9rem;
-}
-
-.quick-arrow{
-    font-size:1.4rem;
-    opacity:.5;
-}
-
-/* ========================= */
-/* TOOLS */
-/* ========================= */
-
-.tools-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-    gap:1.5rem;
-}
-
-.tool-card{
-    overflow:hidden;
-
-    background:var(--card-bg);
-    border:1px solid var(--border-color);
-
-    border-radius:28px;
-
-    transition:.35s;
-}
-
-.tool-card:hover{
-    transform:translateY(-8px);
-}
-
-.tool-image{
-    height:220px;
-    overflow:hidden;
-}
-
-.tool-image img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    transition:1s;
-}
-
-.tool-card:hover img{
-    transform:scale(1.08);
-}
-
-.tool-image.icon-style{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:linear-gradient(135deg,var(--accent),var(--accent-2));
-}
-
-.tool-image.icon-style i{
-    font-size:3.2rem;
-    color:rgba(255,255,255,.92);
-    transition:1s;
-}
-
-.tool-card:hover .tool-image.icon-style i{
-    transform:scale(1.08);
-}
-
-.tool-content{
-    padding:1.5rem;
-}
-
-.tool-tag{
-    display:inline-block;
-
-    background:rgba(179,136,255,.1);
-    border:1px solid rgba(179,136,255,.25);
-
-    padding:.4rem .8rem;
-    border-radius:999px;
-
-    font-size:.75rem;
-
-    margin-bottom:1rem;
-}
-
-.tool-content h3{
-    margin-bottom:.7rem;
-    font-size:1.4rem;
-}
-
-.tool-content p{
-    color:var(--muted);
-    line-height:1.8;
-}
-
-.tool-footer{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-
-    margin-top:1.5rem;
-}
-
-.tool-status{
-    color:#00ff88;
-    font-size:.9rem;
-}
-
-.tool-footer a{
-    color:white;
-    text-decoration:none;
-}
-
-/* ========================= */
-/* FOOTER */
-/* ========================= */
-
-footer{
-    margin-top:5rem;
-    padding:3rem 1rem;
-    text-align:center;
-
-    border-top:1px solid rgba(255,255,255,.05);
-}
-
-.social-links{
-    display:flex;
-    justify-content:center;
-    gap:1rem;
-
-    margin:1.5rem 0;
-}
-
-.social-links a{
-    width:45px;
-    height:45px;
-
-    display:flex;
-    align-items:center;
-    justify-content:center;
-
-    border-radius:50%;
-    background:rgba(255,255,255,.05);
-
-    color:white;
-    text-decoration:none;
-}
-/* ========================= */
-/* PROFILE */
-/* ========================= */
-
-.profile-link{
-    display:flex;
-    align-items:center;
-    gap:.7rem;
-    text-decoration:none;
-    color:white;
-}
-
-.greeting-text{
-    color:white;
-    font-size:.95rem;
-}
-
-.profile-pic-wrapper{
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    overflow:hidden;
-    border:2px solid rgba(179,136,255,.35);
-}
-
-.profile-pic-wrapper img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-}
-
-.mobile-profile{
-    padding-bottom:1rem;
-    border-bottom:1px solid rgba(255,255,255,.08);
-}
-
-/* HERO PROFILE */
-
-.hero-profile{
-    display:flex;
-    align-items:center;
-    gap:1.5rem;
-    margin:1.5rem 0;
-}
-
-.hero-profile-image{
-    width:90px;
-    height:90px;
-    border-radius:50%;
-    overflow:hidden;
-
-    border:3px solid rgba(179,136,255,.35);
-
-    box-shadow:
-    0 0 25px rgba(179,136,255,.25);
-}
-
-.hero-profile-image img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-}
-/* ========================= */
-/* RESPONSIVE */
-/* ========================= */
-
-@media(max-width:900px){
-
-    .hero-grid{
-        grid-template-columns:1fr;
+    .sd-landing-hero {
+        position:relative; overflow:hidden; padding: var(--sd-sp-8) var(--sd-sp-4) var(--sd-sp-6);
     }
-
-    .nav-menu{
-        display:none;
+    .sd-landing-hero::before {
+        content:''; position:absolute; inset:0; z-index:-1;
+        background:
+            radial-gradient(circle at 15% 10%, rgba(124,77,255,.16), transparent 45%),
+            radial-gradient(circle at 85% 90%, rgba(179,136,255,.10), transparent 45%);
     }
+    .sd-hero-grid { display:grid; grid-template-columns: 1.2fr .9fr; gap: var(--sd-sp-6); align-items:center; max-width:1180px; margin:0 auto; }
+    @media (max-width: 900px) { .sd-hero-grid { grid-template-columns: 1fr; } }
 
-    #menu-toggle{
-        display:flex;
-    }
+    .sd-live-badge { display:inline-flex; align-items:center; gap: var(--sd-sp-2); background: var(--sd-bg-elevated); border:1px solid var(--sd-border); padding: var(--sd-sp-2) var(--sd-sp-3); border-radius:999px; font-size: var(--sd-fs-xs); margin-bottom: var(--sd-sp-4); }
+    .sd-live-dot { width:9px; height:9px; border-radius:50%; background: var(--sd-success); box-shadow: 0 0 10px var(--sd-success); }
 
-    .hero-title{
-        font-size:2.2rem;
-    }
+    .sd-hero-profile { display:flex; align-items:center; gap: var(--sd-sp-4); margin: var(--sd-sp-4) 0 var(--sd-sp-5); }
+    .sd-hero-profile img { width:76px; height:76px; border-radius:50%; object-fit:cover; border:3px solid var(--sd-accent-soft-strong); }
+    .sd-hero-title { font-size: clamp(1.6rem, 4vw, 2.4rem); margin:0 0 var(--sd-sp-2); text-wrap:balance; }
+    .sd-hero-sub { color: var(--sd-text-secondary); margin:0; max-width:520px; }
 
-}
+    .sd-panel-grid { display:grid; grid-template-columns:1fr 1fr; gap: var(--sd-sp-3); }
+    .sd-panel-box { background: var(--sd-bg-elevated); border:1px solid var(--sd-border); border-radius: var(--sd-radius-md); padding: var(--sd-sp-4); }
+    .sd-panel-box h3 { margin:0 0 4px; font-size: var(--sd-fs-xl); }
+    .sd-panel-box p { margin:0; color: var(--sd-text-secondary); font-size: var(--sd-fs-xs); }
 
+    .sd-quick-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--sd-sp-4); }
+    .sd-quick-card { display:flex; align-items:center; gap: var(--sd-sp-3); text-decoration:none; }
+    .sd-quick-icon { width:52px; height:52px; flex-shrink:0; border-radius: var(--sd-radius-md); background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent-light)); display:flex; align-items:center; justify-content:center; font-size:1.2rem; color:#fff; }
+    .sd-quick-card h3 { margin:0 0 2px; font-size: var(--sd-fs-base); color: var(--sd-text); }
+    .sd-quick-card p { margin:0; font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); }
+
+    .sd-tools-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--sd-sp-4); }
+    .sd-tool-image { height:170px; border-radius: var(--sd-radius-md) var(--sd-radius-md) 0 0; overflow:hidden; margin: calc(-1 * var(--sd-sp-5)) calc(-1 * var(--sd-sp-5)) var(--sd-sp-4); }
+    .sd-tool-image img { width:100%; height:100%; object-fit:cover; }
+    .sd-tool-image.icon-style { display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent-light)); }
+    .sd-tool-image.icon-style i { font-size:2.4rem; color: rgba(255,255,255,.9); }
+    .sd-coming-soon .sd-card { opacity:.7; transition: var(--sd-transition); }
+    .sd-coming-soon .sd-card:hover { opacity:1; }
 </style>
+{% endblock %}
 
-</head>
+{% block content %}
 
-<body>
-
-<header class="header">
-
-    <nav class="navbar">
-
-        <!-- LOGO -->
-
-        <div class="logo-container">
-            <a href="{{ url_for('loading_bp.landing_page') }}" class="logo">شبكة سديم</a>
-        </div>
-
-        <!-- DESKTOP NAV -->
-
-        <ul class="nav-menu">
-
-            <li>
-                <a href="{{ url_for('Library_Agatha.agatha_christie') }}">
-                    مكتبة أجاثا
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ url_for('bots.my_bots') }}">
-                    أنظمتي
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ url_for('articles.list_articles') }}">
-                    المقالات
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ url_for('admin.show_services') }}">
-                    خدماتنا
-                </a>
-            </li>
-
-            <li>
-                <a href="{{ url_for('main.about') }}">
-                    من نحن
-                </a>
-            </li>
-
-            {% if session.get('role') == 'admin' %}
-            <li>
-                <a href="{{ url_for('admin.services_dashboard') }}">
-                    لوحة التحكم
-                </a>
-            </li>
-            {% endif %}
-
-            <!-- USER PROFILE -->
-
-            <li class="user-profile-item">
-
-                <a href="{{ url_for('loading_bp.account') }}"
-                   class="profile-link">
-
-                    <span class="greeting-text">
-                        {{ username }}
-                    </span>
-
-                    <div class="profile-pic-wrapper">
-
-                        {% set profile_img = user.profile_image if user.profile_image else 'default_user.png' %}
-
-                        <img src="{{ url_for('static', filename='uploads/' + profile_img) }}"
-                             alt="Profile">
-
-                    </div>
-
-                </a>
-
-            </li>
-
-            <li>
-                <a href="{{ url_for('loading_bp.logout') }}"
-                   class="btn-logout">
-                    خروج
-                </a>
-            </li>
-
-        </ul>
-
-        <!-- MENU -->
-
-        <button id="menu-toggle" aria-expanded="false" aria-controls="mobile-sidebar" aria-label="فتح القائمة">
-            <i class="fas fa-bars"></i>
-        </button>
-
-    </nav>
-
-</header>
-
-<!-- MOBILE -->
-
-<div id="mobile-sidebar" class="mobile-sidebar">
-
-    <button id="close-sidebar">×</button>
-
-    <ul class="mobile-nav-links">
-
-        <!-- MOBILE PROFILE -->
-
-        <li class="user-profile-item">
-
-            <a href="{{ url_for('loading_bp.account') }}"
-               class="profile-link mobile-profile">
-
-                <div class="profile-pic-wrapper">
-
-                    {% set profile_img = user.profile_image if user.profile_image else 'default_user.png' %}
-
-                    <img src="{{ url_for('static', filename='uploads/' + profile_img) }}"
-                         alt="Profile">
-
-                </div>
-
-                <span class="greeting-text">
-                    {{ username }}
-                </span>
-
-            </a>
-
-        </li>
-
-        <li>
-            <a href="{{ url_for('Library_Agatha.agatha_christie') }}">
-                مكتبة أجاثا
-            </a>
-        </li>
-
-        <li>
-            <a href="{{ url_for('bots.my_bots') }}">
-                أنظمتي
-            </a>
-        </li>
-
-        <li>
-            <a href="{{ url_for('articles.list_articles') }}">
-                المقالات
-            </a>
-        </li>
-
-        <li>
-            <a href="{{ url_for('admin.show_services') }}">
-                خدماتنا
-            </a>
-        </li>
-
-        <li>
-            <a href="{{ url_for('main.about') }}">
-                من نحن
-            </a>
-        </li>
-
-        {% if session.get('role') == 'admin' %}
-        <li>
-            <a href="{{ url_for('admin.services_dashboard') }}">
-                لوحة التحكم
-            </a>
-        </li>
-        {% endif %}
-
-        <li>
-            <a href="{{ url_for('loading_bp.logout') }}"
-               style="color:#ff7675;">
-                تسجيل الخروج
-            </a>
-        </li>
-
-    </ul>
-
-</div>
-
-<!-- ========================= -->
-<!-- HOME -->
-<!-- ========================= -->
-
-<section class="sadim-home">
-
-    <div class="nebula-orb orb-1"></div>
-    <div class="nebula-orb orb-2"></div>
-
-    <div class="hero-grid">
-
-        <!-- LEFT -->
-
+<section class="sd-landing-hero">
+    <div class="sd-hero-grid">
         <div>
+            <span class="sd-live-badge"><span class="sd-live-dot"></span> SADIM SYSTEM ONLINE</span>
 
-            <div class="system-badge">
-                <span class="live-dot"></span>
-                SADIM SYSTEM ONLINE
-            </div>
-
-            <!-- HERO PROFILE -->
-
-            <div class="hero-profile">
-
-                <div class="hero-profile-image">
-
-                    {% set profile_img = user.profile_image if user.profile_image else 'default_user.png' %}
-
-                    <img src="{{ url_for('static', filename='uploads/' + profile_img) }}"
-                         alt="Profile">
-
-                </div>
-
+            <div class="sd-hero-profile">
+                {% set profile_img = user.profile_image if user.profile_image else 'default_user.png' %}
+                <img src="{{ url_for('static', filename='uploads/' + profile_img) }}" alt="">
                 <div>
-
-                    <h1 class="hero-title">
-                        مرحباً، {{ username }}
-                    </h1>
-
-                    <p class="hero-subtitle">
-                        الأدوات، الأنظمة، والمشاريع الرقمية —
-                        كلها ضمن بيئة سديم.
-                    </p>
-
+                    <h1 class="sd-hero-title">مرحباً، {{ username }}</h1>
+                    <p class="sd-hero-sub">الأدوات، الأنظمة، والمشاريع الرقمية — كلها ضمن بيئة سديم.</p>
                 </div>
-
             </div>
 
-            <!-- ACTIONS -->
-
-            <div class="hero-actions">
-
-                <a href="{{ url_for('admin.show_services') }}"
-                   class="hero-btn primary">
-
-                    استكشاف الأدوات
-
-                </a>
-
-                <a href="{{ url_for('loading_bp.account') }}"
-                   class="hero-btn secondary">
-
-                    حسابي
-
-                </a>
-
+            <div style="display:flex; gap: var(--sd-sp-3); flex-wrap:wrap;">
+                <a href="{{ url_for('main.services') }}" class="sd-btn sd-btn-primary sd-btn-lg sd-ripple">استكشاف الأدوات</a>
+                <a href="{{ url_for('loading_bp.account') }}" class="sd-btn sd-btn-secondary sd-btn-lg sd-ripple">حسابي</a>
             </div>
-
-        </div>
-        <!-- RIGHT -->
-
-        <div class="system-panel">
-
-            <div class="panel-head">
-
-                <span>NETWORK STATUS</span>
-
-                <div class="online-circle"></div>
-
-            </div>
-
-            <div class="panel-grid">
-
-                <div class="panel-box">
-                    <h3>03</h3>
-                    <p>أنظمة نشطة</p>
-                </div>
-
-                <div class="panel-box">
-                    <h3>24/7</h3>
-                    <p>تشغيل</p>
-                </div>
-
-                <div class="panel-box">
-                    <h3>9K+</h3>
-                    <p>وصول الشبكة</p>
-                </div>
-
-                <div class="panel-box">
-                    <h3>AI</h3>
-                    <p>Automation</p>
-                </div>
-
-            </div>
-
         </div>
 
+        <div class="sd-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sd-sp-4);">
+                <span style="font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); letter-spacing:.05em;">NETWORK STATUS</span>
+                <span class="sd-live-dot"></span>
+            </div>
+            <div class="sd-panel-grid">
+                <div class="sd-panel-box"><h3>03</h3><p>أنظمة نشطة</p></div>
+                <div class="sd-panel-box"><h3>24/7</h3><p>تشغيل</p></div>
+                <div class="sd-panel-box"><h3>9K+</h3><p>وصول الشبكة</p></div>
+                <div class="sd-panel-box"><h3>AI</h3><p>Automation</p></div>
+            </div>
+        </div>
     </div>
-
-    <!-- QUICK ACCESS -->
-
-    <div class="section-title">
-        <h2>الوصول السريع</h2>
-        <p>أدوات وأنظمة شبكة سديم</p>
-    </div>
-
-    <div class="quick-grid">
-
-        <a href="{{ url_for('Library_Agatha.agatha_christie') }}"
-           class="quick-card">
-
-            <div class="quick-icon">
-                <i class="fas fa-book"></i>
-            </div>
-
-            <div class="quick-info">
-                <h3>مكتبة أجاثا</h3>
-                <p>الروايات والارشيف</p>
-            </div>
-
-            <span class="quick-arrow">→</span>
-
-        </a>
-
-        <a href="{{ url_for('bots.my_bots') }}"
-           class="quick-card">
-
-            <div class="quick-icon">
-                <i class="fas fa-robot"></i>
-            </div>
-
-            <div class="quick-info">
-                <h3>أنظمة سديم</h3>
-                <p>بوتات وأدوات رقمية</p>
-            </div>
-
-            <span class="quick-arrow">→</span>
-
-        </a>
-
-        <a href="{{ url_for('loading_bp.account') }}"
-           class="quick-card">
-
-            <div class="quick-icon">
-                <i class="fas fa-user-circle"></i>
-            </div>
-
-            <div class="quick-info">
-                <h3>حسابي</h3>
-                <p>إدارة الملف الشخصي</p>
-            </div>
-
-            <span class="quick-arrow">→</span>
-
-        </a>
-
-    </div>
-
-    <!-- TOOLS -->
-
-    <div class="section-title">
-        <h2>أدوات الشبكة</h2>
-        <p>أنظمة قابلة للتخصيص والتطوير</p>
-    </div>
-
-    <div class="tools-grid">
-
-        <!-- CARD -->
-
-        <div class="tool-card">
-
-            <div class="tool-image">
-                <img src="{{ url_for('static', filename='images/5976816295606946886_121.jpg') }}">
-            </div>
-
-            <div class="tool-content">
-
-                <span class="tool-tag">
-                    AUTOMATION
-                </span>
-
-                <h3>بوت الاقتباسات</h3>
-
-                <p>
-                    نشر اقتباسات تلقائي
-                    لقنوات التليجرام.
-                </p>
-
-                <div class="tool-footer">
-
-                    <span class="tool-status">
-                        قريباً
-                    </span>
-
-                    <a href="https://t.me/SAP1O"
-                       target="_blank">
-                        طلب مسبق →
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CARD -->
-
-        <div class="tool-card">
-
-            <div class="tool-image">
-                <img src="{{ url_for('static', filename='images/5976816295606946887_121.jpg') }}">
-            </div>
-
-            <div class="tool-content">
-
-                <span class="tool-tag">
-                    DATA
-                </span>
-
-                <h3>بوت جلب البيانات</h3>
-
-                <p>
-                    ربط APIs وأنظمة
-                    بيانات تلقائية.
-                </p>
-
-                <div class="tool-footer">
-
-                    <span class="tool-status">
-                        قريباً
-                    </span>
-
-                    <a href="https://t.me/SAP1O"
-                       target="_blank">
-                        طلب مسبق →
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CARD -->
-
-        <div class="tool-card">
-
-            <div class="tool-image">
-                <img src="{{ url_for('static', filename='images/5976816295606946888_120.jpg') }}">
-            </div>
-
-            <div class="tool-content">
-
-                <span class="tool-tag">
-                    LIBRARY
-                </span>
-
-                <h3>أنظمة المكتبات</h3>
-
-                <p>
-                    أرشفة وتنظيم
-                    المكتبات الرقمية.
-                </p>
-
-                <div class="tool-footer">
-
-                    <span class="tool-status">
-                        قريباً
-                    </span>
-
-                    <a href="https://t.me/SAP1O"
-                       target="_blank">
-                        طلب مسبق →
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CARD -->
-
-        <div class="tool-card">
-
-            <div class="tool-image icon-style">
-                <i class="fas fa-server"></i>
-            </div>
-
-            <div class="tool-content">
-
-                <span class="tool-tag">
-                    HOSTING
-                </span>
-
-                <h3>استضافة المواقع</h3>
-
-                <p>
-                    استضافة سريعة وموثوقة
-                    لمواقعك ومشاريعك.
-                </p>
-
-                <div class="tool-footer">
-                    <span class="tool-status">قريباً</span>
-                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CARD -->
-
-        <div class="tool-card">
-
-            <div class="tool-image icon-style">
-                <i class="fas fa-layer-group"></i>
-            </div>
-
-            <div class="tool-content">
-
-                <span class="tool-tag">
-                    NO-CODE
-                </span>
-
-                <h3>إنشاء مواقع بدون كود</h3>
-
-                <p>
-                    بناء موقعك الاحترافي
-                    بدون أي خبرة برمجية.
-                </p>
-
-                <div class="tool-footer">
-                    <span class="tool-status">قريباً</span>
-                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CARD -->
-
-        <div class="tool-card">
-
-            <div class="tool-image icon-style">
-                <i class="fas fa-briefcase"></i>
-            </div>
-
-            <div class="tool-content">
-
-                <span class="tool-tag">
-                    BUSINESS
-                </span>
-
-                <h3>أنظمة إدارة الأعمال</h3>
-
-                <p>
-                    إدارة فريقك ومشاريعك
-                    من مكان واحد.
-                </p>
-
-                <div class="tool-footer">
-                    <span class="tool-status">قريباً</span>
-                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CARD -->
-
-        <div class="tool-card">
-
-            <div class="tool-image icon-style">
-                <i class="fas fa-cart-shopping"></i>
-            </div>
-
-            <div class="tool-content">
-
-                <span class="tool-tag">
-                    E-COMMERCE
-                </span>
-
-                <h3>أنظمة المتاجر الإلكترونية</h3>
-
-                <p>
-                    متجرك الرقمي جاهز
-                    للبيع والدفع أونلاين.
-                </p>
-
-                <div class="tool-footer">
-                    <span class="tool-status">قريباً</span>
-                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CARD -->
-
-        <div class="tool-card">
-
-            <div class="tool-image icon-style">
-                <i class="fas fa-box-archive"></i>
-            </div>
-
-            <div class="tool-content">
-
-                <span class="tool-tag">
-                    ARCHIVE
-                </span>
-
-                <h3>أنظمة الأرشفة</h3>
-
-                <p>
-                    حفظ وتنظيم مستنداتك
-                    بشكل آمن ومنظّم.
-                </p>
-
-                <div class="tool-footer">
-                    <span class="tool-status">قريباً</span>
-                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CARD -->
-
-        <div class="tool-card">
-
-            <div class="tool-image icon-style">
-                <i class="fas fa-brain"></i>
-            </div>
-
-            <div class="tool-content">
-
-                <span class="tool-tag">
-                    AI
-                </span>
-
-                <h3>حلول الذكاء الاصطناعي</h3>
-
-                <p>
-                    أدوات ذكاء اصطناعي
-                    مخصصة لمشروعك.
-                </p>
-
-                <div class="tool-footer">
-                    <span class="tool-status">قريباً</span>
-                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CARD -->
-
-        <div class="tool-card">
-
-            <div class="tool-image icon-style">
-                <i class="fas fa-gears"></i>
-            </div>
-
-            <div class="tool-content">
-
-                <span class="tool-tag">
-                    AUTOMATION
-                </span>
-
-                <h3>أتمتة الأعمال</h3>
-
-                <p>
-                    أتمتة مهامك المتكررة
-                    وتوفير وقتك.
-                </p>
-
-                <div class="tool-footer">
-                    <span class="tool-status">قريباً</span>
-                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CARD -->
-
-        <div class="tool-card">
-
-            <div class="tool-image icon-style">
-                <i class="fas fa-plug"></i>
-            </div>
-
-            <div class="tool-content">
-
-                <span class="tool-tag">
-                    API
-                </span>
-
-                <h3>خدمات API</h3>
-
-                <p>
-                    ربط أنظمتك ببعض
-                    عبر واجهات برمجية.
-                </p>
-
-                <div class="tool-footer">
-                    <span class="tool-status">قريباً</span>
-                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
-                </div>
-
-            </div>
-
-        </div>
-
-        <!-- CARD -->
-
-        <div class="tool-card">
-
-            <div class="tool-image icon-style">
-                <i class="fas fa-cloud"></i>
-            </div>
-
-            <div class="tool-content">
-
-                <span class="tool-tag">
-                    CLOUD
-                </span>
-
-                <h3>الاستضافة السحابية</h3>
-
-                <p>
-                    بنية سحابية مرنة
-                    تنمو مع مشروعك.
-                </p>
-
-                <div class="tool-footer">
-                    <span class="tool-status">قريباً</span>
-                    <a href="https://t.me/SAP1O" target="_blank">طلب مسبق →</a>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
 </section>
 
-<!-- FOOTER -->
+<div class="sd-container" style="padding-block: var(--sd-sp-6);">
 
-<footer>
+    <h2 style="font-size: var(--sd-fs-xl); margin-bottom: var(--sd-sp-1);">الوصول السريع</h2>
+    <p style="color: var(--sd-text-secondary); margin-top:0; margin-bottom: var(--sd-sp-5);">أدوات وأنظمة شبكة سديم</p>
 
-    <h2>شبكة سديم</h2>
-
-    <p style="opacity:.6;margin-top:1rem;">
-        بابك الأول للخدمات الرقمية المتكاملة
-    </p>
-
-    <div class="social-links">
-
-        <a href="https://www.tiktok.com/@sadim_networks"
-           target="_blank">
-            <i class="fab fa-tiktok"></i>
+    <div class="sd-quick-grid" style="margin-bottom: var(--sd-sp-8);">
+        <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-card sd-card-hover sd-quick-card">
+            <div class="sd-quick-icon"><i class="fas fa-book"></i></div>
+            <div><h3>مكتبة أجاثا</h3><p>الروايات والأرشيف</p></div>
         </a>
-
-        <a href="https://www.instagram.com/sadem_network"
-           target="_blank">
-            <i class="fab fa-instagram"></i>
+        <a href="{{ url_for('bots.my_bots') }}" class="sd-card sd-card-hover sd-quick-card">
+            <div class="sd-quick-icon"><i class="fas fa-robot"></i></div>
+            <div><h3>أنظمة سديم</h3><p>بوتات وأدوات رقمية</p></div>
         </a>
-
-        <a href="https://wa.me/966542980920?text=Hello"
-           target="_blank">
-            <i class="fab fa-whatsapp"></i>
+        <a href="{{ url_for('loading_bp.account') }}" class="sd-card sd-card-hover sd-quick-card">
+            <div class="sd-quick-icon"><i class="fas fa-user-circle"></i></div>
+            <div><h3>حسابي</h3><p>إدارة الملف الشخصي</p></div>
         </a>
-
-        <a href="https://mail.google.com/mail/?view=cm&to=admin@sadim.cloud"
-           target="_blank">
-            <i class="fas fa-envelope"></i>
-        </a>
-
     </div>
 
-    <p style="font-size:.8rem;opacity:.4;">
-        SADEEM_NETWORK® 2026
-    </p>
+    <h2 style="font-size: var(--sd-fs-xl); margin-bottom: var(--sd-sp-1);">متاح الآن</h2>
+    <p style="color: var(--sd-text-secondary); margin-top:0; margin-bottom: var(--sd-sp-5);">أنظمة تقدر تستخدمها اليوم بحسابك</p>
 
-</footer>
+    <div class="sd-tools-grid" style="margin-bottom: var(--sd-sp-8);">
+        <div class="sd-card">
+            <div class="sd-tool-image">
+                <img src="{{ url_for('static', filename='images/5976816295606946886_121.jpg') }}" alt="">
+            </div>
+            <span class="sd-badge sd-badge-neutral" style="margin-bottom: var(--sd-sp-3);">AUTOMATION</span>
+            <h3 style="margin: 0 0 var(--sd-sp-2);">بوت الاقتباسات</h3>
+            <p style="color: var(--sd-text-secondary); margin: 0 0 var(--sd-sp-4);">أضف اقتباساتك الخاصة وخلّي بوتك ينشرها تلقائياً لقناتك.</p>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> متاح الآن</span>
+                <a href="{{ url_for('bots.my_bots') }}" style="color: var(--sd-accent-light); font-weight:600; font-size: var(--sd-fs-sm);">جرّبه الآن ←</a>
+            </div>
+        </div>
+    </div>
 
-<script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+    <h2 style="font-size: var(--sd-fs-lg); margin-bottom: var(--sd-sp-1);">قادم قريباً</h2>
+    <p style="color: var(--sd-text-secondary); margin-top:0; margin-bottom: var(--sd-sp-5);">أنظمة قيد التطوير — سجّل اهتمامك بالطلب المسبق</p>
 
-</body>
-</html>
+    <div class="sd-tools-grid sd-coming-soon">
+
+        <div class="sd-card">
+            <div class="sd-tool-image"><img src="{{ url_for('static', filename='images/5976816295606946887_121.jpg') }}" alt=""></div>
+            <span class="sd-badge sd-badge-neutral" style="margin-bottom: var(--sd-sp-3);">DATA</span>
+            <h3 style="margin: 0 0 var(--sd-sp-2);">بوت جلب البيانات</h3>
+            <p style="color: var(--sd-text-secondary); margin: 0 0 var(--sd-sp-4);">ربط APIs وأنظمة بيانات تلقائية.</p>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="sd-badge sd-badge-neutral">قريباً</span>
+                <a href="https://t.me/SAP1O" target="_blank" style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm);">طلب مسبق ←</a>
+            </div>
+        </div>
+
+        <div class="sd-card">
+            <div class="sd-tool-image"><img src="{{ url_for('static', filename='images/5976816295606946888_120.jpg') }}" alt=""></div>
+            <span class="sd-badge sd-badge-neutral" style="margin-bottom: var(--sd-sp-3);">LIBRARY</span>
+            <h3 style="margin: 0 0 var(--sd-sp-2);">أنظمة المكتبات</h3>
+            <p style="color: var(--sd-text-secondary); margin: 0 0 var(--sd-sp-4);">أرشفة وتنظيم المكتبات الرقمية.</p>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="sd-badge sd-badge-neutral">قريباً</span>
+                <a href="https://t.me/SAP1O" target="_blank" style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm);">طلب مسبق ←</a>
+            </div>
+        </div>
+
+        {% set soon_items = [
+            ('fa-server', 'HOSTING', 'استضافة المواقع', 'استضافة سريعة وموثوقة لمواقعك ومشاريعك.'),
+            ('fa-layer-group', 'NO-CODE', 'إنشاء مواقع بدون كود', 'بناء موقعك الاحترافي بدون أي خبرة برمجية.'),
+            ('fa-briefcase', 'BUSINESS', 'أنظمة إدارة الأعمال', 'إدارة فريقك ومشاريعك من مكان واحد.'),
+            ('fa-cart-shopping', 'E-COMMERCE', 'أنظمة المتاجر الإلكترونية', 'متجرك الرقمي جاهز للبيع والدفع أونلاين.'),
+            ('fa-box-archive', 'ARCHIVE', 'أنظمة الأرشفة', 'حفظ وتنظيم مستنداتك بشكل آمن ومنظّم.'),
+            ('fa-brain', 'AI', 'حلول الذكاء الاصطناعي', 'أدوات ذكاء اصطناعي مخصصة لمشروعك.'),
+            ('fa-gears', 'AUTOMATION', 'أتمتة الأعمال', 'أتمتة مهامك المتكررة وتوفير وقتك.'),
+            ('fa-plug', 'API', 'خدمات API', 'ربط أنظمتك ببعض عبر واجهات برمجية.'),
+            ('fa-cloud', 'CLOUD', 'الاستضافة السحابية', 'بنية سحابية مرنة تنمو مع مشروعك.'),
+        ] %}
+        {% for icon, tag, title, desc in soon_items %}
+        <div class="sd-card">
+            <div class="sd-tool-image icon-style"><i class="fas {{ icon }}"></i></div>
+            <span class="sd-badge sd-badge-neutral" style="margin-bottom: var(--sd-sp-3);">{{ tag }}</span>
+            <h3 style="margin: 0 0 var(--sd-sp-2);">{{ title }}</h3>
+            <p style="color: var(--sd-text-secondary); margin: 0 0 var(--sd-sp-4);">{{ desc }}</p>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span class="sd-badge sd-badge-neutral">قريباً</span>
+                <a href="https://t.me/SAP1O" target="_blank" style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm);">طلب مسبق ←</a>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block footer %}
+{% include "partials/_official_links.html" %}
+<p style="font-size: var(--sd-fs-xs); opacity:.5; margin-top: var(--sd-sp-3);">SADEEM_NETWORK® 2026</p>
+{% endblock %}

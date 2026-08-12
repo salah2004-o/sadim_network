@@ -355,6 +355,33 @@
   border: 1px solid var(--border);
   background: var(--bg-secondary); /* لون خلفية في حال كانت الصورة شفافة */
 }
+
+/* روايات أخرى من المجموعة */
+.related-books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem; }
+.related-book-card { text-decoration: none; display: block; }
+.related-book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 6px; border: 0.5px solid var(--border); transition: 0.2s; margin-bottom: 8px; }
+.related-book-card:hover img { border-color: var(--gold); transform: translateY(-4px); }
+.related-book-card span { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.4; }
+
+/* جسر النظام البيئي — يربط الرواية بالمقالات (هوية بنفسجية مقصودة لتمييز الانتقال) */
+.ecosystem-bridge { margin-top: 3rem; }
+.ecosystem-bridge-inner {
+  display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; flex-wrap: wrap;
+  background: linear-gradient(135deg, rgba(124,77,255,0.14), rgba(124,77,255,0.05));
+  border: 1px solid rgba(124,77,255,0.3); border-radius: 16px; padding: 1.6rem 1.8rem;
+}
+.ecosystem-bridge-inner h4 { color: var(--text); margin: 0 0 6px; font-size: 1.05rem; }
+.ecosystem-bridge-inner p { color: var(--text-secondary); margin: 0; font-size: 0.85rem; }
+.btn-bridge {
+  display: inline-flex; align-items: center; gap: 8px; padding: 0.7rem 1.4rem; border-radius: 8px;
+  background: linear-gradient(135deg, #7c4dff, #b388ff); color: #fff; text-decoration: none;
+  font-weight: 700; font-size: 0.85rem; white-space: nowrap; transition: 0.2s;
+}
+.btn-bridge:hover { box-shadow: 0 6px 18px rgba(124,77,255,0.4); transform: translateY(-2px); }
+
+@media (max-width: 600px) {
+  .ecosystem-bridge-inner { flex-direction: column; text-align: center; }
+}
   </style>
 </head>
 <body>
@@ -377,6 +404,13 @@
           <i class="fa-solid fa-cloud-arrow-down"></i>
           <span><span id="download-count-number">{{ book['download_count'] or 0 }}</span> تحميل</span>
         </div>
+        <div class="download-badge" style="margin-top:0.5rem;">
+          <i class="fa-solid fa-comment"></i>
+          <span>{{ comments|length }} رأي</span>
+        </div>
+        <button type="button" class="btn-back" style="width:100%; justify-content:center; margin-top:0.5rem; cursor:pointer;" onclick="shareBook(this)" data-url="{{ request.url_root.rstrip('/') + url_for('Library_Agatha.view_book', book_id=book['id']) }}" data-title="{{ book['title'] }}">
+          <i class="fa-solid fa-share-nodes"></i> مشاركة
+        </button>
       </div>
 
       <div class="book-meta">
@@ -422,7 +456,7 @@
           <div class="comment-item" data-date="{{ comment.created_at }}">
             
             <div class="user-avatar">
-              {% set c_img = comment.profile_image if comment.profile_image else 'default.png' %}
+              {% set c_img = comment.profile_image if comment.profile_image else 'default_user.png' %}
               <img src="{{ url_for('static', filename='uploads/' + c_img) }}?v=1" alt="Avatar">
             </div>
 
@@ -458,6 +492,34 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <div class="container" style="padding-top: 0;">
+    {% if other_books %}
+    <section style="margin-top: 3rem;">
+      <h3 style="font-family:'Amiri',serif; color:var(--gold); font-size:1.3rem; margin-bottom:1.2rem;">روايات أخرى من المجموعة</h3>
+      <div class="related-books-grid">
+        {% for rb in other_books %}
+        <a href="{{ url_for('Library_Agatha.view_book', book_id=rb.id) }}" class="related-book-card">
+          <img src="{{ url_for('Library_Agatha.static', filename='uploads/' + rb.cover_path) }}?v={{ rb.id }}" alt="{{ rb.title }}">
+          <span>{{ rb.title }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <div class="ecosystem-bridge">
+      <div class="ecosystem-bridge-inner">
+        <div>
+          <h4><i class="fa-solid fa-newspaper"></i> مقالات شبكة سديم</h4>
+          <p>تحليلات وقراءات أدبية من مجتمع سديم — جزء من نفس المنظومة.</p>
+        </div>
+        <a href="{{ url_for('articles.list_articles') }}" class="btn-bridge">
+          استكشف المقالات <i class="fa-solid fa-arrow-left"></i>
+        </a>
+      </div>
     </div>
   </div>
 
@@ -497,6 +559,23 @@
 
       list.innerHTML = '';
       items.forEach(item => list.appendChild(item));
+    }
+
+    function shareBook(btn) {
+      const url = btn.getAttribute('data-url');
+      const title = btn.getAttribute('data-title');
+      if (navigator.share) {
+        navigator.share({ title, url }).catch(() => {});
+        return;
+      }
+      const original = btn.innerHTML;
+      const done = () => {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> تم نسخ الرابط';
+        setTimeout(() => { btn.innerHTML = original; }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done).catch(() => {});
+      }
     }
   </script>
 </body>

@@ -46,17 +46,39 @@ def agatha_christie():
 #    if 'user_id' not in session:
 #        return redirect(url_for('loading_bp.login'))
 
+    sort = request.args.get('sort', 'downloads')
+    order_sql = {
+        'downloads': "ORDER BY download_count DESC NULLS LAST",
+        'newest': "ORDER BY id DESC",
+    }.get(sort, "ORDER BY download_count DESC NULLS LAST")
+
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     # جلب جميع الكتب لعرضها
-    cur.execute("SELECT * FROM books ORDER BY download_count DESC NULLS LAST;")
+    cur.execute(f"SELECT * FROM books {order_sql};")
 
     books = cur.fetchall()
-    
+
     cur.close()
     conn.close()
+
+    comment_counts = Comments.get_book_comment_counts()
+    if sort == 'discussed':
+        books = sorted(books, key=lambda b: comment_counts.get(b['id'], 0), reverse=True)
+
+    total_downloads = sum(b['download_count'] or 0 for b in books)
+    total_comments = sum(comment_counts.values())
+    recent_discussions = Comments.get_recent_book_discussions(limit=6)
+
     user = User.get_by_id(session['user_id']) if 'user_id' in session else None
-    return render_template("Agatha Christie/Agatha.html", books=books, user=user)
+    return render_template(
+        "Agatha Christie/Agatha.html",
+        books=books, user=user, sort=sort,
+        comment_counts=comment_counts,
+        total_downloads=total_downloads,
+        total_comments=total_comments,
+        recent_discussions=recent_discussions,
+    )
 
 
 @Library_Agatha_bp.route("/Library/Agatha_Christie/<int:book_id>")
@@ -70,11 +92,13 @@ def view_book(book_id):
     # جلب التعليقات الخاصة بهذا الكتاب
     # ملاحظة: يفضل تعديل ميثود get_comments_by_book في المودل لتجلب اسم المستخدم بـ Join
     comments = Comments.get_comments_by_book(book_id)
+    other_books = Library.get_other_books(book_id, limit=4)
     user = User.get_by_id(session['user_id']) if 'user_id' in session else None
     return render_template(
-        "Agatha Christie/book_detail.html", 
-        book=book, 
+        "Agatha Christie/book_detail.html",
+        book=book,
         comments=comments,
+        other_books=other_books,
         user=user
     )
 # =========================

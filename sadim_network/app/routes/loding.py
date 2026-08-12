@@ -1,12 +1,15 @@
 import os
+import uuid
 from app.routes.shared import UPLOAD_FOLDER
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 from models.user import User
+from models.verification_token import Email
 from db.sadim_db import get_db_connection
 from app.limiter import limiter
 from app import google_oauth
+from utlis.email_utils import send_verification_email
 from werkzeug.utils import secure_filename
 from werkzeug.utils import secure_filename
 from PIL import Image
@@ -35,11 +38,11 @@ def login():
 
         if not user:
             return render_template("auth/login.html", error="بيانات الدخول غير صحيحة")
-        
-        if not user.is_verified and user.role !='admin':
 
-            return render_template("auth/login.html", error="يرجي التحقق من بريدك الإلكتروني قبل تسجيل الدخول.")
-        
+        # ملاحظة: التحقق من البريد (is_verified) لا يحجب تسجيل الدخول — الحساب يُنشأ
+        # مفعّلاً للاستخدام الأساسي فوراً (نفس نمط Google OAuth)، والتوثيق يبقى حالة
+        # تُعرض للمستخدم (وقابلة لإكمالها لاحقاً عبر إعادة إرسال رابط التفعيل) بدل بوابة دخول.
+
         # بعد التحقق من المستخدم ونجاح تسجيل الدخول
         user.last_login = datetime.now()
 
@@ -149,10 +152,47 @@ def account():
 
     from app.models.bot_model import Bot
     from app.models.bot_limit_model import BotLimitGrant
-    bot_count = len(Bot.get_by_user(session['user_id']))
-    limit_status = BotLimitGrant.get_status_for_user(session['user_id'], current_bot_count=bot_count)
+    from app.models.post_model import Post
 
-    return render_template('account.html', user=user, limit_status=limit_status)
+    my_bots = Bot.get_by_user(session['user_id'])
+    limit_status = BotLimitGrant.get_status_for_user(session['user_id'], current_bot_count=len(my_bots))
+    my_articles = Post.get_by_user(session['user_id'])
+
+    return render_template(
+        'account.html',
+        user=user,
+        limit_status=limit_status,
+        my_bots=my_bots,
+        my_articles=my_articles,
+    )
+
+
+@loading_bp.route('/resend_verification', methods=['POST'])
+@limiter.limit("3 per minute")
+def resend_verification():
+    if 'user_id' not in session:
+        return redirect(url_for('loading_bp.login'))
+
+    user = User.get_by_id(session['user_id'])
+    if not user:
+        return redirect(url_for('loading_bp.login'))
+
+    if user.is_verified:
+        flash('بريدك موثّق بالفعل.', 'success')
+        return redirect(url_for('loading_bp.account'))
+
+    token = uuid.uuid4().hex
+    expires_at = datetime.now() + timedelta(hours=1)
+    Email.add_token(user.id, token, expires_at)
+
+    try:
+        send_verification_email(user.email, token)
+        flash('تم إرسال رابط تفعيل جديد لبريدك الإلكتروني.', 'success')
+    except Exception as e:
+        print('Failed to resend verification email:', e)
+        flash('تعذّر إرسال رابط التفعيل حالياً، حاول لاحقاً.', 'error')
+
+    return redirect(url_for('loading_bp.account'))
 
 
 @loading_bp.route('/logout')

@@ -1,138 +1,98 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>من نحن - شبكة سديم</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+{% extends "layouts/public.html" %}
+{% block title %}من نحن — شبكة سديم{% endblock %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}">
-    
+{% block extra_head %}
+<style>
+    .sd-about-hero { text-align:center; padding: var(--sd-sp-8) var(--sd-sp-4) var(--sd-sp-6); }
+    .sd-about-hero h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin-bottom: var(--sd-sp-3); }
+    .sd-about-hero p { color: var(--sd-text-secondary); max-width: 620px; margin: 0 auto; font-size: var(--sd-fs-md); }
+    .sd-about-content { max-width: 880px; margin: 0 auto; padding: 0 var(--sd-sp-4) var(--sd-sp-8); }
+    .sd-team-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sd-sp-4); margin: var(--sd-sp-5) 0 var(--sd-sp-8); }
+    .sd-team-card { text-align:center; padding: var(--sd-sp-5) var(--sd-sp-4); }
+    .sd-team-card img { width:48px; height:48px; border-radius:50%; margin-bottom: var(--sd-sp-3); }
+    .sd-team-card .icon { font-size:1.5rem; margin-bottom: var(--sd-sp-2); }
+    .sd-team-card small { color: var(--sd-text-secondary); display:block; margin-top:4px; }
+    .sd-values-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--sd-sp-3); list-style:none; padding:0; }
+</style>
+{% endblock %}
 
-</head>
-<body>
-    <header>
-        <div class="logo">SADEEM NETWORK</div>
-        <nav>
-            <ul>
-                <li><a href="{{ url_for('main.index') }}">الرئيسية</a></li>
-                <li><a href="{{ url_for('admin.show_services') }}">خدماتنا</a></li>
-                <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li> 
-                <li><a href="mailto:admin@sadim.cloud?subject= اتصل بنا  "><i class="fa-solid fa-envelope"></i> اتصل بنا</a></li>
-            </ul>
-        </nav>
-    </header>
+{% block content %}
 
-    <section class="hero">
-        <div class="hero-image"></div>
-        <h1>خلف أستار السديم</h1>
-        <p>سديم ليست مجرد شبكة، بل كيان رقمي يجمع بين المعرفة، الإبداع، والفرص التقنية في فضاء واحد.</p>
-    </section>
-    
-
-
-    <div class="content">
-        <div class="section-box">
-            <h2>رؤيتنا المستقبيلة</h2>
-            <p>
-                نسعى لأن يكون سديم المعيار الأول في الخدمات الرقمية والإبداعية بالمنطقة. 
-                نحن نؤمن بأن كل فكرة هي ذرة في هذا الكون تستحق أن تنفجر إبداعاً وتتحول إلى واقع ملموس.
-            </p>
-        </div>
-
-        <div class="section-box">
-            <h2>مهمتنا</h2>
-            <p>
-                بناء شبكة متكاملة تربط بين المشاريع، الأفراد، والفرص. نحن هنا لدمج التكنولوجيا بالفلسفة، 
-                والبرمجة بالأدب، لنخلق تجربة مستخدم لا تُنسى تتجاوز مجرد تقديم الخدمة إلى بناء علاقة مستدامة.
-            </p>
-        </div>
-        <div class="section-box">
-            <h2>ماذا نقدم الآن؟</h2>
-            <p>
-                شبكة سديم هي منظومة رقمية تقدم محتوى معرفي وأدبي،
-                وتجمع بين المكتبات الرقمية، القنوات المتخصصة،
-                والمشاريع التقنية التجريبية في منصة واحدة.
-            </p>
-        
-            <ul style="margin-top: 1.5rem; line-height: 2;">
-                <li>📚 <strong>مكتبات رقمية:</strong> روايات وكتب متاحة للقراءة والتحميل.</li>
-                <li>📢 <strong>قنوات محتوى:</strong> أدب، معرفة، وتوثيق رقمي عبر تليجرام.</li>
-                <li>🧪 <strong>مشاريع رقمية:</strong> تجارب تقنية ومبادرات قيد التطوير.</li>
-                <li>🌐 <strong>منصة موحدة:</strong> تجمع كل فروع سديم في مكان واحد.</li>
-            </ul>
-        </div>
-
-<h2 style="text-align: center; margin-bottom: 2rem;">منظومة شبكة سديم</h2>
-
-<div class="team-images">
-
-<a href="https://t.me/addlist/lSjtWMNZFuI3Mzdk" target="_blank" class="team-card folder">
-    <img src="{{ url_for('static', filename='images/logo.png') }}">
-    <div class="card-icon">📚</div>
-    <p>مجلد شبكة سديم<br><small>كل القنوات في مكان واحد</small></p>
-</a>
-
-<a href="https://t.me/SADIM_NETWORK" target="_blank" class="team-card channel">
-    <img src="{{ url_for('static', filename='images/logo.png') }}">
-    <div class="card-icon">💡</div>
-    <p>قناة شبكة سديم<br><small>المركز الإعلامي</small></p>
-</a>
-
-<a href="https://t.me/SADIM_OS" target="_blank" class="team-card group">
-    <img src="{{ url_for('static', filename='images/logo.png') }}">
-    <div class="card-icon">💬</div>
-    <p>أرشيف شبكة سديم<br><small>نقاش وتوثيق</small></p>
-</a>
-<a href="https://sadim.cloud/library/agatha_christie" target="_blank" class="team-card library">
-        <img src="{{ url_for('static', filename='images/logo.png') }}">
-        <div class="card-icon">📖</div>
-        <p>مكتبة أجاثا كريستي<br><small>جزء من مكتبات شبكة سديم</small></p>
- </a>
-
+<div class="sd-about-hero">
+    <h1>خلف أستار السديم</h1>
+    <p>سديم ليست مجرد شبكة، بل كيان رقمي يجمع بين المعرفة، الإبداع، والفرص التقنية في فضاء واحد.</p>
 </div>
 
+<div class="sd-about-content">
 
-        <h2 style="text-align: center; margin-top: 5rem; margin-bottom: 2rem;">قيم سديم الأساسية</h2>
-        <ul class="values-grid">
-            <li><strong>الإبداع</strong> نخلق حلولاً خارج الصندوق.</li>
-            <li><strong>الشفافية</strong> الوضوح هو لغتنا الأولى مع العميل.</li>
-            <li><strong>الالتزام</strong> جودة العمل هي بصمتنا الدائمة.</li>
-            <li><strong>الجرأة</strong> لا نهاب تحدي الأفكار التقليدية.</li>
+    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
+        <h2 style="font-size: var(--sd-fs-lg); margin-top:0;">رؤيتنا المستقبلية</h2>
+        <p style="color: var(--sd-text-secondary); line-height:1.9;">
+            نسعى لأن يكون سديم المعيار الأول في الخدمات الرقمية والإبداعية بالمنطقة.
+            نحن نؤمن بأن كل فكرة هي ذرة في هذا الكون تستحق أن تنفجر إبداعاً وتتحول إلى واقع ملموس.
+        </p>
+    </div>
+
+    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
+        <h2 style="font-size: var(--sd-fs-lg); margin-top:0;">مهمتنا</h2>
+        <p style="color: var(--sd-text-secondary); line-height:1.9;">
+            بناء شبكة متكاملة تربط بين المشاريع، الأفراد، والفرص. نحن هنا لدمج التكنولوجيا بالفلسفة،
+            والبرمجة بالأدب، لنخلق تجربة مستخدم لا تُنسى تتجاوز مجرد تقديم الخدمة إلى بناء علاقة مستدامة.
+        </p>
+    </div>
+
+    <div class="sd-card">
+        <h2 style="font-size: var(--sd-fs-lg); margin-top:0;">ماذا نقدم الآن؟</h2>
+        <p style="color: var(--sd-text-secondary); line-height:1.9;">
+            شبكة سديم هي منظومة رقمية تقدم محتوى معرفي وأدبي، وتجمع بين المكتبات الرقمية، القنوات المتخصصة،
+            والمشاريع التقنية التجريبية في منصة واحدة.
+        </p>
+        <ul style="margin-top: var(--sd-sp-4); line-height: 2; color: var(--sd-text-secondary); padding-inline-start: var(--sd-sp-5);">
+            <li>📚 <strong style="color: var(--sd-text);">مكتبات رقمية:</strong> روايات وكتب متاحة للقراءة والتحميل.</li>
+            <li>📢 <strong style="color: var(--sd-text);">قنوات محتوى:</strong> أدب، معرفة، وتوثيق رقمي عبر تليجرام.</li>
+            <li>🧪 <strong style="color: var(--sd-text);">مشاريع رقمية:</strong> تجارب تقنية ومبادرات قيد التطوير.</li>
+            <li>🌐 <strong style="color: var(--sd-text);">منصة موحدة:</strong> تجمع كل فروع سديم في مكان واحد.</li>
         </ul>
     </div>
 
-    <footer>
-            
-        <h2 style="color: var(--color-light)">شبكة سديم</h2>
-        <p style="opacity: 0.6; margin-top: 1rem;">بابك الأول للخدمات الرقمية المتكاملة</p>
-        
-      <div class="social-links">
-          <a href="https://www.tiktok.com/@sadim_networks" target="_blank">
-              <i class="fab fa-tiktok"></i>
-          </a>
-      
-          <a href="https://www.snapchat.com/add/kyybs21" target="_blank">
-              <i class="fab fa-snapchat-ghost"></i>
-          </a>
-      
-          <a href="https://www.instagram.com/sadem_network" target="_blank">
-              <i class="fab fa-instagram"></i>
-          </a>
-      
-      
-          <a href="https://wa.me/966542980920?text=Hello" target="_blank">
-              <i class="fab fa-whatsapp"></i>
-          </a>
-<a href="https://mail.google.com/mail/?view=cm&to=admin@sadim.cloud" target="_blank">
-    <i class="fas fa-envelope"></i>
-</a>
-      </div>
+    <h2 style="text-align:center; margin: var(--sd-sp-8) 0 var(--sd-sp-2); font-size: var(--sd-fs-lg);">منظومة شبكة سديم</h2>
 
-        
-        <p style="font-size: 0.8rem; opacity: 0.4;">© 2026 جميع الحقوق محفوظة لشبكة سديم | SADIM NETWORK</p>
-    </footer>
-</body>
-</html>
+    <div class="sd-team-grid">
+        <a href="https://t.me/addlist/lSjtWMNZFuI3Mzdk" target="_blank" class="sd-card sd-card-hover sd-team-card">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+            <div class="icon">📚</div>
+            <p style="margin:0; color: var(--sd-text);">مجلد شبكة سديم<small>كل القنوات في مكان واحد</small></p>
+        </a>
+        <a href="https://t.me/SADIM_NETWORK" target="_blank" class="sd-card sd-card-hover sd-team-card">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+            <div class="icon">💡</div>
+            <p style="margin:0; color: var(--sd-text);">قناة شبكة سديم<small>المركز الإعلامي</small></p>
+        </a>
+        <a href="https://t.me/SADIM_OS" target="_blank" class="sd-card sd-card-hover sd-team-card">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+            <div class="icon">💬</div>
+            <p style="margin:0; color: var(--sd-text);">أرشيف شبكة سديم<small>نقاش وتوثيق</small></p>
+        </a>
+        <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-card sd-card-hover sd-team-card">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="">
+            <div class="icon">📖</div>
+            <p style="margin:0; color: var(--sd-text);">مكتبة أجاثا كريستي<small>جزء من مكتبات شبكة سديم</small></p>
+        </a>
+    </div>
+
+    <h2 style="text-align:center; margin-bottom: var(--sd-sp-4); font-size: var(--sd-fs-lg);">قيم سديم الأساسية</h2>
+    <ul class="sd-values-grid">
+        <li class="sd-card"><strong style="color: var(--sd-accent-light);">الإبداع</strong><br><span style="color: var(--sd-text-secondary);">نخلق حلولاً خارج الصندوق.</span></li>
+        <li class="sd-card"><strong style="color: var(--sd-accent-light);">الشفافية</strong><br><span style="color: var(--sd-text-secondary);">الوضوح هو لغتنا الأولى مع العميل.</span></li>
+        <li class="sd-card"><strong style="color: var(--sd-accent-light);">الالتزام</strong><br><span style="color: var(--sd-text-secondary);">جودة العمل هي بصمتنا الدائمة.</span></li>
+        <li class="sd-card"><strong style="color: var(--sd-accent-light);">الجرأة</strong><br><span style="color: var(--sd-text-secondary);">لا نهاب تحدي الأفكار التقليدية.</span></li>
+    </ul>
+
+</div>
+
+{% endblock %}
+
+{% block footer %}
+{% include "partials/_official_links.html" %}
+<p style="font-size: var(--sd-fs-xs); opacity:.5; margin-top: var(--sd-sp-3);">© 2026 جميع الحقوق محفوظة لشبكة سديم | SADIM NETWORK</p>
+{% endblock %}

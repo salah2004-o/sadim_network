@@ -1,166 +1,70 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+{% extends "layouts/auth.html" %}
+{% block title %}تسجيل الدخول — شبكة سديم{% endblock %}
 
+{% block content %}
 
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/loginn.css') }}">
+<div style="text-align:center; margin-bottom: var(--sd-sp-5);">
+    <h1 style="font-size: var(--sd-fs-lg); margin: 0 0 var(--sd-sp-2);">تسجيل الدخول</h1>
+    <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0;">مرحباً بعودتك</p>
+    <p id="liveClock" style="color: var(--sd-text-secondary); font-size: var(--sd-fs-xs); margin-top: var(--sd-sp-2);"></p>
+</div>
 
-  <title>شبكة سديم  - تسجيل الدخول</title>
+{% if error %}
+<div class="sd-alert sd-alert-danger" style="margin-bottom: var(--sd-sp-4);">
+    <i class="fas fa-triangle-exclamation sd-alert-icon"></i>
+    <span>{{ error }}</span>
+</div>
+<p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-xs); margin: 0 0 var(--sd-sp-4);">
+    ملاحظة: في حال تعذّر تسجيل الدخول، قد يكون حسابك قيد التفعيل. يتم تفعيل الحسابات الجديدة خلال مدة لا تتجاوز <strong>24 ساعة</strong>.
+</p>
+{% endif %}
 
-</head>
-<body>
-
-  <div class="login-container">
-    <!-- Logo Section -->
-    <div class="logo-section">
-      <div class="logo-text">شبكة سديم</div>
-      <div class="logo-subtitle">مرحباً بعودتك</div>
-      <p>الوقت الحالي : {{ current_time }}</p>
-      <p id="liveClock" class="clock"></p>
+<form action="/login" method="POST">
+    <div class="sd-form-group">
+        <label class="sd-label" for="email">البريد الإلكتروني</label>
+        <input type="email" class="sd-input" id="email" name="email" placeholder="example@email.com" required>
     </div>
 
-    <h1>تسجيل الدخول</h1>
-
-    <!-- رسالة خطأ (مخفية افتراضياً) -->
-  {% if error %}
-  <div class="error-message" style="display:block">
-    {{ error }}
-  </div>
-  
-  <div class="login-note">
-    ملاحظة: في حال تعذّر تسجيل الدخول، قد يكون حسابك قيد التفعيل.
-    يتم تفعيل الحسابات الجديدة خلال مدة لا تتجاوز <strong>24 ساعة</strong>.
-  </div>
-  {% endif %}
-
-
-
-
-      <!--login -->
-    <form action="/login" method="POST" onsubmit="return validateLogin()">
-      <div class="form-group">
-        <label for="email">البريد الإلكتروني</label>
-        <input type="email" id="email" name="email" placeholder="example@email.com" required>
-      </div>
-
-      <div class="form-group">
-        <label for="password">كلمة المرور</label>
-        <input type="password" id="password" name="password" placeholder="أدخل كلمة المرور" required minlength="6">
-      </div>
-
-
-
-      <button type="submit">تسجيل الدخول</button>
-    </form>
-
-    <div class="divider">
-      <span>أو</span>
+    <div class="sd-form-group">
+        <label class="sd-label" for="password">كلمة المرور</label>
+        <input type="password" class="sd-input" id="password" name="password" placeholder="أدخل كلمة المرور" required minlength="6">
     </div>
-    <a href="/auth/google" class="google-btn">
-     <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="20">
-      تسجيل الدخول بـ Google
 
-    </a>
-    <div class="register-link">
-      ليس لديك حساب؟ <a href="/register">أنشئ حسابًا جديدًا</a>
-    </div>
-    <div class="support-link">
-      <a href="{{ url_for('main.support') }}">هل تحتاج إلى مساعدة؟ اتصل بالدعم</a>
-    </div>
-  </div>
+    <button type="submit" class="sd-btn sd-btn-primary sd-btn-block sd-ripple">تسجيل الدخول</button>
+</form>
 
-  <!-- JavaScript للتحقق من النموذج -->
-  <script>
-    function validateLogin() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const errorMessage = document.getElementById('errorMessage');
+<div style="display:flex; align-items:center; gap: var(--sd-sp-3); margin: var(--sd-sp-5) 0; color: var(--sd-text-secondary); font-size: var(--sd-fs-xs);">
+    <div style="flex:1; height:1px; background: var(--sd-border);"></div>
+    أو
+    <div style="flex:1; height:1px; background: var(--sd-border);"></div>
+</div>
 
-      // التحقق من البريد الإلكتروني
-      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailPattern.test(email)) {
-        errorMessage.textContent = 'الرجاء إدخال بريد إلكتروني صحيح!';
-        errorMessage.style.display = 'block';
-        
-        setTimeout(() => {
-          errorMessage.style.display = 'none';
-        }, 3000);
-        
-        return false;
-      }
+<a href="/auth/google" class="sd-btn sd-btn-secondary sd-btn-block sd-ripple" style="gap: var(--sd-sp-2);">
+    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google" width="18">
+    تسجيل الدخول بـ Google
+</a>
 
-      // التحقق من طول كلمة المرور
-      if (password.length < 6) {
-        errorMessage.textContent = 'كلمة المرور يجب أن تكون 6 أحرف على الأقل!';
-        errorMessage.style.display = 'block';
-        
-        setTimeout(() => {
-          errorMessage.style.display = 'none';
-        }, 3000);
-        
-        return false;
-      }
+<div style="text-align:center; margin-top: var(--sd-sp-5); font-size: var(--sd-fs-sm); color: var(--sd-text-secondary);">
+    ليس لديك حساب؟ <a href="/register" style="color: var(--sd-accent-light);">أنشئ حساباً جديداً</a>
+</div>
+<div style="text-align:center; margin-top: var(--sd-sp-2);">
+    <a href="{{ url_for('main.support') }}" style="color: var(--sd-text-secondary); font-size: var(--sd-fs-xs);">هل تحتاج إلى مساعدة؟ اتصل بالدعم</a>
+</div>
 
-      return true;
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function updateClock() {
+        const now = new Date();
+        const hour = now.getHours();
+        let greeting;
+        if (hour < 12) greeting = "صباح الخير 🌞";
+        else if (hour < 18) greeting = "مساء الخير 🌞";
+        else greeting = "مساء الخير 🌙";
+        document.getElementById("liveClock").innerText = greeting + "، الوقت المحلي الآن: " + now.toLocaleTimeString();
     }
-
-    // تأثير بصري عند الكتابة في الحقول
-    document.querySelectorAll('.form-group').forEach(group => {
-      const input = group.querySelector('input');
-      
-      input.addEventListener('focus', function() {
-        group.style.transform = 'scale(1.02)';
-      });
-
-      input.addEventListener('blur', function() {
-        group.style.transform = 'scale(1)';
-      });
-    });
-
-    // إظهار رسالة النجاح (اختياري - يمكن استخدامه من Flask)
-    function showSuccessMessage() {
-      const successMessage = document.
-
-getElementById('successMessage');
-      successMessage.style.display = 'block';
-      
-      setTimeout(() => {
-        successMessage.style.display = 'none';
-      }, 3000);
-    }
-
-    // إظهار رسالة الخطأ (اختياري - يمكن استخدامه من Flask)
-    function showErrorMessage(message) {
-      const errorMessage = document.getElementById('errorMessage');
-      errorMessage.textContent = message;
-      errorMessage.style.display = 'block';
-      
-      setTimeout(() => {
-        errorMessage.style.display = 'none';
-      }, 3000);
-    }
-  </script>
-  <script>
-     function updateClock() {
-         const now = new Date();
-         const hour = now.getHours();
-         let greeting;
-  
-         if (hour < 12) greeting = "صباح الخير 🌞";
-         else if (hour < 18) greeting = "مساء الخير 🌞";
-         else greeting = "مساء الخير 🌙";
-  
-         document.getElementById("liveClock").innerText =
-             greeting + "، الوقت المحلي الآن: " + now.toLocaleTimeString();
-     }
-     setInterval(updateClock, 1000);
-     updateClock();
-  </script>
-
-</body>
-</html>
-
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
+{% endblock %}

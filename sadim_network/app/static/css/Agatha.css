@@ -157,6 +157,105 @@ header {
 /* --- Footer --- */
 .legal-footer { padding: 40px 5%; background: #0a0a0f; border-top: 1px solid rgba(255, 255, 255, 0.05); text-align: center; margin-top: 60px; color: var(--text-muted); font-size: 0.9rem; }
 
+/* ══════════════════════════════════════════════════════
+   Collection Header (صفحة المكتبة كـ Collection اجتماعية/تحريرية)
+   ══════════════════════════════════════════════════════ */
+.collection-hero {
+    max-width: 1100px; margin: 40px auto 0; padding: 0 5%;
+    display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap;
+}
+.collection-portrait {
+    width: 150px; height: 150px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+    border: 3px solid var(--soft-gold); box-shadow: 0 0 25px rgba(225, 177, 44, 0.2);
+}
+.collection-info { flex: 1; min-width: 260px; }
+.collection-kicker { font-family: 'Cinzel', serif; color: var(--soft-gold); font-size: 0.78rem; letter-spacing: 0.15em; text-transform: uppercase; opacity: 0.85; margin-bottom: 6px; }
+.collection-title { font-family: 'Amiri', serif; font-size: 2.2rem; color: #fff; margin: 0 0 10px; }
+.collection-bio { color: var(--text-muted); font-size: 0.95rem; line-height: 1.8; max-width: 640px; margin-bottom: 18px; }
+.collection-stats { display: flex; gap: 28px; flex-wrap: wrap; margin-bottom: 18px; }
+.collection-stat { display: flex; flex-direction: column; }
+.collection-stat b { font-size: 1.3rem; color: #fff; font-family: 'Tajawal', sans-serif; }
+.collection-stat span { font-size: 0.75rem; color: var(--text-muted); }
+.collection-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-ghost-gold {
+    display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;
+    border: 1px solid var(--border-gold); border-radius: var(--radius-sm);
+    color: var(--text-muted); background: transparent; font-size: 0.85rem; font-weight: 600;
+    text-decoration: none; cursor: pointer; font-family: inherit; transition: var(--transition);
+}
+.btn-ghost-gold:hover { border-color: var(--soft-gold); color: var(--soft-gold); }
+
+/* --- Tabs --- */
+.collection-tabs {
+    max-width: 1100px; margin: 36px auto 0; padding: 0 5%;
+    display: flex; gap: 4px; border-bottom: 1px solid var(--border-gold);
+}
+.collection-tab {
+    background: none; border: none; padding: 12px 20px; font-family: 'Tajawal', sans-serif;
+    font-size: 0.92rem; font-weight: 600; color: var(--text-muted); cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px; transition: var(--transition);
+}
+.collection-tab:hover { color: #fff; }
+.collection-tab.active { color: var(--soft-gold); border-bottom-color: var(--soft-gold); }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* --- Sort bar --- */
+.sort-bar { max-width: 1100px; margin: 22px auto 0; padding: 0 5%; display: flex; gap: 8px; flex-wrap: wrap; }
+.sort-link {
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 999px;
+    border: 1px solid var(--border-gold); color: var(--text-muted); font-size: 0.8rem;
+    text-decoration: none; transition: var(--transition);
+}
+.sort-link:hover { border-color: var(--soft-gold); color: var(--soft-gold); }
+.sort-link.active { background: var(--soft-gold); color: #000; border-color: var(--soft-gold); font-weight: 700; }
+
+/* --- Book card engagement badges --- */
+.book-engagement { display: flex; justify-content: center; gap: 14px; margin-bottom: 12px; font-size: 0.78rem; color: var(--text-muted); }
+.book-engagement span { display: inline-flex; align-items: center; gap: 5px; }
+.book-engagement i { color: var(--soft-gold); opacity: 0.8; }
+
+/* --- Discussions tab --- */
+.discussion-list { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+.discussion-item {
+    display: flex; gap: 14px; background: var(--glass); border: 1px solid var(--border-gold);
+    border-radius: var(--radius-sm); padding: 16px; backdrop-filter: var(--blur); align-items: flex-start;
+}
+.discussion-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-gold); flex-shrink: 0; }
+.discussion-book-thumb { width: 40px; height: 56px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.discussion-body { flex: 1; min-width: 0; }
+.discussion-head { font-size: 0.82rem; margin-bottom: 4px; }
+.discussion-head b { color: var(--soft-gold); }
+.discussion-head a { color: var(--text-muted); text-decoration: none; }
+.discussion-head a:hover { color: #fff; }
+.discussion-text { color: #ddd; font-size: 0.88rem; line-height: 1.6; margin-bottom: 6px; }
+.discussion-date { font-size: 0.7rem; color: var(--text-muted); }
+
+/* --- Ecosystem bridge card (يربط المكتبة بالمقالات — هوية بنفسجية مقصودة لتمييز الانتقال) --- */
+.ecosystem-bridge {
+    max-width: 900px; margin: 50px auto; padding: 0 5%;
+}
+.ecosystem-bridge-inner {
+    display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+    background: linear-gradient(135deg, rgba(124,77,255,0.12), rgba(124,77,255,0.04));
+    border: 1px solid rgba(124,77,255,0.3); border-radius: var(--radius); padding: 28px 32px;
+}
+.ecosystem-bridge h4 { color: #fff; margin: 0 0 6px; font-family: 'Tajawal', sans-serif; font-size: 1.15rem; }
+.ecosystem-bridge p { color: var(--text-muted); margin: 0; font-size: 0.88rem; }
+.btn-bridge {
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, #7c4dff, #b388ff); color: #fff; text-decoration: none;
+    font-weight: 700; font-size: 0.88rem; white-space: nowrap; transition: var(--transition);
+}
+.btn-bridge:hover { box-shadow: 0 6px 20px rgba(124,77,255,0.4); transform: translateY(-2px); }
+
+/* --- Related books (صفحة الرواية) --- */
+.related-books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto; padding: 0 5%; }
+.related-book-card { text-decoration: none; display: block; }
+.related-book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-gold); margin-bottom: 8px; transition: var(--transition); }
+.related-book-card:hover img { border-color: var(--soft-gold); transform: translateY(-4px); }
+.related-book-card span { color: #ddd; font-size: 0.82rem; display: block; line-height: 1.4; }
+
 /* --- Responsive --- */
 @media (max-width: 1024px) { .book-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 768px) {
@@ -165,4 +264,13 @@ header {
     .about-agatha { flex-direction: column; text-align: center; gap: 20px; }
     .book-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 15px 3%; }
     .source-container { flex-direction: column; align-items: center; text-align: center; }
+    .collection-hero { flex-direction: column; align-items: center; text-align: center; }
+    .collection-stats { justify-content: center; }
+    .collection-actions { justify-content: center; }
+    .collection-tabs { justify-content: center; overflow-x: auto; }
+    .ecosystem-bridge-inner { flex-direction: column; text-align: center; }
+    .discussion-item { flex-wrap: wrap; }
+}
+@media (max-width: 420px) {
+    .related-books-grid { grid-template-columns: repeat(3, 1fr); }
 }

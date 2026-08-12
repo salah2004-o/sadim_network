@@ -24,7 +24,7 @@
             <li><a href="{{ url_for('bots.my_bots') }}"><i class="fas fa-robot"></i> أنظمتي</a></li>
             {% endif %}
             <li><a href="{{ url_for('articles.list_articles') }}"><i class="fas fa-newspaper"></i> المقالات</a></li>
-            <li><a href="{{ url_for('admin.show_services') }}"><i class="fas fa-toolbox"></i> خدماتنا</a></li>
+            <li><a href="{{ url_for('main.services') }}"><i class="fas fa-toolbox"></i> خدماتنا</a></li>
             <li><a href="{{ url_for('main.about') }}"><i class="fas fa-circle-info"></i> من نحن</a></li>
             {% if session.get('role') == 'admin' %}
             <li><a href="{{ url_for('admin.services_dashboard') }}"><i class="fas fa-gauge"></i> لوحة التحكم</a></li>
@@ -33,8 +33,10 @@
 
         {% if session.get('user_id') %}
         <div class="sd-dropdown">
-            <button type="button" class="sd-btn sd-btn-ghost sd-ripple" data-sd-dropdown-trigger aria-expanded="false" aria-haspopup="true">
-                <i class="fas fa-user-circle"></i> {{ session.get('username', '') }} <i class="fas fa-chevron-down" style="font-size:.7em;"></i>
+            <button type="button" class="sd-btn sd-btn-ghost sd-ripple" data-sd-dropdown-trigger aria-expanded="false" aria-haspopup="true" style="gap: var(--sd-sp-2);">
+                {% set profile_img = nav_user.profile_image if nav_user and nav_user.profile_image else 'default_user.png' %}
+                <img src="{{ url_for('static', filename='uploads/' + profile_img) }}" alt="" style="width:26px; height:26px; border-radius:50%; object-fit:cover;">
+                {{ session.get('username', '') }} <i class="fas fa-chevron-down" style="font-size:.7em;"></i>
             </button>
             <div class="sd-dropdown-menu" role="menu">
                 <a href="{{ url_for('loading_bp.account') }}" class="sd-dropdown-item" role="menuitem"><i class="fas fa-id-badge"></i> حسابي</a>
@@ -59,7 +61,7 @@
     <a href="{{ url_for('bots.my_bots') }}" class="sd-sidebar-item"><i class="fas fa-robot"></i> أنظمتي</a>
     {% endif %}
     <a href="{{ url_for('articles.list_articles') }}" class="sd-sidebar-item"><i class="fas fa-newspaper"></i> المقالات</a>
-    <a href="{{ url_for('admin.show_services') }}" class="sd-sidebar-item"><i class="fas fa-toolbox"></i> خدماتنا</a>
+    <a href="{{ url_for('main.services') }}" class="sd-sidebar-item"><i class="fas fa-toolbox"></i> خدماتنا</a>
     <a href="{{ url_for('main.about') }}" class="sd-sidebar-item"><i class="fas fa-circle-info"></i> من نحن</a>
     {% if session.get('role') == 'admin' %}
     <a href="{{ url_for('admin.services_dashboard') }}" class="sd-sidebar-item"><i class="fas fa-gauge"></i> لوحة التحكم</a>
@@ -90,7 +92,9 @@
 </main>
 
 <footer class="sd-footer">
+    {% block footer %}
     SADEEM NETWORK® 2026 — بابك الأول للخدمات الرقمية المتكاملة
+    {% endblock %}
 </footer>
 
 <script src="{{ url_for('static', filename='js/nav.js') }}"></script>

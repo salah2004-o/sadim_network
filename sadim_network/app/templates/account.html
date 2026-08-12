@@ -1,67 +1,106 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/account.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
+{% extends "layouts/public.html" %}
+{% block title %}حسابي — شبكة سديم{% endblock %}
 
-    <title>حسابي</title>
+{% block content %}
+<div class="sd-container" style="max-width:520px; padding-block: var(--sd-sp-6);">
 
+    <div style="text-align:center; margin-bottom: var(--sd-sp-5);">
+        {% if user.profile_image %}
+            <img src="{{ url_for('static', filename='uploads/' + user.profile_image) }}?v=1" width="110" height="110" style="border-radius:50%; object-fit:cover; border:3px solid var(--sd-border);">
+        {% else %}
+            <img src="{{ url_for('static', filename='uploads/default_user.png') }}" width="110" height="110" style="border-radius:50%; object-fit:cover; border:3px solid var(--sd-border);">
+        {% endif %}
+        <h1 style="font-size: var(--sd-fs-lg); margin: var(--sd-sp-3) 0 0;">{{ user.username }}</h1>
+        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin: 4px 0 0;">{{ user.email }}</p>
+    </div>
 
-</head>
+    {% if not user.is_verified %}
+    <div class="sd-alert sd-alert-warning" style="margin-bottom: var(--sd-sp-4);">
+        <i class="fas fa-triangle-exclamation sd-alert-icon"></i>
+        <span style="flex:1;">
+            بريدك الإلكتروني غير موثّق بعد.
+            <form method="POST" action="{{ url_for('loading_bp.resend_verification') }}" style="display:inline;">
+                <button type="submit" style="background:none; border:none; padding:0; color: inherit; text-decoration:underline; cursor:pointer; font: inherit;">إعادة إرسال رابط التفعيل</button>
+            </form>
+        </span>
+    </div>
+    {% endif %}
 
-<body>
-    <div class="container">
-        <h2>حسابي</h2>
-        <div class="profile-pic-wrapper">
-         {% if user.profile_image %}
-             <img src="{{ url_for('static', filename='uploads/' + user.profile_image) }}?v=1" width="150">
-         {% else %}
-             <img src="{{ url_for('static', filename='uploads/default_user.png') }}" width="150">
-         {% endif %}
-
-        </div>
-
-        <div class="profile-info">
-            <p><strong>الاسم:</strong> {{ user.username }}</p>
-            <p><strong>الإيميل:</strong> {{ user.email }}</p>
-            </p>
-        </div>
-
-        {% if limit_status and limit_status.status != 'default' %}
-        <div class="sd-card" dir="rtl" style="text-align:start; margin:1.5rem auto; max-width: 420px; font-family: 'Segoe UI', Tahoma, sans-serif;">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-3);">
-                <strong style="font-size: var(--sd-fs-md); color: var(--sd-text);">حد البوتات</strong>
-                {% if limit_status.status == 'active' %}
-                    <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> نشط</span>
-                {% elif limit_status.status == 'expiring_soon' %}
-                    <span class="sd-badge sd-badge-warning"><span class="sd-badge-dot"></span> ينتهي قريباً</span>
-                {% elif limit_status.status == 'expired' %}
-                    <span class="sd-badge sd-badge-danger"><span class="sd-badge-dot"></span> منتهي</span>
-                {% endif %}
-            </div>
-            <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-base); margin:0 0 .5rem;">
-                البوتات: <strong style="color: var(--sd-text);">{{ limit_status.current_bot_count }} / {{ 'غير محدود' if limit_status.is_unlimited else limit_status.effective_limit }}</strong>
-            </p>
-            {% if limit_status.expires_at %}
-            <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0 0 .5rem;">
-                ينتهي بتاريخ: <strong style="color: var(--sd-text);">{{ limit_status.expires_at.strftime('%Y-%m-%d') }}</strong>
-            </p>
-            <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0;">
-                المتبقي: <strong style="color: var(--sd-text);">{{ limit_status.days_left }} يوم</strong>
-            </p>
+    {% if limit_status and limit_status.status != 'default' %}
+    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-3);">
+            <strong style="font-size: var(--sd-fs-md);">حد البوتات</strong>
+            {% if limit_status.status == 'active' %}
+                <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> نشط</span>
+            {% elif limit_status.status == 'expiring_soon' %}
+                <span class="sd-badge sd-badge-warning"><span class="sd-badge-dot"></span> ينتهي قريباً</span>
+            {% elif limit_status.status == 'expired' %}
+                <span class="sd-badge sd-badge-danger"><span class="sd-badge-dot"></span> منتهي</span>
             {% endif %}
         </div>
+        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-base); margin:0 0 .5rem;">
+            البوتات: <strong style="color: var(--sd-text);">{{ limit_status.current_bot_count }} / {{ 'غير محدود' if limit_status.is_unlimited else limit_status.effective_limit }}</strong>
+        </p>
+        {% if limit_status.expires_at %}
+        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0 0 .5rem;">
+            ينتهي بتاريخ: <strong style="color: var(--sd-text);">{{ limit_status.expires_at.strftime('%Y-%m-%d') }}</strong>
+        </p>
+        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0;">
+            المتبقي: <strong style="color: var(--sd-text);">{{ limit_status.days_left }} يوم</strong>
+        </p>
         {% endif %}
+    </div>
+    {% endif %}
 
-        <div class="btn-container">
-            <a class="btn" href="{{ url_for('loading_bp.account_settings') }}">تعديل البيانات</a>
-            <a class="btn logout" href="{{url_for('loading_bp.landing_page')}}">الرجوع للرئيسية</a>
-            <a class="btn logout" href="{{ url_for('loading_bp.logout') }}">تسجيل الخروج</a>
+    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-3);">
+            <strong style="font-size: var(--sd-fs-md);"><i class="fas fa-robot"></i> أنظمتي</strong>
+            <a href="{{ url_for('bots.my_bots') }}" class="sd-btn sd-btn-ghost sd-btn-sm">إدارة الكل</a>
+        </div>
+        {% if my_bots %}
+            <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2);">
+            {% for b in my_bots %}
+                <a href="{{ url_for('bots.manage_bot', bot_id=b.id) }}" style="display:flex; align-items:center; justify-content:space-between; padding: var(--sd-sp-2) var(--sd-sp-3); border-radius: var(--sd-radius-sm); background: var(--sd-bg-elevated); text-decoration:none; color: var(--sd-text);">
+                    <span>{{ b.telegram_first_name or ('بوت #' ~ b.id) }} <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-xs);">{{ b.channel }}</span></span>
+                    {% if b.is_active %}
+                        <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> نشط</span>
+                    {% else %}
+                        <span class="sd-badge sd-badge-danger"><span class="sd-badge-dot"></span> موقوف</span>
+                    {% endif %}
+                </a>
+            {% endfor %}
+            </div>
+        {% else %}
+            <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0 0 var(--sd-sp-2);">ما عندك أي نظام بعد.</p>
+            <a href="{{ url_for('bots.my_bots') }}" class="sd-btn sd-btn-primary sd-btn-sm sd-btn-block">أنشئ نظامك الأول</a>
+        {% endif %}
+    </div>
+
+    {% if my_articles %}
+    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-3);">
+            <strong style="font-size: var(--sd-fs-md);"><i class="fas fa-newspaper"></i> نشاطي بالمقالات</strong>
+            <a href="{{ url_for('articles.new_article') }}" class="sd-btn sd-btn-ghost sd-btn-sm">مقالة جديدة</a>
+        </div>
+        <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2);">
+        {% for a in my_articles[:5] %}
+            <a href="{{ url_for('articles.view_article', post_id=a.id) }}" style="display:block; padding: var(--sd-sp-2) var(--sd-sp-3); border-radius: var(--sd-radius-sm); background: var(--sd-bg-elevated); text-decoration:none; color: var(--sd-text);">
+                {{ a.title }}
+            </a>
+        {% endfor %}
         </div>
     </div>
-</body>
-</html>
+    {% endif %}
+
+    <a href="https://t.me/SADIM_NETWORK" target="_blank" class="sd-btn sd-btn-secondary sd-btn-block sd-ripple" style="margin-bottom: var(--sd-sp-5);">
+        <i class="fab fa-telegram"></i> تابع قناة شبكة سديم الرسمية بتيليجرام
+    </a>
+
+    <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2);">
+        <a href="{{ url_for('loading_bp.account_settings') }}" class="sd-btn sd-btn-primary sd-btn-block sd-ripple">تعديل البيانات</a>
+        <a href="{{ url_for('loading_bp.landing_page') }}" class="sd-btn sd-btn-ghost sd-btn-block">الرجوع للرئيسية</a>
+        <a href="{{ url_for('loading_bp.logout') }}" class="sd-btn sd-btn-ghost sd-btn-block" style="color: var(--sd-danger);">تسجيل الخروج</a>
+    </div>
+
+</div>
+{% endblock %}

@@ -82,6 +82,20 @@ class Library:
         return book
 
     @staticmethod
+    def get_other_books(exclude_id, limit=4):
+        """كتب أخرى من نفس المجموعة (عدا الكتاب الحالي) — لقسم 'روايات أخرى' بصفحة الرواية."""
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute(
+            "SELECT * FROM books WHERE id != %s ORDER BY download_count DESC NULLS LAST LIMIT %s",
+            (exclude_id, limit)
+        )
+        books = cur.fetchall()
+        cur.close()
+        conn.close()
+        return books
+
+    @staticmethod
     def search_books(query):
         """بحث عن كتب بعنوان يحتوي على النص المُعطى"""
         conn = get_db_connection()

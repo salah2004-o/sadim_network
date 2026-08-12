@@ -11,6 +11,21 @@ def about():
     return render_template('about.html')
 
 
+# مسار عام واضح للخدمات (بدل /dashboard/services المضلِّل — يوحي بمسار إداري
+# رغم إنه صفحة عامة). المسار القديم يبقى شغّالاً كما هو لأي رابط خارجي محفوظ مسبقاً؛
+# هذا فقط المسار الجديد اللي تولّده كل الروابط الداخلية من الآن.
+@main_bp.route('/services')
+def services():
+    from app.routes.admin.services import show_services
+    return show_services()
+
+
+@main_bp.route('/services/<string:type>/<int:item_id>')
+def service_detail(type, item_id):
+    from app.routes.admin.services import service_detail as _service_detail
+    return _service_detail(type, item_id)
+
+
 
 @main_bp.route('/Support')
 

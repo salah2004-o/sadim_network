@@ -71,6 +71,29 @@ class Post:
         return row
 
     @staticmethod
+    def get_recent(limit=4, exclude_id=None):
+        """أحدث المقالات (عدا مقال معيّن اختيارياً) — لقسم 'مقالات أخرى' بصفحة المقال والمكتبة."""
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        if exclude_id:
+            cur.execute("""
+                SELECT posts.*, users.username, users.profile_image
+                FROM posts JOIN users ON posts.user_id = users.id
+                WHERE posts.id != %s
+                ORDER BY posts.created_at DESC LIMIT %s
+            """, (exclude_id, limit))
+        else:
+            cur.execute("""
+                SELECT posts.*, users.username, users.profile_image
+                FROM posts JOIN users ON posts.user_id = users.id
+                ORDER BY posts.created_at DESC LIMIT %s
+            """, (limit,))
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        return rows
+
+    @staticmethod
     def get_by_user(user_id):
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)

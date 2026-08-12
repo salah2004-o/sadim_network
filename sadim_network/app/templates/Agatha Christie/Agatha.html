@@ -91,7 +91,7 @@
     <ul>
         <li><a href="{{ url_for('main.index') }}">الرئيسية</a></li>
 
-        <li><a href="{{url_for('admin.show_services')}}"><i class="fa-solid fa-gem"></i> خدماتنا</a></li>
+        <li><a href="{{url_for('main.services')}}"><i class="fa-solid fa-gem"></i> خدماتنا</a></li>
         <li><a href="{{url_for('main.about')}}"><i class="fa-solid fa-feather-pointed"></i> من نحن</a></li>
         <li><a href="mailto:admin@sadim.cloud"><i class="fa-solid fa-envelope"></i> اتصل بنا</a></li>
     </ul>
@@ -106,7 +106,7 @@
     
     <ul class="nav-links-desktop">
         <li><a href="{{ url_for('main.index') }}">الرئيسية</a></li>
-        <li><a href="{{url_for('admin.show_services')}}">خدماتنا</a></li>
+        <li><a href="{{url_for('main.services')}}">خدماتنا</a></li>
         <li><a href="{{url_for('main.about')}}">من نحن</a></li>
     </ul>
 
@@ -128,63 +128,138 @@
     </div>
 </header>
 
-<section class="about-agatha">
-    <img src="{{ url_for('Library_Agatha.static', filename='images/اغاثا.webp') }}" alt="Agatha Christie" class="about-img">
-    <div class="about-content">
-        <h2 style="color: var(--soft-gold); font-family: 'Amiri', serif;">أجاثا كريستي.. سيدة الغموض</h2>
-        <p>الروائية الأكثر مبيعاً في التاريخ؛ اكتشف عالم الجريمة والذكاء عبر مكتبتنا الملكية.</p>
+<!-- ============ Collection Header ============ -->
+<section class="collection-hero">
+    <img src="{{ url_for('Library_Agatha.static', filename='images/اغاثا.webp') }}" alt="Agatha Christie" class="collection-portrait">
+    <div class="collection-info">
+        <div class="collection-kicker">مؤلفة / مجموعة أدبية</div>
+        <h1 class="collection-title">أجاثا كريستي — سيدة الغموض</h1>
+        <p class="collection-bio">الروائية الأكثر مبيعاً في التاريخ؛ صاحبة أشهر ألغاز الجريمة الأدبية عبر العالم. اكتشف عالم الذكاء والتشويق عبر مكتبتنا الملكية ضمن شبكة سديم.</p>
+
+        <div class="collection-stats">
+            <div class="collection-stat"><b>{{ books|length }}</b><span>رواية بالمكتبة</span></div>
+            <div class="collection-stat"><b>{{ total_downloads }}</b><span>تحميل إجمالي</span></div>
+            <div class="collection-stat"><b>{{ total_comments }}</b><span>مشاركة في النقاش</span></div>
+        </div>
+
+        <div class="collection-actions">
+            <button type="button" class="btn-ghost-gold" onclick="shareCollection(this)" data-url="{{ request.url_root.rstrip('/') + url_for('Library_Agatha.agatha_christie') }}">
+                <i class="fa-solid fa-share-nodes"></i> مشاركة المكتبة
+            </button>
+            <a href="https://t.me/hx5cb" target="_blank" class="btn-ghost-gold">
+                <i class="fab fa-telegram"></i> قناة روايات أجاثا
+            </a>
+        </div>
     </div>
 </section>
 
+<!-- ============ اكتمال المجموعة (بيانات ببليوغرافية حقيقية) ============ -->
 <section class="progress-container">
     {% set total_books = 66 %}
     {% set current_books = books|length %}
     {% set percent = (current_books / total_books * 100)|round|int %}
     <div style="display:flex; justify-content:space-between; margin-bottom:8px; color:var(--soft-gold); font-size:0.9rem;">
-        <span>اكتمل رفع <strong>{{ current_books }}</strong> من {{ total_books }}</span>
+        <span>اكتمل رفع <strong>{{ current_books }}</strong> من {{ total_books }} رواية بمجمل أعمالها</span>
         <span>{{ percent }}%</span>
     </div>
     <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: {{ percent }}%;"></div></div>
 </section>
-<section style="max-width:700px; margin:2rem auto; padding:0 1rem;">
-    <h3 style="color:var(--soft-gold); font-family:'Amiri',serif; margin-bottom:1rem;">🏆 الأكثر تحميلاً</h3>
-    {% for book in books[:3] %}
-    <div style="display:flex; align-items:center; gap:1rem; padding:0.75rem 0; border-bottom:0.5px solid rgba(255,255,255,0.1);">
-        <span style="font-size:1.5rem; color:var(--soft-gold); min-width:30px;">#{{ loop.index }}</span>
-        <img src="{{ url_for('Library_Agatha.static', filename='uploads/' + book.cover_path) }}" style="width:45px; height:60px; object-fit:cover; border-radius:4px;">
-        <span style="flex:1; color:#eee;">{{ book.title }}</span>
-        <span style="color:var(--soft-gold); font-size:0.85rem;"><i class="fa-solid fa-cloud-arrow-down"></i> {{ book.download_count or 0 }}</span>
-    </div>
-    {% endfor %}
-</section>
-<div class="book-grid">
-    {% for book in books %}
-    <div class="book-card">
-        <div class="cover-container">
-            <img src="{{ url_for('Library_Agatha.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" alt="{{ book.title }}" loading="lazy">
-        </div>
-        
-        <div class="download-stats">
-            <i class="fa-solid fa-cloud-arrow-down"></i> 
-            <span id="count-{{ book.id }}">{{ book.download_count if book.download_count else 0 }}</span> تحميلة
-        </div>
 
-        <h3 class="book-title">{{ book.title }}</h3>
-        
-        <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 15px; height: 3.2em; overflow: hidden; opacity: 0.7;">
-            {{ book.desc_text | truncate(75) }}
-        </p>
-        <a href="{{ url_for('Library_Agatha.view_book', book_id=book['id']) }}">
-            عرض التفاصيل ←
+<!-- ============ Tabs ============ -->
+<div class="collection-tabs">
+    <button type="button" class="collection-tab active" data-tab="books" onclick="showCollectionTab('books', this)">
+        <i class="fa-solid fa-book"></i> الروايات
+    </button>
+    <button type="button" class="collection-tab" data-tab="discussions" onclick="showCollectionTab('discussions', this)">
+        <i class="fa-solid fa-comments"></i> المناقشات ({{ total_comments }})
+    </button>
+</div>
+
+<!-- ============ تبويب: الروايات ============ -->
+<div id="tab-books" class="tab-pane active">
+
+    <div class="sort-bar">
+        <a href="{{ url_for('Library_Agatha.agatha_christie', sort='downloads') }}" class="sort-link {{ 'active' if sort == 'downloads' }}">
+            <i class="fa-solid fa-fire"></i> الأكثر تحميلاً
         </a>
-        <a href="{{ url_for('Library_Agatha.download_file', book_id=book.id) }}" 
-           class="btn-royal" 
-           onclick="updateCount(event, {{ book.id }}, this.href)">
-            <i class="fa-solid fa-download"></i> تحميل PDF ملكي
+        <a href="{{ url_for('Library_Agatha.agatha_christie', sort='newest') }}" class="sort-link {{ 'active' if sort == 'newest' }}">
+            <i class="fa-solid fa-clock"></i> الأحدث
+        </a>
+        <a href="{{ url_for('Library_Agatha.agatha_christie', sort='discussed') }}" class="sort-link {{ 'active' if sort == 'discussed' }}">
+            <i class="fa-solid fa-comments"></i> الأكثر نقاشاً
         </a>
     </div>
-    {% endfor %}
+
+    <div class="book-grid">
+        {% for book in books %}
+        <div class="book-card">
+            <a href="{{ url_for('Library_Agatha.view_book', book_id=book['id']) }}" style="text-decoration:none;">
+                <div class="cover-container">
+                    <img src="{{ url_for('Library_Agatha.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" alt="{{ book.title }}" loading="lazy">
+                </div>
+                <h3 class="book-title">{{ book.title }}</h3>
+            </a>
+
+            <div class="book-engagement">
+                <span><i class="fa-solid fa-cloud-arrow-down"></i> <span id="count-{{ book.id }}">{{ book.download_count if book.download_count else 0 }}</span></span>
+                <span><i class="fa-solid fa-comment"></i> {{ comment_counts.get(book.id, 0) }}</span>
+            </div>
+
+            <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 15px; height: 3.2em; overflow: hidden; opacity: 0.7;">
+                {{ book.desc_text | truncate(75) }}
+            </p>
+            <a href="{{ url_for('Library_Agatha.view_book', book_id=book['id']) }}">
+                عرض التفاصيل ←
+            </a>
+            <a href="{{ url_for('Library_Agatha.download_file', book_id=book.id) }}"
+               class="btn-royal"
+               onclick="updateCount(event, {{ book.id }}, this.href)">
+                <i class="fa-solid fa-download"></i> تحميل PDF ملكي
+            </a>
+        </div>
+        {% else %}
+        <p style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem 0;">لا توجد روايات مرفوعة بعد.</p>
+        {% endfor %}
+    </div>
 </div>
+
+<!-- ============ تبويب: المناقشات ============ -->
+<div id="tab-discussions" class="tab-pane">
+    <div class="discussion-list">
+        {% for d in recent_discussions %}
+        <div class="discussion-item">
+            {% set d_img = d.profile_image if d.profile_image else 'default_user.png' %}
+            <img src="{{ url_for('static', filename='uploads/' + d_img) }}" class="discussion-avatar" alt="">
+            <div class="discussion-body">
+                <div class="discussion-head">
+                    <b>{{ d.username }}</b>
+                    عن رواية
+                    <a href="{{ url_for('Library_Agatha.view_book', book_id=d.book_id) }}">{{ d.book_title }}</a>
+                </div>
+                <p class="discussion-text">{{ d.content }}</p>
+                <span class="discussion-date">{{ d.created_at.strftime('%Y-%m-%d %H:%M') if d.created_at else '' }}</span>
+            </div>
+            <img src="{{ url_for('Library_Agatha.static', filename='uploads/' + d.book_cover) }}" class="discussion-book-thumb" alt="">
+        </div>
+        {% else %}
+        <p style="text-align:center; color:var(--text-muted); padding:3rem 0;">لا توجد مناقشات بعد — كن أول من يشارك رأيه في إحدى الروايات.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ============ جسر النظام البيئي: المكتبة ↔ المقالات ============ -->
+<div class="ecosystem-bridge">
+    <div class="ecosystem-bridge-inner">
+        <div>
+            <h4><i class="fa-solid fa-newspaper"></i> مقالات شبكة سديم</h4>
+            <p>تحليلات وقراءات أدبية من مجتمع سديم — جزء من نفس المنظومة.</p>
+        </div>
+        <a href="{{ url_for('articles.list_articles') }}" class="btn-bridge">
+            استكشف المقالات <i class="fa-solid fa-arrow-left"></i>
+        </a>
+    </div>
+</div>
+
 <section class="source-notice">
     <div class="source-container">
         <div class="source-icon"><i class="fa-solid fa-circle-info"></i></div>
@@ -193,6 +268,12 @@
             <p>تم جلب هذه الكتب من موقع <a href="https://archive.org" target="_blank">archive.org</a> بموجب تراخيص المشاع الإبداعي. في حال وجود اعتراض، يرجى <a href="mailto:admin@sadim.cloud">التواصل معنا</a>.</p>
         </div>
     </div>
+</section>
+
+<section style="max-width: 600px; margin: 2rem auto; padding: 0 1.5rem; text-align: center;">
+    <a href="https://t.me/hx5cb" target="_blank" style="display:inline-flex; align-items:center; gap:0.6rem; padding:0.9rem 1.6rem; border-radius:14px; background:rgba(255,255,255,0.04); border:1px solid rgba(212,175,55,0.25); color:var(--soft-gold); text-decoration:none; font-weight:600;">
+        <i class="fab fa-telegram"></i> تابعنا على قناة روايات أجاثا بتيليجرام
+    </a>
 </section>
 
 <footer class="legal-footer">
@@ -207,6 +288,32 @@
         document.getElementById('overlay').classList.toggle('active');
     }
     document.getElementById('overlay').onclick = toggleMenu;
+
+    // تبديل تبويبات صفحة المكتبة (الروايات / المناقشات) — بدون إعادة تحميل
+    function showCollectionTab(tab, btn) {
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.collection-tab').forEach(b => b.classList.remove('active'));
+        document.getElementById('tab-' + tab).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    // مشاركة رابط المكتبة (Web Share API مع بديل نسخ الرابط)
+    function shareCollection(btn) {
+        const url = btn.getAttribute('data-url');
+        const shareData = { title: 'مكتبة أجاثا كريستي — شبكة سديم', url };
+        if (navigator.share) {
+            navigator.share(shareData).catch(() => {});
+            return;
+        }
+        const done = () => {
+            const original = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> تم نسخ الرابط';
+            setTimeout(() => { btn.innerHTML = original; }, 1800);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(done).catch(() => {});
+        }
+    }
 
     // دالة تحديث العداد اللحظي
     function updateCount(event, bookId, downloadUrl) {

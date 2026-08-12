@@ -118,7 +118,7 @@ def edit_service(service_id):
 
 
 # ------------------ حذف خدمة ------------------
-@admin_bp.route('/services/delete/<int:service_id>')
+@admin_bp.route('/services/delete/<int:service_id>', methods=['POST'])
 @login_required
 @admin_required
 def delete_service(service_id):

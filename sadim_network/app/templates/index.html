@@ -1,181 +1,103 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>شبكة سديم</title>
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
-    <!-- تم إزالة الرابط المكرر لمكتبة FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
-<body>
-    <header class="header">
-        <nav class="navbar">
-            <div class="logo-container">
-                <span style="color: var(--color-accent); font-size: 0.8rem; letter-spacing: 3px;">شبكة</span>
-                <div class="logo">سديم</div>
+{% extends "layouts/public.html" %}
+{% block title %}شبكة سديم — بابك الأول للخدمات الرقمية{% endblock %}
+
+{% block extra_head %}
+<style>
+    .sd-hero { text-align:center; padding: var(--sd-sp-8) var(--sd-sp-4) var(--sd-sp-6); position:relative; overflow:hidden; }
+    .sd-hero::before {
+        content:''; position:absolute; inset:0; z-index:-1;
+        background: radial-gradient(circle at 50% 0%, var(--sd-accent-wash, rgba(124,77,255,.15)), transparent 60%);
+    }
+    .sd-hero h1 { font-size: clamp(2rem, 5vw, 3rem); margin-bottom: var(--sd-sp-4); text-wrap: balance; }
+    .sd-hero p { color: var(--sd-text-secondary); max-width: 680px; margin: 0 auto; font-size: var(--sd-fs-md); line-height:1.9; }
+    .sd-hero-actions { display:flex; gap: var(--sd-sp-3); justify-content:center; margin-top: var(--sd-sp-6); flex-wrap:wrap; }
+
+    .sd-philosophy { max-width: 760px; margin: 0 auto; padding: var(--sd-sp-6) var(--sd-sp-4); text-align:center; }
+    .sd-philosophy p { color: var(--sd-text-secondary); line-height: 2; font-size: var(--sd-fs-base); }
+
+    .sd-features-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--sd-sp-4); margin-top: var(--sd-sp-6); }
+    .sd-feature-num { font-family: var(--sd-font-mono, monospace); font-size: var(--sd-fs-xl); color: var(--sd-accent-light); opacity:.5; display:block; margin-bottom: var(--sd-sp-2); }
+
+    .sd-cta-banner { display:flex; flex-wrap:wrap; gap: var(--sd-sp-4); align-items:center; justify-content:space-between; }
+    .sd-cta-banner > div:first-child { flex: 1 1 320px; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<section class="sd-hero">
+    <h1>أهلاً بك في شبكة سديم</h1>
+    <p>
+        هنا لا تنتهي الأفكار، بل تولد من جديد. سديم هو الكيان الرقمي الذي يدمج بين عمق المعرفة وجرأة التنفيذ،
+        لنصنع معاً واقعاً يتجاوز التوقعات.
+    </p>
+    <div class="sd-hero-actions">
+        <a href="{{ url_for('register.register_user') }}" class="sd-btn sd-btn-primary sd-btn-lg sd-ripple">انضم إلينا</a>
+        <a href="{{ url_for('main.services') }}" class="sd-btn sd-btn-secondary sd-btn-lg sd-ripple">شاهد الخدمات</a>
+    </div>
+</section>
+
+<section class="sd-philosophy">
+    <p>
+        مكتبة سديم ليست مجرد مكان لتحميل الكتب أو تصفحها.
+        <strong style="color: var(--sd-text);">هي امتداد لفلسفتنا الرقمية:</strong>
+        التقنية بلا وعي تتحول إلى ضجيج، والثقافة بلا تنظيم تتحول إلى فوضى.
+        هنا، نجمع بين الاثنين لنقدم منتجات رقمية ذات معنى، حيث تُدار كل مكتبة وكل مشروع ثقافي بنفس الانضباط
+        والدقة التي تُدار بها أنظمتنا التقنية: تحرير، تنظيم، هوية، ومسؤولية تجاه كل مستخدم.
+    </p>
+</section>
+
+<div class="sd-container" style="padding-block: var(--sd-sp-6);">
+
+    <div class="sd-card" style="margin-bottom: var(--sd-sp-5);">
+        <h2 style="font-size: var(--sd-fs-lg); margin-top:0;">ما وراء المنصة</h2>
+        <p style="font-size: var(--sd-fs-md); color: var(--sd-text); margin-bottom: var(--sd-sp-3);">نحن لا نبني مواقع، نحن نصنع تجارب إنسانية رقمية.</p>
+        <p style="color: var(--sd-text-secondary);">
+            سديم يمثل التقاطع بين الفن والتقنية. نؤمن أن الأدوات الرقمية يجب أن تكون بسيطة كجمال النجوم ومعقدة كدقة السديم في تكوينه.
+        </p>
+    </div>
+
+    <div class="sd-card" style="background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent-light)); margin-bottom: var(--sd-sp-6);">
+        <div class="sd-cta-banner">
+            <div>
+                <h3 style="margin: 0 0 var(--sd-sp-2); color:#fff;">هنا خدماتنا</h3>
+                <p style="margin:0; color: rgba(255,255,255,0.85);">
+                    خدماتنا من التقنية المتقدمة إلى التصميم الإبداعي، كلها مصممة لتلبية احتياجاتك الرقمية بأعلى معايير الجودة والابتكار.
+                </p>
             </div>
-
-            <!-- القائمة العادية -->
-            <ul class="nav-menu">
-                <li><a href="#home">الرئيسية</a></li>
-                <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
-                <li><a href="{{ url_for('articles.list_articles') }}">المقالات</a></li>
-                <li><a href="{{ url_for('admin.show_services') }}">خدماتنا</a></li>
-                <li><a href="mailto:admin@sadim.cloud">اتصل بنا</a></li>
-                <li><a href="{{ url_for('main.about') }}">من نحن</a></li>
-            </ul>
-
-            <div class="nav-buttons">
-                <a href="{{ url_for('loading_bp.login') }}" class="btn-secondary">تسجيل دخول</a>
-                <a href="{{ url_for('register.register_user') }}" class="btn-primary">انضم إلينا</a>
-            </div>
-
-            <!-- زر الهامبرغر للجوال -->
-            <button id="open-sidebar" class="hamburger">☰</button>
-        </nav>
-    </header>
-
-    <!-- قائمة الجوال -->
-    <div id="mobile-sidebar" class="mobile-sidebar">
-        <button id="close-sidebar">×</button>
-        <ul class="mobile-nav-links">
-            <li><a href="#home">الرئيسية</a></li>
-            <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
-            <li><a href="{{ url_for('articles.list_articles') }}">المقالات</a></li>
-            <li><a href="{{ url_for('admin.show_services') }}">خدماتنا</a></li>
-            <li><a href="mailto:admin@sadim.cloud">اتصل بنا</a></li>
-            <li><a href="{{ url_for('main.about') }}">من نحن</a></li>
-            <li><a href="{{ url_for('main.support') }}">مركز الدعم</a></li>
-        </ul>
-
-        <div class="mobile-buttons">
-            <a href="{{ url_for('loading_bp.login') }}" class="btn-secondary">تسجيل دخول</a>
-            <a href="{{ url_for('register.register_user') }}" class="btn-primary">انضم إلينا</a>
+            <a href="{{ url_for('main.services') }}" class="sd-btn sd-ripple" style="background:#fff; color: var(--sd-accent); flex-shrink:0;">انقر حتى تشاهد الخدمات</a>
         </div>
     </div>
 
-    <section class="hero" id="home">
-        <div class="hero-content">
-            <h1 class="hero-title">أهلاً بك في شبكة سديم</h1>
-            <p class="hero-subtitle">
-                هنا لا تنتهي الأفكار، بل تولد من جديد. سديم هو الكيان الرقمي الذي يدمج بين عمق المعرفة وجرأة التنفيذ، لنصنع معاً واقعاً يتجاوز التوقعات.
-            </p>
+    <h2 style="text-align:center; font-size: var(--sd-fs-xl); margin-bottom: var(--sd-sp-2);">نصنع المعرفة • نلهم العقول • نبني المستقبل</h2>
+
+    <h3 style="text-align:center; font-size: var(--sd-fs-lg); margin-top: var(--sd-sp-8);">لماذا تختار الإبحار معنا؟</h3>
+    <div class="sd-features-grid">
+        <div class="sd-card">
+            <span class="sd-feature-num">01</span>
+            <h4 style="margin: 0 0 var(--sd-sp-2);">الفلسفة التقنية</h4>
+            <p style="color: var(--sd-text-secondary); margin:0;">نعمل بوعي تقني يركز على الجوهر لا المظهر فقط، لضمان استدامة نموك.</p>
         </div>
-    </section>
-
-    <section class="library-philosophy">
-        <p>
-            مكتبة سديم ليست مجرد مكان لتحميل الكتب أو تصفحها. 
-            <strong>هي امتداد لفلسفتنا الرقمية:</strong> 
-            التقنية بلا وعي تتحول إلى ضجيج، والثقافة بلا تنظيم تتحول إلى فوضى. 
-            هنا، نجمع بين الاثنين لنقدم منتجات رقمية ذات معنى، حيث تُدار كل مكتبة وكل مشروع ثقافي بنفس الانضباط والدقة التي تُدار بها أنظمتنا التقنية: تحرير، تنظيم، هوية، ومسؤولية تجاه كل مستخدم.
-        </p>
-    </section>
-
-    <section class="services" id="services">
-        <div class="corner-logo">
-            <h1 class="corner-main">سديم</h1>
-            <p style="color: var(--color-accent)">نظام بيئي متكامل</p>
+        <div class="sd-card">
+            <span class="sd-feature-num">02</span>
+            <h4 style="margin: 0 0 var(--sd-sp-2);">الجمالية الوظيفية</h4>
+            <p style="color: var(--sd-text-secondary); margin:0;">تصميماتنا ليست للزينة، بل هي لغة حوار بينك وبين جمهورك المستهدف.</p>
         </div>
-
-        <div class="service-content">
-            <div>
-                <h2 class="service-title">ما وراء المنصة</h2>
-                <p style="font-size: 1.4rem; margin-bottom: 1.5rem;">نحن لا نبني مواقع، نحن نصنع تجارب إنسانية رقمية.</p>
-                <p style="opacity: 0.7;">
-                    سديم يمثل التقاطع بين الفن والتقنية. نؤمن أن الأدوات الرقمية يجب أن تكون بسيطة كجمال النجوم ومعقدة كدقة السديم في تكوينه.
-                </p>
-            </div>
-            <div class="cta-section">
-                <div style="max-width: 60%;">
-                    <h3>هنا خدماتنا</h3>
-                    <p>
-                        خدماتنا من التقنية المتقدمة إلى التصميم الإبداعي، كلها مصممة لتلبية احتياجاتك الرقمية بأعلى معايير الجودة والابتكار.
-                    </p>
-                </div>
-                <a href="{{ url_for('admin.show_services') }}" class="btn-primary" style="background: white; color: var(--color-primary);">انقر حتى تشاهد الخدمات</a>
-            </div>
+        <div class="sd-card">
+            <span class="sd-feature-num">03</span>
+            <h4 style="margin: 0 0 var(--sd-sp-2);">الابتكار المستمر</h4>
+            <p style="color: var(--sd-text-secondary); margin:0;">في سديم، التحديث هو حالتنا الطبيعية. نحن ننمو مع كل فكرة جديدة تطرحها.</p>
         </div>
+    </div>
 
-        <div class="heritage-section">
-            <!-- إزالة وسم <center> الميت واستخدام التنسيق المباشر -->
-            <div class="heritage-text" style="text-align: center;">
-                <h2>نصنع المعرفة • نلهم العقول • نبني المستقبل</h2>
-            </div>
-        </div>
+</div>
 
-        <div class="why-choose-us">
-            <h2 style="font-size: 3rem; margin-bottom: 3rem;">لماذا تختار الإبحار معنا؟</h2>
-            <div class="features">
-                <div class="feature">
-                    <span class="feature-number">01</span>
-                    <h3>الفلسفة التقنية</h3>
-                    <p>نعمل بوعي تقني يركز على الجوهر لا المظهر فقط، لضمان استدامة نموك.</p>
-                </div>
-                <div class="feature">
-                    <span class="feature-number">02</span>
-                    <h3>الجمالية الوظيفية</h3>
-                    <p>تصميماتنا ليست للزينة، بل هي لغة حوار بينك وبين جمهورك المستهدف.</p>
-                </div>
-                <div class="feature">
-                    <span class="feature-number">03</span>
-                    <h3>الابتكار المستمر</h3>
-                    <p>في سديم، التحديث هو حالتنا الطبيعية. نحن ننمو مع كل فكرة جديدة تطرحها.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+{% endblock %}
 
-    <!-- Footer Links -->
-    <!-- تم تعديل text-align:left إلى center ليتناسب مع RTL -->
-    <section class="footer-links-section" style="padding: 2rem 1rem; background: #19061f; text-align: center;">
-        <ul style="list-style: none; padding: 0; display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center;">
-            <li><a href="#home" style="text-decoration: none; color: #f0ebeb;">الرئيسية</a></li>
-            <li><a href="{{ url_for('articles.list_articles') }}" style="text-decoration: none; color: #f0ebeb;">المقالات</a></li>
-            <li><a href="{{ url_for('admin.show_services') }}" style="text-decoration: none; color: #f5f0f0;">خدماتنا</a></li>
-            <li><a href="mailto:admin@sadim.cloud" style="text-decoration: none; color: #f0e9e9;">اتصل بنا</a></li>
-            <li><a href="{{ url_for('main.about') }}" style="text-decoration: none; color: #e6e3e3;">من نحن</a></li>
-            <li><a href="{{ url_for('register.register_user') }}" style="text-decoration: none; color: #efeaea;">انضم إلينا</a></li>
-            <li><a href="{{ url_for('loading_bp.login') }}" style="text-decoration: none; color: #f3eeee;">تسجيل دخول</a></li>
-        </ul>
-    </section>
-
-    <footer>
-        <h2 style="color: var(--color-light)">شبكة سديم</h2>
-        <p style="opacity: 0.6; margin-top: 1rem;">بابك الأول للخدمات الرقمية المتكاملة</p>
-        
-        <div class="social-links">
-            <a href="https://www.tiktok.com/@sadim_networks" target="_blank"><i class="fab fa-tiktok"></i></a>
-            <a href="https://www.snapchat.com/add/kyybs21" target="_blank"><i class="fab fa-snapchat-ghost"></i></a>
-            <a href="https://www.instagram.com/sadem_network" target="_blank"><i class="fab fa-instagram"></i></a>
-            <a href="https://wa.me/966542980920?text=Hello" target="_blank"><i class="fab fa-whatsapp"></i></a>
-            <a href="https://mail.google.com/mail/?view=cm&to=admin@sadim.cloud" target="_blank"><i class="fas fa-envelope"></i></a>
-        </div>
-
-        <div class="support-link">
-            <a href="{{ url_for('main.support') }}">هل تحتاج إلى مساعدة؟ اتصل بالدعم</a>
-        </div>
-            
-        <p style="font-size: 0.8rem; opacity: 0.4;">صنع بكل حب &copy; SADEM_NETWORK® 2026</p>
-    </footer>
-
-    <!-- تم نقل السكربت إلى أسفل الصفحة -->
-    <script>
-        const mobileSidebar = document.getElementById('mobile-sidebar');
-        const closeBtn = document.getElementById('close-sidebar');
-        const openBtn = document.getElementById('open-sidebar');
-
-        if (openBtn && closeBtn && mobileSidebar) {
-            openBtn.addEventListener('click', () => {
-                mobileSidebar.classList.add('active');
-            });
-
-            closeBtn.addEventListener('click', () => {
-                mobileSidebar.classList.remove('active');
-            });
-        }
-    </script>
-</body>
-</html>
+{% block footer %}
+{% include "partials/_official_links.html" %}
+<div style="text-align:center; margin-top: var(--sd-sp-3);">
+    <a href="{{ url_for('main.support') }}" style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm);">هل تحتاج إلى مساعدة؟ اتصل بالدعم</a>
+</div>
+<p style="font-size: var(--sd-fs-xs); opacity:.5; margin-top: var(--sd-sp-3);">صنع بكل حب © SADEM_NETWORK® 2026</p>
+{% endblock %}

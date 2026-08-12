@@ -89,7 +89,9 @@
         {% if s.price %}<p class="sd-service-price">{{ s.price }} ريال</p>{% endif %}
         <div style="display:flex; gap: var(--sd-sp-2); margin-top: var(--sd-sp-3);">
             <a href="{{ url_for('admin.edit_service', service_id=s.id) }}" class="sd-btn sd-btn-outline sd-btn-sm sd-ripple" style="flex:1;">تعديل</a>
-            <a href="{{ url_for('admin.delete_service', service_id=s.id) }}" class="sd-btn sd-btn-danger sd-btn-sm sd-ripple" style="flex:1;" onclick="return confirm('حذف الخدمة؟')">حذف</a>
+            <form method="POST" action="{{ url_for('admin.delete_service', service_id=s.id) }}" style="flex:1;" onsubmit="return confirm('حذف الخدمة؟')">
+                <button type="submit" class="sd-btn sd-btn-danger sd-btn-sm sd-ripple" style="width:100%;">حذف</button>
+            </form>
         </div>
     </div>
     {% endfor %}

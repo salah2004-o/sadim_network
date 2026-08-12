@@ -1,94 +1,78 @@
-<section class="books-section" style="padding: 2rem; background-color: var(--color-bg);">
-    <div class="grid">
-        {% for book in books %}
-            <article class="book-card">
-                <div class="book-content">
-                    <h3 class="book-title">{{ book.title }}</h3>
-                    <p class="book-description">{{ book.desc_text }}</p>
-                    
-                    <div class="card-footer">
-                        <a href="{{ url_for('static', filename=book.pdf_path) }}" 
-                           target="_blank" 
-                           class="btn-read">
-                            <span class="icon">📄</span>
-                            قراءة الملف
-                        </a>
-                    </div>
-                </div>
-            </article>
-        {% endfor %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نتائج البحث: {{ query }} — مكتبة أجاثا</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/Agatha.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;700&family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .search-header { max-width: 1100px; margin: 40px auto 0; padding: 0 5%; }
+        .search-header h1 { font-family: 'Amiri', serif; color: #fff; font-size: 1.8rem; margin-bottom: 6px; }
+        .search-header p { color: var(--text-muted); font-size: 0.9rem; }
+        .search-header p b { color: var(--soft-gold); }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="{{ url_for('loading_bp.landing_page') }}" class="brand">
+        <span class="top">SADEEM</span>
+        <span class="sub">ROYAL LIBRARY</span>
+    </a>
+    <ul class="nav-links-desktop">
+        <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
+        <li><a href="{{ url_for('main.about') }}">من نحن</a></li>
+    </ul>
+</header>
+
+<div class="search-header">
+    <a href="{{ url_for('Library_Agatha.agatha_christie') }}" style="color: var(--text-muted); text-decoration:none; font-size:0.85rem;">
+        <i class="fa-solid fa-arrow-right"></i> العودة للمكتبة
+    </a>
+    <h1 style="margin-top:14px;">نتائج البحث</h1>
+    <p>{{ books|length }} نتيجة عن <b>"{{ query }}"</b></p>
+</div>
+
+{% if books %}
+<div class="book-grid">
+    {% for book in books %}
+    <div class="book-card">
+        <a href="{{ url_for('Library_Agatha.view_book', book_id=book.id) }}" style="text-decoration:none;">
+            <div class="cover-container">
+                {% if book.cover_path %}
+                <img src="{{ url_for('Library_Agatha.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" alt="{{ book.title }}" loading="lazy">
+                {% endif %}
+            </div>
+            <h3 class="book-title">{{ book.title }}</h3>
+        </a>
+        <div class="download-stats">
+            <i class="fa-solid fa-cloud-arrow-down"></i> {{ book.download_count or 0 }} تحميلة
+        </div>
+        <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 15px; height: 3.2em; overflow: hidden; opacity: 0.7;">
+            {{ book.desc_text | truncate(75) }}
+        </p>
+        <a href="{{ url_for('Library_Agatha.view_book', book_id=book.id) }}">
+            عرض التفاصيل ←
+        </a>
+        <a href="{{ url_for('Library_Agatha.download_file', book_id=book.id) }}" class="btn-royal">
+            <i class="fa-solid fa-download"></i> تحميل PDF ملكي
+        </a>
     </div>
-</section>
+    {% endfor %}
+</div>
+{% else %}
+<div style="max-width:600px; margin:3rem auto; text-align:center; padding: 0 5%;">
+    <i class="fa-solid fa-magnifying-glass" style="font-size:2.5rem; color: var(--soft-gold); opacity:0.6; display:block; margin-bottom:1rem;"></i>
+    <p style="color: var(--text-muted);">ما لقينا أي رواية تطابق بحثك. جرّب كلمة ثانية.</p>
+</div>
+{% endif %}
 
-<style>
-    /* تنسيقات إضافية مخصصة للبطاقات بناءً على هويتك البصرية */
-    .book-card {
-        background-color: #ffffff; /* خلفية بيضاء نقية للوضوح */
-        border-right: 5px solid var(--color-primary); /* تمييز الجهة اليمنى (RTL) */
-        border-radius: var(--border-radius);
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(25, 0, 25, 0.05);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
+<footer class="legal-footer">
+    <a href="https://sadim.cloud" style="color: var(--text-muted); text-decoration:none;">sadim.cloud</a>
+</footer>
 
-    .book-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 10px 25px rgba(43, 18, 76, 0.15);
-        border-right-color: var(--color-accent);
-    }
-
-    .book-title {
-        color: var(--color-primary);
-        font-size: 1.4rem;
-        margin-bottom: 1rem;
-    }
-
-    .book-description {
-        color: var(--color-secondary);
-        font-size: 0.95rem;
-        line-height: 1.7;
-        margin-bottom: 2rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 3; /* قص النص الطويل */
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .btn-read {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background-color: var(--color-accent);
-        color: #fff;
-        text-decoration: none;
-        padding: 0.7rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        transition: var(--transition);
-        width: 100%;
-        justify-content: center;
-    }
-
-    .btn-read:hover {
-        background-color: var(--color-primary);
-        color: var(--color-light);
-    }
-
-    .card-footer {
-        margin-top: auto;
-    }
-
-    /* تحسين العرض على الجوال */
-    @media (max-width: 600px) {
-        .book-card {
-            padding: 1rem;
-        }
-        .book-title {
-            font-size: 1.2rem;
-        }
-    }
-</style>
+</body>
+</html>

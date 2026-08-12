@@ -26,7 +26,7 @@
 <div class="comment-card">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sd-sp-3); flex-wrap: wrap; gap: var(--sd-sp-2);">
         <div style="display:flex; align-items:center; gap: var(--sd-sp-3);">
-            {% set profile_img = comment.profile_image if comment.profile_image else 'default.png' %}
+            {% set profile_img = comment.profile_image if comment.profile_image else 'default_user.png' %}
             <img src="{{ url_for('static', filename='uploads/' + profile_img) }}?v=1" class="comment-user-img">
             <div>
                 <h6 class="text-gold" style="margin:0; font-weight:700;">

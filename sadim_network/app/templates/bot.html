@@ -1,510 +1,35 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <title>أنظمتي — شبكة سديم</title>
-    <style>
-        :root {
-            --color-bg: #09090d;
-            --color-primary: rgba(18, 18, 24, 0.75);
-            --color-accent: #7c4dff;
-            --color-light: #b388ff;
-            --color-deep: #ffffff;
-            --text-muted: #9c9cab;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --blur: blur(18px);
-            --radius: 24px;
-            --radius-sm: 14px;
-            --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            --shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.6);
-            --green: #00e676;
-            --red: #ff5252;
-        }
+{% extends "layouts/public.html" %}
+{% block title %}أنظمتي — شبكة سديم{% endblock %}
+{% block extra_head %}
+<style>
+    .sd-quota-bar { display:flex; align-items:center; gap: var(--sd-sp-5); margin-bottom: var(--sd-sp-5); }
+    .sd-quota-info { flex:1; }
+    .sd-quota-label { font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); margin-bottom: var(--sd-sp-2); }
+    .sd-quota-track { height:4px; background: var(--sd-bg-elevated-2); border-radius:2px; overflow:hidden; }
+    .sd-quota-fill { height:100%; background: linear-gradient(90deg, var(--sd-accent), var(--sd-accent-light)); border-radius:2px; transition: width 1s ease; }
+    .sd-quota-count { font-size: var(--sd-fs-sm); color: var(--sd-accent-light); font-weight:700; white-space:nowrap; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+    .sd-step-num {
+        flex-shrink:0; width:22px; height:22px; border-radius:50%; background: var(--sd-accent-wash, var(--sd-bg-elevated));
+        border:1px solid var(--sd-accent-soft-strong); color: var(--sd-accent-light); display:flex; align-items:center; justify-content:center;
+        font-size:.72rem; font-weight:700;
+    }
+    .sd-bot-card { display:grid; grid-template-columns: auto 1fr auto; align-items:center; gap: var(--sd-sp-4); }
+    @media (max-width:600px) { .sd-bot-card { grid-template-columns: auto 1fr; } .sd-bot-actions { grid-column: 1 / -1; flex-direction:row; } }
+    .sd-bot-icon { width:48px; height:48px; border-radius: var(--sd-radius-md); background: var(--sd-accent-wash, var(--sd-bg-elevated)); border:1px solid var(--sd-accent-soft-strong); display:flex; align-items:center; justify-content:center; color: var(--sd-accent-light); font-size:1.2rem; flex-shrink:0; }
+    .sd-bot-actions { display:flex; flex-direction:column; gap: var(--sd-sp-2); flex-shrink:0; }
+</style>
+{% endblock %}
 
-        body {
-            background: var(--color-bg);
-            color: var(--color-deep);
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+{% block content %}
+<div class="sd-container" style="max-width:900px; padding-block: var(--sd-sp-6);">
 
-        /* خلفية نجوم */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background:
-                radial-gradient(ellipse at 20% 20%, rgba(124, 77, 255, 0.08) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 80%, rgba(179, 136, 255, 0.05) 0%, transparent 60%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* هيدر */
-        .page-header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(9, 9, 13, 0.85);
-            backdrop-filter: var(--blur);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .back-btn {
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: var(--transition);
-        }
-
-        .back-btn:hover { color: var(--color-light); }
-
-        .page-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--color-deep);
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-
-        .page-title i { color: var(--color-light); }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        /* المحتوى الرئيسي */
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 2rem 1.5rem 4rem;
-        }
-
-        /* بطاقة إضافة بوت */
-        .add-bot-card {
-            background: var(--color-primary);
-            border: 1px solid var(--border-color);
-            border-top: 3px solid var(--color-accent);
-            border-radius: var(--radius);
-            padding: 2rem;
-            backdrop-filter: var(--blur);
-            box-shadow: var(--shadow);
-            margin-bottom: 2.5rem;
-            animation: fadeUp 0.5s ease forwards;
-        }
-
-        .card-title {
-            font-size: 1rem;
-            font-weight: 700;
-            color: var(--color-light);
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.2rem;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-        }
-
-        .form-group label {
-            font-size: 0.78rem;
-            color: var(--text-muted);
-            font-weight: 600;
-            letter-spacing: 0.05em;
-        }
-
-        .form-group input {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 0.75rem 1rem;
-            color: var(--color-deep);
-            font-size: 0.9rem;
-            font-family: inherit;
-            transition: var(--transition);
-            outline: none;
-            direction: ltr;
-            text-align: right;
-        }
-
-        .form-group input:focus {
-            border-color: rgba(124, 77, 255, 0.5);
-            background: rgba(124, 77, 255, 0.05);
-            box-shadow: 0 0 0 3px rgba(124, 77, 255, 0.1);
-        }
-
-        .form-group input::placeholder { color: rgba(156,156,171,0.4); }
-
-        .hint {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            opacity: 0.6;
-            margin-top: 0.2rem;
-        }
-
-        .btn-add {
-            width: 100%;
-            padding: 0.9rem;
-            background: linear-gradient(135deg, var(--color-light), var(--color-accent));
-            border: none;
-            border-radius: var(--radius-sm);
-            color: white;
-            font-size: 0.95rem;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.6rem;
-            box-shadow: 0 4px 15px rgba(124, 77, 255, 0.25);
-        }
-
-        .btn-add:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(124, 77, 255, 0.4);
-        }
-
-        .btn-add:active { transform: translateY(0); }
-
-        /* قسم البوتات */
-        .section-label {
-            font-size: 0.72rem;
-            letter-spacing: 0.15em;
-            color: var(--text-muted);
-            font-weight: 700;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .section-label::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border-color);
-        }
-
-        /* بطاقة البوت */
-        .bots-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .bot-card {
-            background: var(--color-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius);
-            padding: 1.5rem;
-            backdrop-filter: var(--blur);
-            display: grid;
-            grid-template-columns: auto 1fr auto;
-            align-items: center;
-            gap: 1.2rem;
-            transition: var(--transition);
-            animation: fadeUp 0.5s ease forwards;
-            opacity: 0;
-        }
-
-        .bot-card:hover {
-            border-color: rgba(124, 77, 255, 0.3);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-            transform: translateY(-2px);
-        }
-
-        .bot-icon {
-            width: 48px;
-            height: 48px;
-            background: rgba(124, 77, 255, 0.1);
-            border: 1px solid rgba(124, 77, 255, 0.2);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--color-light);
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-
-        .bot-info { min-width: 0; }
-
-        .bot-name {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--color-deep);
-            margin-bottom: 0.3rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .bot-meta {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .bot-channel {
-            font-size: 0.78rem;
-            color: var(--color-light);
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .bot-date {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 700;
-        }
-
-        .status-badge.active {
-            background: rgba(0, 230, 118, 0.1);
-            color: var(--green);
-            border: 1px solid rgba(0, 230, 118, 0.2);
-        }
-
-        .status-badge.inactive {
-            background: rgba(255, 82, 82, 0.1);
-            color: var(--red);
-            border: 1px solid rgba(255, 82, 82, 0.2);
-        }
-
-        .status-badge::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: currentColor;
-            animation: pulse 2s infinite;
-        }
-
-        .status-badge.inactive::before { animation: none; }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .bot-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            flex-shrink: 0;
-        }
-
-        .btn-action {
-            padding: 0.45rem 0.9rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.75rem;
-            font-weight: 600;
-            font-family: inherit;
-            cursor: pointer;
-            border: none;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            text-decoration: none;
-        }
-
-        .btn-manage {
-            background: rgba(124, 77, 255, 0.15);
-            color: var(--color-light);
-            border: 1px solid rgba(124, 77, 255, 0.3);
-        }
-
-        .btn-manage:hover {
-            background: rgba(124, 77, 255, 0.25);
-        }
-
-        .btn-delete {
-            background: rgba(255, 82, 82, 0.08);
-            color: var(--red);
-            border: 1px solid rgba(255, 82, 82, 0.2);
-        }
-
-        .btn-delete:hover {
-            background: rgba(255, 82, 82, 0.15);
-        }
-
-        /* فارغ */
-        .empty-state {
-            text-align: center;
-            padding: 4rem 2rem;
-            opacity: 0.4;
-        }
-
-        .empty-state i {
-            font-size: 2.5rem;
-            color: var(--color-light);
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        .empty-state p {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-
-        /* تنبيهات */
-        .alert {
-            padding: 0.9rem 1.2rem;
-            border-radius: var(--radius-sm);
-            font-size: 0.85rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: flex-start;
-            gap: 0.6rem;
-            animation: fadeUp 0.5s ease forwards;
-        }
-        .alert.success { background: rgba(0, 230, 118, 0.08); border: 1px solid rgba(0, 230, 118, 0.25); color: var(--green); }
-        .alert.error { background: rgba(255, 82, 82, 0.08); border: 1px solid rgba(255, 82, 82, 0.25); color: var(--red); }
-        .alert.info, .alert.message { background: rgba(124, 77, 255, 0.07); border: 1px solid rgba(124, 77, 255, 0.2); color: var(--color-light); }
-
-        /* حد الخطة */
-        .quota-bar {
-            background: var(--color-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 1rem 1.5rem;
-            margin-bottom: 2rem;
-            display: flex;
-            align-items: center;
-            gap: 1.5rem;
-            backdrop-filter: var(--blur);
-            animation: fadeUp 0.4s ease forwards;
-        }
-
-        .quota-info { flex: 1; }
-
-        .quota-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-
-        .quota-track {
-            height: 4px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 2px;
-            overflow: hidden;
-        }
-
-        .quota-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--color-accent), var(--color-light));
-            border-radius: 2px;
-            transition: width 1s ease;
-        }
-
-        .quota-count {
-            font-size: 0.85rem;
-            color: var(--color-light);
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .bot-card:nth-child(1) { animation-delay: 0.05s; }
-        .bot-card:nth-child(2) { animation-delay: 0.1s; }
-        .bot-card:nth-child(3) { animation-delay: 0.15s; }
-        .bot-card:nth-child(4) { animation-delay: 0.2s; }
-
-        @media (max-width: 600px) {
-            .form-grid { grid-template-columns: 1fr; }
-            .bot-card { grid-template-columns: auto 1fr; }
-            .bot-actions { flex-direction: row; grid-column: 1 / -1; }
-        }
-    </style>
-</head>
-<body>
-
-<header class="page-header">
-    <div class="header-right">
-        <a href="{{ url_for('loading_bp.landing_page') }}" class="back-btn">
-            <i class="fas fa-arrow-right"></i> الرئيسية
-        </a>
-    </div>
-    <div class="page-title">
-        <i class="fas fa-robot"></i> أنظمتي
-    </div>
-    <div class="header-left">
-        <i class="fas fa-user-circle"></i>
-        <span>{{ username }}</span>
-    </div>
-</header>
-
-<div class="container">
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-            <div class="alert {{ category }}">
-                <i class="fas {{ 'fa-check-circle' if category == 'success' else 'fa-triangle-exclamation' if category == 'error' else 'fa-info-circle' }}"></i>
-                <span>{{ message }}</span>
-            </div>
-        {% endfor %}
-    {% endwith %}
+    <h1 style="font-size: var(--sd-fs-xl); margin-bottom: var(--sd-sp-5);"><i class="fas fa-robot" style="color: var(--sd-accent-light);"></i> أنظمتي</h1>
 
     <!-- حصة البوتات -->
-    <div class="quota-bar">
-        <div class="quota-info">
-            <div class="quota-label">
+    <div class="sd-card sd-quota-bar">
+        <div class="sd-quota-info">
+            <div class="sd-quota-label">
                 البوتات النشطة —
                 {% if limit_status and limit_status.is_unlimited %}
                     حد غير محدود
@@ -515,93 +40,106 @@
                     (ينتهي بعد {{ limit_status.days_left }} يوم)
                 {% endif %}
             </div>
-            <div class="quota-track">
-                <div class="quota-fill" id="quotaFill" style="width: 0%"></div>
+            <div class="sd-quota-track">
+                <div class="sd-quota-fill" id="quotaFill" style="width: 0%"></div>
             </div>
         </div>
-        <div class="quota-count" id="quotaCount">0 / 1</div>
+        <div class="sd-quota-count" id="quotaCount">0 / 1</div>
     </div>
 
     <!-- نموذج إضافة بوت -->
-    <div class="add-bot-card">
-        <div class="card-title">
-            <i class="fas fa-plus-circle"></i>
-            ربط بوت شبكة سديم
-        </div>
+    <div class="sd-card" style="border-top:3px solid var(--sd-accent); margin-bottom: var(--sd-sp-6);">
+        <h2 style="font-size: var(--sd-fs-md); margin-top:0; color: var(--sd-accent-light);"><i class="fas fa-plus-circle"></i> ربط بوت شبكة سديم</h2>
+
+        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); line-height:1.8; margin-bottom: var(--sd-sp-5);">
+            نظامك هو بوت تيليجرام خاص فيك، بأدوات جاهزة (مكتبة، اقتباسات، تحميل، اختصار روابط، وأكثر).
+            يحتاج قناة تيليجرام تديرها أنت لتشتغل عليها.
+        </p>
+
+        <ol style="display:flex; flex-direction:column; gap: var(--sd-sp-3); margin-bottom: var(--sd-sp-5); padding:0; list-style:none;">
+            <li style="display:flex; align-items:flex-start; gap: var(--sd-sp-3); font-size: var(--sd-fs-sm); color: var(--sd-text-secondary);">
+                <span class="sd-step-num">1</span>
+                <span>افتح <a href="https://t.me/BotFather" target="_blank" style="color: var(--sd-accent-light);">@BotFather</a> بتيليجرام وأنشئ بوتاً جديداً (أمر <code style="direction:ltr; display:inline-block;">/newbot</code>)</span>
+            </li>
+            <li style="display:flex; align-items:flex-start; gap: var(--sd-sp-3); font-size: var(--sd-fs-sm); color: var(--sd-text-secondary);">
+                <span class="sd-step-num">2</span>
+                <span>انسخ الـ Token اللي يعطيك ياه BotFather</span>
+            </li>
+            <li style="display:flex; align-items:flex-start; gap: var(--sd-sp-3); font-size: var(--sd-fs-sm); color: var(--sd-text-secondary);">
+                <span class="sd-step-num">3</span>
+                <span>أضف بوتك مشرفاً (Admin) بقناتك، ثم أدخل بياناته هنا</span>
+            </li>
+        </ol>
 
         <form method="POST" action="{{ url_for('bots.add_bot') }}">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label>توكن البوت</label>
-                    <input type="text" name="bot_token" placeholder="123456:ABC-DEF..." required>
-                    <span class="hint">احصل عليه من @BotFather</span>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap: var(--sd-sp-4); margin-bottom: var(--sd-sp-4);">
+                <div class="sd-form-group" style="margin:0;">
+                    <label class="sd-label">توكن البوت</label>
+                    <input type="text" class="sd-input" name="bot_token" placeholder="123456:ABC-DEF..." required style="direction:ltr; text-align:right;">
+                    <span class="sd-hint">من الخطوة 2 أعلاه</span>
                 </div>
-                <div class="form-group">
-                    <label>معرّف القناة</label>
-                    <input type="text" name="channel" placeholder="@channel_name" required>
-                    <span class="hint">أضف البوت مشرفاً في القناة أولاً</span>
+                <div class="sd-form-group" style="margin:0;">
+                    <label class="sd-label">معرّف القناة</label>
+                    <input type="text" class="sd-input" name="channel" placeholder="@channel_name" required style="direction:ltr; text-align:right;">
+                    <span class="sd-hint">القناة اللي أضفته فيها مشرفاً بالخطوة 3</span>
                 </div>
             </div>
-            <button type="submit" class="btn-add">
-                <i class="fas fa-link"></i>
-                ربط البوت وتفعيله
+            <button type="submit" class="sd-btn sd-btn-primary sd-btn-block sd-ripple">
+                <i class="fas fa-link"></i> ربط البوت وتفعيله
             </button>
         </form>
     </div>
 
     <!-- قائمة البوتات -->
-    <div class="section-label">
-        <i class="fas fa-robot"></i>
-        البوتات المربوطة
-    </div>
+    <h3 style="font-size: var(--sd-fs-sm); letter-spacing:.1em; color: var(--sd-text-secondary); text-transform:uppercase; margin-bottom: var(--sd-sp-4);">
+        <i class="fas fa-robot"></i> البوتات المربوطة
+    </h3>
 
-    <div class="bots-list">
-        {% if bots %}
-            {% for bot in bots %}
-            <div class="bot-card">
-                <div class="bot-icon">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="bot-info">
-                    <div class="bot-name">بوت شبكة سديم</div>
-                    <div class="bot-meta">
-                        <span class="bot-channel">
-                            <i class="fab fa-telegram"></i>
-                            {{ bot.channel }}
-                        </span>
-                        <span class="bot-date">
-                            <i class="fas fa-calendar-alt"></i>
-                            {{ bot.created_at.strftime('%Y-%m-%d') if bot.created_at else '—' }}
-                        </span>
-                        <span class="status-badge {{ 'active' if bot.is_active else 'inactive' }}">
-                            {{ 'نشط' if bot.is_active else 'موقوف' }}
-                        </span>
-                    </div>
-                </div>
-                <div class="bot-actions">
-                    <a href="{{ url_for('bots.manage_bot', bot_id=bot.id) }}" class="btn-action btn-manage">
-                        <i class="fas fa-sliders-h"></i> إدارة
+    {% if bots %}
+        <div style="display:flex; flex-direction:column; gap: var(--sd-sp-3);">
+        {% for bot in bots %}
+        <div class="sd-card sd-card-hover sd-bot-card">
+            <div class="sd-bot-icon"><i class="fas fa-robot"></i></div>
+            <div style="min-width:0;">
+                <div style="font-weight:700; margin-bottom: var(--sd-sp-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">بوت شبكة سديم</div>
+                <div style="display:flex; align-items:center; gap: var(--sd-sp-3); flex-wrap:wrap;">
+                    <span style="font-size: var(--sd-fs-xs); color: var(--sd-accent-light);"><i class="fab fa-telegram"></i> {{ bot.channel }}</span>
+                    <span style="font-size: var(--sd-fs-xs); color: var(--sd-text-secondary);"><i class="fas fa-calendar-alt"></i> {{ bot.created_at.strftime('%Y-%m-%d') if bot.created_at else '—' }}</span>
+                    {% if bot.is_active %}
+                        <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> نشط</span>
+                    {% else %}
+                        <span class="sd-badge sd-badge-danger"><span class="sd-badge-dot"></span> موقوف</span>
+                    {% endif %}
+                    {% if not bot.owner_telegram_id %}
+                    <a href="{{ url_for('bots.manage_bot', bot_id=bot.id) }}" class="sd-badge sd-badge-warning" style="text-decoration:none;">
+                        <i class="fas fa-triangle-exclamation"></i> غير مكتمل الربط — أكمله
                     </a>
-                    <a href="{{ url_for('bots.delete_bot', bot_id=bot.id) }}"
-                       class="btn-action btn-delete"
-                       onclick="return confirm('حذف البوت؟')">
-                        <i class="fas fa-trash"></i> حذف
-                    </a>
+                    {% endif %}
                 </div>
             </div>
-            {% endfor %}
-        {% else %}
-            <div class="empty-state">
-                <i class="fas fa-robot"></i>
-                <p>لا يوجد بوتات مربوطة بعد</p>
+            <div class="sd-bot-actions">
+                <a href="{{ url_for('bots.manage_bot', bot_id=bot.id) }}" class="sd-btn sd-btn-secondary sd-btn-sm sd-ripple">
+                    <i class="fas fa-sliders-h"></i> إدارة
+                </a>
+                <a href="{{ url_for('bots.delete_bot', bot_id=bot.id) }}" class="sd-btn sd-btn-danger sd-btn-sm sd-ripple" onclick="return confirm('حذف البوت؟')">
+                    <i class="fas fa-trash"></i> حذف
+                </a>
             </div>
-        {% endif %}
-    </div>
+        </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <div class="sd-state sd-state-empty">
+            <i class="fas fa-robot"></i>
+            <p>لا يوجد بوتات مربوطة بعد</p>
+        </div>
+    {% endif %}
 
 </div>
+{% endblock %}
 
+{% block extra_scripts %}
 <script>
-    // حساب نسبة الاستخدام — يعتمد على الحد الفعلي الحقيقي لهذا المستخدم (افتراضي/مخصص/غير محدود)
     const bots = {{ bots|length if bots else 0 }};
     const isUnlimited = {{ 'true' if limit_status and limit_status.is_unlimited else 'false' }};
     const limit = {{ limit_status.effective_limit if limit_status and not limit_status.is_unlimited else 1 }};
@@ -609,6 +147,4 @@
     document.getElementById('quotaFill').style.width = pct + '%';
     document.getElementById('quotaCount').textContent = isUnlimited ? (bots + ' / ∞') : (bots + ' / ' + limit);
 </script>
-
-</body>
-</html>
+{% endblock %}
