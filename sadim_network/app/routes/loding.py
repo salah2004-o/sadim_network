@@ -51,6 +51,7 @@ def login():
         session['user_id'] = user.id
         session['role'] = user.role
         session['username'] = user.username
+        session['email'] = user.email
         session['last_login'] = user.last_login.strftime("%Y-%m-%d %H:%M:%S")
         
         if user.role == 'admin':
@@ -103,6 +104,7 @@ def google_auth_callback():
         session['user_id'] = user_id
         session['role'] = role
         session['username'] = username
+        session['email'] = email
 
         if role == 'admin':
             return redirect(url_for('admin.services_dashboard'))

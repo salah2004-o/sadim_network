@@ -100,7 +100,12 @@
         grid-template-columns: 220px 1fr 320px;
         gap: 2.5rem;
       }
-      
+
+      .cover-wrap {
+        position: sticky;
+        top: 2rem;
+      }
+
       .comment-area {
         margin-top: 0;
         border-top: none;
@@ -112,13 +117,22 @@
       }
     }
 
-    @media (max-width: 600px) {
+    /* أقل من 1000px: عمود واحد مكدَّس (الغلاف، ثم الوصف، ثم التعليقات) —
+       كان يوجد هنا نطاق 600-999px بدون تكديس (عمودان فقط لثلاث عناصر)
+       يضغط قسم التعليقات بعرض 220px، وكانت خاصية sticky على الغلاف
+       تبقى مفعّلة بكل الأحجام فتتراكب فوق الوصف/التعليقات أثناء التمرير. */
+    @media (max-width: 999px) {
       .book-layout { grid-template-columns: 1fr; gap: 2rem; }
-      .cover-wrap { text-align: center; }
+      .cover-wrap { text-align: center; position: static; }
+      .comment-area {
+        margin-top: 1rem;
+        border-top: 0.5px solid var(--border-light);
+        padding-top: 1.5rem;
+      }
     }
 
     /* COVER */
-    .cover-wrap { position: sticky; top: 2rem; }
+    .cover-wrap { }
     .cover-wrap img {
       width: 100%;
       max-width: 220px;

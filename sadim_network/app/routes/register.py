@@ -64,6 +64,7 @@ def register_user():
         session['user_id'] = user_id
         session['role'] = 'user'
         session['username'] = username
+        session['email'] = email
 
         flash('تم إنشاء حسابك بنجاح! وصلَك رابط تفعيل على بريدك — يمكنك تصفّح الموقع الآن.', 'success')
         return redirect(url_for('loading_bp.landing_page'))
@@ -96,3 +97,36 @@ def log_visitor():
         conn.close()
     except Exception as e:
         print("Failed to log visitor:", e)
+
+
+@register_bp.before_app_request
+def log_user_activity():
+    # نتتبع فقط الجلسات المسجّلة دخول
+    user_id = session.get('user_id')
+    if not user_id:
+        return
+    if request.path.startswith('/static/'):
+        return
+
+    ip = request.remote_addr
+    user_agent = request.headers.get("User-Agent")
+    email = session.get('email')
+    username = session.get('username')
+
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE user_logs SET created_at = NOW(), email = %s, username = %s, ip = %s, user_agent = %s WHERE user_id = %s",
+            (email, username, ip, user_agent, user_id)
+        )
+        if cur.rowcount == 0:
+            cur.execute(
+                "INSERT INTO user_logs (user_id, email, username, ip, user_agent) VALUES (%s, %s, %s, %s, %s)",
+                (user_id, email, username, ip, user_agent)
+            )
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print("Failed to log user activity:", e)
