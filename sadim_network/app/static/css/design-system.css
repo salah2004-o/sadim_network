@@ -224,7 +224,31 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
 .sd-table-actions { display: flex; gap: var(--sd-sp-2); align-items: center; }
 .sd-table-toolbar { display: flex; flex-wrap: wrap; gap: var(--sd-sp-3); align-items: center; justify-content: space-between; margin-bottom: var(--sd-sp-4); }
 .sd-pagination { display: flex; gap: var(--sd-sp-2); align-items: center; justify-content: center; margin-top: var(--sd-sp-5); }
-.sd-pagination .sd-btn-icon { min-width: 38px; min-height: 38px; }
+/* أزرار الأيقونة الصغيرة (إجراءات الجداول، الترقيم) كانت تنكمش لـ34px مع .sd-btn-sm —
+   أقل من حد اللمس الآمن 44px. هذا يعيدها لأقل مساحة لمس آمنة بدون تكبير الشكل البصري كثيراً. */
+.sd-btn-icon.sd-btn-sm, .sd-pagination .sd-btn-icon { min-width: var(--sd-tap-min); min-height: var(--sd-tap-min); }
+
+/* بطاقات بدل الجداول العريضة على الشاشات الضيقة — تفعّل بإضافة data-label="..." لكل <td>
+   (الرأس <thead> يختفي، وكل صف يتحول لبطاقة بعمود واحد: تسمية + قيمة). اختيارية بالكامل:
+   أي جدول ما تضاف له data-label يبقى بسلوكه الحالي (تمرير أفقي، .sd-table-wrapper). */
+@media (max-width: 640px) {
+    .sd-table-cards thead { display: none; }
+    .sd-table-cards, .sd-table-cards tbody, .sd-table-cards tr, .sd-table-cards td { display: block; width: 100%; }
+    .sd-table-cards { min-width: 0; }
+    .sd-table-cards tr {
+        border-bottom: 1px solid var(--sd-border-strong); padding: var(--sd-sp-3) var(--sd-sp-4);
+    }
+    .sd-table-cards tr:last-child { border-bottom: none; }
+    .sd-table-cards td {
+        display: flex; align-items: center; justify-content: space-between; gap: var(--sd-sp-3);
+        padding: var(--sd-sp-2) 0; border-bottom: none; text-align: end;
+    }
+    .sd-table-cards td[data-label]::before {
+        content: attr(data-label); color: var(--sd-text-secondary); font-size: var(--sd-fs-xs);
+        font-weight: var(--sd-fw-bold); flex-shrink: 0; text-align: start;
+    }
+    .sd-table-cards .sd-table-actions { justify-content: flex-end; }
+}
 
 /* ==================== 8. الشارات والتنبيهات (Badges & Alerts) ==================== */
 .sd-badge {

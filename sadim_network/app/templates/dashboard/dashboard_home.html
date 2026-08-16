@@ -15,6 +15,8 @@
 
 {% block content %}
 
+{% include "partials/_people_subnav.html" %}
+
 <div class="admin-controls" style="margin-bottom: var(--sd-sp-5); display: flex; gap: 10px; flex-wrap: wrap;">
     <form action="{{ url_for('admin.delete_visits') }}" method="post" style="display:inline;">
         <button type="submit" class="sd-btn sd-btn-danger sd-ripple" onclick="return confirm('هل أنت متأكد من مسح كافة السجلات؟ لا يمكن التراجع!');">
@@ -22,14 +24,8 @@
         </button>
     </form>
 
-    <a href="{{ url_for('admin.admin_users_list') }}" class="sd-btn sd-btn-secondary sd-ripple">
-        <i class="fas fa-users"></i> إدارة المستخدمين
-    </a>
     <a href="{{ url_for('admin.add_user') }}" class="sd-btn sd-btn-secondary sd-ripple">
         <i class="fas fa-user-plus"></i> إضافة عضو
-    </a>
-    <a href="{{ url_for('admin.services_dashboard') }}" class="sd-btn sd-btn-secondary sd-ripple">
-        <i class="fas fa-arrow-right"></i> لوحة التحكم
     </a>
     <a href="{{ url_for('profile_bp.profile_dashboard') }}" class="sd-btn sd-btn-secondary sd-ripple">
         <i class="fas fa-user"></i> البروفايل
@@ -50,21 +46,24 @@
 
 <div class="stats-container" style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: var(--sd-sp-5);">
     <div class="card sd-card" style="flex: 1; min-width: 300px;">
-        <h4 style="color: var(--sd-accent-light); margin-bottom: 15px;">📊 نوع الزيارات</h4>
+        <h4 style="color: var(--sd-accent-light); margin-bottom: 4px;">📊 نوع الزيارات</h4>
+        <p style="color: var(--sd-text-muted); font-size: var(--sd-fs-xs); margin: 0 0 15px;">توزيع كل الطلبات: بشر حقيقيون، بوتات/زواحف، أو ملفات ثابتة (صور، CSS)</p>
         <canvas id="typeChart" style="max-height: 200px;"></canvas>
     </div>
     <div class="card sd-card" style="flex: 1; min-width: 300px;">
-        <h4 style="color: var(--sd-accent-light); margin-bottom: 15px;">📱 الأجهزة</h4>
+        <h4 style="color: var(--sd-accent-light); margin-bottom: 4px;">📱 الأجهزة</h4>
+        <p style="color: var(--sd-text-muted); font-size: var(--sd-fs-xs); margin: 0 0 15px;">نسبة الزيارات من جوال مقابل كمبيوتر</p>
         <canvas id="deviceChart" style="max-height: 200px;"></canvas>
     </div>
     <div class="card sd-card" style="flex: 1; min-width: 300px;">
-        <h4 style="color: var(--sd-accent-light); margin-bottom: 15px;">🔝 الأكثر طلباً (بشر)</h4>
+        <h4 style="color: var(--sd-accent-light); margin-bottom: 4px;">🔝 الأكثر طلباً (بشر)</h4>
+        <p style="color: var(--sd-text-muted); font-size: var(--sd-fs-xs); margin: 0 0 15px;">أكثر 5 صفحات زيارة من زوار حقيقيين (بدون بوتات)</p>
         <ul id="topPaths" style="text-align: right; color: var(--sd-text); list-style: none; padding: 0;"></ul>
     </div>
 </div>
 
 <div class="table-wrapper sd-table-wrapper" style="margin-top: var(--sd-sp-5);">
-    <table class="styled-table sd-table" id="logsTable">
+    <table class="styled-table sd-table sd-table-cards" id="logsTable">
         <thead>
             <tr>
                 <th>IP العنوان</th>
@@ -76,10 +75,10 @@
         <tbody>
             {% for v in visits %}
             <tr class="log-row">
-                <td class="ip-cell">{{ v[0] }}</td>
-                <td class="ua-cell" title="{{ v[1] }}">{{ v[1] }}</td>
-                <td class="page-cell">{{ v[2] }}</td>
-                <td class="time-cell">{{ v[3] }}</td>
+                <td class="ip-cell" data-label="IP العنوان">{{ v[0] }}</td>
+                <td class="ua-cell" title="{{ v[1] }}" data-label="الجهاز (UA)">{{ v[1] }}</td>
+                <td class="page-cell" data-label="المسار">{{ v[2] }}</td>
+                <td class="time-cell" data-label="التوقيت">{{ v[3] }}</td>
             </tr>
             {% endfor %}
         </tbody>

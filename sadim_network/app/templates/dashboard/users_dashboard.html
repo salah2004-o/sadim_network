@@ -1,6 +1,6 @@
 {% extends "layouts/dashboard.html" %}
-{% block title %}لوحة المستخدمين — شبكة سديم{% endblock %}
-{% block page_title %}لوحة المستخدمين{% endblock %}
+{% block title %}نشاط المستخدمين — شبكة سديم{% endblock %}
+{% block page_title %}نشاط المستخدمين المسجّلين{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -20,59 +20,62 @@
 
 {% block content %}
 
-<a href="{{ url_for('admin.dashboard_home') }}" class="sd-btn sd-btn-secondary sd-ripple" style="margin-bottom: var(--sd-sp-5);">
-    <i class="fas fa-chart-line"></i> لوحة الزوار
-</a>
+{% include "partials/_people_subnav.html" %}
 
 <div class="sd-services-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--sd-sp-4); margin-bottom: var(--sd-sp-6);">
     <div class="sd-card" style="text-align:center;">
         <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin: 0 0 var(--sd-sp-2);">آخر ظهور خلال 24 ساعة</p>
         <p style="color: var(--sd-text); font-size: var(--sd-fs-xl); font-weight: 900; margin:0;">{{ stats.day }}</p>
+        <p style="color: var(--sd-text-muted); font-size: var(--sd-fs-xs); margin: var(--sd-sp-2) 0 0;">عدد المستخدمين اللي دخلوا بحسابهم خلال آخر يوم</p>
     </div>
     <div class="sd-card" style="text-align:center;">
         <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin: 0 0 var(--sd-sp-2);">آخر ظهور خلال أسبوع</p>
         <p style="color: var(--sd-text); font-size: var(--sd-fs-xl); font-weight: 900; margin:0;">{{ stats.week }}</p>
+        <p style="color: var(--sd-text-muted); font-size: var(--sd-fs-xs); margin: var(--sd-sp-2) 0 0;">خلال آخر 7 أيام</p>
     </div>
     <div class="sd-card" style="text-align:center;">
         <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin: 0 0 var(--sd-sp-2);">آخر ظهور خلال شهر</p>
         <p style="color: var(--sd-text); font-size: var(--sd-fs-xl); font-weight: 900; margin:0;">{{ stats.month }}</p>
+        <p style="color: var(--sd-text-muted); font-size: var(--sd-fs-xs); margin: var(--sd-sp-2) 0 0;">خلال آخر 30 يوم</p>
     </div>
 </div>
 
-<h3 style="font-size: var(--sd-fs-md); border-inline-start: 4px solid var(--sd-accent); padding-inline-start: var(--sd-sp-3); margin-block: var(--sd-sp-5) var(--sd-sp-3);">المتصلين الآن</h3>
+<h3 style="font-size: var(--sd-fs-md); border-inline-start: 4px solid var(--sd-accent); padding-inline-start: var(--sd-sp-3); margin-block: var(--sd-sp-5) var(--sd-sp-2);">المتصلين الآن</h3>
+<p style="color: var(--sd-text-muted); font-size: var(--sd-fs-xs); margin: 0 0 var(--sd-sp-3);">دخلوا بحسابهم خلال آخر 5 دقائق</p>
 <div class="sd-table-wrapper">
-    <table class="sd-table">
+    <table class="sd-table sd-table-cards">
         <thead>
             <tr><th>البريد</th><th>الاسم</th><th>IP</th><th>User Agent</th><th>آخر ظهور</th></tr>
         </thead>
         <tbody>
             {% for u in online_users %}
             <tr class="sd-online-row">
-                <td><span class="sd-online-dot"></span>{{ u[0] }}</td>
-                <td>{{ u[1] }}</td>
-                <td class="sd-ip-cell">{{ u[2] }}</td>
-                <td class="sd-ua-cell" title="{{ u[3] }}">{{ u[3] }}</td>
-                <td>{{ u[4] }}</td>
+                <td data-label="البريد"><span class="sd-online-dot"></span>{{ u[0] }}</td>
+                <td data-label="الاسم">{{ u[1] }}</td>
+                <td data-label="IP" class="sd-ip-cell">{{ u[2] }}</td>
+                <td data-label="User Agent" class="sd-ua-cell" title="{{ u[3] }}">{{ u[3] }}</td>
+                <td data-label="آخر ظهور">{{ u[4] }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
 
-<h3 style="font-size: var(--sd-fs-md); border-inline-start: 4px solid var(--sd-accent); padding-inline-start: var(--sd-sp-3); margin-block: var(--sd-sp-6) var(--sd-sp-3);">غير المتصلين</h3>
+<h3 style="font-size: var(--sd-fs-md); border-inline-start: 4px solid var(--sd-accent); padding-inline-start: var(--sd-sp-3); margin-block: var(--sd-sp-6) var(--sd-sp-2);">غير المتصلين</h3>
+<p style="color: var(--sd-text-muted); font-size: var(--sd-fs-xs); margin: 0 0 var(--sd-sp-3);">آخر دخول لهم كان قبل أكثر من 5 دقائق</p>
 <div class="sd-table-wrapper">
-    <table class="sd-table">
+    <table class="sd-table sd-table-cards">
         <thead>
             <tr><th>البريد</th><th>الاسم</th><th>IP</th><th>User Agent</th><th>آخر ظهور</th></tr>
         </thead>
         <tbody>
             {% for u in offline_users %}
             <tr class="sd-offline-row">
-                <td>{{ u[0] }}</td>
-                <td>{{ u[1] }}</td>
-                <td class="sd-ip-cell">{{ u[2] }}</td>
-                <td class="sd-ua-cell" title="{{ u[3] }}">{{ u[3] }}</td>
-                <td>{{ u[4] }}</td>
+                <td data-label="البريد">{{ u[0] }}</td>
+                <td data-label="الاسم">{{ u[1] }}</td>
+                <td data-label="IP" class="sd-ip-cell">{{ u[2] }}</td>
+                <td data-label="User Agent" class="sd-ua-cell" title="{{ u[3] }}">{{ u[3] }}</td>
+                <td data-label="آخر ظهور">{{ u[4] }}</td>
             </tr>
             {% endfor %}
         </tbody>

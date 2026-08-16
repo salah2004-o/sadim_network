@@ -68,7 +68,7 @@
 
         <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">
             <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">آخر ظهور</span>
-            <span style="color: var(--sd-text); font-size: var(--sd-fs-sm); opacity:0.8;">{{ user.last_login or 'لم يدخل بعد' }}</span>
+            <span style="color: var(--sd-text); font-size: var(--sd-fs-sm); opacity:0.8;">{{ last_activity or user.last_login or 'لم يدخل بعد' }}</span>
         </div>
 
         <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">

@@ -12,3 +12,9 @@ __pycache__/
 sadim_network/app/static/uploads/
 
 *.sql
+
+*index.html
+
+توثيق-الإصلاحات/ARCHITECTURE.md
+توثيق-الإصلاحات/ARTICLES_DRAFT.md
+توثيق-الإصلاحات/IMPLEMENTATION_LOG.md

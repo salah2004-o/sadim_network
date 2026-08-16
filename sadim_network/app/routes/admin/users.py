@@ -9,9 +9,10 @@ from werkzeug.utils import secure_filename
 import os
 from app.routes.shared import UPLOAD_FOLDER, allowed_file, BASE_DIR
 from app.models.user import User
+from app.db.sadim_db import get_db_connection
 
 
-@admin_bp.route('/dashboard/userss')
+@admin_bp.route('/userss')
 @login_required
 @admin_required
 def admin_users_list():
@@ -26,9 +27,17 @@ def view_user(user_id):
     if user is None:
         flash('المستخدم غير موجود', 'danger')
         return redirect(url_for('admin.admin_users_list'))
-    
 
-    return render_template('dashboard/view_user.html', user=user)
+    # آخر نشاط فعلي (يشمل الدخول التلقائي بعد التسجيل وGoogle، لا نموذج /login فقط)
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT created_at FROM user_logs WHERE user_id = %s", (user_id,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    last_activity = row[0] if row else None
+
+    return render_template('dashboard/view_user.html', user=user, last_activity=last_activity)
 
 @admin_bp.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
 @login_required

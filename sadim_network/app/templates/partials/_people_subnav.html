@@ -1,0 +1,20 @@
+<div class="sd-people-subnav" style="display:flex; flex-wrap:wrap; gap: var(--sd-sp-2); margin-bottom: var(--sd-sp-3);">
+    <a href="{{ url_for('admin.dashboard_home') }}"
+       class="sd-btn sd-btn-sm sd-ripple {{ 'sd-btn-primary' if request.endpoint == 'admin.dashboard_home' else 'sd-btn-secondary' }}">
+        <i class="fas fa-chart-line"></i> الزوار
+    </a>
+    <a href="{{ url_for('admin.dashboard_users') }}"
+       class="sd-btn sd-btn-sm sd-ripple {{ 'sd-btn-primary' if request.endpoint == 'admin.dashboard_users' else 'sd-btn-secondary' }}">
+        <i class="fas fa-signal"></i> نشاط المستخدمين
+    </a>
+    <a href="{{ url_for('admin.admin_users_list') }}"
+       class="sd-btn sd-btn-sm sd-ripple {{ 'sd-btn-primary' if request.endpoint == 'admin.admin_users_list' else 'sd-btn-secondary' }}">
+        <i class="fas fa-address-book"></i> دليل المستخدمين
+    </a>
+</div>
+<p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-xs); margin: 0 0 var(--sd-sp-5); max-width: 640px;">
+    <i class="fas fa-circle-info"></i>
+    <strong>الزوار</strong>: أي دخول للموقع بلا هوية (IP فقط، يشمل الزحف الآلي) ·
+    <strong>نشاط المستخدمين</strong>: من دخل بحساب فعلي، ومتى ·
+    <strong>دليل المستخدمين</strong>: كل الحسابات المسجّلة — إدارة وتعديل
+</p>

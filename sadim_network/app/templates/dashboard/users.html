@@ -1,8 +1,10 @@
 {% extends "layouts/dashboard.html" %}
-{% block title %}المستخدمون — شبكة سديم{% endblock %}
-{% block page_title %}إدارة المستخدمين{% endblock %}
+{% block title %}دليل المستخدمين — شبكة سديم{% endblock %}
+{% block page_title %}دليل المستخدمين{% endblock %}
 
 {% block content %}
+
+{% include "partials/_people_subnav.html" %}
 
 <div style="display:flex; flex-wrap:wrap; gap: var(--sd-sp-3); align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-5);">
     <div class="sd-input-wrapper" style="max-width: 360px; width:100%; position:relative;">
@@ -17,13 +19,12 @@
     </div>
     <div style="display:flex; gap: var(--sd-sp-2); flex-wrap:wrap;">
         <a href="{{ url_for('admin.add_user') }}" class="sd-btn sd-btn-primary sd-ripple"><i class="fas fa-user-plus"></i> إضافة مستخدم جديد</a>
-        <a href="{{ url_for('admin.dashboard_home') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-home"></i> العودة للرئيسية</a>
         <a href="{{ url_for('admin.services_dashboard') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-concierge-bell"></i> إدارة الخدمات</a>
     </div>
 </div>
 
 <div class="sd-table-wrapper">
-    <table class="sd-table">
+    <table class="sd-table sd-table-cards">
         <thead>
             <tr>
                 <th>Username</th>
@@ -39,22 +40,22 @@
         <tbody>
             {% for u in users %}
             <tr>
-                <td style="color: var(--sd-accent-light); font-weight: bold;">{{ u.username }}</td>
-                <td>{{ u.name }}</td>
-                <td>{{ u.email }}</td>
-                <td><span class="sd-badge sd-badge-neutral">{{ u.role }}</span></td>
-                <td>
+                <td data-label="Username" style="color: var(--sd-accent-light); font-weight: bold;">{{ u.username }}</td>
+                <td data-label="الاسم">{{ u.name }}</td>
+                <td data-label="Email">{{ u.email }}</td>
+                <td data-label="الدور"><span class="sd-badge sd-badge-neutral">{{ u.role }}</span></td>
+                <td data-label="الحالة">
                     {% if u.status == 'active' %}
                         <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> {{ u.status }}</span>
                     {% else %}
                         <span class="sd-badge sd-badge-warning"><span class="sd-badge-dot"></span> {{ u.status }}</span>
                     {% endif %}
                 </td>
-                <td>{{ '✔' if u.is_verified else '✖' }}</td>
-                <td style="font-size: var(--sd-fs-xs); opacity: 0.7;">
+                <td data-label="مفعل">{{ '✔' if u.is_verified else '✖' }}</td>
+                <td data-label="آخر دخول" style="font-size: var(--sd-fs-xs); opacity: 0.7;">
                  {{ u.last_login.strftime('%Y-%m-%d %H:%M:%S') if u.last_login else '-' }}
                 </td>
-                <td class="sd-table-actions">
+                <td data-label="التحكم" class="sd-table-actions">
                     <a href="{{ url_for('admin.view_user', user_id=u.id) }}" class="sd-btn sd-btn-icon sd-btn-ghost sd-btn-sm" title="عرض"><i class="fas fa-eye"></i></a>
                     <a href="{{ url_for('admin.edit_user', user_id=u.id) }}" class="sd-btn sd-btn-icon sd-btn-ghost sd-btn-sm" title="تعديل"><i class="fas fa-edit"></i></a>
                     <form method="POST" action="{{ url_for('admin.soft_delete_user', user_id=u.id) }}" style="display:inline;">
@@ -70,7 +71,7 @@
 </div>
 
 <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-xs); margin-top: var(--sd-sp-4); opacity: 0.8;">
-    <i class="fas fa-info-circle"></i> ملاحظة: تمرير الجدول جانبياً لمشاهدة كافة البيانات على الجوال.
+    <i class="fas fa-info-circle"></i> على الجوال تتحول القائمة لبطاقات تلقائياً — كل مستخدم ببطاقة مستقلة.
 </p>
 
 {% endblock %}

@@ -59,17 +59,30 @@
     </a>
 </div>
 
+<a href="{{ url_for('admin.manage_bots') }}" class="sd-card sd-ripple" style="display:flex; align-items:center; gap: var(--sd-sp-4); text-decoration:none; margin-bottom: var(--sd-sp-5); background: linear-gradient(135deg, var(--sd-accent), var(--sd-accent-light)); border: none;">
+    <div style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        <i class="fas fa-robot" style="font-size:1.6rem; color:#fff;"></i>
+    </div>
+    <div style="flex:1; min-width:0;">
+        <h3 style="margin:0 0 4px; color:#fff; font-size: var(--sd-fs-md);">نظام البوتات — الميزة المحورية بسديم</h3>
+        <p style="margin:0; color:rgba(255,255,255,.85); font-size: var(--sd-fs-sm);">إدارة كل بوتات المستخدمين، أو أنشئ بوتك الخاص من "أنظمتي" مباشرة.</p>
+    </div>
+    <i class="fas fa-arrow-left" style="color:#fff; font-size:1.2rem; flex-shrink:0;"></i>
+</a>
+
+<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--sd-sp-3); margin-bottom: var(--sd-sp-5);">
+    <a href="{{ url_for('bots.my_bots') }}" class="sd-btn sd-btn-primary sd-btn-block sd-ripple"><i class="fas fa-plus"></i> بوت جديد (أنظمتي)</a>
+    <a href="{{ url_for('admin.bot_limits_list') }}" class="sd-btn sd-btn-secondary sd-btn-block sd-ripple"><i class="fas fa-gauge-high"></i> حدود البوتات</a>
+</div>
+
 <div class="sd-card" style="margin-bottom: var(--sd-sp-5);">
     <h3 style="margin-top:0; font-size: var(--sd-fs-md);"><i class="fas fa-compass"></i> اختصارات سريعة</h3>
     <div class="sd-services-grid" style="grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--sd-sp-3);">
         <a href="{{ url_for('admin.dashboard_home') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-chart-bar"></i> الزوار</a>
-        <a href="{{ url_for('admin.dashboard_users') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-users"></i> المستخدمين</a>
-        <a href="{{ url_for('admin.admin_users_list') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-id-card"></i> عرض الكل</a>
+        <a href="{{ url_for('admin.dashboard_users') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-signal"></i> نشاط المستخدمين</a>
+        <a href="{{ url_for('admin.admin_users_list') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-address-book"></i> دليل المستخدمين</a>
         <a href="{{ url_for('loading_bp.landing_page') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-home"></i> الموقع</a>
         <a href="{{ url_for('admin.manage_library') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-book"></i> المكتبة</a>
-        <a href="{{ url_for('bots.my_bots') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-robot"></i> أنظمتي</a>
-        <a href="{{ url_for('admin.manage_bots') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-satellite-dish"></i> بوتات المستخدمين</a>
-        <a href="{{ url_for('admin.bot_limits_list') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-gauge-high"></i> حدود البوتات</a>
         <a href="{{ url_for('admin.manage_articles') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-newspaper"></i> إدارة المقالات</a>
         <a href="{{ url_for('profile_bp.profile_dashboard') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-user"></i> البروفايل</a>
         <a href="{{ url_for('admin.manage_comments') }}" class="sd-btn sd-btn-secondary sd-ripple"><i class="fas fa-comments"></i> التعليقات</a>
