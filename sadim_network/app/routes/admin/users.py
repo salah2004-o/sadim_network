@@ -10,6 +10,7 @@ import os
 from app.routes.shared import UPLOAD_FOLDER, allowed_file, BASE_DIR
 from app.models.user import User
 from app.db.sadim_db import get_db_connection
+from app.models.analytics_model import get_user_analytics
 
 
 @admin_bp.route('/userss')
@@ -36,8 +37,9 @@ def view_user(user_id):
     cur.close()
     conn.close()
     last_activity = row[0] if row else None
+    analytics = get_user_analytics(user_id)
 
-    return render_template('dashboard/view_user.html', user=user, last_activity=last_activity)
+    return render_template('dashboard/view_user.html', user=user, last_activity=last_activity, analytics=analytics)
 
 @admin_bp.route('/edit_user/<int:user_id>', methods=['GET', 'POST'])
 @login_required

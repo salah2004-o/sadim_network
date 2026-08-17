@@ -40,3 +40,9 @@ python-bidi==0.4.2
 
 # Utilities
 pytz==2025.2
+
+# Analytics Export
+openpyxl==3.1.5
+
+# Testing (dev)
+pytest==9.1.1

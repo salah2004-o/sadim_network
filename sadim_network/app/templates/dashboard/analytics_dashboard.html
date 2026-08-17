@@ -1,0 +1,173 @@
+{% extends "layouts/dashboard.html" %}
+{% block title %}لوحة Analytics — شبكة سديم{% endblock %}
+{% block page_title %}لوحة Analytics{% endblock %}
+
+{% block extra_head %}
+<style>
+    .an-range-bar { display:flex; flex-wrap:wrap; gap: var(--sd-sp-2); align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-5); }
+    .an-range-tabs { display:flex; gap: var(--sd-sp-2); flex-wrap:wrap; }
+    .an-section { margin-bottom: var(--sd-sp-6); }
+    .an-section-title { font-size: var(--sd-fs-md); font-weight: 800; margin: 0 0 var(--sd-sp-3); display:flex; align-items:center; gap: var(--sd-sp-2); }
+    .an-stats-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: var(--sd-sp-3); }
+    .an-stat { text-align:center; }
+    .an-stat .an-num { font-size: var(--sd-fs-xl); font-weight: 900; color: var(--sd-text); font-variant-numeric: tabular-nums; }
+    .an-stat .an-label { color: var(--sd-text-secondary); font-size: var(--sd-fs-xs); margin-top: var(--sd-sp-1); }
+    .an-breakdown { display:flex; flex-direction:column; gap: var(--sd-sp-2); }
+    .an-bar-row { display:flex; align-items:center; gap: var(--sd-sp-3); font-size: var(--sd-fs-sm); }
+    .an-bar-label { width: 110px; flex-shrink:0; color: var(--sd-text-secondary); }
+    .an-bar-track { flex:1; height:8px; background: var(--sd-bg-elevated-2); border-radius:999px; overflow:hidden; }
+    .an-bar-fill { height:100%; background: var(--sd-gradient); border-radius:999px; }
+    .an-bar-count { width: 50px; text-align:end; font-variant-numeric: tabular-nums; color: var(--sd-text); flex-shrink:0; }
+    .an-top-list { display:flex; flex-direction:column; gap: var(--sd-sp-2); }
+    .an-top-item { display:flex; justify-content:space-between; gap: var(--sd-sp-2); padding: var(--sd-sp-2) var(--sd-sp-3); background: var(--sd-bg-elevated-2); border-radius: var(--sd-radius-md); font-size: var(--sd-fs-sm); }
+    .an-empty { color: var(--sd-text-muted); font-size: var(--sd-fs-sm); padding: var(--sd-sp-3) 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="an-range-bar">
+    <div class="an-range-tabs">
+        {% for key, label in range_labels.items() %}
+        <a href="{{ url_for('admin.analytics_dashboard', range=key) }}"
+           class="sd-btn sd-btn-sm sd-ripple {{ 'sd-btn-primary' if range_key == key else 'sd-btn-secondary' }}">{{ label }}</a>
+        {% endfor %}
+    </div>
+    <div style="display:flex; gap: var(--sd-sp-2);">
+        <a href="{{ url_for('admin.export_analytics_csv') }}" class="sd-btn sd-btn-sm sd-btn-secondary sd-ripple"><i class="fas fa-file-csv"></i> CSV</a>
+        <a href="{{ url_for('admin.export_analytics_xlsx') }}" class="sd-btn sd-btn-sm sd-btn-secondary sd-ripple"><i class="fas fa-file-excel"></i> Excel</a>
+    </div>
+</div>
+
+<!-- Users -->
+<div class="an-section sd-card">
+    <h3 class="an-section-title"><i class="fas fa-users"></i> المستخدمون</h3>
+    <div class="an-stats-grid">
+        <div class="an-stat"><div class="an-num">{{ stats.registered_users }}</div><div class="an-label">مستخدم مسجَّل (إجمالي)</div></div>
+        <div class="an-stat"><div class="an-num">{{ stats.new_users }}</div><div class="an-label">مستخدم جديد بالفترة</div></div>
+        <div class="an-stat"><div class="an-num">{{ stats.logged_in_users }}</div><div class="an-label">دخلوا فعلياً بالفترة</div></div>
+        <div class="an-stat"><div class="an-num">{{ stats.active_users }}</div><div class="an-label">نشطون بالفترة</div></div>
+        <div class="an-stat"><div class="an-num">{{ stats.returning_users }}</div><div class="an-label">عائدون (أكثر من يوم)</div></div>
+    </div>
+</div>
+
+<!-- Visitors -->
+<div class="an-section sd-card">
+    <h3 class="an-section-title"><i class="fas fa-shoe-prints"></i> الزوار</h3>
+    <div class="an-stats-grid">
+        <div class="an-stat"><div class="an-num">{{ stats.unique_sessions }}</div><div class="an-label">جلسة فريدة</div></div>
+        <div class="an-stat"><div class="an-num">{{ stats.anonymous_sessions }}</div><div class="an-label">زائر مجهول</div></div>
+        <div class="an-stat"><div class="an-num">{{ stats.authenticated_visitors }}</div><div class="an-label">زائر مسجَّل</div></div>
+    </div>
+</div>
+
+<!-- Engagement -->
+<div class="an-section sd-card">
+    <h3 class="an-section-title"><i class="fas fa-wave-square"></i> التفاعل</h3>
+    <div class="an-stats-grid">
+        <div class="an-stat"><div class="an-num">{{ stats.page_views }}</div><div class="an-label">مشاهدة صفحة</div></div>
+        <div class="an-stat"><div class="an-num">{{ stats.unique_sessions }}</div><div class="an-label">جلسة</div></div>
+        <div class="an-stat">
+            <div class="an-num">{{ (stats.avg_session_duration_seconds // 60) }}:{{ '%02d' % (stats.avg_session_duration_seconds % 60) }}</div>
+            <div class="an-label">متوسط مدة الجلسة (د:ث)</div>
+        </div>
+        <div class="an-stat"><div class="an-num">{{ stats.avg_pages_per_session }}</div><div class="an-label">صفحة/جلسة</div></div>
+        <div class="an-stat"><div class="an-num">{{ stats.avg_events_per_session }}</div><div class="an-label">حدث/جلسة</div></div>
+    </div>
+</div>
+
+<!-- Library -->
+<div class="an-section sd-card">
+    <h3 class="an-section-title"><i class="fas fa-book"></i> المكتبة</h3>
+    <div class="an-stats-grid" style="margin-bottom: var(--sd-sp-4);">
+        <div class="an-stat"><div class="an-num">{{ stats.library_views }}</div><div class="an-label">زيارة للقائمة</div></div>
+        <div class="an-stat"><div class="an-num">{{ stats.book_views }}</div><div class="an-label">مشاهدة رواية</div></div>
+        <div class="an-stat"><div class="an-num">{{ stats.downloads }}</div><div class="an-label">تحميل ناجح</div></div>
+        <div class="an-stat"><div class="an-num">{{ stats.unique_downloaders }}</div><div class="an-label">مُحمِّل فريد</div></div>
+    </div>
+    <h4 style="font-size: var(--sd-fs-sm); color: var(--sd-text-secondary); margin-bottom: var(--sd-sp-2);">الأكثر تحميلاً</h4>
+    {% if stats.top_books %}
+    <div class="an-top-list">
+        {% for b in stats.top_books %}
+        <div class="an-top-item"><span>{{ b.title }}</span><strong>{{ b.downloads }}</strong></div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="an-empty">لا توجد تحميلات مسجَّلة بهذه الفترة.</p>
+    {% endif %}
+</div>
+
+<!-- Authentication -->
+<div class="an-section sd-card">
+    <h3 class="an-section-title"><i class="fas fa-right-to-bracket"></i> المصادقة</h3>
+    <div class="an-stats-grid">
+        <div class="an-stat"><div class="an-num" style="color: var(--sd-success);">{{ stats.successful_logins }}</div><div class="an-label">دخول ناجح</div></div>
+        <div class="an-stat"><div class="an-num" style="color: var(--sd-danger);">{{ stats.failed_logins }}</div><div class="an-label">دخول فاشل</div></div>
+        <div class="an-stat"><div class="an-num">{{ stats.logouts }}</div><div class="an-label">تسجيل خروج</div></div>
+        <div class="an-stat"><div class="an-num">{{ (stats.login_conversion_pct ~ '%') if stats.login_conversion_pct is not none else '—' }}</div><div class="an-label">نسبة نجاح الدخول</div></div>
+    </div>
+</div>
+
+{% set traffic_total = stats.traffic.values() | sum %}
+{% set device_total = stats.devices.values() | sum %}
+{% set source_total = stats.sources.values() | sum %}
+
+<!-- Traffic -->
+<div class="an-section sd-card">
+    <h3 class="an-section-title"><i class="fas fa-shield-halved"></i> نوع الحركة</h3>
+    {% if traffic_total %}
+    <div class="an-breakdown">
+        {% for label, key in [('بشر', 'human'), ('بوت', 'bot'), ('زاحف', 'crawler'), ('سكانر', 'scanner'), ('غير محدَّد', 'unknown')] %}
+        <div class="an-bar-row">
+            <span class="an-bar-label">{{ label }}</span>
+            <div class="an-bar-track"><div class="an-bar-fill" style="width: {{ (stats.traffic[key] / traffic_total * 100) | round(1) }}%;"></div></div>
+            <span class="an-bar-count">{{ stats.traffic[key] }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="an-empty">لا توجد جلسات مسجَّلة بهذه الفترة.</p>
+    {% endif %}
+</div>
+
+<!-- Devices -->
+<div class="an-section sd-card">
+    <h3 class="an-section-title"><i class="fas fa-mobile-screen"></i> الأجهزة</h3>
+    {% if device_total %}
+    <div class="an-breakdown">
+        {% for label, key in [('جوال', 'mobile'), ('حاسوب', 'desktop'), ('لوحي', 'tablet')] %}
+        <div class="an-bar-row">
+            <span class="an-bar-label">{{ label }}</span>
+            <div class="an-bar-track"><div class="an-bar-fill" style="width: {{ (stats.devices[key] / device_total * 100) | round(1) }}%;"></div></div>
+            <span class="an-bar-count">{{ stats.devices[key] }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="an-empty">لا توجد جلسات مسجَّلة بهذه الفترة.</p>
+    {% endif %}
+</div>
+
+<!-- Sources -->
+<div class="an-section sd-card">
+    <h3 class="an-section-title"><i class="fas fa-diagram-project"></i> مصدر الزيارة</h3>
+    {% if source_total %}
+    <div class="an-breakdown">
+        {% for label, key in [('مباشر', 'direct'), ('Google', 'google'), ('Telegram', 'telegram'), ('Instagram', 'instagram'), ('أخرى', 'other')] %}
+        <div class="an-bar-row">
+            <span class="an-bar-label">{{ label }}</span>
+            <div class="an-bar-track"><div class="an-bar-fill" style="width: {{ (stats.sources[key] / source_total * 100) | round(1) }}%;"></div></div>
+            <span class="an-bar-count">{{ stats.sources[key] }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="an-empty">لا توجد جلسات مسجَّلة بهذه الفترة.</p>
+    {% endif %}
+</div>
+
+<p style="color: var(--sd-text-muted); font-size: var(--sd-fs-xs); text-align:center;">
+    البيانات التفصيلية تبدأ من لحظة تفعيل نظام Analytics الجديد — لا بيانات تاريخية قبل ذلك.
+</p>
+
+{% endblock %}

@@ -79,4 +79,4 @@ def manage_comments():
 
     comments = Comments.get_all_comments()
     return render_template('dashboard/comments_dashboard.html', comments=comments)
-from app.routes.admin import users, visits, services, library, bots_admin, articles, bot_limits
+from app.routes.admin import users, visits, services, library, bots_admin, articles, bot_limits, analytics

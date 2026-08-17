@@ -1,7 +1,7 @@
 import os
 import uuid
 from app.routes.shared import UPLOAD_FOLDER
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, g, make_response
 import pytz
 from datetime import datetime, timedelta
 from models.user import User
@@ -13,8 +13,26 @@ from utlis.email_utils import send_verification_email
 from werkzeug.utils import secure_filename
 from werkzeug.utils import secure_filename
 from PIL import Image
+from app.models.analytics_model import log_event, end_session, SESSION_COOKIE_NAME
 
 loading_bp = Blueprint('loading_bp', __name__)
+
+
+def _log_auth_event(event_type, user_id=None, metadata=None):
+    """تسجيل حدث مصادقة بدون أي احتمال لكسر تدفق الدخول/الخروج الفعلي لو فشل التسجيل نفسه."""
+    try:
+        log_event(
+            event_type,
+            user_id=user_id,
+            session_id=g.get('sd_session_id'),
+            ip=request.remote_addr,
+            user_agent=request.headers.get("User-Agent"),
+            path=request.path,
+            visitor_type=g.get('sd_visitor_type', 'unknown'),
+            metadata=metadata,
+        )
+    except Exception as e:
+        print(f"Failed to log analytics event '{event_type}':", e)
 
 @loading_bp.route('/login')
 @limiter.limit("5 per minute")
@@ -32,11 +50,13 @@ def login():
         password = request.form.get('password')
         if not email or not password:
             flash("erros")
+            _log_auth_event("auth.login.failed", metadata={"email": email, "reason": "missing_fields"})
             return render_template("auth/login.html", error="بيانات الدخول غير صحيحة")
-        
+
         user = User.authenticate(email, password)
 
         if not user:
+            _log_auth_event("auth.login.failed", metadata={"email": email, "reason": "invalid_credentials"})
             return render_template("auth/login.html", error="بيانات الدخول غير صحيحة")
 
         # ملاحظة: التحقق من البريد (is_verified) لا يحجب تسجيل الدخول — الحساب يُنشأ
@@ -53,7 +73,9 @@ def login():
         session['username'] = user.username
         session['email'] = user.email
         session['last_login'] = user.last_login.strftime("%Y-%m-%d %H:%M:%S")
-        
+
+        _log_auth_event("auth.login.success", user_id=user.id, metadata={"email": user.email, "method": "password"})
+
         if user.role == 'admin':
             return redirect(url_for('admin.services_dashboard'))  # اسم الدالة في Blueprint dashboard
         else:
@@ -83,6 +105,8 @@ def google_auth_callback():
         cur.execute("SELECT id, role, username FROM users WHERE google_id = %s OR email = %s", (google_id, email))
         existing = cur.fetchone()
 
+        is_new_user = existing is None
+
         if existing:
             user_id, role, username = existing
             # تحديث google_id لو سجل قبل بإيميل
@@ -105,6 +129,11 @@ def google_auth_callback():
         session['role'] = role
         session['username'] = username
         session['email'] = email
+
+        if is_new_user:
+            _log_auth_event("auth.register", user_id=user_id, metadata={"email": email, "method": "google"})
+        else:
+            _log_auth_event("auth.login.success", user_id=user_id, metadata={"email": email, "method": "google"})
 
         if role == 'admin':
             return redirect(url_for('admin.services_dashboard'))
@@ -199,8 +228,15 @@ def resend_verification():
 
 @loading_bp.route('/logout')
 def logout():
+    user_id = session.get('user_id')
+    if user_id:
+        _log_auth_event("auth.logout", user_id=user_id)
+        end_session(g.get('sd_session_id'))
     session.clear()
-    return redirect(url_for('main.index'))
+    # الجلسة التحليلية تنتهي فعلياً هنا — أي نشاط بعد الخروج (مسجّل أو مجهول) يبدأ جلسة جديدة، لا يُلحَق بجلسة أُنهيت للتو
+    response = make_response(redirect(url_for('main.index')))
+    response.delete_cookie(SESSION_COOKIE_NAME)
+    return response
 
 
 @loading_bp.route("/account/settings", methods=['GET', 'POST'])

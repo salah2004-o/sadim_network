@@ -1,4 +1,4 @@
-from flask import Blueprint, request, render_template, flash, redirect, url_for, session
+from flask import Blueprint, request, render_template, flash, redirect, url_for, session, g
 from models.user import User
 from models.verification_token import Email
 from datetime import datetime, timedelta
@@ -6,8 +6,43 @@ import uuid
 from utlis.email_utils import send_verification_email
 from db.sadim_db import get_db_connection
 from app.limiter import limiter
+from app.models.analytics_model import log_event, generate_session_id, touch_session, SESSION_COOKIE_NAME, audit_log
+from app.models.bot_classifier import classify_visitor
 
 register_bp = Blueprint('register', __name__)
+
+# مسارات لا تُحتسب كنشاط تحليلي إطلاقاً — ملفات ثابتة وطلبات المتصفح الآلية
+_STATIC_EXACT_PATHS = {"/favicon.ico", "/robots.txt", "/apple-touch-icon.png", "/apple-touch-icon-precomposed.png"}
+_STATIC_EXTENSIONS = (".css", ".js", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico", ".webp", ".woff", ".woff2", ".ttf")
+# مسارات إدارية — تُبقي الجلسة حيّة (last_seen) لكن لا تُحتسب كـ"مشاهدة صفحة" بمقاييس تفاعل الزوار
+_ADMIN_PATH_PREFIXES = ("/dashboard", "/profile")
+
+
+def _is_excluded_path(path):
+    if path.startswith('/static/'):
+        return True
+    if path in _STATIC_EXACT_PATHS:
+        return True
+    if path.endswith(_STATIC_EXTENSIONS):
+        return True
+    return False
+
+
+def _log_auth_event(event_type, user_id=None, metadata=None):
+    """تسجيل حدث مصادقة بدون أي احتمال لكسر تدفق التسجيل الفعلي لو فشل التسجيل نفسه."""
+    try:
+        log_event(
+            event_type,
+            user_id=user_id,
+            session_id=g.get('sd_session_id'),
+            ip=request.remote_addr,
+            user_agent=request.headers.get("User-Agent"),
+            path=request.path,
+            visitor_type=g.get('sd_visitor_type', 'unknown'),
+            metadata=metadata,
+        )
+    except Exception as e:
+        print(f"Failed to log analytics event '{event_type}':", e)
 
 @register_bp.route('/register', methods=['GET'])
 @limiter.limit("5 per minute")
@@ -66,6 +101,8 @@ def register_user():
         session['username'] = username
         session['email'] = email
 
+        _log_auth_event("auth.register", user_id=user_id, metadata={"email": email, "method": "password"})
+
         flash('تم إنشاء حسابك بنجاح! وصلَك رابط تفعيل على بريدك — يمكنك تصفّح الموقع الآن.', 'success')
         return redirect(url_for('loading_bp.landing_page'))
     except Exception as e:
@@ -97,6 +134,70 @@ def log_visitor():
         conn.close()
     except Exception as e:
         print("Failed to log visitor:", e)
+
+
+@register_bp.before_app_request
+def track_session():
+    """جلسة تحليلية حقيقية (analytics_sessions) — منفصلة تماماً عن جلسة المصادقة (Flask session).
+    كوكي خاص (sd_sid) بدل الاعتماد على session['user_id'] حتى تُتتبَّع الجلسات المجهولة أيضاً،
+    وتستمر نفس الجلسة التحليلية حتى بعد ما يسجّل الزائر دخوله (ربط لا استبدال)."""
+    if _is_excluded_path(request.path):
+        return
+
+    session_id = request.cookies.get(SESSION_COOKIE_NAME)
+    is_new = not session_id
+    if is_new:
+        session_id = generate_session_id()
+
+    g.sd_session_id = session_id
+    g.sd_session_is_new = is_new
+    g.sd_visitor_type = classify_visitor(
+        request.path, request.headers.get("User-Agent"), request.remote_addr, request.headers
+    )
+
+    is_admin_path = request.path.startswith(_ADMIN_PATH_PREFIXES)
+    is_admin_actor = session.get('role') == 'admin'
+
+    # نشاط الإدارة الفعلي (أدمن يتصفّح لوحته) يُسجَّل بسجل منفصل تماماً (audit_logs)،
+    # ولا يُنشئ/يُحدّث أي جلسة بـanalytics_sessions — حتى لا يختلط بإحصائيات المستخدمين/الزوار العامة إطلاقاً
+    if is_admin_path and is_admin_actor:
+        try:
+            audit_log(
+                actor_user_id=session.get('user_id'),
+                action="admin_page_view",
+                target_type="path",
+                ip=request.remote_addr,
+                metadata={"path": request.path},
+            )
+        except Exception as e:
+            print("Failed to write audit log:", e)
+        return
+
+    try:
+        touch_session(
+            session_id,
+            user_id=session.get('user_id'),
+            ip=request.remote_addr,
+            user_agent=request.headers.get("User-Agent"),
+            referrer=request.referrer if is_new else None,
+            landing_page=request.path if is_new else None,
+            count_pageview=not is_admin_path,
+            visitor_type=g.sd_visitor_type,
+        )
+    except Exception as e:
+        print("Failed to track session:", e)
+
+
+@register_bp.after_app_request
+def set_session_cookie(response):
+    session_id = g.get('sd_session_id')
+    if session_id and g.get('sd_session_is_new'):
+        response.set_cookie(
+            SESSION_COOKIE_NAME, session_id,
+            max_age=60 * 60 * 24 * 365,  # سنة — الجلسة التحليلية نفسها "تنتهي" منطقياً بعد فترة ركود، لا بانتهاء الكوكي
+            httponly=True, samesite='Lax'
+        )
+    return response
 
 
 @register_bp.before_app_request

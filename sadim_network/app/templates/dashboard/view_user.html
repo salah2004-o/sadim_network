@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="sd-card" style="max-width: 650px; margin-inline: auto;">
+<div class="sd-card" style="max-width: 820px; margin-inline: auto;">
     <div style="text-align:center; margin-bottom: var(--sd-sp-5); border-bottom: 1px solid var(--sd-border); padding-bottom: var(--sd-sp-4);">
         <i class="fas fa-user-circle" style="font-size: 4rem; color: var(--sd-accent-light); display:block; margin-bottom: var(--sd-sp-3);"></i>
         <h2 style="margin:0; font-size: var(--sd-fs-lg);">ملف المستخدم: {{ user.username }}</h2>
@@ -75,7 +75,53 @@
             <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">تاريخ التسجيل</span>
             <span style="color: var(--sd-text); font-size: var(--sd-fs-sm); opacity:0.8;">{{ user.created_at }}</span>
         </div>
+
+        <div class="sd-card" style="display:flex; justify-content:space-between; align-items:center; padding: var(--sd-sp-3) var(--sd-sp-4);">
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600;">آخر IP</span>
+            <span style="color: var(--sd-text); font-size: var(--sd-fs-sm); font-family:monospace; opacity:0.8;">{{ analytics.last_ip or '—' }}</span>
+        </div>
+
+        <div class="sd-card" style="padding: var(--sd-sp-3) var(--sd-sp-4);">
+            <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); font-weight:600; display:block; margin-bottom: var(--sd-sp-2);">آخر User-Agent</span>
+            <span style="color: var(--sd-text); font-size: var(--sd-fs-xs); opacity:0.7; word-break:break-all;">{{ analytics.last_user_agent or '—' }}</span>
+        </div>
     </div>
+
+    <h3 style="font-size: var(--sd-fs-md); margin: var(--sd-sp-6) 0 var(--sd-sp-3); border-inline-start: 4px solid var(--sd-accent); padding-inline-start: var(--sd-sp-3);">
+        <i class="fas fa-chart-simple"></i> نشاط حقيقي (Analytics)
+    </h3>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: var(--sd-sp-3); margin-bottom: var(--sd-sp-5);">
+        <div class="sd-card" style="text-align:center;"><div style="font-size: var(--sd-fs-xl); font-weight:900;">{{ analytics.login_count }}</div><div style="font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); margin-top: var(--sd-sp-1);">مرة دخول</div></div>
+        <div class="sd-card" style="text-align:center;"><div style="font-size: var(--sd-fs-xl); font-weight:900;">{{ analytics.session_count }}</div><div style="font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); margin-top: var(--sd-sp-1);">جلسة</div></div>
+        <div class="sd-card" style="text-align:center;"><div style="font-size: var(--sd-fs-xl); font-weight:900;">{{ analytics.total_events }}</div><div style="font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); margin-top: var(--sd-sp-1);">حدث إجمالي</div></div>
+        <div class="sd-card" style="text-align:center;"><div style="font-size: var(--sd-fs-xl); font-weight:900;">{{ analytics.books_viewed }}</div><div style="font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); margin-top: var(--sd-sp-1);">رواية شاهدها</div></div>
+        <div class="sd-card" style="text-align:center;"><div style="font-size: var(--sd-fs-xl); font-weight:900;">{{ analytics.books_downloaded }}</div><div style="font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); margin-top: var(--sd-sp-1);">رواية حمّلها</div></div>
+        <div class="sd-card" style="text-align:center;"><div style="font-size: var(--sd-fs-xl); font-weight:900;">{{ analytics.articles_viewed }}</div><div style="font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); margin-top: var(--sd-sp-1);">مقال قرأه</div></div>
+    </div>
+    {% if analytics.devices %}
+    <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin-bottom: var(--sd-sp-5);">
+        <i class="fas fa-mobile-screen"></i> الأجهزة المستخدَمة: {{ analytics.devices | join('، ') }}
+    </p>
+    {% endif %}
+
+    <h3 style="font-size: var(--sd-fs-md); margin: var(--sd-sp-6) 0 var(--sd-sp-3); border-inline-start: 4px solid var(--sd-accent); padding-inline-start: var(--sd-sp-3);">
+        <i class="fas fa-timeline"></i> السجل الزمني
+    </h3>
+    {% if analytics.timeline %}
+    <div class="sd-card" style="padding: var(--sd-sp-2) var(--sd-sp-4);">
+        {% for item in analytics.timeline %}
+        <div style="display:flex; gap: var(--sd-sp-3); padding: var(--sd-sp-3) 0; {{ 'border-top: 1px solid var(--sd-border);' if not loop.first }}">
+            <span style="color: var(--sd-text-muted); font-size: var(--sd-fs-xs); font-family:monospace; white-space:nowrap; flex-shrink:0;">{{ item.occurred_at.strftime('%Y-%m-%d %H:%M') if item.occurred_at else '' }}</span>
+            <span style="color: var(--sd-text); font-size: var(--sd-fs-sm);">
+                {{ item.label }}
+                {% if item.detail %}<span style="color: var(--sd-text-secondary);">— {{ item.detail }}</span>{% endif %}
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="color: var(--sd-text-muted); font-size: var(--sd-fs-sm);">لا يوجد نشاط مسجَّل لهذا المستخدم بعد.</p>
+    {% endif %}
 
     <a href="{{ url_for('admin.admin_users_list') }}" class="sd-btn sd-btn-secondary sd-btn-block sd-ripple" style="margin-top: var(--sd-sp-5);">
         <i class="fas fa-arrow-right"></i> العودة لقائمة الإدارة

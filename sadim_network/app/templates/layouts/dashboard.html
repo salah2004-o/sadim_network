@@ -37,6 +37,7 @@
         </a>
         {% block sidebar_items %}
         <a href="{{ url_for('admin.services_dashboard') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.services_dashboard' }}"><i class="fas fa-gauge"></i> الرئيسية</a>
+        <a href="{{ url_for('admin.analytics_dashboard') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.analytics_dashboard' }}"><i class="fas fa-chart-pie"></i> Analytics</a>
         <a href="{{ url_for('admin.manage_bots') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.manage_bots' }}"><i class="fas fa-robot"></i> البوتات</a>
         <a href="{{ url_for('admin.bot_limits_list') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.bot_limits_list' }}"><i class="fas fa-gauge-high"></i> حدود البوتات</a>
         <a href="{{ url_for('admin.dashboard_home') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.dashboard_home' }}"><i class="fas fa-chart-line"></i> الزوار</a>

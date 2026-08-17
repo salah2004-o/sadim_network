@@ -314,6 +314,68 @@ def create_tables():
             updated_at TIMESTAMP DEFAULT NOW()
         );
     """)
+#----------ANALYTICS EVENTS TABLE (سجل الأحداث الموحّد لنظام التحليلات)----------#
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS analytics_events (
+            id BIGSERIAL PRIMARY KEY,
+            event_type VARCHAR(64) NOT NULL,
+            user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            session_id VARCHAR(64),
+            occurred_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            ip VARCHAR(64),
+            user_agent TEXT,
+            path VARCHAR(255),
+            referrer TEXT,
+            visitor_type VARCHAR(16) NOT NULL DEFAULT 'unknown',
+            metadata JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_events_type_time ON analytics_events(event_type, occurred_at);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_events_user ON analytics_events(user_id, occurred_at);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_events_session ON analytics_events(session_id);")
+
+#----------ANALYTICS SESSIONS TABLE (جلسة واحدة تمتد من أول زيارة، مجهولة أو مسجّلة)----------#
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS analytics_sessions (
+            session_id VARCHAR(64) PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            visitor_type VARCHAR(16) NOT NULL DEFAULT 'unknown',
+            started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            ended_at TIMESTAMPTZ,
+            ip VARCHAR(64),
+            user_agent TEXT,
+            device_type VARCHAR(16),
+            browser VARCHAR(64),
+            os VARCHAR(64),
+            referrer TEXT,
+            landing_page VARCHAR(255),
+            utm_source VARCHAR(64),
+            utm_medium VARCHAR(64),
+            utm_campaign VARCHAR(64),
+            utm_content VARCHAR(64),
+            pages_viewed INTEGER NOT NULL DEFAULT 0,
+            events_count INTEGER NOT NULL DEFAULT 0
+        );
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user ON analytics_sessions(user_id);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_sessions_last_seen ON analytics_sessions(last_seen_at);")
+
+#----------AUDIT LOGS TABLE (سجل تدقيق منفصل للعمليات الإدارية الحساسة)----------#
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS audit_logs (
+            id BIGSERIAL PRIMARY KEY,
+            actor_user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            action VARCHAR(64) NOT NULL,
+            target_type VARCHAR(32),
+            target_id INTEGER,
+            occurred_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            ip VARCHAR(64),
+            metadata JSONB NOT NULL DEFAULT '{}'::jsonb
+        );
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_audit_actor_time ON audit_logs(actor_user_id, occurred_at);")
+
     conn.commit()
     cur.close()
     conn.close()

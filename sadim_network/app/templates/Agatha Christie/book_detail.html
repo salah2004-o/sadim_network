@@ -434,9 +434,8 @@
         <p class="book-desc">{{ book['desc_text'] }}</p>
 
         <div class="actions">
-          <a href="{{ url_for('Library_Agatha.download_file', book_id=book['id']) }}" 
-             class="btn-download" 
-             onclick="updateCount(event, {{ book['id'] }}, this.href)">
+          <a href="{{ url_for('Library_Agatha.download_file', book_id=book['id']) }}"
+             class="btn-download">
             <i class="fa-solid fa-download"></i> تحميل PDF ملكي
           </a>
           <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="btn-back">
@@ -542,25 +541,6 @@
   </footer>
 
   <script>
-    function updateCount(event, bookId, downloadUrl) {
-        fetch(`/library/increment_download/${bookId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const countSpan = document.getElementById('download-count-number');
-                if (countSpan) {
-                    countSpan.innerText = data.new_count;
-                    countSpan.style.color = "#fff";
-                    setTimeout(() => { countSpan.style.color = "var(--soft-gold)"; }, 500);
-                }
-            }
-        })
-        .catch(err => console.error("Error updating counter:", err));
-    }
-
     function sortComments(order) {
       const list = document.getElementById('comments-list');
       const items = Array.from(list.getElementsByClassName('comment-item'));

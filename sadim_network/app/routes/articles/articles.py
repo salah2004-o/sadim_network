@@ -1,6 +1,6 @@
 import os
 import time
-from flask import Blueprint, render_template, request, redirect, url_for, session, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, flash, g
 from werkzeug.utils import secure_filename
 from PIL import Image
 from app.routes.shared import UPLOAD_FOLDER, allowed_file
@@ -8,11 +8,29 @@ from app.limiter import limiter
 from app.models.post_model import Post
 from app.models.comments import Comments
 from app.models.user import User
+from app.models.analytics_model import log_event
 
 articles_bp = Blueprint('articles', __name__, url_prefix='/articles')
 
 MAX_IMAGE_SIZE = 5 * 1024 * 1024  # 5 ميجا
 POSTS_PER_PAGE = 10
+
+
+def _log_article_event(event_type, metadata=None):
+    """تسجيل حدث مقال بدون أي احتمال لكسر تدفق العرض الفعلي لو فشل التسجيل نفسه."""
+    try:
+        log_event(
+            event_type,
+            user_id=session.get('user_id'),
+            session_id=g.get('sd_session_id'),
+            ip=request.remote_addr,
+            user_agent=request.headers.get("User-Agent"),
+            path=request.path,
+            visitor_type=g.get('sd_visitor_type', 'unknown'),
+            metadata=metadata,
+        )
+    except Exception as e:
+        print(f"Failed to log analytics event '{event_type}':", e)
 
 
 def _save_article_image(file_storage):
@@ -91,6 +109,9 @@ def view_article(post_id):
 
     comments = Comments.get_comments_by_post(post_id)
     related_posts = Post.get_recent(limit=4, exclude_id=post_id)
+
+    _log_article_event("article.view", metadata={"post_id": post_id, "title": post.get('title')})
+
     return render_template(
         "articles/detail.html", post=post, comments=comments, related_posts=related_posts
     )

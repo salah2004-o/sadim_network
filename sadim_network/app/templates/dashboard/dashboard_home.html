@@ -39,10 +39,16 @@
         <button class="btn-filter" onclick="SadeemDash.applyTimeFilter('hour', this)">آخر ساعة</button>
     </div>
     <input type="text" class="search-box" id="dashSearch" placeholder="🔍 ابحث عن IP أو صفحة...">
-    <button class="sd-btn sd-btn-secondary sd-ripple" onclick="SadeemDash.exportToCSV()">
-        <i class="fas fa-file-download"></i> تحميل الأرشيف التحليلي (CSV)
-    </button>
+    <a href="{{ url_for('admin.export_analytics_csv') }}" class="sd-btn sd-btn-secondary sd-ripple">
+        <i class="fas fa-file-csv"></i> تصدير CSV (بيانات حقيقية)
+    </a>
+    <a href="{{ url_for('admin.export_analytics_xlsx') }}" class="sd-btn sd-btn-secondary sd-ripple">
+        <i class="fas fa-file-excel"></i> تصدير Excel
+    </a>
 </div>
+<p style="color: var(--sd-text-muted); font-size: var(--sd-fs-xs); margin: -0.5rem 0 var(--sd-sp-3);">
+    <i class="fas fa-circle-info"></i> التصدير يشمل أحداث Analytics الحقيقية (تسجيل دخول، تصفّح مكتبة، تحميلات...) بتاريخ ووقت حقيقيين قابلين للفرز — مو سجل الزيارات المجهولة أدناه.
+</p>
 
 <div class="stats-container" style="display: flex; flex-wrap: wrap; gap: 20px; margin-top: var(--sd-sp-5);">
     <div class="card sd-card" style="flex: 1; min-width: 300px;">
@@ -226,31 +232,6 @@ const SadeemDash = {
             },
             options: chartOptions
         });
-    },
-
-    exportToCSV() {
-        let csv = "﻿";
-        csv += "الرقم,IP العنوان,المسار المستهدف,التوقيت المحلي,نوع الجهاز,التصنيف السلوكي,بيانات الجهاز الكاملة\n";
-
-        this.store.forEach((l, index) => {
-            const isMobile = /mobile|android|iphone|ipad/i.test(l.ua);
-            const deviceType = isMobile ? "جوال" : "كمبيوتر";
-
-            let category = "بشر";
-            if (l.ua.includes('bot') || l.ua.includes('crawl')) category = "بوت/زاحف";
-            else if (l.path.match(/\.(css|js|jpg|png|ico|svg|webp)$/i)) category = "طلب ملفات";
-
-            const cleanUA = l.ua.replace(/,/g, ';');
-            const formattedDate = l.date.toLocaleString('ar-SA');
-
-            csv += `${index + 1},${l.ip},${l.path},"${formattedDate}",${deviceType},${category},${cleanUA}\n`;
-        });
-
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Sadeem_Behavior_Analysis_${new Date().toLocaleDateString()}.csv`;
-        link.click();
     }
 };
 
