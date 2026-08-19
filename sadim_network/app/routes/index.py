@@ -5,9 +5,16 @@ main_bp = Blueprint('main', __name__)
 def index():
     from app.models.post_model import Post
     from app.models.bot_model import Bot
+    from app.models.analytics_dashboard import get_top_book_this_week
     recent_posts = Post.get_recent(limit=3)
     active_bot_count = len(Bot.get_active_bots())
-    return render_template('index.html', recent_posts=recent_posts, active_bot_count=active_bot_count)
+    top_book_week = get_top_book_this_week()
+    return render_template(
+        'index.html',
+        recent_posts=recent_posts,
+        active_bot_count=active_bot_count,
+        top_book_week=top_book_week,
+    )
 
 
 @main_bp.route('/about')

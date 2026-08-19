@@ -1,5 +1,5 @@
 from app.routes.admin.admin import admin_bp
-from app.routes.shared import UPLOAD_FOLDER, allowed_file, BASE_DIR
+from app.routes.shared import UPLOAD_FOLDER, allowed_file
 from app.db.sadim_db import get_db_connection
 
 from utlis.permissions import admin_required

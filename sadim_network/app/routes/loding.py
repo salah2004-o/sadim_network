@@ -184,10 +184,13 @@ def account():
     from app.models.bot_model import Bot
     from app.models.bot_limit_model import BotLimitGrant
     from app.models.post_model import Post
+    from app.models.referral_model import Referral
 
     my_bots = Bot.get_by_user(session['user_id'])
     limit_status = BotLimitGrant.get_status_for_user(session['user_id'], current_bot_count=len(my_bots))
     my_articles = Post.get_by_user(session['user_id'])
+    referral_count = Referral.get_referral_count(session['user_id'])
+    referral_link = url_for('register.show_registration_form', ref=session['user_id'], _external=True)
 
     return render_template(
         'account.html',
@@ -195,6 +198,8 @@ def account():
         limit_status=limit_status,
         my_bots=my_bots,
         my_articles=my_articles,
+        referral_count=referral_count,
+        referral_link=referral_link,
     )
 
 

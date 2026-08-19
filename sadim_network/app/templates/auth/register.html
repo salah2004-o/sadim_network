@@ -14,7 +14,15 @@
     <span id="errorMessageText">الرجاء التأكد من صحة البيانات!</span>
 </div>
 
+{% if ref %}
+<div class="sd-alert sd-alert-success" style="margin-bottom: var(--sd-sp-4);">
+    <i class="fas fa-user-plus sd-alert-icon"></i>
+    <span>وصلت عبر دعوة من صديق — رح تنضم لشبكة سديم معاه 🎉</span>
+</div>
+{% endif %}
+
 <form action="/register" method="POST" onsubmit="return validateForm()">
+    <input type="hidden" name="ref" value="{{ ref or '' }}">
     <div class="sd-form-group">
         <label class="sd-label" for="username">اسم المستخدم</label>
         <input type="text" class="sd-input" id="username" name="username" placeholder="أدخل اسم المستخدم" required>

@@ -8,6 +8,7 @@ from db.sadim_db import get_db_connection
 from app.limiter import limiter
 from app.models.analytics_model import log_event, generate_session_id, touch_session, SESSION_COOKIE_NAME, audit_log
 from app.models.bot_classifier import classify_visitor
+from app.models.referral_model import Referral
 
 register_bp = Blueprint('register', __name__)
 
@@ -47,7 +48,9 @@ def _log_auth_event(event_type, user_id=None, metadata=None):
 @register_bp.route('/register', methods=['GET'])
 @limiter.limit("5 per minute")
 def show_registration_form():
-    return render_template('auth/register.html')
+    # ref يمرَّر كحقل مخفي بالنموذج حتى يصل لـPOST /register — الرابط نفسه user_id المُحيل، بدون توليد كود جديد
+    ref = request.args.get('ref', '')
+    return render_template('auth/register.html', ref=ref)
 
 @register_bp.route('/register', methods=['POST'])
 @limiter.limit("5 per minute")
@@ -58,20 +61,21 @@ def register_user():
     email = request.form.get('email')
     name = request.form.get('name')
     password = request.form.get('password')
-    confirm = request.form.get('confirm') 
+    confirm = request.form.get('confirm')
+    ref = request.form.get('ref', '')  # نحافظ عليه بكل إعادة عرض للنموذج حتى لا تضيع الدعوة لو صار خطأ إدخال
 
     if password != confirm:
         flash('كلمة المرور غير متطابقة', 'danger')
-        return render_template('auth/register.html')
+        return render_template('auth/register.html', ref=ref)
     # تحقق من username
     if User.get_by_username(username):
      flash('اسم المستخدم مستخدم بالفعل', 'danger')
-     return render_template('auth/register.html')
+     return render_template('auth/register.html', ref=ref)
 
 # تحقق من email
     if User.get_by_email(email):
       flash('البريد الإلكتروني مستخدم بالفعل', 'danger')
-      return render_template('auth/register.html')
+      return render_template('auth/register.html', ref=ref)
 
 
     # إنشاء كائن مستخدم جديد (نمرر كلمة المرور الخام؛ add_user سيقوم بالتشفير)
@@ -103,13 +107,20 @@ def register_user():
 
         _log_auth_event("auth.register", user_id=user_id, metadata={"email": email, "method": "password"})
 
+        # دعوة صديق: الرابط نفسه user_id المُحيل (?ref=42) — تحقق رقمي بسيط، فشل صامت آمن لأي قيمة غير صالحة
+        ref_raw = request.form.get('ref', '').strip()
+        if ref_raw.isdigit():
+            rewarded = Referral.record_and_reward(int(ref_raw), user_id)
+            if rewarded:
+                _log_auth_event("referral.success", user_id=user_id, metadata={"referrer_user_id": int(ref_raw)})
+
         flash('تم إنشاء حسابك بنجاح! وصلَك رابط تفعيل على بريدك — يمكنك تصفّح الموقع الآن.', 'success')
         return redirect(url_for('loading_bp.landing_page'))
     except Exception as e:
      import traceback
      traceback.print_exc()
      flash('خطأ داخلي، راجع السيرفر', 'danger')
-     return render_template('auth/register.html')
+     return render_template('auth/register.html', ref=ref)
 
     # بعد حفظ المستخدم في جدول users
 @register_bp.before_app_request

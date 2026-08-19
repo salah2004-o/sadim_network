@@ -162,3 +162,24 @@ def get_dashboard_stats(range_key="7d"):
     cur.close()
     conn.close()
     return stats
+
+
+def get_top_book_this_week():
+    """الكتاب الأكثر تحميلاً بآخر 7 أيام — لعرضه بالرئيسية. None لو ما فيه أي تحميل بهذي المدة (بدون بيانات وهمية)."""
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT metadata->>'title' AS title, metadata->>'book_id' AS book_id, COUNT(*) AS c
+        FROM analytics_events
+        WHERE occurred_at >= NOW() - INTERVAL '7 days'
+          AND event_type = 'download.success' AND metadata->>'title' IS NOT NULL
+        GROUP BY metadata->>'title', metadata->>'book_id'
+        ORDER BY c DESC LIMIT 1
+    """)
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    if not row:
+        return None
+    title, book_id, count = row
+    return {"title": title, "book_id": int(book_id) if book_id else None, "downloads": count}

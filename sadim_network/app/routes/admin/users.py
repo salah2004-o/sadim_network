@@ -1,13 +1,11 @@
 # user
 
 from flask import session, render_template, request, redirect, url_for, flash
-from datetime import datetime
 from app.routes.admin.admin import admin_bp
 from utlis.login_required import login_required
 from utlis.permissions import admin_required
 from werkzeug.utils import secure_filename
 import os
-from app.routes.shared import UPLOAD_FOLDER, allowed_file, BASE_DIR
 from app.models.user import User
 from app.db.sadim_db import get_db_connection
 from app.models.analytics_model import get_user_analytics

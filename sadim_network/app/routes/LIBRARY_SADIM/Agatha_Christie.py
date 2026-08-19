@@ -239,6 +239,40 @@ def search():
 
 
 # =========================
+# 3-ب. بحث فوري (Live/Typeahead) — معاينة سريعة فقط بالرئيسية، بدون تسجيل حدث تحليلي
+# (البحث "الحقيقي" اللي يُسجَّل بالتحليلات يبقى فقط عبر /search أعلاه عند الضغط فعلياً على نتيجة/إرسال النموذج)
+# =========================
+@Library_Agatha_bp.route('/library/quick_search')
+def quick_search():
+    query = request.args.get('q', '').strip()
+    if len(query) < 2:
+        return {"results": []}
+
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("""
+        SELECT id, title, cover_path
+        FROM books
+        WHERE title ILIKE %s
+        ORDER BY download_count DESC NULLS LAST
+        LIMIT 5
+    """, (f"%{query}%",))
+    books = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return {"results": [
+        {
+            "id": b["id"],
+            "title": b["title"],
+            "cover_url": url_for('Library_Agatha.static', filename='uploads/' + b["cover_path"]) if b["cover_path"] else None,
+            "url": url_for('Library_Agatha.view_book', book_id=b["id"]),
+        }
+        for b in books
+    ]}
+
+
+# =========================
 # إضافة تعليق جديد
 # =========================
 @Library_Agatha_bp.route('/library/add_comment/<int:book_id>', methods=['POST'])

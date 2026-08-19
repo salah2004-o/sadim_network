@@ -1,12 +1,9 @@
 # visits
-from flask import session, render_template, request, redirect, url_for, flash
-from datetime import datetime
+from flask import  render_template, redirect, url_for, flash
 from app.routes.admin.admin import admin_bp
 from utlis.login_required import login_required
 from utlis.permissions import admin_required
 from werkzeug.utils import secure_filename
-import os
-from app.routes.shared import UPLOAD_FOLDER, allowed_file, BASE_DIR
 from app.models.visitor_logs import visitor_logs
 
 

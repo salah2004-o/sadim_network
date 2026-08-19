@@ -12,6 +12,29 @@
     .sd-hero p { color: var(--sd-text-secondary); max-width: 680px; margin: 0 auto; font-size: var(--sd-fs-md); line-height:1.9; }
     .sd-hero-actions { display:flex; gap: var(--sd-sp-3); justify-content:center; margin-top: var(--sd-sp-6); flex-wrap:wrap; }
 
+    .sd-live-search { max-width: 560px; margin: var(--sd-sp-6) auto 0; position:relative; text-align:right; }
+    .sd-live-search-box { display:flex; align-items:center; gap: var(--sd-sp-2); background: var(--sd-bg-elevated); border: 1px solid var(--sd-border-strong); border-radius: var(--sd-radius-full); padding: var(--sd-sp-2) var(--sd-sp-2) var(--sd-sp-2) var(--sd-sp-4); box-shadow: var(--sd-shadow-sm); }
+    .sd-live-search-box i.fa-magnifying-glass { color: var(--sd-text-muted); }
+    .sd-live-search-box input { flex:1; border:none; background:none; outline:none; color: var(--sd-text); font-size: var(--sd-fs-base); font-family: inherit; }
+    .sd-live-search-box input::placeholder { color: var(--sd-text-muted); }
+    .sd-live-search-box .sd-btn { border-radius: var(--sd-radius-full); flex-shrink:0; }
+    .sd-live-search-results {
+        position:absolute; inset-inline:0; top: calc(100% + var(--sd-sp-2)); text-align:start;
+        background: var(--sd-bg-elevated-2); border: 1px solid var(--sd-border-strong); border-radius: var(--sd-radius-md);
+        box-shadow: var(--sd-shadow-md); padding: var(--sd-sp-2); z-index: var(--sd-z-dropdown);
+        display:none; max-height: 340px; overflow-y:auto;
+    }
+    .sd-live-search-results.is-open { display:block; }
+    .sd-live-search-result { display:flex; align-items:center; gap: var(--sd-sp-3); padding: var(--sd-sp-2) var(--sd-sp-3); border-radius: var(--sd-radius-sm); text-decoration:none; color: var(--sd-text); }
+    .sd-live-search-result:hover { background: var(--sd-accent-soft); color: var(--sd-accent-light); }
+    .sd-live-search-result img { width:36px; height:48px; object-fit:cover; border-radius: 4px; flex-shrink:0; background: var(--sd-accent-wash, rgba(124,77,255,.08)); }
+    .sd-live-search-empty { padding: var(--sd-sp-3); color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); text-align:center; }
+
+    .sd-hero-stats { display:flex; gap: var(--sd-sp-5); justify-content:center; flex-wrap:wrap; margin-top: var(--sd-sp-5); }
+    .sd-hero-stat { display:flex; align-items:center; gap: var(--sd-sp-2); color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); }
+    .sd-hero-stat i { color: var(--sd-accent-light); }
+    .sd-hero-stat strong { color: var(--sd-text); }
+
     .sd-philosophy { max-width: 760px; margin: 0 auto; padding: var(--sd-sp-6) var(--sd-sp-4); text-align:center; }
     .sd-philosophy p { color: var(--sd-text-secondary); line-height: 2; font-size: var(--sd-fs-base); }
 
@@ -40,14 +63,34 @@
 {% block content %}
 
 <section class="sd-hero">
-    <h1>أهلاً بك في شبكة سديم</h1>
+    <h1>مكتبتك وبوتك الخاص، بمكان واحد</h1>
     <p>
-        هنا لا تنتهي الأفكار، بل تولد من جديد. سديم هو الكيان الرقمي الذي يدمج بين عمق المعرفة وجرأة التنفيذ،
-        لنصنع معاً واقعاً يتجاوز التوقعات.
+        ابحث عن رواية الآن مباشرة بدون تسجيل دخول، أو أنشئ حسابك المجاني وابدأ ببوتك الخاص على تيليجرام.
     </p>
+
+    <form class="sd-live-search" action="{{ url_for('Library_Agatha.search') }}" method="GET" autocomplete="off">
+        <div class="sd-live-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" name="q" id="heroSearchInput" placeholder="ابحث عن رواية... مثلاً: جريمة في قطار الشرق">
+            <button type="submit" class="sd-btn sd-btn-primary sd-ripple">بحث</button>
+        </div>
+        <div id="heroSearchResults" class="sd-live-search-results"></div>
+    </form>
+
+    {% if top_book_week or active_bot_count %}
+    <div class="sd-hero-stats">
+        {% if top_book_week %}
+        <span class="sd-hero-stat"><i class="fa-solid fa-fire"></i> الأكثر تحميلاً هذا الأسبوع: <strong>{{ top_book_week.title }}</strong></span>
+        {% endif %}
+        {% if active_bot_count %}
+        <span class="sd-hero-stat"><i class="fa-solid fa-robot"></i> <strong>{{ active_bot_count }}</strong> بوت نشط الآن على سديم</span>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <div class="sd-hero-actions">
-        <a href="{{ url_for('register.register_user') }}" class="sd-btn sd-btn-primary sd-btn-lg sd-ripple">انضم إلينا</a>
-        <a href="{{ url_for('main.services') }}" class="sd-btn sd-btn-secondary sd-btn-lg sd-ripple">شاهد الخدمات</a>
+        <a href="{{ url_for('register.register_user') }}" class="sd-btn sd-btn-primary sd-btn-lg sd-ripple">أنشئ حسابك مجاناً</a>
+        <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-btn sd-btn-secondary sd-btn-lg sd-ripple">استكشف المكتبة</a>
     </div>
 </section>
 
@@ -144,6 +187,69 @@
 
 </div>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+    const input = document.getElementById('heroSearchInput');
+    const box = document.getElementById('heroSearchResults');
+    if (!input || !box) return;
+
+    let debounceTimer = null;
+    let currentRequest = null;
+
+    function closeResults() {
+        box.classList.remove('is-open');
+        box.innerHTML = '';
+    }
+
+    function renderResults(results) {
+        if (!results.length) {
+            box.innerHTML = '<div class="sd-live-search-empty">لا توجد نتائج مطابقة</div>';
+            box.classList.add('is-open');
+            return;
+        }
+        box.innerHTML = results.map(r => `
+            <a class="sd-live-search-result" href="${r.url}">
+                ${r.cover_url ? `<img src="${r.cover_url}" alt="">` : ''}
+                <span>${r.title}</span>
+            </a>
+        `).join('');
+        box.classList.add('is-open');
+    }
+
+    input.addEventListener('input', function () {
+        const q = input.value.trim();
+        clearTimeout(debounceTimer);
+
+        if (q.length < 2) {
+            closeResults();
+            return;
+        }
+
+        debounceTimer = setTimeout(function () {
+            if (currentRequest) currentRequest.abort();
+
+            const xhr = new XMLHttpRequest();
+            currentRequest = xhr;
+            xhr.open('GET', '/library/quick_search?q=' + encodeURIComponent(q));
+            xhr.onload = function () {
+                if (xhr.status !== 200) return;
+                try {
+                    const data = JSON.parse(xhr.responseText);
+                    renderResults(data.results || []);
+                } catch (e) {}
+            };
+            xhr.send();
+        }, 250);
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.sd-live-search')) closeResults();
+    });
+})();
+</script>
 {% endblock %}
 
 {% block footer %}

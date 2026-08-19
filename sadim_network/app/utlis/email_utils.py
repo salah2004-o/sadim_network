@@ -2,7 +2,6 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email.header import Header
 
 # إضافة المسار لجلب الإعدادات
 from config import settings

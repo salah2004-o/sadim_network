@@ -376,6 +376,18 @@ def create_tables():
     """)
     cur.execute("CREATE INDEX IF NOT EXISTS idx_audit_actor_time ON audit_logs(actor_user_id, occurred_at);")
 
+#----------REFERRALS TABLE (نظام الدعوة — رابط ?ref=<user_id>، مكافأة حد بوت إضافي مؤقت)----------#
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS referrals (
+            id SERIAL PRIMARY KEY,
+            referrer_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            referred_user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            reward_days INTEGER NOT NULL DEFAULT 30,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_referrals_referrer ON referrals(referrer_user_id);")
+
     conn.commit()
     cur.close()
     conn.close()

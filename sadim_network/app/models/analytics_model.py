@@ -11,6 +11,7 @@ REQUIRES_USER_ID = {
     "auth.logout",
     "auth.register",
     "auth.session_created",
+    "referral.success",
 }
 
 # مفاتيح تُحذف من metadata قبل التخزين مهما كان مصدر الاستدعاء — لا كلمات مرور ولا tokens داخل Analytics إطلاقاً
@@ -138,6 +139,7 @@ EVENT_LABELS = {
     "download.success": "تحميل ناجح",
     "download.failed": "تحميل فاشل",
     "article.view": "مشاهدة مقال",
+    "referral.success": "انضمّ عبر دعوتك",
 }
 
 

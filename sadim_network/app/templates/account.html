@@ -76,6 +76,22 @@
         {% endif %}
     </div>
 
+    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-2);">
+            <strong style="font-size: var(--sd-fs-md);"><i class="fas fa-user-plus"></i> ادعُ صديقاً</strong>
+            <span class="sd-badge sd-badge-info">{{ referral_count }} دعوة ناجحة</span>
+        </div>
+        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0 0 var(--sd-sp-3);">
+            كل صديق ينضم عبر رابطك يمنحك <strong style="color: var(--sd-text);">بوت إضافي مجاناً لمدة 30 يوم</strong>.
+        </p>
+        <div style="display:flex; gap: var(--sd-sp-2);">
+            <input type="text" class="sd-input" id="referralLinkInput" value="{{ referral_link }}" readonly style="font-size: var(--sd-fs-xs);">
+            <button type="button" class="sd-btn sd-btn-secondary sd-ripple" onclick="copyReferralLink(this)">
+                <i class="fas fa-copy"></i> نسخ
+            </button>
+        </div>
+    </div>
+
     {% if my_articles %}
     <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-3);">
@@ -103,4 +119,26 @@
     </div>
 
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function copyReferralLink(btn) {
+    const input = document.getElementById('referralLinkInput');
+    const done = () => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> تم النسخ';
+        setTimeout(() => { btn.innerHTML = original; }, 1800);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(input.value).then(done).catch(() => {
+            input.select();
+            try { document.execCommand('copy'); done(); } catch (e) {}
+        });
+    } else {
+        input.select();
+        try { document.execCommand('copy'); done(); } catch (e) {}
+    }
+}
+</script>
 {% endblock %}

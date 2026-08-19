@@ -6,7 +6,7 @@ from utlis.login_required import login_required
 from utlis.permissions import admin_required
 from werkzeug.utils import secure_filename
 import os
-from app.routes.shared import UPLOAD_FOLDER, allowed_file, BASE_DIR
+from app.routes.shared import UPLOAD_FOLDER
 from app.utlis.timezone_utils import Timezone
 
 from app.models.product import service
