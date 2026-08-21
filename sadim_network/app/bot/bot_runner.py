@@ -2,7 +2,7 @@ import threading
 import redis
 import telebot
 from telebot import types
-from app.bot.tools import library, quotes, downloader, shortener, qr, binary, search, contact_owner
+from app.bot.tools import library, quotes, downloader, shortener, qr, binary, search, contact_owner, tts
 
 _running_bots = {}
 _running_bots_lock = threading.Lock()
@@ -11,21 +11,49 @@ _running_bots_lock = threading.Lock()
 #   FEATURES = [{"key": ..., "label": ..., "description": ..., "help_line": ... أو None}, ...]
 #   def register(bot, bot_id, enabled_features): ...   (يتحقق داخلياً من مفاتيحه بـ enabled_features)
 # ثم سطر واحد هنا بالقائمة. بدون أي تعديل على بقية الملف أو لوحة تحكم الأدمن — تُقرأ تلقائياً من FEATURES.
-TOOLS = [library, search, quotes, downloader, shortener, qr, binary, contact_owner]
+TOOLS = [library, search, quotes, downloader, shortener, qr, binary, tts, contact_owner]
 
-# أيقونة + سلوك كل ميزة بقائمة /start التفاعلية — "hint" يظهر كنافذة منبثقة صغيرة عند
-# الضغط على زر ميزة تحتاج مدخل (أمر بمعطى)، و None يعني الزر يشغّل الميزة مباشرة بدون مدخل.
+# أيقونة كل ميزة بقائمة /start التفاعلية — سلوك الزر نفسه يتحدد بأي مجموعة تحته أدناه
+# (تشغيل مباشر / طلب مدخل / رسالة توضيحية)، لا شيء هنا غير الأيقونة.
 TOOL_MENU = {
-    "library": {"emoji": "📚", "hint": None},
-    "search": {"emoji": "🔍", "hint": "🔍 استخدم:\n/search <كلمة من عنوان الرواية>\n\nمثال:\n/search جريمة"},
-    "quotes": {"emoji": "✨", "hint": None},
-    "download_instagram": {"emoji": "📸", "hint": "📸 أرسل رابط منشور/ريل/ستوري إنستقرام مباشرة بالمحادثة، وبيتم تحميله تلقائياً."},
-    "download_tiktok": {"emoji": "🎵", "hint": "🎵 أرسل رابط فيديو تيك توك مباشرة بالمحادثة، وبيتم تحميله تلقائياً."},
-    "shorten": {"emoji": "🔗", "hint": "🔗 استخدم:\n/shorten <رابط>\n\nمثال:\n/shorten https://example.com"},
-    "qr": {"emoji": "🔲", "hint": "🔲 استخدم:\n/qr <نص أو رابط>\n\nمثال:\n/qr https://sadim.cloud"},
-    "binary": {"emoji": "🔢", "hint": "🔢 استخدم:\n/binary <نص>\n\nمثال:\n/binary سديم"},
-    "contact_owner": {"emoji": "💬", "hint": "💬 أرسل أي رسالة عادية (مو أمر) بالمحادثة، وتوصل مباشرة لصاحب البوت — ويرد عليك من تيليجرامه."},
+    "library": {"emoji": "📚"},
+    "search": {"emoji": "🔍"},
+    "quotes": {"emoji": "✨"},
+    "download_instagram": {"emoji": "📸"},
+    "download_tiktok": {"emoji": "🎵"},
+    "shorten": {"emoji": "🔗"},
+    "qr": {"emoji": "🔲"},
+    "binary": {"emoji": "🔢"},
+    "tts": {"emoji": "🔊"},
+    "contact_owner": {"emoji": "💬"},
 }
+
+# أدوات تحتاج مدخل نصي: بدل نافذة تلميح صغيرة تطلب من المستخدم يحفظ صيغة أمر ويكتبه يدوياً
+# (مصدر إزعاج فعلي — "الأوامر غير واضحة")، الزر يسأل مباشرة وأي رد عادي بعده يُنفَّذ تلقائياً.
+INPUT_TOOLS = {
+    "search": (search.run_search, "🔍 اكتب كلمة من عنوان الرواية اللي تدور عليها:"),
+    "shorten": (shortener.run_shorten, "🔗 أرسل الرابط اللي تبي تختصره:"),
+    "qr": (qr.run_qr, "🔲 اكتب النص أو الرابط اللي تبي يتحول لرمز QR:"),
+    "binary": (binary.run_binary, "🔢 اكتب النص اللي تبي تحوّله لثنائي:"),
+    "tts": (tts.run_tts, "🔊 اكتب النص اللي تبي تحوّله لصوت:"),
+}
+
+# أدوات ما تحتاج أي أمر إطلاقاً — تعمل تلقائياً على أي رابط/رسالة، الزر فقط يوضّح كيف تُستخدم.
+INFO_TOOLS = {
+    "download_instagram": "📸 أرسل رابط منشور/ريل/ستوري إنستقرام هنا بالمحادثة، وبيتم تحميله تلقائياً.",
+    "download_tiktok": "🎵 أرسل رابط فيديو تيك توك هنا بالمحادثة، وبيتم تحميله تلقائياً.",
+    "contact_owner": "💬 أرسل أي رسالة عادية هنا بالمحادثة، وتوصل مباشرة لصاحب البوت — ويرد عليك من تيليجرامه.",
+}
+
+# تجميع الميزات بأقسام منطقية حتى تكون قائمة /start مريحة بدل شبكة أزرار مكدَّسة بلا تصنيف —
+# كل ما تكبر TOOLS مستقبلاً، القسم يمتص الزيادة بدل ما الشاشة الأولى تطول.
+CATEGORIES = [
+    {"key": "content", "emoji": "📚", "label": "المكتبة والمحتوى", "tools": ["library", "search"]},
+    {"key": "fun", "emoji": "✨", "label": "ترفيه", "tools": ["quotes"]},
+    {"key": "tools", "emoji": "🛠", "label": "أدوات", "tools": ["qr", "binary", "shorten", "tts"]},
+    {"key": "download", "emoji": "📥", "label": "تحميل من إنستقرام وتيك توك", "tools": ["download_instagram", "download_tiktok"]},
+    {"key": "contact", "emoji": "💬", "label": "تواصل", "tools": ["contact_owner"]},
+]
 
 
 def get_all_features():
@@ -58,42 +86,92 @@ def _register_handlers(bot: telebot.TeleBot, bot_id: int):
             pass
         return telebot.ContinueHandling()
 
-    @bot.message_handler(commands=['start'])
-    def start(message):
+    def _active_categories():
+        return [c for c in CATEGORIES if any(t in enabled_features for t in c["tools"])]
+
+    def _category_buttons(cat, with_back):
         buttons = []
         for tool in TOOLS:
             for feat in getattr(tool, "FEATURES", []):
                 key = feat["key"]
-                if key in enabled_features and key in TOOL_MENU:
+                if key in cat["tools"] and key in enabled_features and key in TOOL_MENU:
                     emoji = TOOL_MENU[key]["emoji"]
                     buttons.append(types.InlineKeyboardButton(f"{emoji} {feat['label']}", callback_data=f"sadim_menu:{key}"))
+        if with_back:
+            buttons.append(types.InlineKeyboardButton("🔙 رجوع", callback_data="sadim_root"))
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        markup.add(*buttons)
+        return markup
 
-        if buttons:
-            markup = types.InlineKeyboardMarkup(row_width=2)
-            markup.add(*buttons)
+    def _root_markup(active_cats):
+        markup = types.InlineKeyboardMarkup(row_width=1)
+        markup.add(*[types.InlineKeyboardButton(f"{c['emoji']} {c['label']}", callback_data=f"sadim_cat:{c['key']}") for c in active_cats])
+        return markup
+
+    @bot.message_handler(commands=['start'])
+    def start(message):
+        active_cats = _active_categories()
+        if not active_cats:
+            bot.send_message(message.chat.id, "🌌 <b>مرحباً بك في بوت شبكة سديم!</b>\n\nصاحب البوت ما فعّل أي ميزة بعد.", parse_mode="HTML")
+            return
+
+        # قسم واحد فقط مفعّل: نعرض أدواته مباشرة بدون خطوة تصنيف زايدة تُتعِب المستخدم
+        if len(active_cats) == 1:
+            markup = _category_buttons(active_cats[0], with_back=False)
             text = "🌌 <b>مرحباً بك في بوت شبكة سديم!</b>\n\nاختر أداة من الأزرار 👇 أو اكتب أمرها مباشرة."
         else:
-            markup = None
-            text = "🌌 <b>مرحباً بك في بوت شبكة سديم!</b>\n\nصاحب البوت ما فعّل أي ميزة بعد."
+            markup = _root_markup(active_cats)
+            text = "🌌 <b>مرحباً بك في بوت شبكة سديم!</b>\n\nاختر قسم من الأزرار 👇"
 
         bot.send_message(message.chat.id, text, parse_mode="HTML", reply_markup=markup)
+
+    @bot.callback_query_handler(func=lambda c: c.data.startswith("sadim_cat:"))
+    def handle_category(call):
+        bot.answer_callback_query(call.id)
+        cat = next((c for c in CATEGORIES if c["key"] == call.data.split(":", 1)[1]), None)
+        if not cat:
+            return
+        bot.edit_message_text(
+            f"{cat['emoji']} <b>{cat['label']}</b>\n\nاختر أداة 👇 أو اكتب أمرها مباشرة.",
+            call.message.chat.id, call.message.message_id,
+            parse_mode="HTML", reply_markup=_category_buttons(cat, with_back=True)
+        )
+
+    @bot.callback_query_handler(func=lambda c: c.data == "sadim_root")
+    def handle_root(call):
+        bot.answer_callback_query(call.id)
+        bot.edit_message_text(
+            "🌌 <b>مرحباً بك في بوت شبكة سديم!</b>\n\nاختر قسم من الأزرار 👇",
+            call.message.chat.id, call.message.message_id,
+            parse_mode="HTML", reply_markup=_root_markup(_active_categories())
+        )
+
+    def _capture_reply(action):
+        def handler(m):
+            text = (m.text or "").strip()
+            if text.startswith("/"):
+                return  # المستخدم غيّر رأيه وكتب أمر ثاني بدل ما يرد — نتجاهل بصمت بدل معاملته كمدخل فعلي
+            action(bot, m.chat.id, text, bot_id)
+        return handler
 
     @bot.callback_query_handler(func=lambda c: c.data.startswith("sadim_menu:"))
     def handle_menu_button(call):
         key = call.data.split(":", 1)[1]
-        meta = TOOL_MENU.get(key)
-        if not meta:
+        if key not in TOOL_MENU:
             bot.answer_callback_query(call.id)
             return
 
+        bot.answer_callback_query(call.id)
         if key == "library":
-            bot.answer_callback_query(call.id)
             library.send_library_list(bot, call.message.chat.id)
         elif key == "quotes":
-            bot.answer_callback_query(call.id)
             quotes.send_next_quote(bot, bot_id, call.message.chat.id)
-        else:
-            bot.answer_callback_query(call.id, text=meta["hint"], show_alert=True)
+        elif key in INPUT_TOOLS:
+            action, prompt = INPUT_TOOLS[key]
+            sent = bot.send_message(call.message.chat.id, prompt, reply_markup=types.ForceReply(selective=True))
+            bot.register_next_step_handler(sent, _capture_reply(action))
+        elif key in INFO_TOOLS:
+            bot.send_message(call.message.chat.id, INFO_TOOLS[key])
 
     for tool in TOOLS:
         tool.register(bot, bot_id, enabled_features)

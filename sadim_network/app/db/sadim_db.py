@@ -238,6 +238,17 @@ def create_tables():
             description TEXT
         );
     """)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS profile_articles (
+            id           SERIAL PRIMARY KEY,
+            title        VARCHAR(250) NOT NULL,
+            summary      TEXT,
+            url          VARCHAR(500),
+            published_at DATE,
+            created_at   TIMESTAMP DEFAULT NOW()
+        );
+    """)
     cur.execute("""
         CREATE TABLE IF NOT EXISTS bots (
             id SERIAL PRIMARY KEY,

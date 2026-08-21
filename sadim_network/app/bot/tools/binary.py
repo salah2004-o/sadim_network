@@ -4,6 +4,15 @@ FEATURES = [
 ]
 
 
+def run_binary(bot, chat_id, text, bot_id=None):
+    text = (text or "").strip()
+    if not text:
+        bot.send_message(chat_id, "⚠️ ما وصل أي نص، جرّب مرة ثانية.")
+        return
+    binary = ' '.join(format(byte, '08b') for byte in text.encode('utf-8'))
+    bot.send_message(chat_id, f"🔢 **النتيجة:**\n`{binary}`", parse_mode="Markdown")
+
+
 def register(bot, bot_id, enabled_features):
     if "binary" not in enabled_features:
         return
@@ -14,7 +23,4 @@ def register(bot, bot_id, enabled_features):
         if len(parts) < 2 or not parts[1].strip():
             bot.reply_to(message, "⚠️ استخدم: /binary <نص>\nمثال: /binary سديم")
             return
-
-        text = parts[1].strip()
-        binary = ' '.join(format(byte, '08b') for byte in text.encode('utf-8'))
-        bot.send_message(message.chat.id, f"🔢 **النتيجة:**\n`{binary}`", parse_mode="Markdown")
+        run_binary(bot, message.chat.id, parts[1], bot_id)

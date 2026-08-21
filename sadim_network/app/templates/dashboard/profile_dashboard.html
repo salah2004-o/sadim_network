@@ -211,6 +211,7 @@
     <button class="pf-tab" onclick="showTab('skills',this)">SKILLS</button>
     <button class="pf-tab" onclick="showTab('projects',this)">PROJECTS</button>
     <button class="pf-tab" onclick="showTab('certs',this)">CERTS</button>
+    <button class="pf-tab" onclick="showTab('articles',this)">ARTICLES</button>
   </div>
 
   <!-- ── GENERAL ──────────────────────────────────────────────────────── -->
@@ -489,6 +490,67 @@
     </div>
   </div>
 
+  <!-- ── ARTICLES ──────────────────────────────────────────────────────── -->
+  <div id="tab-articles" class="pf-pane">
+    {% for a in articles %}
+    <div class="pf-card">
+      <form method="POST" action="{{ url_for('profile_bp.profile_article_update', article_id=a.id) }}">
+        <div class="g2">
+          <div class="pf-field g-full">
+            <label>عنوان المقالة</label>
+            <input name="title" value="{{ a.title }}">
+          </div>
+          <div class="pf-field">
+            <label>الرابط</label>
+            <input name="url" value="{{ a.url or '' }}" placeholder="https://...">
+          </div>
+          <div class="pf-field">
+            <label>تاريخ النشر</label>
+            <input type="date" name="published_at" value="{{ a.published_at.strftime('%Y-%m-%d') if a.published_at else '' }}">
+          </div>
+          <div class="pf-field g-full">
+            <label>ملخص قصير</label>
+            <textarea name="summary">{{ a.summary or '' }}</textarea>
+          </div>
+        </div>
+        <div class="pf-btn-row">
+          <button type="submit" class="pf-btn pf-btn-save">تحديث</button>
+        </div>
+      </form>
+      <form method="POST" action="{{ url_for('profile_bp.profile_article_delete', article_id=a.id) }}" style="display:inline">
+        <button type="submit" class="pf-btn pf-btn-del" onclick="return confirm('حذف المقالة؟')">حذف</button>
+      </form>
+    </div>
+    {% endfor %}
+
+    <div class="pf-add-card">
+      <div class="pf-add-title">+ إضافة مقالة</div>
+      <form method="POST" action="{{ url_for('profile_bp.profile_article_add') }}">
+        <div class="g2">
+          <div class="pf-field g-full">
+            <label>عنوان المقالة</label>
+            <input name="title" placeholder="عنوان المقالة">
+          </div>
+          <div class="pf-field">
+            <label>الرابط</label>
+            <input name="url" placeholder="https://...">
+          </div>
+          <div class="pf-field">
+            <label>تاريخ النشر</label>
+            <input type="date" name="published_at">
+          </div>
+          <div class="pf-field g-full">
+            <label>ملخص قصير</label>
+            <textarea name="summary" placeholder="سطرين يلخّصون المقالة"></textarea>
+          </div>
+        </div>
+        <div class="pf-btn-row">
+          <button type="submit" class="pf-btn pf-btn-add">إضافة</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 </div><!-- /pf-page-scope -->
 {% endblock %}
 
@@ -502,7 +564,7 @@ function showTab(id, btn) {
 }
 
 // فتح التاب الصح لو في anchor في الـ URL
-const tabMap = { stats:'stats', skills:'skills', projects:'projects', certs:'certs' };
+const tabMap = { stats:'stats', skills:'skills', projects:'projects', certs:'certs', articles:'articles' };
 const hash = location.hash.replace('#','');
 if (tabMap[hash]) {
   const btn = [...document.querySelectorAll('.pf-tab')]

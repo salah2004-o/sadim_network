@@ -63,6 +63,15 @@ def get_certs():
     conn.close()
     return rows
 
+def get_articles():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id, title, summary, url, published_at FROM profile_articles ORDER BY published_at DESC NULLS LAST, id DESC;")
+    rows = [{'id': r[0], 'title': r[1], 'summary': r[2], 'url': r[3], 'published_at': r[4]} for r in cur.fetchall()]
+    cur.close()
+    conn.close()
+    return rows
+
 
 # ── Dashboard ────────────────────────────────────────────────────────────────
 
@@ -72,7 +81,8 @@ def get_certs():
 def profile_dashboard():
     return render_template('dashboard/profile_dashboard.html',
         info=get_profile(), stats=get_stats(),
-        skills=get_skills(), projects=get_projects(), certs=get_certs()
+        skills=get_skills(), projects=get_projects(), certs=get_certs(),
+        articles=get_articles()
     )
 
 
@@ -314,6 +324,65 @@ def profile_cert_delete(cert_id):
     return redirect(url_for('profile_bp.profile_dashboard') + '#certs')
 
 
+# ── Articles ──────────────────────────────────────────────────────────────────
+
+@profile_bp.route('/profile/articles/add', methods=['POST'])
+@login_required
+@admin_required
+def profile_article_add():
+    title = request.form.get('title', '').strip()
+    summary = request.form.get('summary', '').strip()
+    url = request.form.get('url', '').strip()
+    published_at = request.form.get('published_at', '').strip() or None
+    if title:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(
+            "INSERT INTO profile_articles (title, summary, url, published_at) VALUES (%s, %s, %s, %s);",
+            (title, summary, url, published_at)
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+        flash('تمت إضافة المقالة', 'success')
+    return redirect(url_for('profile_bp.profile_dashboard') + '#articles')
+
+
+@profile_bp.route('/profile/articles/update/<int:article_id>', methods=['POST'])
+@login_required
+@admin_required
+def profile_article_update(article_id):
+    title = request.form.get('title', '').strip()
+    summary = request.form.get('summary', '').strip()
+    url = request.form.get('url', '').strip()
+    published_at = request.form.get('published_at', '').strip() or None
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE profile_articles SET title=%s, summary=%s, url=%s, published_at=%s WHERE id=%s;",
+        (title, summary, url, published_at, article_id)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash('تم تحديث المقالة', 'success')
+    return redirect(url_for('profile_bp.profile_dashboard') + '#articles')
+
+
+@profile_bp.route('/profile/articles/delete/<int:article_id>', methods=['POST'])
+@login_required
+@admin_required
+def profile_article_delete(article_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM profile_articles WHERE id=%s;", (article_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash('تم حذف المقالة', 'success')
+    return redirect(url_for('profile_bp.profile_dashboard') + '#articles')
+
+
 # ── Public Page ───────────────────────────────────────────────────────────────
 
 # ── Public Page ───────────────────────────────────────────────────────────────
@@ -346,3 +415,8 @@ def profile_public():
         info=get_profile(), stats=get_stats(),
         skills=get_skills(), projects=get_projects(), certs=get_certs()
     )
+
+
+@profile_bp.route('/profile/articles')
+def profile_articles_public():
+    return render_template('profile/articles.html', info=get_profile(), articles=get_articles())

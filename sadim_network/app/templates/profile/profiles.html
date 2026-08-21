@@ -74,6 +74,9 @@ body::before { content:'';position:fixed;inset:0;background-image:url("data:imag
 @keyframes ping { 0%{box-shadow:0 0 0 0 rgba(74,222,128,.4)}70%{box-shadow:0 0 0 8px rgba(74,222,128,0)}100%{box-shadow:0 0 0 0 rgba(74,222,128,0)} }
 .status-txt { font-family:var(--mono);font-size:11px;color:var(--success);letter-spacing:2px;text-transform:uppercase; }
 
+.hero-identity { display:flex;align-items:center;gap:28px; }
+.hero-avatar { width:88px;height:88px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(124,106,247,.4);box-shadow:0 0 0 4px rgba(124,106,247,.08),0 8px 24px rgba(0,0,0,.4);opacity:0;animation:fadeUp .7s .12s forwards; }
+
 .hero-name { font-family:var(--mono);font-size:clamp(56px,10vw,110px);font-weight:700;color:var(--text);line-height:.95;letter-spacing:-2px;margin-bottom:4px;opacity:0;animation:fadeUp .7s .2s forwards; }
 .hero-name .underscore { display:inline-block;animation:blink 1s step-end infinite;color:var(--accent); }
 @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
@@ -168,6 +171,8 @@ footer { border-top:1px solid var(--border);padding:40px 0 20px;text-align:cente
   .cursor,.cursor-ring{display:none}
   .proj-card{grid-template-columns:1fr;gap:12px;padding:20px}
   .proj-index{display:none}
+  .hero-avatar{width:64px;height:64px}
+  .hero-identity{gap:18px}
 }
 </style>
 </head>
@@ -187,6 +192,7 @@ footer { border-top:1px solid var(--border);padding:40px 0 20px;text-align:cente
   {% if skills %}<div class="nav-dot" data-target="skills" data-label="skills" onclick="goTo('skills')"></div>{% endif %}
   {% if projects %}<div class="nav-dot" data-target="projects" data-label="projects" onclick="goTo('projects')"></div>{% endif %}
   {% if certs %}<div class="nav-dot" data-target="certs" data-label="certs" onclick="goTo('certs')"></div>{% endif %}
+  <div class="nav-dot" data-target="articles" data-label="articles" onclick="goTo('articles')"></div>
 </nav>
 
 <main class="wrap">
@@ -200,8 +206,13 @@ footer { border-top:1px solid var(--border);padding:40px 0 20px;text-align:cente
     </div>
     {% endif %}
 
-    <h1 class="hero-name">{{ info.get('name','SAP1O') }}<span class="underscore">_</span></h1>
-    <div class="hero-sub">{{ info.get('title','Backend Developer') }}</div>
+    <div class="hero-identity">
+      <img src="{{ url_for('static', filename='images/profile.jpg') }}" alt="{{ info.get('name','SAP1O') }}" class="hero-avatar" onerror="this.style.display='none'">
+      <div>
+        <h1 class="hero-name">{{ info.get('name','SAP1O') }}<span class="underscore">_</span></h1>
+        <div class="hero-sub">{{ info.get('title','Backend Developer') }}</div>
+      </div>
+    </div>
     <p class="hero-bio">{{ info.get('tagline','') }}</p>
 
     <div class="hero-links">
@@ -317,6 +328,20 @@ footer { border-top:1px solid var(--border);padding:40px 0 20px;text-align:cente
     </div>
   </section>
   {% endif %}
+
+  <!-- ── Articles CTA ────────────────────────────────────────────────────── -->
+  <section id="articles" class="sec">
+    <div class="sec-head reveal">
+      <span class="sec-num">05</span>
+      <h2 class="sec-title">المقالات</h2>
+      <span class="sec-code">articles()</span>
+      <div class="sec-line"></div>
+    </div>
+    <a href="{{ url_for('profile_bp.profile_articles_public') }}" class="about-box reveal" style="display:block;text-decoration:none;">
+      <span class="about-corner">articles.md</span>
+      <p class="about-text">كتابات ومقالات تقنية — تجارب بناء حقيقية، مو شرح نظري. <span style="color:var(--accent2)">اقرأ المقالات ↗</span></p>
+    </a>
+  </section>
 
   <footer>
     <div class="footer-name">{{ info.get('name','SAP1O') }}</div>
