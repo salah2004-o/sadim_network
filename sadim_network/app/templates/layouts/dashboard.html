@@ -45,6 +45,7 @@
         <a href="{{ url_for('admin.admin_users_list') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.admin_users_list' }}"><i class="fas fa-address-book"></i> دليل المستخدمين</a>
         <a href="{{ url_for('admin.manage_articles') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.manage_articles' }}"><i class="fas fa-newspaper"></i> المقالات</a>
         <a href="{{ url_for('admin.manage_comments') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.manage_comments' }}"><i class="fas fa-comments"></i> التعليقات</a>
+        <a href="{{ url_for('admin.ai_conversations') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint in ('admin.ai_conversations', 'admin.ai_conversation', 'admin.ai_user_profile') }}"><i class="fas fa-wand-magic-sparkles"></i> محادثات Sadeem AI</a>
         <a href="{{ url_for('admin.manage_library') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'admin.manage_library' }}"><i class="fas fa-book"></i> المكتبة</a>
         <a href="{{ url_for('profile_bp.profile_dashboard') }}" class="sd-sidebar-item {{ 'is-active' if request.endpoint == 'profile_bp.profile_dashboard' }}"><i class="fas fa-id-badge"></i> البروفايل</a>
         {% endblock %}
