@@ -1,15 +1,76 @@
 {% extends 'layouts/dashboard.html' %}
 {% block title %}محادثات Sadeem AI{% endblock %}
 {% block page_title %}محادثات Sadeem AI{% endblock %}
+{% block extra_head %}
+<style>
+	.ai-admin-intro { margin-bottom: var(--sd-sp-5); }
+	.ai-admin-intro h2 { margin:0 0 var(--sd-sp-2); font-size:var(--sd-fs-xl); }
+	.ai-admin-intro p { margin:0; color:var(--sd-text-secondary); }
+	.ai-admin-stats { display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:var(--sd-sp-3); margin-bottom:var(--sd-sp-5); }
+	.ai-admin-stat { background:var(--sd-bg-elevated); border:1px solid var(--sd-border); border-radius:var(--sd-radius-md); padding:var(--sd-sp-4); }
+	.ai-admin-stat strong { display:block; margin-top:var(--sd-sp-2); font-size:var(--sd-fs-xl); color:var(--sd-text); }
+	.ai-admin-stat span { color:var(--sd-text-secondary); font-size:var(--sd-fs-sm); }
+	.ai-admin-toolbar { display:flex; align-items:end; gap:var(--sd-sp-3); flex-wrap:wrap; margin-bottom:var(--sd-sp-4); }
+	.ai-admin-toolbar .sd-form-group { flex:1 1 260px; margin:0; }
+	.ai-admin-toolbar .sd-select { min-width:180px; }
+	.ai-admin-table td, .ai-admin-table th { vertical-align:middle; }
+	.ai-admin-table a { color:var(--sd-accent-light); text-decoration:none; font-weight:var(--sd-fw-bold); }
+	.ai-admin-table a:hover { text-decoration:underline; }
+	.ai-status { display:inline-flex; align-items:center; gap:6px; padding:4px 9px; border-radius:var(--sd-radius-full); font-size:var(--sd-fs-xs); background:var(--sd-success-soft); color:var(--sd-success); }
+	.ai-status.is-fallback { background:var(--sd-warning-soft); color:var(--sd-warning); }
+	@media (max-width:1000px) { .ai-admin-stats { grid-template-columns:repeat(3, minmax(0, 1fr)); } }
+	@media (max-width:640px) { .ai-admin-stats { grid-template-columns:repeat(2, minmax(0, 1fr)); } .ai-admin-toolbar .sd-btn { width:100%; } .ai-admin-table { min-width:680px; } }
+</style>
+{% endblock %}
 {% block content %}
-<h1>محادثات Sadeem AI</h1>
-<div class="row g-3 mb-3">
-	<div class="col-md-2"><div class="card bg-dark text-light p-3">اليوم: {{ stats.today }}</div></div>
-	<div class="col-md-2"><div class="card bg-dark text-light p-3">آخر 7 أيام: {{ stats.week }}</div></div>
-	<div class="col-md-2"><div class="card bg-dark text-light p-3">نجاح: {{ stats.successful }}</div></div>
-	<div class="col-md-2"><div class="card bg-dark text-light p-3">Fallback: {{ stats.fallback }}</div></div>
-	<div class="col-md-2"><div class="card bg-dark text-light p-3">نسبة الفشل: {{ stats.failure_rate }}%</div></div>
+<div class="ai-admin-intro">
+	<h2>محادثات Sadeem AI</h2>
+	<p>راقب استخدام المساعد وحالات المحادثات من مساحة إدارة سديم.</p>
 </div>
-<form><input name="q" value="{{ query }}" placeholder="بحث باسم المستخدم أو المحادثة"><select name="status"><option value="">كل الحالات</option><option value="success"{% if status == 'success' %} selected{% endif %}>نجح</option><option value="fallback"{% if status == 'fallback' %} selected{% endif %}>Fallback</option></select><button>بحث</button></form>
-<table class="table table-dark"><thead><tr><th>المستخدم</th><th>المحادثة</th><th>الحالة</th><th>الرسائل</th><th>آخر نشاط</th><th></th></tr></thead><tbody>{% for c in conversations %}<tr><td><a href="{{ url_for('admin.ai_user_profile', user_id=c[4]) }}">{{ c[5] or c[6] }}</a></td><td>{{ c[1] }}</td><td>{{ c[7] }}</td><td>{{ c[8] }}</td><td>{{ c[3] }}</td><td><a href="{{ url_for('admin.ai_conversation', conversation_id=c[0]) }}">عرض</a></td></tr>{% else %}<tr><td colspan="6">لا توجد محادثات.</td></tr>{% endfor %}</tbody></table>
+
+<div class="ai-admin-stats">
+	<div class="ai-admin-stat"><span>اليوم</span><strong>{{ stats.today }}</strong></div>
+	<div class="ai-admin-stat"><span>آخر 7 أيام</span><strong>{{ stats.week }}</strong></div>
+	<div class="ai-admin-stat"><span>محادثات ناجحة</span><strong>{{ stats.successful }}</strong></div>
+	<div class="ai-admin-stat"><span>Fallback</span><strong>{{ stats.fallback }}</strong></div>
+	<div class="ai-admin-stat"><span>نسبة الفشل</span><strong>{{ stats.failure_rate }}%</strong></div>
+</div>
+
+<form class="ai-admin-toolbar" method="GET">
+	<div class="sd-form-group">
+		<label class="sd-label" for="ai-search">بحث</label>
+		<input class="sd-input" id="ai-search" name="q" value="{{ query }}" placeholder="اسم المستخدم أو عنوان المحادثة">
+	</div>
+	<div class="sd-form-group">
+		<label class="sd-label" for="ai-status">الحالة</label>
+		<select class="sd-select" id="ai-status" name="status">
+			<option value="">كل الحالات</option>
+			<option value="success"{% if status == 'success' %} selected{% endif %}>ناجحة</option>
+			<option value="fallback"{% if status == 'fallback' %} selected{% endif %}>Fallback</option>
+		</select>
+	</div>
+	<button class="sd-btn sd-btn-primary" type="submit"><i class="fas fa-search"></i> بحث</button>
+</form>
+
+<div class="sd-card" style="padding:0; overflow:hidden;">
+	<div class="sd-table-wrapper" style="border:0; border-radius:0;">
+		<table class="sd-table ai-admin-table">
+			<thead><tr><th>المستخدم</th><th>المحادثة</th><th>الحالة</th><th>الرسائل</th><th>آخر نشاط</th><th>الإجراء</th></tr></thead>
+			<tbody>
+			{% for c in conversations %}
+			<tr>
+				<td><a href="{{ url_for('admin.ai_user_profile', user_id=c[4]) }}">{{ c[5] or c[6] }}</a></td>
+				<td>{{ c[1] }}</td>
+				<td><span class="ai-status{% if c[7] == 'fallback' %} is-fallback{% endif %}"><span class="sd-badge-dot"></span>{{ c[7] }}</span></td>
+				<td>{{ c[8] }}</td>
+				<td>{{ c[3] }}</td>
+				<td><a href="{{ url_for('admin.ai_conversation', conversation_id=c[0]) }}">عرض التفاصيل</a></td>
+			</tr>
+			{% else %}
+			<tr><td colspan="6" style="text-align:center; color:var(--sd-text-secondary);">لا توجد محادثات مطابقة.</td></tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
 {% endblock %}
