@@ -269,4 +269,5 @@ if (navigator.share) {
 {% if not request.path.startswith('/ai') %}{% include 'partials/_ai_float.html' %}<script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>{% endif %}
 
 </body>
+{% include 'partials/_page_nav.html' %}
 </html>

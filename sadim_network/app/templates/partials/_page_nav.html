@@ -1,0 +1,37 @@
+<style>
+    .sd-page-nav { display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:12px max(16px, 4vw); background:rgba(9,9,13,.92); border-bottom:1px solid rgba(255,255,255,.1); position:relative; z-index:20; font-family:inherit; }
+    .sd-page-nav a { color:#c9c9d8; text-decoration:none; }
+    .sd-page-nav__brand { display:inline-flex; align-items:center; gap:8px; color:#f2f2f7 !important; font-weight:700; white-space:nowrap; }
+    .sd-page-nav__links { display:flex; align-items:center; gap:6px; flex:1; flex-wrap:wrap; }
+    .sd-page-nav__links a, .sd-page-nav__back { min-height:44px; display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border-radius:8px; font:inherit; font-size:.88rem; }
+    .sd-page-nav__links a:hover, .sd-page-nav__back:hover { background:rgba(124,77,255,.16); color:#c3a6ff; }
+    .sd-page-nav__back { border:1px solid rgba(255,255,255,.14); background:transparent; color:#c9c9d8; cursor:pointer; }
+    @media (max-width:640px) { .sd-page-nav { gap:8px; } .sd-page-nav__links { order:3; flex-basis:100%; overflow-x:auto; flex-wrap:nowrap; } .sd-page-nav__links a { white-space:nowrap; } .sd-page-nav__back { margin-inline-start:auto; } }
+</style>
+<nav class="sd-page-nav" aria-label="التنقل داخل سديم">
+    <a href="{{ url_for('main.index') }}" class="sd-page-nav__brand"><i class="fas fa-circle-nodes" aria-hidden="true"></i> سديم</a>
+    <div class="sd-page-nav__links">
+        <a href="{{ url_for('main.discover') }}"><i class="fas fa-compass" aria-hidden="true"></i> اكتشف</a>
+        <a href="{{ url_for('Library_Agatha.agatha_christie') }}"><i class="fas fa-book" aria-hidden="true"></i> المكتبة</a>
+        <a href="{{ url_for('articles.list_articles') }}"><i class="fas fa-newspaper" aria-hidden="true"></i> المقالات</a>
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('bots.my_bots') }}"><i class="fas fa-toolbox" aria-hidden="true"></i> أدواتي</a>
+        <a href="{{ url_for('loading_bp.account') }}"><i class="fas fa-user" aria-hidden="true"></i> حسابي</a>
+        {% else %}
+        <a href="{{ url_for('loading_bp.login') }}"><i class="fas fa-right-to-bracket" aria-hidden="true"></i> تسجيل الدخول</a>
+        {% endif %}
+    </div>
+    <button type="button" class="sd-page-nav__back" onclick="sdGoBack(event)" aria-label="العودة للصفحة السابقة">
+        <i class="fas fa-arrow-right" aria-hidden="true"></i><span>رجوع</span>
+    </button>
+</nav>
+<script>
+function sdGoBack(event) {
+    event.preventDefault();
+    if (window.history.length > 1 && document.referrer) {
+        window.history.back();
+    } else {
+        window.location.href = '{{ url_for('main.discover') }}';
+    }
+}
+</script>

@@ -23,6 +23,7 @@
 {% block extra_head %}{% endblock %}
 </head>
 <body class="sd-app sd-root">
+{% include 'partials/_page_nav.html' %}
 <div class="sd-auth-wrap">
     <div class="sd-auth-card sd-fade-in">
         <a href="{{ url_for('loading_bp.landing_page') }}" class="sd-auth-logo">

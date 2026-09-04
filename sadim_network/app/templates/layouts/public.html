@@ -20,7 +20,7 @@
 
     <nav aria-label="التنقل الرئيسي" class="sd-navbar-links-wrap" style="display:flex; align-items:center; gap: var(--sd-sp-2);">
         <ul class="sd-navbar-links" id="sd-desktop-nav">
-            <li><a href="{{ url_for('main.services') }}"><i class="fas fa-compass"></i> اكتشف</a></li>
+            <li><a href="{{ url_for('main.discover') }}"><i class="fas fa-compass"></i> اكتشف</a></li>
             {% if session.get('user_id') %}
             <li><a href="{{ url_for('bots.my_bots') }}"><i class="fas fa-toolbox"></i> أدواتي</a></li>
             <li><a href="{{ url_for('ai.index') }}"><i class="fas fa-wand-magic-sparkles"></i> Sadeem AI</a></li>
@@ -56,7 +56,7 @@
 
 <div id="mobile-sidebar" class="sd-sidebar sd-mobile-drawer">
     <button id="close-sidebar" class="sd-btn sd-btn-icon sd-btn-ghost" style="align-self:flex-end;" aria-label="إغلاق القائمة"><i class="fas fa-xmark"></i></button>
-    <a href="{{ url_for('main.services') }}" class="sd-sidebar-item"><i class="fas fa-compass"></i> اكتشف</a>
+    <a href="{{ url_for('main.discover') }}" class="sd-sidebar-item"><i class="fas fa-compass"></i> اكتشف</a>
     {% if session.get('user_id') %}
     <a href="{{ url_for('bots.my_bots') }}" class="sd-sidebar-item"><i class="fas fa-toolbox"></i> أدواتي</a>
     <a href="{{ url_for('ai.index') }}" class="sd-sidebar-item"><i class="fas fa-wand-magic-sparkles"></i> Sadeem AI</a>
@@ -74,6 +74,11 @@
 </div>
 
 <main class="sd-fade-in">
+<div class="sd-global-back-wrap">
+    <button type="button" class="sd-global-back" onclick="sdGoBack(event)">
+        <i class="fas fa-arrow-right" aria-hidden="true"></i> رجوع
+    </button>
+</div>
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     <div class="sd-container" style="padding-top: var(--sd-sp-5); display:flex; flex-direction:column; gap: var(--sd-sp-2);">
@@ -100,6 +105,16 @@
 
 <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
 <script src="{{ url_for('static', filename='js/ui-kit.js') }}"></script>
+<script>
+function sdGoBack(event) {
+    event.preventDefault();
+    if (window.history.length > 1 && document.referrer) {
+        window.history.back();
+    } else {
+        window.location.href = '{{ url_for('main.discover') }}';
+    }
+}
+</script>
 {% if not request.path.startswith('/ai') %}<script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>{% endif %}
 <script>
     // إظهار زر الهامبرغر بالجوال فقط (النطاق العريض يبقى على القائمة الأفقية)

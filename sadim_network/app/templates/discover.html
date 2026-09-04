@@ -1,0 +1,80 @@
+{% extends "layouts/public.html" %}
+{% block title %}اكتشف سديم — شبكة سديم{% endblock %}
+
+{% block extra_head %}
+<style>
+    .discover-hero { padding: var(--sd-sp-10) var(--sd-sp-4) var(--sd-sp-8); text-align:center; background: radial-gradient(circle at 50% 0%, rgba(124,77,255,.18), transparent 62%); }
+    .discover-hero h1 { margin:0 0 var(--sd-sp-3); font-size:clamp(2rem, 5vw, 3.2rem); }
+    .discover-hero p { max-width:650px; margin:0 auto; color:var(--sd-text-secondary); font-size:var(--sd-fs-md); line-height:1.9; }
+    .discover-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:var(--sd-sp-4); }
+    .discover-card { display:flex; flex-direction:column; min-height:220px; text-decoration:none; color:inherit; }
+    .discover-card-icon { width:52px; height:52px; display:flex; align-items:center; justify-content:center; border-radius:var(--sd-radius-md); background:var(--sd-accent-soft-strong); color:var(--sd-accent-light); font-size:1.35rem; margin-bottom:var(--sd-sp-4); }
+    .discover-card h2 { margin:0 0 var(--sd-sp-2); font-size:var(--sd-fs-lg); }
+    .discover-card p { margin:0; color:var(--sd-text-secondary); line-height:1.8; flex:1; }
+    .discover-card-action { display:inline-flex; align-items:center; gap:var(--sd-sp-2); margin-top:var(--sd-sp-5); color:var(--sd-accent-light); font-weight:var(--sd-fw-bold); }
+    .discover-services { margin-top:var(--sd-sp-5); display:flex; align-items:center; justify-content:space-between; gap:var(--sd-sp-4); flex-wrap:wrap; }
+    .discover-services p { margin:0; color:var(--sd-text-secondary); }
+    @media (max-width:700px) {
+        .discover-hero { padding-top:var(--sd-sp-8); }
+        .discover-grid { grid-template-columns:1fr; }
+        .discover-card { min-height:190px; }
+        .discover-services .sd-btn { width:100%; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="discover-hero">
+    <h1>اكتشف ما يناسبك في سديم</h1>
+    <p>محتوى للمعرفة، أدوات للاستخدام، ومساعد ذكي يساعدك على تحويل زيارتك إلى عمل مستمر داخل منصة واحدة.</p>
+</section>
+
+<main class="sd-container" style="padding-block: var(--sd-sp-8);">
+    <div class="discover-grid">
+        <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-card sd-card-hover discover-card">
+            <span class="discover-card-icon"><i class="fas fa-book-open"></i></span>
+            <h2>المكتبة</h2>
+            <p>تصفح الروايات، اقرأ عن الكتب، احفظ ما يهمك وتابع قراءتك لاحقًا.</p>
+            <span class="discover-card-action">استكشف المكتبة <i class="fas fa-arrow-left"></i></span>
+        </a>
+
+        <a href="{{ url_for('articles.list_articles') }}" class="sd-card sd-card-hover discover-card">
+            <span class="discover-card-icon"><i class="fas fa-newspaper"></i></span>
+            <h2>المقالات</h2>
+            <p>اقرأ محتوى تقنيًا وفكريًا يساعدك على فهم الأدوات والأنظمة من حولك.</p>
+            <span class="discover-card-action">اقرأ المقالات <i class="fas fa-arrow-left"></i></span>
+        </a>
+
+        <a href="{{ url_for('main.services') }}" class="sd-card sd-card-hover discover-card">
+            <span class="discover-card-icon"><i class="fas fa-box-open"></i></span>
+            <h2>الخدمات والمنتجات</h2>
+            <p>تعرّف على المنتجات والأدوات الرقمية المتاحة، وما يمكن أن تقدمه لك.</p>
+            <span class="discover-card-action">عرض الخدمات <i class="fas fa-arrow-left"></i></span>
+        </a>
+
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('ai.index') }}" class="sd-card sd-card-hover discover-card">
+            <span class="discover-card-icon"><i class="fas fa-wand-magic-sparkles"></i></span>
+            <h2>Sadeem AI</h2>
+            <p>مساعدك داخل المنصة، مع سياق يساعدك على استخدام المحتوى والأدوات بشكل أفضل.</p>
+            <span class="discover-card-action">ابدأ محادثة <i class="fas fa-arrow-left"></i></span>
+        </a>
+        {% else %}
+        <a href="{{ url_for('loading_bp.login') }}" class="sd-card sd-card-hover discover-card">
+            <span class="discover-card-icon"><i class="fas fa-wand-magic-sparkles"></i></span>
+            <h2>Sadeem AI</h2>
+            <p>سجّل دخولك للوصول إلى مساعدك الذكي ومتابعة محادثاتك داخل سديم.</p>
+            <span class="discover-card-action">تسجيل الدخول <i class="fas fa-arrow-left"></i></span>
+        </a>
+        {% endif %}
+    </div>
+
+    <section class="sd-card discover-services">
+        <div>
+            <h2 style="margin:0 0 var(--sd-sp-2); font-size:var(--sd-fs-lg);">هل تبحث عن خدمة محددة؟</h2>
+            <p>انتقل إلى قائمة الخدمات التفصيلية لمقارنة الخيارات المتاحة.</p>
+        </div>
+        <a href="{{ url_for('main.services') }}" class="sd-btn sd-btn-primary">عرض قائمة الخدمات</a>
+    </section>
+</main>
+{% endblock %}

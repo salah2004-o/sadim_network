@@ -131,6 +131,14 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
 }
 
 .sd-container { max-width: 1180px; margin-inline: auto; padding-inline: var(--sd-sp-6); }
+.sd-global-back-wrap { max-width: 1180px; margin: 0 auto; padding: var(--sd-sp-3) var(--sd-sp-6) 0; }
+.sd-global-back {
+    display: inline-flex; align-items: center; gap: var(--sd-sp-2); min-height: var(--sd-tap-min);
+    padding: var(--sd-sp-2) var(--sd-sp-3); border: 1px solid var(--sd-border-strong);
+    border-radius: var(--sd-radius-sm); background: transparent; color: var(--sd-text-secondary);
+    font: inherit; font-size: var(--sd-fs-sm); cursor: pointer;
+}
+.sd-global-back:hover { color: var(--sd-text); background: var(--sd-accent-soft); border-color: var(--sd-accent-soft-strong); }
 .sd-grid-3 {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
