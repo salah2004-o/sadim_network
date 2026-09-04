@@ -592,26 +592,18 @@
     <!-- الأزرار -->
     <div class="actions-grid">
         {% if bot.is_active %}
-        <a href="{{ url_for('bots.toggle_bot', bot_id=bot.id) }}"
-           class="action-btn toggle-off"
-           onclick="return confirm('إيقاف البوت؟')">
-            <i class="fas fa-pause-circle"></i>
-            إيقاف البوت مؤقتاً
-        </a>
+        <form action="{{ url_for('bots.toggle_bot', bot_id=bot.id) }}" method="POST" onsubmit="return confirm('إيقاف البوت؟')">
+            <button type="submit" class="action-btn toggle-off"><i class="fas fa-pause-circle"></i> إيقاف البوت مؤقتاً</button>
+        </form>
         {% else %}
-        <a href="{{ url_for('bots.toggle_bot', bot_id=bot.id) }}"
-           class="action-btn toggle-on">
-            <i class="fas fa-play-circle"></i>
-            تشغيل البوت
-        </a>
+        <form action="{{ url_for('bots.toggle_bot', bot_id=bot.id) }}" method="POST">
+            <button type="submit" class="action-btn toggle-on"><i class="fas fa-play-circle"></i> تشغيل البوت</button>
+        </form>
         {% endif %}
 
-        <a href="{{ url_for('bots.delete_bot', bot_id=bot.id) }}"
-           class="action-btn danger"
-           onclick="return confirm('حذف البوت نهائياً؟ لا يمكن التراجع.')">
-            <i class="fas fa-trash-alt"></i>
-            حذف البوت
-        </a>
+        <form action="{{ url_for('bots.delete_bot', bot_id=bot.id) }}" method="POST" onsubmit="return confirm('حذف البوت نهائياً؟ لا يمكن التراجع.')">
+            <button type="submit" class="action-btn danger"><i class="fas fa-trash-alt"></i> حذف البوت</button>
+        </form>
     </div>
 
     <!-- الاقتباسات -->

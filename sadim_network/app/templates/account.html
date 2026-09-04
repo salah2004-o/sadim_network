@@ -2,7 +2,7 @@
 {% block title %}حسابي — شبكة سديم{% endblock %}
 
 {% block content %}
-<div class="sd-container" style="max-width:520px; padding-block: var(--sd-sp-6);">
+<div class="sd-container" style="max-width:1100px; padding-block: var(--sd-sp-6);">
 
     <div style="text-align:center; margin-bottom: var(--sd-sp-5);">
         {% if user.profile_image %}
@@ -10,8 +10,26 @@
         {% else %}
             <img src="{{ url_for('static', filename='uploads/default_user.png') }}" width="110" height="110" style="border-radius:50%; object-fit:cover; border:3px solid var(--sd-border);">
         {% endif %}
-        <h1 style="font-size: var(--sd-fs-lg); margin: var(--sd-sp-3) 0 0;">{{ user.username }}</h1>
-        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin: 4px 0 0;">{{ user.email }}</p>
+        <h1 style="font-size: var(--sd-fs-xl); margin: var(--sd-sp-3) 0 0;">مساحتك في سديم</h1>
+        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin: 4px 0 0;">مرحباً {{ user.username }}، هنا تجد أدواتك ومحتواك وتقدمك.</p>
+    </div>
+
+    <div class="sd-grid-3" style="margin-bottom: var(--sd-sp-5);">
+        <a href="{{ url_for('bots.my_bots') }}" class="sd-card sd-card-hover" style="text-decoration:none; color:inherit;">
+            <i class="fas fa-toolbox" style="color:var(--sd-accent-light); font-size:1.3rem;"></i>
+            <h2 style="font-size:var(--sd-fs-md); margin:var(--sd-sp-2) 0 4px;">أدواتي</h2>
+            <p style="color:var(--sd-text-secondary); margin:0; font-size:var(--sd-fs-sm);">{{ my_bots|length }} نظام مرتبط</p>
+        </a>
+        <a href="{{ url_for('ai.index') }}" class="sd-card sd-card-hover" style="text-decoration:none; color:inherit;">
+            <i class="fas fa-wand-magic-sparkles" style="color:var(--sd-accent-light); font-size:1.3rem;"></i>
+            <h2 style="font-size:var(--sd-fs-md); margin:var(--sd-sp-2) 0 4px;">Sadeem AI</h2>
+            <p style="color:var(--sd-text-secondary); margin:0; font-size:var(--sd-fs-sm);">مساعدك داخل المنصة</p>
+        </a>
+        <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-card sd-card-hover" style="text-decoration:none; color:inherit;">
+            <i class="fas fa-book-open" style="color:var(--sd-accent-light); font-size:1.3rem;"></i>
+            <h2 style="font-size:var(--sd-fs-md); margin:var(--sd-sp-2) 0 4px;">متابعة القراءة</h2>
+            <p style="color:var(--sd-text-secondary); margin:0; font-size:var(--sd-fs-sm);">{{ reading_history|length }} عناصر محفوظة</p>
+        </a>
     </div>
 
     {% if not user.is_verified %}

@@ -79,7 +79,7 @@ def login():
         if user.role == 'admin':
             return redirect(url_for('admin.services_dashboard'))  # اسم الدالة في Blueprint dashboard
         else:
-            return redirect(url_for('admin.show_services'))  # اسم الدالة في Blueprint show_services       
+            return redirect(url_for('loading_bp.landing_page'))
     except Exception as e:
         return render_template("auth/login.html", error="حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.")
     

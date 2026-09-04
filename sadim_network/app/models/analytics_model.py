@@ -68,7 +68,8 @@ def generate_session_id():
 
 
 def touch_session(session_id, user_id=None, ip=None, user_agent=None, referrer=None,
-                   landing_page=None, count_pageview=True, visitor_type="unknown"):
+                   landing_page=None, count_pageview=True, visitor_type="unknown",
+                   utm_source=None, utm_medium=None, utm_campaign=None, utm_content=None):
     """ينشئ صف الجلسة لو أول ظهور له، أو يحدّثه لو موجود (UPSERT ذرّي بطلب واحد).
     referrer/landing_page تُسجَّل فقط عند الإنشاء الأول (نقطة الدخول الحقيقية للجلسة) — لا تُستبدل لاحقاً.
     count_pageview=False تُستخدم لتحديث last_seen_at بدون احتساب مشاهدة (زيارة لمسار إداري مثلاً).
@@ -85,8 +86,9 @@ def touch_session(session_id, user_id=None, ip=None, user_agent=None, referrer=N
             """
             INSERT INTO analytics_sessions
                 (session_id, user_id, visitor_type, ip, user_agent, device_type, browser, os,
-                 referrer, landing_page, pages_viewed, events_count)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                referrer, landing_page, utm_source, utm_medium, utm_campaign, utm_content,
+                pages_viewed, events_count)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (session_id) DO UPDATE SET
                 last_seen_at = NOW(),
                 user_id = COALESCE(EXCLUDED.user_id, analytics_sessions.user_id),
@@ -100,7 +102,8 @@ def touch_session(session_id, user_id=None, ip=None, user_agent=None, referrer=N
             (
                 session_id, user_id, visitor_type, ip, user_agent,
                 ua_info["device_type"], ua_info["browser"], ua_info["os"],
-                referrer, landing_page, initial_count, initial_count,
+                referrer, landing_page, utm_source, utm_medium, utm_campaign, utm_content,
+                initial_count, initial_count,
                 initial_count, initial_count,
             ),
         )

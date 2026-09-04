@@ -152,7 +152,20 @@ def download_file(book_id):
         _log_lib_event("download.failed", metadata={"book_id": book_id, "reason": "book_not_found"})
         return "الكتاب غير موجود في قاعدة البيانات", 404
 
-    file_path = os.path.join(UPLOAD_FOLDER, book['pdf_path'])
+    relative_pdf_path = (book.get('pdf_path') or '').strip()
+    file_path = os.path.realpath(os.path.join(UPLOAD_FOLDER, relative_pdf_path))
+    upload_root = os.path.realpath(UPLOAD_FOLDER)
+    try:
+        is_inside_uploads = os.path.commonpath((upload_root, file_path)) == upload_root
+    except ValueError:
+        is_inside_uploads = False
+
+    if not relative_pdf_path or not is_inside_uploads:
+        _log_lib_event("download.failed", metadata={
+            "book_id": book_id, "title": book.get('title'), "reason": "invalid_file_path"
+        })
+        return "الملف غير صالح", 404
+
     if not os.path.exists(file_path):
         _log_lib_event("download.failed", metadata={
             "book_id": book_id, "title": book.get('title'), "reason": "file_missing_on_server"
@@ -171,12 +184,12 @@ def download_file(book_id):
     conn2.close()
 
     _log_lib_event("download.success", metadata={
-        "book_id": book_id, "title": book.get('title'), "file": book['pdf_path'], "new_count": new_count
+        "book_id": book_id, "title": book.get('title'), "file": relative_pdf_path, "new_count": new_count
     })
 
     return send_from_directory(
         UPLOAD_FOLDER,
-        book['pdf_path'],
+        relative_pdf_path,
         as_attachment=True,
         download_name=f"{book['title']}.pdf"
     )

@@ -74,7 +74,7 @@ def add_bot():
     return redirect(url_for('bots.my_bots'))
 
 
-@bot_bp.route("/delete/<int:bot_id>")
+@bot_bp.route("/delete/<int:bot_id>", methods=["POST"])
 def delete_bot(bot_id):
     if 'user_id' not in session:
         return redirect(url_for('loading_bp.login'))
@@ -93,7 +93,7 @@ def delete_bot(bot_id):
     return redirect(referrer or url_for('bots.my_bots'))
 
 
-@bot_bp.route("/toggle/<int:bot_id>")
+@bot_bp.route("/toggle/<int:bot_id>", methods=["POST"])
 def toggle_bot(bot_id):
     """إيقاف/تشغيل البوت بدون حذفه"""
     if 'user_id' not in session:

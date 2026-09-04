@@ -150,6 +150,8 @@ class User:
         user = User.get_by_email(email)
         if not user:
             return None
+        if getattr(user, "status", None) in {"suspended", "deleted"}:
+            return None
         if not check_password_hash(user.password_hash, password):
             return None
         if role and user.role != role:

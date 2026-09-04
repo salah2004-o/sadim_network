@@ -194,6 +194,10 @@ def track_session():
             landing_page=request.path if is_new else None,
             count_pageview=not is_admin_path,
             visitor_type=g.sd_visitor_type,
+            utm_source=request.args.get('utm_source') if is_new else None,
+            utm_medium=request.args.get('utm_medium') if is_new else None,
+            utm_campaign=request.args.get('utm_campaign') if is_new else None,
+            utm_content=request.args.get('utm_content') if is_new else None,
         )
     except Exception as e:
         print("Failed to track session:", e)
