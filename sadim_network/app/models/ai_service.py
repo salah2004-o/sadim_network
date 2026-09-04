@@ -142,8 +142,18 @@ def _ground_links(answer):
 
 def _database_fallback(message):
     lowered = message.lower()
+    if any(word in lowered for word in ('هاي', 'مرحبا', 'أهلاً', 'اهلا', 'hello', 'hi')):
+        return 'أهلاً بك في Sadeem AI. أستطيع مساعدتك في البحث داخل مكتبة سديم ومقالاتها وخدماتها.'
+    if any(phrase in lowered for phrase in ('عطني رواية', 'اعطني رواية', 'أعطني رواية', 'اختار لي كتاب', 'اختر لي كتاب', 'ماذا أقرأ', 'ماذا اقرا', 'رواية او مقال', 'رواية أو مقال', 'شيء اقرأه')):
+        books = _rows("SELECT id, title FROM books ORDER BY download_count DESC NULLS LAST, id DESC LIMIT 3")
+        articles = _rows("SELECT id, title FROM posts ORDER BY created_at DESC LIMIT 3")
+        suggestions = [f"- [{row['title']}](/Library/Agatha_Christie/{row['id']})" for row in books]
+        suggestions += [f"- [{row['title']}](/articles/{row['id']})" for row in articles]
+        if suggestions:
+            return 'هذه اقتراحات حقيقية من شبكة سديم:\n' + '\n'.join(suggestions)
     if any(word in lowered for word in ('كتاب', 'رواية', 'قراءة', 'book')):
-        rows = search_library(message, limit=3)
+        query = message
+        rows = search_library(query, limit=3)
         if rows:
             return 'هذه نتائج من مكتبة سديم:\n' + '\n'.join(f"- [{row['title']}](/Library/Agatha_Christie/{row['id']})" for row in rows)
     if any(word in lowered for word in ('خدمة', 'cv', 'سيرة', 'service')):
