@@ -119,6 +119,8 @@
 
     .sd-ai-float__drawer {
         inset-inline-end: -8px;
+        width: min(360px, calc(100vw - 24px));
+        padding: var(--sd-sp-5) var(--sd-sp-4);
     }
 }
 
