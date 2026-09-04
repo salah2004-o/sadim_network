@@ -90,7 +90,10 @@ TOOL_HANDLERS = {"search_library": search_library, "get_book": get_book, "search
 
 
 def _keys():
-    return [value for key, value in sorted(os.environ.items()) if key.startswith("GEMINI_API_KEY_") and value]
+    preferred = [value for key, value in sorted(os.environ.items()) if key.startswith("GEMINI_API_KEY_") and value]
+    if preferred:
+        return preferred
+    return [os.environ[name] for name in ("API_KEY1", "API_KEY2") if os.environ.get(name)]
 
 
 def _gemini(contents, user_id):
