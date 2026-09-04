@@ -156,6 +156,42 @@ def _ground_links(answer):
     return answer
 
 
+def _validate_links(answer):
+    def valid_book(match):
+        book_id = int(match.group(2))
+        return match.group(0) if _rows("SELECT 1 FROM books WHERE id = %s", (book_id,)) else match.group(1)
+
+    def valid_article(match):
+        article_id = int(match.group(2))
+        return match.group(0) if _rows("SELECT 1 FROM posts WHERE id = %s", (article_id,)) else match.group(1)
+
+    answer = re.sub(r"\[([^\]]+)\]\(/Library/Agatha_Christie/(\d+)\)", valid_book, answer)
+    return re.sub(r"\[([^\]]+)\]\(/articles/(\d+)\)", valid_article, answer)
+
+
+def _extract_explicit_knowledge(user_id, conversation_id, message_id, message):
+    patterns = [
+        (r"(?:أفضل|افضل|أفضلية|افضّل)\s+(?:لغة|لغة برمجة)\s*[:：]?\s*([A-Za-z+#]+)", "preferred_programming_language"),
+        (r"(?:أفضل|افضل|افضّل)\s+(?:قاعدة بيانات|database)\s*[:：]?\s*([A-Za-z]+)", "preferred_database"),
+        (r"(?:أعمل على|اعمل على|أبني|ابني)\s+([^،,.؛]+)", "current_project"),
+        (r"(?:أحب|احب|أفضل|افضل)\s+(?:روايات|كتب)\s+([^،,.؛]+)", "reading_preference"),
+    ]
+    facts = [(key, match.group(1).strip()) for pattern, key in patterns if (match := re.search(pattern, message, re.IGNORECASE))]
+    if not facts:
+        return
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor()
+        for key, value in facts:
+            cur.execute("""INSERT INTO ai_user_knowledge (user_id, key, value, confidence, source_conversation_id, source_message_id)
+                VALUES (%s, %s, %s, 0.95, %s, %s)
+                ON CONFLICT (user_id, key) DO UPDATE SET value = EXCLUDED.value, confidence = EXCLUDED.confidence,
+                source_conversation_id = EXCLUDED.source_conversation_id, source_message_id = EXCLUDED.source_message_id, updated_at = NOW()""", (user_id, key, value[:500], conversation_id, message_id))
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def _database_fallback(message):
     lowered = message.lower()
     if any(word in lowered for word in ('هاي', 'مرحبا', 'أهلاً', 'اهلا', 'hello', 'hi')):
@@ -195,6 +231,7 @@ def chat(user_id, conversation_id, message, page_context=None):
     conn = get_db_connection()
     try:
         cur = conn.cursor()
+        cur.execute("SELECT pg_advisory_xact_lock(%s)", (int(user_id),))
         cur.execute("SELECT COUNT(*) FROM ai_usage WHERE user_id = %s AND created_at::date = CURRENT_DATE", (user_id,))
         if cur.fetchone()[0] >= DAILY_LIMIT:
             raise ValueError("daily_limit")
@@ -202,18 +239,21 @@ def chat(user_id, conversation_id, message, page_context=None):
         history = [{"role": "user" if row[0] == "user" else "model", "parts": [{"text": row[1]}]} for row in reversed(cur.fetchall())]
         cur.execute("INSERT INTO ai_messages (conversation_id, role, content) VALUES (%s, 'user', %s) RETURNING id", (conversation_id, message))
         user_message_id = cur.fetchone()[0]
+        cur.execute("INSERT INTO ai_usage (user_id, conversation_id, model, input_tokens, output_tokens) VALUES (%s, %s, %s, 0, 0) RETURNING id", (user_id, conversation_id, 'pending'))
+        usage_id = cur.fetchone()[0]
         conn.commit()
     finally:
         conn.close()
 
     instant = _instant_response(message)
+    _extract_explicit_knowledge(user_id, conversation_id, user_message_id, message)
     if instant:
         conn = get_db_connection()
         try:
             cur = conn.cursor()
             cur.execute("UPDATE ai_conversations SET title = %s, status = 'success', updated_at = NOW() WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], conversation_id))
             cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, status) VALUES (%s, 'assistant', %s, %s, 'success')", (conversation_id, instant, 'sadeem-database'))
-            cur.execute("INSERT INTO ai_usage (user_id, conversation_id, model, input_tokens, output_tokens) VALUES (%s, %s, %s, 0, 0)", (user_id, conversation_id, 'sadeem-database'))
+            cur.execute("UPDATE ai_usage SET model = 'sadeem-database' WHERE id = %s", (usage_id,))
             conn.commit()
         finally:
             conn.close()
@@ -232,6 +272,7 @@ def chat(user_id, conversation_id, message, page_context=None):
             cur = conn.cursor()
             cur.execute("UPDATE ai_conversations SET title = %s, status = 'fallback', error_message = %s, updated_at = NOW() WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], str(exc)[:500], conversation_id))
             cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, status) VALUES (%s, 'assistant', %s, %s, 'fallback')", (conversation_id, fallback, 'database-fallback'))
+            cur.execute("UPDATE ai_usage SET model = 'database-fallback' WHERE id = %s", (usage_id,))
             conn.commit()
         finally:
             conn.close()
@@ -239,6 +280,7 @@ def chat(user_id, conversation_id, message, page_context=None):
     tool_calls = []
     parts = response.get("candidates", [{}])[0].get("content", {}).get("parts", [])
     function_parts = [part.get("functionCall") for part in parts if part.get("functionCall")]
+    response_status = 'success'
     if function_parts:
         tool_results = []
         for call in function_parts:
@@ -251,15 +293,16 @@ def chat(user_id, conversation_id, message, page_context=None):
         try:
             response = _gemini(history + [{"role": "user", "parts": [{"text": context_message}]}, {"role": "model", "parts": parts}, {"role": "user", "parts": tool_results}], user_id)
         except Exception:
+            response_status = 'fallback'
             response = {"candidates": [{"content": {"parts": [{"text": _database_fallback(message)}]}}]}
-    answer = _ground_links(_text(response) or _database_fallback(message))
+    answer = _validate_links(_ground_links(_text(response) or _database_fallback(message)))
     usage = response.get("usageMetadata", {})
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        cur.execute("UPDATE ai_conversations SET title = %s WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], conversation_id))
-        cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, input_tokens, output_tokens, tools_invoked, status) VALUES (%s, 'assistant', %s, %s, %s, %s, %s, 'success')", (conversation_id, answer, MODEL, usage.get("promptTokenCount", 0), usage.get("candidatesTokenCount", 0), json.dumps(tool_calls)))
-        cur.execute("INSERT INTO ai_usage (user_id, conversation_id, model, input_tokens, output_tokens) VALUES (%s, %s, %s, %s, %s)", (user_id, conversation_id, MODEL, usage.get("promptTokenCount", 0), usage.get("candidatesTokenCount", 0)))
+        cur.execute("UPDATE ai_conversations SET title = %s, status = %s, updated_at = NOW() WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], response_status, conversation_id))
+        cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, input_tokens, output_tokens, tools_invoked, status) VALUES (%s, 'assistant', %s, %s, %s, %s, %s, %s)", (conversation_id, answer, MODEL, usage.get("promptTokenCount", 0), usage.get("candidatesTokenCount", 0), json.dumps(tool_calls), response_status))
+        cur.execute("UPDATE ai_usage SET model = %s, input_tokens = %s, output_tokens = %s WHERE id = %s", (MODEL, usage.get("promptTokenCount", 0), usage.get("candidatesTokenCount", 0), usage_id))
         cur.execute("UPDATE ai_conversations SET updated_at = NOW() WHERE id = %s", (conversation_id,))
         conn.commit()
     finally:
