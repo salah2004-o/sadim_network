@@ -133,7 +133,7 @@ app/__init__.py
 ```env
 GEMINI_API_KEY_1=your-server-secret
 GEMINI_API_KEY_2=your-second-server-secret
-GEMINI_MODEL=gemini-2.0-flash
+GEMINI_MODEL=gemini-3.6-flash
 SADEEM_AI_DAILY_LIMIT=20
 ```
 
