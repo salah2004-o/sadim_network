@@ -41,6 +41,16 @@
     .sd-tool-image.icon-style i { font-size:2.4rem; color: rgba(255,255,255,.9); }
     .sd-coming-soon .sd-card { opacity:.7; transition: var(--sd-transition); }
     .sd-coming-soon .sd-card:hover { opacity:1; }
+    .sd-random-posts { margin-top: var(--sd-sp-8); }
+    .sd-random-posts-head { display:flex; align-items:end; justify-content:space-between; gap:var(--sd-sp-3); margin-bottom:var(--sd-sp-4); }
+    .sd-random-posts-head h2 { margin:0 0 var(--sd-sp-1); font-size:var(--sd-fs-xl); }
+    .sd-random-posts-head p { margin:0; color:var(--sd-text-secondary); font-size:var(--sd-fs-sm); }
+    .sd-random-posts-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:var(--sd-sp-4); }
+    .sd-random-post { display:flex; flex-direction:column; min-height:210px; text-decoration:none; color:inherit; }
+    .sd-random-post h3 { margin:0 0 var(--sd-sp-2); font-size:var(--sd-fs-md); line-height:1.5; }
+    .sd-random-post p { margin:0; color:var(--sd-text-secondary); font-size:var(--sd-fs-sm); line-height:1.8; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+    .sd-random-post-meta { margin-top:auto; padding-top:var(--sd-sp-4); color:var(--sd-text-muted); font-size:var(--sd-fs-xs); }
+    @media (max-width:760px) { .sd-random-posts-head { align-items:flex-start; flex-direction:column; } .sd-random-posts-grid { grid-template-columns:1fr; } .sd-random-post { min-height:0; } }
 </style>
 {% endblock %}
 
@@ -49,6 +59,28 @@
 <section class="sd-landing-hero">
     <div class="sd-hero-grid">
         <div>
+
+        {% if random_posts %}
+        <section class="sd-random-posts" aria-labelledby="random-posts-title">
+            <div class="sd-random-posts-head">
+                <div>
+                    <h2 id="random-posts-title">من مجتمع سديم</h2>
+                    <p>منشورات مختارة عشوائيًا لتكتشف فكرة جديدة في كل زيارة.</p>
+                </div>
+                <a href="{{ url_for('articles.list_articles') }}" class="sd-btn sd-btn-secondary sd-btn-sm">كل المقالات</a>
+            </div>
+            <div class="sd-random-posts-grid">
+                {% for post in random_posts %}
+                <a href="{{ url_for('articles.view_article', post_id=post.id) }}" class="sd-card sd-card-hover sd-random-post">
+                    <span class="sd-badge sd-badge-neutral" style="align-self:flex-start; margin-bottom:var(--sd-sp-3);">مقال</span>
+                    <h3>{{ post.title }}</h3>
+                    <p>{{ post.content|striptags|truncate(160) }}</p>
+                    <span class="sd-random-post-meta">بواسطة {{ post.username }} <i class="fas fa-arrow-left"></i></span>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
             <span class="sd-live-badge"><span class="sd-live-dot"></span> SADIM SYSTEM ONLINE</span>
 
             <div class="sd-hero-profile">
@@ -176,6 +208,5 @@
 {% endblock %}
 
 {% block footer %}
-{% include "partials/_official_links.html" %}
-<p style="font-size: var(--sd-fs-xs); opacity:.5; margin-top: var(--sd-sp-3);">SADEEM_NETWORK® 2026</p>
+<p style="font-size: var(--sd-fs-xs); opacity:.65; margin:0;">SADEEM_NETWORK® 2026</p>
 {% endblock %}

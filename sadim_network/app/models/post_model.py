@@ -94,6 +94,22 @@ class Post:
         return rows
 
     @staticmethod
+    def get_random(limit=3):
+        """منشورات عشوائية لصفحة العرض حتى لا يرى كل مستخدم نفس المحتوى."""
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cur.execute("""
+            SELECT posts.*, users.username, users.profile_image
+            FROM posts JOIN users ON posts.user_id = users.id
+            ORDER BY RANDOM()
+            LIMIT %s
+        """, (limit,))
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+        return rows
+
+    @staticmethod
     def get_by_user(user_id):
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)

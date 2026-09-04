@@ -151,6 +151,8 @@ def landing_page():
     # اسم المستخدم من session
     username = session.get('username', 'ضيف')
     user = User.get_by_id(session['user_id'])
+    from app.models.post_model import Post
+    random_posts = Post.get_random(limit=3)
     # الوقت الحالي حسب منطقتك
     tz = pytz.timezone("Africa/Tripoli")
     now = datetime.now(tz)
@@ -171,7 +173,8 @@ def landing_page():
         username=username,
         greeting=greeting,
         current_time=current_time,
-        user=user
+        user=user,
+        random_posts=random_posts,
     )
 
 
