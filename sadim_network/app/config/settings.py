@@ -57,3 +57,4 @@ BOOK_ANNOUNCE_INTERVAL_HOURS = int(os.getenv("BOOK_ANNOUNCE_INTERVAL_HOURS", 24)
 # Gemini keys are intentionally read only by the backend AI service.
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
 SADEEM_AI_DAILY_LIMIT = int(os.getenv("SADEEM_AI_DAILY_LIMIT", 20))
+RATELIMIT_STORAGE_URI = os.getenv("RATELIMIT_STORAGE_URI", REDIS_URL or "memory://")

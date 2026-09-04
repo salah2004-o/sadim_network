@@ -38,6 +38,11 @@ BASE_DIR = os.path.abspath(os.path.join(current_dir, "..", ".."))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
 
 
+def _download_limit_key(prefix="download"):
+    book_id = request.view_args.get("book_id", "unknown") if request.view_args else "unknown"
+    return f"{prefix}:{session.get('user_id', 'guest')}:{request.remote_addr}:{book_id}"
+
+
 def _log_lib_event(event_type, metadata=None):
     """تسجيل حدث مكتبة بدون أي احتمال لكسر تدفق العرض/التحميل الفعلي لو فشل التسجيل نفسه."""
     try:
@@ -48,6 +53,7 @@ def _log_lib_event(event_type, metadata=None):
             ip=request.remote_addr,
             user_agent=request.headers.get("User-Agent"),
             path=request.path,
+            referrer=request.referrer,
             visitor_type=g.get('sd_visitor_type', 'unknown'),
             metadata=metadata,
         )
@@ -131,6 +137,7 @@ def view_book(book_id):
 # ينجح دون الثاني). العداد وحدث download.success الآن لا يُسجَّلان إلا لو الملف فعلاً موجود ووصل للمستخدم.
 # =========================
 @Library_Agatha_bp.route('/library/download/<int:book_id>')
+@limiter.limit("10 per hour", key_func=_download_limit_key)
 def download_file(book_id):
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -180,31 +187,9 @@ def download_file(book_id):
 # الراوت باقٍ فقط توافقاً مع أي استدعاء قديم مخزَّن بمتصفح، لا يُستدعى من أي قالب حالياً.
 # =========================
 @Library_Agatha_bp.route('/library/increment_download/<int:book_id>', methods=['POST'])
+@limiter.limit("2 per hour", key_func=lambda: _download_limit_key("legacy"))
 def increment_download(book_id):
-#    if 'user_id' not in session:
-#       flash("يجب تسجيل الدخول لتحميل الكتب.", "warning")
-#       return redirect(url_for('loading_bp.login'))
-   
-    conn = get_db_connection()
-    cur = conn.cursor() # لا نحتاج RealDictCursor هنا لأننا سنعيد قيمة واحدة
-    try:
-        # نستخدم COALESCE لتفادي الخطأ إذا كانت القيمة NULL، ونعيد القيمة الجديدة فوراً
-        cur.execute("""
-            UPDATE books 
-            SET download_count = COALESCE(download_count, 0) + 1 
-            WHERE id = %s 
-            RETURNING download_count
-        """, (book_id,))
-        
-        new_count = cur.fetchone()[0]
-        conn.commit()
-        return {"success": True, "new_count": new_count}
-    except Exception as e:
-        conn.rollback()
-        return {"success": False, "error": str(e)}, 500
-    finally:
-        cur.close()
-        conn.close()
+    return {"success": False, "error": "deprecated"}, 410
 
 # =========================
 # 3. البحث (تمت إضافة حقل download_count)

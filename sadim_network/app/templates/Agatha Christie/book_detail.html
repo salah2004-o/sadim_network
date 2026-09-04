@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
   <title>{{ book.title }} | SADEEM</title>
+  <meta name="description" content="{{ book.desc_text|striptags|truncate(160) }}">
+  <link rel="canonical" href="{{ request.url }}">
+  <meta property="og:type" content="book">
+  <meta property="og:title" content="{{ book.title }} | شبكة سديم">
+  <meta property="og:description" content="{{ book.desc_text|striptags|truncate(160) }}">
+  <meta property="og:url" content="{{ request.url }}">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
