@@ -11,18 +11,20 @@ from app.utlis.permissions import admin_required
 @admin_required
 def ai_conversations():
     query = request.args.get('q', '').strip()
+    status = request.args.get('status', '').strip()
     conn = get_db_connection()
     try:
         cur = conn.cursor()
         pattern = f'%{query}%'
-        cur.execute("""SELECT c.id, c.title, c.created_at, c.updated_at, u.id, u.username, u.name,
+        cur.execute("""SELECT c.id, c.title, c.created_at, c.updated_at, u.id, u.username, u.name, c.status,
                        COUNT(m.id) AS message_count, COALESCE(SUM(us.input_tokens + us.output_tokens), 0) AS tokens
                        FROM ai_conversations c JOIN users u ON u.id = c.user_id
                        LEFT JOIN ai_messages m ON m.conversation_id = c.id LEFT JOIN ai_usage us ON us.conversation_id = c.id
                        WHERE (%s = '' OR u.username ILIKE %s OR u.name ILIKE %s OR c.title ILIKE %s)
-                       GROUP BY c.id, u.id ORDER BY c.updated_at DESC LIMIT 100""", (query, pattern, pattern, pattern))
+                       AND (%s = '' OR c.status = %s)
+                       GROUP BY c.id, u.id ORDER BY c.updated_at DESC LIMIT 100""", (query, pattern, pattern, pattern, status, status))
         rows = cur.fetchall()
-        return render_template('dashboard/ai_conversations.html', conversations=rows, query=query)
+        return render_template('dashboard/ai_conversations.html', conversations=rows, query=query, status=status)
     finally:
         conn.close()
 

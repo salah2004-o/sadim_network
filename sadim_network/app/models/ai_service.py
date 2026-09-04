@@ -5,6 +5,7 @@ import socket
 import urllib.error
 import urllib.request
 from decimal import Decimal
+import re
 
 from app.db.sadim_db import get_db_connection
 
@@ -87,7 +88,17 @@ def search_services(query, limit=5):
 
 def get_user_context(user_id):
     rows = _rows("SELECT username, name FROM users WHERE id = %s", (user_id,))
-    return rows[0] if rows else {}
+    if not rows:
+        return {}
+    rows[0]['recent_favorites'] = _rows("""SELECT content_type, COALESCE(book_id, article_id) AS content_id,
+        COALESCE(b.title, p.title) AS title FROM user_favorites f
+        LEFT JOIN books b ON b.id = f.book_id LEFT JOIN posts p ON p.id = f.article_id
+        WHERE f.user_id = %s ORDER BY f.added_at DESC LIMIT 5""", (user_id,))
+    rows[0]['recent_reading'] = _rows("""SELECT content_type, COALESCE(book_id, article_id) AS content_id,
+        COALESCE(b.title, p.title) AS title, status FROM reading_history h
+        LEFT JOIN books b ON b.id = h.book_id LEFT JOIN posts p ON p.id = h.article_id
+        WHERE h.user_id = %s ORDER BY h.last_updated DESC LIMIT 5""", (user_id,))
+    return rows[0]
 
 
 TOOL_HANDLERS = {"search_library": search_library, "get_book": get_book, "search_articles": search_articles, "get_article": get_article, "search_services": search_services, "get_user_context": get_user_context}
@@ -121,6 +132,31 @@ def _text(response):
     return "".join(part.get("text", "") for part in response.get("candidates", [{}])[0].get("content", {}).get("parts", [])).strip()
 
 
+def _ground_links(answer):
+    for row in _rows("SELECT id, title FROM books"):
+        answer = re.sub(rf"(?<!\]){re.escape(row['title'])}(?!\()", f"[{row['title']}](/Library/Agatha_Christie/{row['id']})", answer)
+    for row in _rows("SELECT id, title FROM posts"):
+        answer = re.sub(rf"(?<!\]){re.escape(row['title'])}(?!\()", f"[{row['title']}](/articles/{row['id']})", answer)
+    return answer
+
+
+def _database_fallback(message):
+    lowered = message.lower()
+    if any(word in lowered for word in ('كتاب', 'رواية', 'قراءة', 'book')):
+        rows = search_library(message, limit=3)
+        if rows:
+            return 'هذه نتائج من مكتبة سديم:\n' + '\n'.join(f"- [{row['title']}](/Library/Agatha_Christie/{row['id']})" for row in rows)
+    if any(word in lowered for word in ('خدمة', 'cv', 'سيرة', 'service')):
+        rows = search_services(message, limit=3)
+        if rows:
+            return 'هذه خدمات سديم الأقرب لطلبك:\n' + '\n'.join(f"- {row['title']}" for row in rows)
+    if any(word in lowered for word in ('مقال', 'شرح', 'article')):
+        rows = search_articles(message, limit=3)
+        if rows:
+            return 'هذه مقالات سديم الأقرب لطلبك:\n' + '\n'.join(f"- [{row['title']}](/articles/{row['id']})" for row in rows)
+    return 'لم أتمكن من الوصول إلى الذكاء الاصطناعي الآن، ولم أجد نتيجة مباشرة مناسبة في شبكة سديم.'
+
+
 def chat(user_id, conversation_id, message, page_context=None):
     if len(message) > MAX_MESSAGE_LENGTH:
         raise ValueError("message_too_long")
@@ -142,7 +178,19 @@ def chat(user_id, conversation_id, message, page_context=None):
     if page_context:
         safe_context = str(page_context)[:1000]
         context_message = f"[سياق الصفحة الحالي للاستخدام الداخلي فقط: {safe_context}]\n{message}"
-    response = _gemini(history + [{"role": "user", "parts": [{"text": context_message}]}], user_id)
+    try:
+        response = _gemini(history + [{"role": "user", "parts": [{"text": context_message}]}], user_id)
+    except Exception as exc:
+        fallback = _database_fallback(message)
+        conn = get_db_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute("UPDATE ai_conversations SET title = %s, status = 'fallback', error_message = %s, updated_at = NOW() WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], str(exc)[:500], conversation_id))
+            cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model) VALUES (%s, 'assistant', %s, %s)", (conversation_id, fallback, 'database-fallback'))
+            conn.commit()
+        finally:
+            conn.close()
+        return {"content": fallback, "message_id": user_message_id, "tools": []}
     tool_calls = []
     parts = response.get("candidates", [{}])[0].get("content", {}).get("parts", [])
     function_parts = [part.get("functionCall") for part in parts if part.get("functionCall")]
@@ -155,8 +203,11 @@ def chat(user_id, conversation_id, message, page_context=None):
             result = TOOL_HANDLERS[name](**args, user_id=user_id) if name == "get_user_context" else TOOL_HANDLERS[name](**args)
             tool_calls.append(name)
             tool_results.append({"functionResponse": {"name": name, "response": {"result": result}}})
-        response = _gemini(history + [{"role": "user", "parts": [{"text": context_message}]}, {"role": "model", "parts": parts}, {"role": "user", "parts": tool_results}], user_id)
-    answer = _text(response) or "تعذر الحصول على إجابة حالياً."
+        try:
+            response = _gemini(history + [{"role": "user", "parts": [{"text": context_message}]}, {"role": "model", "parts": parts}, {"role": "user", "parts": tool_results}], user_id)
+        except Exception:
+            response = {"candidates": [{"content": {"parts": [{"text": _database_fallback(message)}]}}]}
+    answer = _ground_links(_text(response) or _database_fallback(message))
     usage = response.get("usageMetadata", {})
     conn = get_db_connection()
     try:

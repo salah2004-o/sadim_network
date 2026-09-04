@@ -46,6 +46,7 @@ from app.routes.bots.bot import bot_bp as bots_bp
 from app.routes.articles.articles import articles_bp
 from app.routes.shortlinks import shortlinks_bp
 from app.routes.ai import ai_bp
+from app.routes.personal import personal_bp
 
 #blueprint
 app.register_blueprint(loading_bp)
@@ -60,6 +61,7 @@ app.register_blueprint(bots_bp)
 app.register_blueprint(articles_bp)
 app.register_blueprint(shortlinks_bp)
 app.register_blueprint(ai_bp)
+app.register_blueprint(personal_bp)
 
 from app.bot.bot_runner import restore_all_bots
 restore_all_bots()

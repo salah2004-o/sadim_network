@@ -108,6 +108,28 @@
     </div>
     {% endif %}
 
+    {% if favorites %}
+    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
+        <strong style="font-size: var(--sd-fs-md);"><i class="fas fa-bookmark"></i> مفضلتي</strong>
+        <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2); margin-top: var(--sd-sp-3);">
+        {% for item in favorites %}
+            <a href="{{ url_for('Library_Agatha.view_book', book_id=item[1]) if item[0] == 'book' else url_for('articles.view_article', post_id=item[1]) }}" class="sd-btn sd-btn-secondary sd-btn-block" style="justify-content:flex-start; min-height:44px;">{{ item[3] }}</a>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if reading_history %}
+    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
+        <strong style="font-size: var(--sd-fs-md);"><i class="fas fa-clock-rotate-left"></i> سجل قراءتي</strong>
+        <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2); margin-top: var(--sd-sp-3);">
+        {% for item in reading_history %}
+            <a href="{{ url_for('Library_Agatha.view_book', book_id=item[1]) if item[0] == 'book' else url_for('articles.view_article', post_id=item[1]) }}" class="sd-btn sd-btn-ghost sd-btn-block" style="justify-content:space-between; min-height:44px;"><span>{{ item[4] }}</span><small>{{ 'منتهية' if item[2] == 'finished' else 'تقرأ حالياً' }}</small></a>
+        {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <a href="https://t.me/SADIM_NETWORK" target="_blank" class="sd-btn sd-btn-secondary sd-btn-block sd-ripple" style="margin-bottom: var(--sd-sp-5);">
         <i class="fab fa-telegram"></i> تابع قناة شبكة سديم الرسمية بتيليجرام
     </a>

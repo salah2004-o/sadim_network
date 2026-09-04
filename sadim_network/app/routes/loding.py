@@ -191,6 +191,15 @@ def account():
     my_articles = Post.get_by_user(session['user_id'])
     referral_count = Referral.get_referral_count(session['user_id'])
     referral_link = url_for('register.show_registration_form', ref=session['user_id'], _external=True)
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT content_type, COALESCE(book_id, article_id), added_at, COALESCE(b.title, p.title) FROM user_favorites f LEFT JOIN books b ON b.id=f.book_id LEFT JOIN posts p ON p.id=f.article_id WHERE f.user_id=%s ORDER BY added_at DESC LIMIT 10", (session['user_id'],))
+        favorites = cur.fetchall()
+        cur.execute("SELECT content_type, COALESCE(book_id, article_id), status, last_updated, COALESCE(b.title, p.title) FROM reading_history h LEFT JOIN books b ON b.id=h.book_id LEFT JOIN posts p ON p.id=h.article_id WHERE h.user_id=%s ORDER BY last_updated DESC LIMIT 10", (session['user_id'],))
+        reading_history = cur.fetchall()
+    finally:
+        conn.close()
 
     return render_template(
         'account.html',
@@ -200,6 +209,8 @@ def account():
         my_articles=my_articles,
         referral_count=referral_count,
         referral_link=referral_link,
+        favorites=favorites,
+        reading_history=reading_history,
     )
 
 

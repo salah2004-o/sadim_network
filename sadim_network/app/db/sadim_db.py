@@ -438,6 +438,41 @@ def create_tables():
     cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_conversations_user_time ON ai_conversations(user_id, updated_at DESC);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_messages_conversation_time ON ai_messages(conversation_id, created_at);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_usage_user_date ON ai_usage(user_id, created_at);")
+    cur.execute("ALTER TABLE ai_conversations ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'success';")
+    cur.execute("ALTER TABLE ai_conversations ADD COLUMN IF NOT EXISTS error_message TEXT;")
+
+#----------USER CONTENT TABLES----------#
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS user_favorites (
+            id BIGSERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            content_type VARCHAR(20) NOT NULL CHECK (content_type IN ('book', 'article')),
+            book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
+            article_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+            added_at TIMESTAMP DEFAULT NOW(),
+            CHECK ((content_type = 'book' AND book_id IS NOT NULL AND article_id IS NULL) OR
+                   (content_type = 'article' AND article_id IS NOT NULL AND book_id IS NULL))
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS reading_history (
+            id BIGSERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            content_type VARCHAR(20) NOT NULL CHECK (content_type IN ('book', 'article')),
+            book_id INTEGER REFERENCES books(id) ON DELETE CASCADE,
+            article_id INTEGER REFERENCES posts(id) ON DELETE CASCADE,
+            status VARCHAR(20) NOT NULL DEFAULT 'reading' CHECK (status IN ('reading', 'finished')),
+            last_updated TIMESTAMP DEFAULT NOW(),
+            CHECK ((content_type = 'book' AND book_id IS NOT NULL AND article_id IS NULL) OR
+                   (content_type = 'article' AND article_id IS NOT NULL AND book_id IS NULL))
+        );
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_user_favorites ON user_favorites(user_id, added_at DESC);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_reading_history ON reading_history(user_id, last_updated DESC);")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_user_favorite_book ON user_favorites(user_id, book_id) WHERE content_type = 'book';")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_user_favorite_article ON user_favorites(user_id, article_id) WHERE content_type = 'article';")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_reading_book ON reading_history(user_id, book_id) WHERE content_type = 'book';")
+    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_reading_article ON reading_history(user_id, article_id) WHERE content_type = 'article';")
 
 #----------REFERRALS TABLE (نظام الدعوة — رابط ?ref=<user_id>، مكافأة حد بوت إضافي مؤقت)----------#
     cur.execute("""
