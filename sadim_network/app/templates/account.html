@@ -1,7 +1,31 @@
 {% extends "layouts/public.html" %}
 {% block title %}حسابي — شبكة سديم{% endblock %}
+{% block extra_head %}
+<style>
+    .account-quick-card { min-height: 132px; }
+    .account-section-header { display:flex; align-items:center; justify-content:space-between; gap:var(--sd-sp-3); margin-bottom:var(--sd-sp-3); }
+    .account-list { display:flex; flex-direction:column; gap:var(--sd-sp-2); }
+    .account-list-row { display:flex; align-items:center; justify-content:space-between; gap:var(--sd-sp-3); min-height:48px; padding:var(--sd-sp-2) var(--sd-sp-3); border-radius:var(--sd-radius-sm); background:var(--sd-bg-elevated); color:var(--sd-text); text-decoration:none; }
+    .account-list-row > span:first-child { min-width:0; overflow-wrap:anywhere; }
+    .account-list-row small { color:var(--sd-text-secondary); }
+    .account-inline-actions { display:flex; gap:var(--sd-sp-2); align-items:center; }
+    @media (max-width:600px) {
+        .account-quick-card { min-height:0; padding:var(--sd-sp-4); }
+        .account-section-header { align-items:flex-start; flex-direction:column; }
+        .account-section-header .sd-btn { width:100%; }
+        .account-list-row { align-items:flex-start; min-height:52px; }
+        .account-inline-actions { width:100%; }
+        .account-inline-actions .sd-btn { flex:1; }
+        #referralLinkInput { min-width:0; }
+    }
+</style>
+{% endblock %}
 
 {% block content %}
+    <a href="{{ url_for('bots.my_bots') }}" class="sd-card sd-card-hover account-quick-card" style="text-decoration:none; color:inherit;">
+    <a href="{{ url_for('ai.index') }}" class="sd-card sd-card-hover account-quick-card" style="text-decoration:none; color:inherit;">
+    <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-card sd-card-hover account-quick-card" style="text-decoration:none; color:inherit;">
+    <div class="account-section-header">
 <div class="sd-container" style="max-width:1100px; padding-block: var(--sd-sp-6);">
 
     <div style="text-align:center; margin-bottom: var(--sd-sp-5);">
@@ -71,14 +95,14 @@
     {% endif %}
 
     <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-3);">
+        <div class="account-section-header">
             <strong style="font-size: var(--sd-fs-md);"><i class="fas fa-robot"></i> أنظمتي</strong>
             <a href="{{ url_for('bots.my_bots') }}" class="sd-btn sd-btn-ghost sd-btn-sm">إدارة الكل</a>
         </div>
         {% if my_bots %}
-            <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2);">
+            <div class="account-list">
             {% for b in my_bots %}
-                <a href="{{ url_for('bots.manage_bot', bot_id=b.id) }}" style="display:flex; align-items:center; justify-content:space-between; padding: var(--sd-sp-2) var(--sd-sp-3); border-radius: var(--sd-radius-sm); background: var(--sd-bg-elevated); text-decoration:none; color: var(--sd-text);">
+                <a href="{{ url_for('bots.manage_bot', bot_id=b.id) }}" class="account-list-row">
                     <span>{{ b.telegram_first_name or ('بوت #' ~ b.id) }} <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-xs);">{{ b.channel }}</span></span>
                     {% if b.is_active %}
                         <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> نشط</span>

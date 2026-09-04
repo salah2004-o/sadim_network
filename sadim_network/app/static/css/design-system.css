@@ -131,6 +131,17 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
 }
 
 .sd-container { max-width: 1180px; margin-inline: auto; padding-inline: var(--sd-sp-6); }
+.sd-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--sd-sp-4);
+}
+
+@media (max-width: 760px) {
+    .sd-grid-3 { grid-template-columns: 1fr; gap: var(--sd-sp-3); }
+    .sd-sidebar-item { font-size: var(--sd-fs-base); min-height: 48px; }
+    .sd-dropdown-item { font-size: var(--sd-fs-base); min-height: 44px; }
+}
 
 /* ==================== 3. العناوين والنصوص ==================== */
 .sd-h1 { font-size: var(--sd-fs-3xl); font-weight: var(--sd-fw-black); line-height: var(--sd-lh-tight); }
