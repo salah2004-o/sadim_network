@@ -71,7 +71,7 @@ def get_book(book_id):
 
 
 def search_articles(query, category=None, limit=5):
-    rows = _rows("SELECT id, title, LEFT(content, 700) AS excerpt, created_at FROM posts WHERE title ILIKE %s OR content ILIKE %s ORDER BY created_at DESC LIMIT %s", (f"%{query}%", f"%{query}%", min(max(int(limit or 5), 1), 10)))
+    rows = _rows("SELECT id, title, LEFT(content, 700) AS excerpt, created_at FROM posts WHERE (title ILIKE %s OR content ILIKE %s) ORDER BY created_at DESC LIMIT %s", (f"%{query}%", f"%{query}%", min(max(int(limit or 5), 1), 10)))
     return [{key: _json(value) for key, value in row.items()} for row in rows]
 
 
@@ -121,7 +121,7 @@ def _text(response):
     return "".join(part.get("text", "") for part in response.get("candidates", [{}])[0].get("content", {}).get("parts", [])).strip()
 
 
-def chat(user_id, conversation_id, message):
+def chat(user_id, conversation_id, message, page_context=None):
     if len(message) > MAX_MESSAGE_LENGTH:
         raise ValueError("message_too_long")
     conn = get_db_connection()
@@ -138,7 +138,11 @@ def chat(user_id, conversation_id, message):
     finally:
         conn.close()
 
-    response = _gemini(history + [{"role": "user", "parts": [{"text": message}]}], user_id)
+    context_message = message
+    if page_context:
+        safe_context = str(page_context)[:1000]
+        context_message = f"[سياق الصفحة الحالي للاستخدام الداخلي فقط: {safe_context}]\n{message}"
+    response = _gemini(history + [{"role": "user", "parts": [{"text": context_message}]}], user_id)
     tool_calls = []
     parts = response.get("candidates", [{}])[0].get("content", {}).get("parts", [])
     function_parts = [part.get("functionCall") for part in parts if part.get("functionCall")]
@@ -151,12 +155,13 @@ def chat(user_id, conversation_id, message):
             result = TOOL_HANDLERS[name](**args, user_id=user_id) if name == "get_user_context" else TOOL_HANDLERS[name](**args)
             tool_calls.append(name)
             tool_results.append({"functionResponse": {"name": name, "response": {"result": result}}})
-        response = _gemini(history + [{"role": "user", "parts": [{"text": message}]}, {"role": "model", "parts": parts}, {"role": "user", "parts": tool_results}], user_id)
+        response = _gemini(history + [{"role": "user", "parts": [{"text": context_message}]}, {"role": "model", "parts": parts}, {"role": "user", "parts": tool_results}], user_id)
     answer = _text(response) or "تعذر الحصول على إجابة حالياً."
     usage = response.get("usageMetadata", {})
     conn = get_db_connection()
     try:
         cur = conn.cursor()
+        cur.execute("UPDATE ai_conversations SET title = %s WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], conversation_id))
         cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, input_tokens, output_tokens, tools_invoked) VALUES (%s, 'assistant', %s, %s, %s, %s, %s)", (conversation_id, answer, MODEL, usage.get("promptTokenCount", 0), usage.get("candidatesTokenCount", 0), json.dumps(tool_calls)))
         cur.execute("INSERT INTO ai_usage (user_id, conversation_id, model, input_tokens, output_tokens) VALUES (%s, %s, %s, %s, %s)", (user_id, conversation_id, MODEL, usage.get("promptTokenCount", 0), usage.get("candidatesTokenCount", 0)))
         cur.execute("UPDATE ai_conversations SET updated_at = NOW() WHERE id = %s", (conversation_id,))

@@ -92,7 +92,8 @@ def send_message(conversation_id):
     if len(message) > MAX_MESSAGE_LENGTH:
         return jsonify({'error': 'message_too_long', 'max_length': MAX_MESSAGE_LENGTH}), 400
     try:
-        return jsonify(chat(session['user_id'], conversation_id, message))
+        page_context = data.get('page_context', '')
+        return jsonify(chat(session['user_id'], conversation_id, message, page_context=page_context))
     except ValueError as exc:
         return jsonify({'error': str(exc)}), 429 if str(exc) == 'daily_limit' else 400
     except Exception:

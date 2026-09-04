@@ -7,6 +7,7 @@
   <title>{{ book.title }} | SADEEM</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -441,6 +442,7 @@
           <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="btn-back">
             <i class="fa-solid fa-books"></i> روايات أخرى
           </a>
+          {% if session.get('user_id') %}<a href="{{ url_for('ai.index', context='كتاب: ' ~ book['title']) }}" class="btn-back"><i class="fa-solid fa-wand-magic-sparkles"></i> اسأل Sadeem AI</a>{% endif %}
         </div>
       </div>
 
@@ -572,5 +574,7 @@
       }
     }
   </script>
+{% include 'partials/_ai_float.html' %}
+<script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>
 </body>
 </html>

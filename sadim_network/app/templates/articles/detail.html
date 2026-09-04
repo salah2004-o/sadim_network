@@ -159,6 +159,7 @@
     </div>
 
     <div class="post-content">{{ post.content }}</div>
+    {% if session.get('user_id') %}<a class="share-btn" href="{{ url_for('ai.index', context='مقال: ' ~ post.title) }}"><i class="fas fa-wand-magic-sparkles"></i> اسأل Sadeem AI عن المقال</a>{% endif %}
 
     {% if session.get('user_id') and (session.get('user_id') == post.user_id or session.get('role') == 'admin') %}
     <div class="post-actions">
@@ -263,6 +264,9 @@ if (navigator.share) {
     document.getElementById('native-share-btn').style.display = 'inline-flex';
 }
 </script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
+{% if not request.path.startswith('/ai') %}{% include 'partials/_ai_float.html' %}<script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>{% endif %}
 
 </body>
 </html>
