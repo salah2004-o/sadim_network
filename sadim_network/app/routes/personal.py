@@ -21,7 +21,7 @@ def favorite():
     content_type = data.get('content_type')
     content_id = data.get('content_id')
     try:
-        key, table, column = _content_columns(content_type)
+        key, _, _ = _content_columns(content_type)
         content_id = int(content_id)
     except (ValueError, TypeError):
         return jsonify({'error': 'invalid_content'}), 400
@@ -29,7 +29,7 @@ def favorite():
     try:
         cur = conn.cursor()
         if request.method == 'POST':
-                cur.execute(f"INSERT INTO user_favorites (user_id, content_type, {key}) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING", (session['user_id'], content_type, content_id))
+            cur.execute(f"INSERT INTO user_favorites (user_id, content_type, {key}) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING", (session['user_id'], content_type, content_id))
         else:
             cur.execute(f"DELETE FROM user_favorites WHERE user_id = %s AND content_type = %s AND {key} = %s", (session['user_id'], content_type, content_id))
         conn.commit()
@@ -53,7 +53,9 @@ def reading():
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        cur.execute(f"INSERT INTO reading_history (user_id, content_type, {key}, status) VALUES (%s, %s, %s, %s) ON CONFLICT DO UPDATE SET status = EXCLUDED.status, last_updated = NOW()", (session['user_id'], content_type, content_id, status))
+        cur.execute(f"UPDATE reading_history SET status = %s, last_updated = NOW() WHERE user_id = %s AND content_type = %s AND {key} = %s", (status, session['user_id'], content_type, content_id))
+        if cur.rowcount == 0:
+            cur.execute(f"INSERT INTO reading_history (user_id, content_type, {key}, status) VALUES (%s, %s, %s, %s)", (session['user_id'], content_type, content_id, status))
         conn.commit()
         return jsonify({'status': status})
     finally:

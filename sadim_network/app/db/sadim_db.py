@@ -407,6 +407,7 @@ def create_tables():
             input_tokens INTEGER DEFAULT 0,
             output_tokens INTEGER DEFAULT 0,
             tools_invoked JSONB NOT NULL DEFAULT '[]'::jsonb,
+            status VARCHAR(20) NOT NULL DEFAULT 'success',
             created_at TIMESTAMP DEFAULT NOW()
         );
     """)
@@ -440,6 +441,7 @@ def create_tables():
     cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_usage_user_date ON ai_usage(user_id, created_at);")
     cur.execute("ALTER TABLE ai_conversations ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'success';")
     cur.execute("ALTER TABLE ai_conversations ADD COLUMN IF NOT EXISTS error_message TEXT;")
+    cur.execute("ALTER TABLE ai_messages ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'success';")
 
 #----------USER CONTENT TABLES----------#
     cur.execute("""

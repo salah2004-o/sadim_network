@@ -196,7 +196,7 @@ def chat(user_id, conversation_id, message, page_context=None):
         try:
             cur = conn.cursor()
             cur.execute("UPDATE ai_conversations SET title = %s, status = 'success', updated_at = NOW() WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], conversation_id))
-            cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model) VALUES (%s, 'assistant', %s, %s)", (conversation_id, instant, 'sadeem-database'))
+            cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, status) VALUES (%s, 'assistant', %s, %s, 'success')", (conversation_id, instant, 'sadeem-database'))
             cur.execute("INSERT INTO ai_usage (user_id, conversation_id, model, input_tokens, output_tokens) VALUES (%s, %s, %s, 0, 0)", (user_id, conversation_id, 'sadeem-database'))
             conn.commit()
         finally:
@@ -215,7 +215,7 @@ def chat(user_id, conversation_id, message, page_context=None):
         try:
             cur = conn.cursor()
             cur.execute("UPDATE ai_conversations SET title = %s, status = 'fallback', error_message = %s, updated_at = NOW() WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], str(exc)[:500], conversation_id))
-            cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model) VALUES (%s, 'assistant', %s, %s)", (conversation_id, fallback, 'database-fallback'))
+            cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, status) VALUES (%s, 'assistant', %s, %s, 'fallback')", (conversation_id, fallback, 'database-fallback'))
             conn.commit()
         finally:
             conn.close()
@@ -242,7 +242,7 @@ def chat(user_id, conversation_id, message, page_context=None):
     try:
         cur = conn.cursor()
         cur.execute("UPDATE ai_conversations SET title = %s WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], conversation_id))
-        cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, input_tokens, output_tokens, tools_invoked) VALUES (%s, 'assistant', %s, %s, %s, %s, %s)", (conversation_id, answer, MODEL, usage.get("promptTokenCount", 0), usage.get("candidatesTokenCount", 0), json.dumps(tool_calls)))
+        cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, input_tokens, output_tokens, tools_invoked, status) VALUES (%s, 'assistant', %s, %s, %s, %s, %s, 'success')", (conversation_id, answer, MODEL, usage.get("promptTokenCount", 0), usage.get("candidatesTokenCount", 0), json.dumps(tool_calls)))
         cur.execute("INSERT INTO ai_usage (user_id, conversation_id, model, input_tokens, output_tokens) VALUES (%s, %s, %s, %s, %s)", (user_id, conversation_id, MODEL, usage.get("promptTokenCount", 0), usage.get("candidatesTokenCount", 0)))
         cur.execute("UPDATE ai_conversations SET updated_at = NOW() WHERE id = %s", (conversation_id,))
         conn.commit()

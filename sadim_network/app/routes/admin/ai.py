@@ -22,7 +22,7 @@ def ai_conversations():
                        LEFT JOIN ai_messages m ON m.conversation_id = c.id LEFT JOIN ai_usage us ON us.conversation_id = c.id
                        WHERE (%s = '' OR u.username ILIKE %s OR u.name ILIKE %s OR c.title ILIKE %s)
                        AND (%s = '' OR c.status = %s)
-                       GROUP BY c.id, u.id ORDER BY c.updated_at DESC LIMIT 100""", (query, pattern, pattern, pattern, status, status))
+                       GROUP BY c.id, u.id, c.status ORDER BY c.updated_at DESC LIMIT 100""", (query, pattern, pattern, pattern, status, status))
         rows = cur.fetchall()
         return render_template('dashboard/ai_conversations.html', conversations=rows, query=query, status=status)
     finally:
