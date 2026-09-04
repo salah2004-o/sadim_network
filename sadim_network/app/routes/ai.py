@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, render_template, request, session
 
 from app.db.sadim_db import get_db_connection
-from app.models.ai_service import MAX_MESSAGE_LENGTH, chat
+from app.models.ai_service import MAX_MESSAGE_LENGTH, chat, get_book, get_article
 from app.utlis.login_required import login_required
 from app.limiter import limiter
 
@@ -21,7 +21,14 @@ def _conversation(conversation_id, user_id):
 @ai_bp.route('/')
 @login_required
 def index():
-    return render_template('ai/index.html')
+    context_type = request.args.get('context_type', '')
+    context_id = request.args.get('context_id', type=int)
+    page_context = None
+    if context_type == 'book' and context_id:
+        page_context = {'type': 'book', 'id': context_id, 'record': get_book(context_id)}
+    elif context_type == 'article' and context_id:
+        page_context = {'type': 'article', 'id': context_id, 'record': get_article(context_id)}
+    return render_template('ai/index.html', initial_context=page_context or {})
 
 
 @ai_bp.route('/conversations')
@@ -93,6 +100,15 @@ def send_message(conversation_id):
         return jsonify({'error': 'message_too_long', 'max_length': MAX_MESSAGE_LENGTH}), 400
     try:
         page_context = data.get('page_context', '')
+        if isinstance(page_context, dict):
+            context_type = page_context.get('type')
+            context_id = page_context.get('id')
+            if context_type == 'book' and context_id:
+                page_context = {'type': 'book', 'id': int(context_id), 'record': get_book(int(context_id))}
+            elif context_type == 'article' and context_id:
+                page_context = {'type': 'article', 'id': int(context_id), 'record': get_article(int(context_id))}
+            else:
+                page_context = ''
         if not page_context:
             page_context = 'تخصيص المستخدم: ' + str(__import__('app.models.ai_service', fromlist=['get_user_context']).get_user_context(session['user_id']))[:1500]
         return jsonify(chat(session['user_id'], conversation_id, message, page_context=page_context))

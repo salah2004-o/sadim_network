@@ -12,7 +12,7 @@ from app.db.sadim_db import get_db_connection
 SYSTEM_PROMPT = """أنت Sadeem AI، المساعد الذكي داخل شبكة سديم.
 أنت جزء من منظومة سديم ولست خدمة منفصلة عنها.
 شبكة سديم منصة عربية تجمع مكتبة الكتب، المقالات، الخدمات الرقمية، وأنظمة البوتات. مهمتك مساعدة المستخدم في الوصول إلى هذه الموارد، إضافة إلى الإجابة عن الأسئلة العامة عندما لا تحتاج إلى بيانات داخلية.
-استخدم search_library لطلبات الكتب والروايات والقراءة، وsearch_articles للمقالات والمعرفة المنشورة، وsearch_services للخدمات المتاحة. استخدم get_book أو get_article فقط عند وجود معرف محدد. استخدم get_user_context عند الحاجة إلى تخصيص غير حساس.
+استخدم search_library لطلبات الكتب والروايات والقراءة، وsearch_articles للمقالات والمعرفة المنشورة، وsearch_services للخدمات المتاحة. استخدم get_book أو get_article فقط عند وجود معرف محدد. استخدم get_user_context وget_user_favorites وget_reading_history عند الحاجة إلى تخصيص غير حساس.
 إذا احتوى السؤال على طلب توصية أو بحث داخل سديم، استخدم الأداة المناسبة قبل الإجابة، ولا تعتمد على معرفتك العامة وحدها.
 لا تخترع بيانات غير موجودة في سديم. إذا استخدمت أداة داخلية، اعتمد على نتيجتها ولا تفترض معلومات غير موجودة فيها.
 إذا لم تجد نتيجة مناسبة، صرّح بذلك بوضوح. لا تدّعي تنفيذ إجراء لم يتم تنفيذه فعلياً.
@@ -34,6 +34,8 @@ TOOLS = [
         {"name": "get_article", "description": "الحصول على مقال محدد", "parameters": {"type": "OBJECT", "properties": {"article_id": {"type": "INTEGER"}}, "required": ["article_id"]}},
         {"name": "search_services", "description": "البحث داخل خدمات سديم", "parameters": {"type": "OBJECT", "properties": {"query": {"type": "STRING"}, "limit": {"type": "INTEGER"}}, "required": ["query"]}},
         {"name": "get_user_context", "description": "بيانات غير حساسة ضرورية للتخصيص", "parameters": {"type": "OBJECT", "properties": {}}},
+        {"name": "get_user_favorites", "description": "آخر مفضلات المستخدم غير الحساسة", "parameters": {"type": "OBJECT", "properties": {}}},
+        {"name": "get_reading_history", "description": "آخر سجل قراءة للمستخدم", "parameters": {"type": "OBJECT", "properties": {}}},
     ]}
 ]
 
@@ -101,7 +103,21 @@ def get_user_context(user_id):
     return rows[0]
 
 
-TOOL_HANDLERS = {"search_library": search_library, "get_book": get_book, "search_articles": search_articles, "get_article": get_article, "search_services": search_services, "get_user_context": get_user_context}
+def get_user_favorites(user_id):
+    return _rows("""SELECT content_type, COALESCE(book_id, article_id) AS content_id,
+        COALESCE(b.title, p.title) AS title FROM user_favorites f
+        LEFT JOIN books b ON b.id = f.book_id LEFT JOIN posts p ON p.id = f.article_id
+        WHERE f.user_id = %s ORDER BY f.added_at DESC LIMIT 5""", (user_id,))
+
+
+def get_reading_history(user_id):
+    return _rows("""SELECT content_type, COALESCE(book_id, article_id) AS content_id,
+        COALESCE(b.title, p.title) AS title, status FROM reading_history h
+        LEFT JOIN books b ON b.id = h.book_id LEFT JOIN posts p ON p.id = h.article_id
+        WHERE h.user_id = %s ORDER BY h.last_updated DESC LIMIT 5""", (user_id,))
+
+
+TOOL_HANDLERS = {"search_library": search_library, "get_book": get_book, "search_articles": search_articles, "get_article": get_article, "search_services": search_services, "get_user_context": get_user_context, "get_user_favorites": get_user_favorites, "get_reading_history": get_reading_history}
 
 
 def _keys():
@@ -133,9 +149,9 @@ def _text(response):
 
 
 def _ground_links(answer):
-    for row in _rows("SELECT id, title FROM books"):
+    for row in _rows("SELECT id, title FROM books ORDER BY id DESC LIMIT 200"):
         answer = re.sub(rf"(?<!\]){re.escape(row['title'])}(?!\()", f"[{row['title']}](/Library/Agatha_Christie/{row['id']})", answer)
-    for row in _rows("SELECT id, title FROM posts"):
+    for row in _rows("SELECT id, title FROM posts ORDER BY created_at DESC LIMIT 200"):
         answer = re.sub(rf"(?<!\]){re.escape(row['title'])}(?!\()", f"[{row['title']}](/articles/{row['id']})", answer)
     return answer
 
@@ -229,7 +245,7 @@ def chat(user_id, conversation_id, message, page_context=None):
             name, args = call.get("name"), call.get("args", {})
             if name not in TOOL_HANDLERS:
                 continue
-            result = TOOL_HANDLERS[name](**args, user_id=user_id) if name == "get_user_context" else TOOL_HANDLERS[name](**args)
+            result = TOOL_HANDLERS[name](**args, user_id=user_id) if name in ("get_user_context", "get_user_favorites", "get_reading_history") else TOOL_HANDLERS[name](**args)
             tool_calls.append(name)
             tool_results.append({"functionResponse": {"name": name, "response": {"result": result}}})
         try:

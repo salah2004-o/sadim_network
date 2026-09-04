@@ -442,6 +442,10 @@ def create_tables():
     cur.execute("ALTER TABLE ai_conversations ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'success';")
     cur.execute("ALTER TABLE ai_conversations ADD COLUMN IF NOT EXISTS error_message TEXT;")
     cur.execute("ALTER TABLE ai_messages ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'success';")
+    cur.execute("ALTER TABLE ai_messages ADD COLUMN IF NOT EXISTS model VARCHAR(80);")
+    cur.execute("ALTER TABLE ai_messages ADD COLUMN IF NOT EXISTS input_tokens INTEGER DEFAULT 0;")
+    cur.execute("ALTER TABLE ai_messages ADD COLUMN IF NOT EXISTS output_tokens INTEGER DEFAULT 0;")
+    cur.execute("ALTER TABLE ai_messages ADD COLUMN IF NOT EXISTS tools_invoked JSONB NOT NULL DEFAULT '[]'::jsonb;")
 
 #----------USER CONTENT TABLES----------#
     cur.execute("""

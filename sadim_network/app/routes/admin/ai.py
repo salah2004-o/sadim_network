@@ -17,14 +17,23 @@ def ai_conversations():
         cur = conn.cursor()
         pattern = f'%{query}%'
         cur.execute("""SELECT c.id, c.title, c.created_at, c.updated_at, u.id, u.username, u.name, c.status,
-                       COUNT(m.id) AS message_count, COALESCE(SUM(us.input_tokens + us.output_tokens), 0) AS tokens
+                   COALESCE(m.message_count, 0) AS message_count, COALESCE(us.tokens, 0) AS tokens
                        FROM ai_conversations c JOIN users u ON u.id = c.user_id
-                       LEFT JOIN ai_messages m ON m.conversation_id = c.id LEFT JOIN ai_usage us ON us.conversation_id = c.id
+                   LEFT JOIN (SELECT conversation_id, COUNT(*) AS message_count FROM ai_messages GROUP BY conversation_id) m ON m.conversation_id = c.id
+                   LEFT JOIN (SELECT conversation_id, SUM(input_tokens + output_tokens) AS tokens FROM ai_usage GROUP BY conversation_id) us ON us.conversation_id = c.id
                        WHERE (%s = '' OR u.username ILIKE %s OR u.name ILIKE %s OR c.title ILIKE %s)
                        AND (%s = '' OR c.status = %s)
-                       GROUP BY c.id, u.id, c.status ORDER BY c.updated_at DESC LIMIT 100""", (query, pattern, pattern, pattern, status, status))
+                       ORDER BY c.updated_at DESC LIMIT 100""", (query, pattern, pattern, pattern, status, status))
         rows = cur.fetchall()
-        return render_template('dashboard/ai_conversations.html', conversations=rows, query=query, status=status)
+        cur.execute("""SELECT COUNT(*) FILTER (WHERE created_at::date = CURRENT_DATE),
+                   COUNT(*) FILTER (WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'),
+                   COUNT(*) FILTER (WHERE status = 'success'), COUNT(*) FILTER (WHERE status = 'fallback')
+                   FROM ai_conversations""")
+        today, week, successful, fallback = cur.fetchone()
+        total = successful + fallback
+        stats = {'today': today, 'week': week, 'successful': successful, 'fallback': fallback,
+             'failure_rate': round((fallback / total) * 100, 1) if total else 0}
+        return render_template('dashboard/ai_conversations.html', conversations=rows, query=query, status=status, stats=stats)
     finally:
         conn.close()
 

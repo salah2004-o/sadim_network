@@ -443,7 +443,7 @@
             <i class="fa-solid fa-books"></i> روايات أخرى
           </a>
           {% if session.get('user_id') %}<button type="button" class="btn-back" data-content-type="book" data-content-id="{{ book['id'] }}" onclick="toggleFavorite(this)"><i class="fa-regular fa-bookmark"></i> أضف للمفضلة</button><button type="button" class="btn-back" onclick="setReading('finished')"><i class="fa-solid fa-check"></i> أنهيت القراءة</button>{% endif %}
-          {% if session.get('user_id') %}<a href="{{ url_for('ai.index', context='كتاب: ' ~ book['title']) }}" class="btn-back"><i class="fa-solid fa-wand-magic-sparkles"></i> اسأل Sadeem AI</a>{% endif %}
+          {% if session.get('user_id') %}<a href="{{ url_for('ai.index', context_type='book', context_id=book['id']) }}" class="btn-back"><i class="fa-solid fa-wand-magic-sparkles"></i> اسأل Sadeem AI</a>{% endif %}
         </div>
       </div>
 
