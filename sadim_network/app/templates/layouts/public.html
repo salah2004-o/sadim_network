@@ -22,6 +22,7 @@
             <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}"><i class="fas fa-book"></i> مكتبة أجاثا</a></li>
             {% if session.get('user_id') %}
             <li><a href="{{ url_for('bots.my_bots') }}"><i class="fas fa-robot"></i> أنظمتي</a></li>
+            <li><a href="{{ url_for('ai.index') }}"><i class="fas fa-wand-magic-sparkles"></i> Sadeem AI</a></li>
             {% endif %}
             <li><a href="{{ url_for('articles.list_articles') }}"><i class="fas fa-newspaper"></i> المقالات</a></li>
             <li><a href="{{ url_for('main.services') }}"><i class="fas fa-toolbox"></i> خدماتنا</a></li>
@@ -59,6 +60,7 @@
     <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-sidebar-item"><i class="fas fa-book"></i> مكتبة أجاثا</a>
     {% if session.get('user_id') %}
     <a href="{{ url_for('bots.my_bots') }}" class="sd-sidebar-item"><i class="fas fa-robot"></i> أنظمتي</a>
+    <a href="{{ url_for('ai.index') }}" class="sd-sidebar-item"><i class="fas fa-wand-magic-sparkles"></i> Sadeem AI</a>
     {% endif %}
     <a href="{{ url_for('articles.list_articles') }}" class="sd-sidebar-item"><i class="fas fa-newspaper"></i> المقالات</a>
     <a href="{{ url_for('main.services') }}" class="sd-sidebar-item"><i class="fas fa-toolbox"></i> خدماتنا</a>

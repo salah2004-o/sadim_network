@@ -53,3 +53,7 @@ BOT_WORKER = os.getenv("BOT_WORKER", "true").lower() != "false"  # شغّل ال
 
 # فاصل زمني (بالساعات) بين كل نشر تلقائي لرواية جديدة بقناة كل بوت
 BOOK_ANNOUNCE_INTERVAL_HOURS = int(os.getenv("BOOK_ANNOUNCE_INTERVAL_HOURS", 24))
+
+# Gemini keys are intentionally read only by the backend AI service.
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+SADEEM_AI_DAILY_LIMIT = int(os.getenv("SADEEM_AI_DAILY_LIMIT", 20))

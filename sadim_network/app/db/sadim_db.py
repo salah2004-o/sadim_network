@@ -387,6 +387,58 @@ def create_tables():
     """)
     cur.execute("CREATE INDEX IF NOT EXISTS idx_audit_actor_time ON audit_logs(actor_user_id, occurred_at);")
 
+#----------SADEEM AI TABLES----------#
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS ai_conversations (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            title VARCHAR(200) NOT NULL DEFAULT 'محادثة جديدة',
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS ai_messages (
+            id BIGSERIAL PRIMARY KEY,
+            conversation_id INTEGER NOT NULL REFERENCES ai_conversations(id) ON DELETE CASCADE,
+            role VARCHAR(20) NOT NULL CHECK (role IN ('user', 'assistant')),
+            content TEXT NOT NULL,
+            model VARCHAR(80),
+            input_tokens INTEGER DEFAULT 0,
+            output_tokens INTEGER DEFAULT 0,
+            tools_invoked JSONB NOT NULL DEFAULT '[]'::jsonb,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS ai_usage (
+            id BIGSERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            conversation_id INTEGER REFERENCES ai_conversations(id) ON DELETE SET NULL,
+            model VARCHAR(80) NOT NULL,
+            input_tokens INTEGER DEFAULT 0,
+            output_tokens INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS ai_user_knowledge (
+            id BIGSERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            key VARCHAR(120) NOT NULL,
+            value TEXT NOT NULL,
+            confidence NUMERIC(4, 3) DEFAULT 0.5,
+            source_conversation_id INTEGER REFERENCES ai_conversations(id) ON DELETE SET NULL,
+            source_message_id BIGINT REFERENCES ai_messages(id) ON DELETE SET NULL,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW(),
+            UNIQUE(user_id, key)
+        );
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_conversations_user_time ON ai_conversations(user_id, updated_at DESC);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_messages_conversation_time ON ai_messages(conversation_id, created_at);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_usage_user_date ON ai_usage(user_id, created_at);")
+
 #----------REFERRALS TABLE (نظام الدعوة — رابط ?ref=<user_id>، مكافأة حد بوت إضافي مؤقت)----------#
     cur.execute("""
         CREATE TABLE IF NOT EXISTS referrals (

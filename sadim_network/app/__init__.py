@@ -45,6 +45,7 @@ from app.routes.menu_route import menu_bp
 from app.routes.bots.bot import bot_bp as bots_bp
 from app.routes.articles.articles import articles_bp
 from app.routes.shortlinks import shortlinks_bp
+from app.routes.ai import ai_bp
 
 #blueprint
 app.register_blueprint(loading_bp)
@@ -58,6 +59,7 @@ app.register_blueprint(Library_Agatha_bp)
 app.register_blueprint(bots_bp)
 app.register_blueprint(articles_bp)
 app.register_blueprint(shortlinks_bp)
+app.register_blueprint(ai_bp)
 
 from app.bot.bot_runner import restore_all_bots
 restore_all_bots()

@@ -124,6 +124,23 @@ app/__init__.py
 * واجهة عربية
 * قابل للتوسع إلى SaaS
 
+## Sadeem AI
+
+يعمل Sadeem AI من خلال `app/models/ai_service.py` ويمرر كل طلب عبر Backend سديم. لا يصل Gemini إلى قاعدة البيانات مباشرة؛ الأدوات المقيدة فقط هي التي تنفذ استعلامات المكتبة والمقالات والخدمات وسياق المستخدم غير الحساس.
+
+قبل التشغيل على الخادم، أضف في `app/config/.env` (ولا تضع هذه القيم في JavaScript أو Git):
+
+```env
+GEMINI_API_KEY_1=your-server-secret
+GEMINI_API_KEY_2=your-second-server-secret
+GEMINI_MODEL=gemini-2.0-flash
+SADEEM_AI_DAILY_LIMIT=20
+```
+
+شغّل `python app/db/sadim_db.py` مرة واحدة لإنشاء جداول `ai_conversations` و`ai_messages` و`ai_usage` و`ai_user_knowledge`. صفحة المستخدم هي `/ai/`، وسجل الإدارة المحمي هو `/dashboard/ai-conversations`.
+
+المحادثات محصورة بالمستخدم صاحبها، وسياق Gemini محدود بآخر 16 رسالة وبحد أقصى 4000 حرف للرسالة. يتم تدوير مفاتيح Gemini عند الفشل، وتسجيل الاستخدام، وتسجيل وصول الإدارة في `audit_logs`.
+
 ---
 
   _____                   _                  _____
