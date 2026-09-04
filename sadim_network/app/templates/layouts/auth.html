@@ -10,15 +10,18 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/interactions.css') }}">
 <style>
     .sd-auth-wrap {
-        min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        position:relative; isolation:isolate; min-height: calc(100vh - 68px); display: flex; align-items: center; justify-content: flex-end;
         padding: var(--sd-sp-6);
         background:
-            radial-gradient(circle at 15% 10%, rgba(124,77,255,.16), transparent 45%),
-            radial-gradient(circle at 85% 90%, rgba(179,136,255,.10), transparent 45%),
-            var(--sd-bg);
+            url('{{ url_for('static', filename='images/sadim-hero.png') }}') center / cover no-repeat;
     }
-    .sd-auth-card { width: 100%; max-width: 420px; }
+    .sd-auth-wrap::before { content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(90deg,rgba(1,7,17,.18),rgba(1,7,17,.62) 72%,rgba(1,7,17,.82)),linear-gradient(180deg,rgba(1,7,17,.24),rgba(1,7,17,.48)); }
+    .sd-auth-wrap::after { content:""; position:absolute; inset:0; z-index:-1; background:radial-gradient(circle at 78% 50%,rgba(8,22,40,.08),transparent 38%); pointer-events:none;
+    }
+    .sd-auth-card { width: 100%; max-width: 420px; margin-inline-end:clamp(0px, 4vw, 72px); }
+    .sd-auth-card > .sd-card { background:rgba(7,18,31,.72); border-color:rgba(154,224,255,.2); backdrop-filter:blur(18px); box-shadow:0 20px 60px rgba(0,0,0,.35), 0 0 0 1px rgba(91,217,255,.05); }
     .sd-auth-logo { display: flex; align-items: center; justify-content: center; gap: var(--sd-sp-2); margin-bottom: var(--sd-sp-6); font-weight: var(--sd-fw-black); font-size: var(--sd-fs-lg); text-decoration: none; color: var(--sd-text); }
+    @media (max-width:760px) { .sd-auth-wrap { min-height:calc(100vh - 120px); justify-content:center; padding:var(--sd-sp-4); background-position:center; } .sd-auth-card { margin-inline-end:0; } .sd-auth-wrap::before { background:linear-gradient(180deg,rgba(1,7,17,.3),rgba(1,7,17,.82) 78%); } }
 </style>
 {% block extra_head %}{% endblock %}
 </head>
