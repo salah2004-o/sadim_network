@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 import redis
 
 # تحديد مسار ملف .env بدقة
-dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+dotenv_path = os.path.join(BASE_DIR, ".env")
 load_dotenv(dotenv_path)
 
 # ===== إعدادات Flask =====
@@ -53,7 +54,10 @@ BOT_WORKER = os.getenv("BOT_WORKER", "true").lower() != "false"  # شغّل ال
 
 # فاصل زمني (بالساعات) بين كل نشر تلقائي لرواية جديدة بقناة كل بوت
 BOOK_ANNOUNCE_INTERVAL_HOURS = int(os.getenv("BOOK_ANNOUNCE_INTERVAL_HOURS", 24))
+<<<<<<< Updated upstream
 
 # Gemini keys are intentionally read only by the backend AI service.
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
 SADEEM_AI_DAILY_LIMIT = int(os.getenv("SADEEM_AI_DAILY_LIMIT", 20))
+=======
+>>>>>>> Stashed changes
