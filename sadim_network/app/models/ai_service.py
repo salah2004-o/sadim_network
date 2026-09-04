@@ -167,6 +167,12 @@ def _database_fallback(message):
     return 'لم أتمكن من الوصول إلى الذكاء الاصطناعي الآن، ولم أجد نتيجة مباشرة مناسبة في شبكة سديم.'
 
 
+def _instant_response(message):
+    lowered = message.lower()
+    instant_phrases = ('هاي', 'مرحبا', 'أهلاً', 'اهلا', 'hello', 'hi', 'عطني رواية', 'اعطني رواية', 'أعطني رواية', 'اختار لي كتاب', 'اختر لي كتاب', 'ماذا أقرأ', 'ماذا اقرا', 'رواية او مقال', 'رواية أو مقال', 'شيء اقرأه')
+    return _database_fallback(message) if any(phrase in lowered for phrase in instant_phrases) else None
+
+
 def chat(user_id, conversation_id, message, page_context=None):
     if len(message) > MAX_MESSAGE_LENGTH:
         raise ValueError("message_too_long")
@@ -183,6 +189,19 @@ def chat(user_id, conversation_id, message, page_context=None):
         conn.commit()
     finally:
         conn.close()
+
+    instant = _instant_response(message)
+    if instant:
+        conn = get_db_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute("UPDATE ai_conversations SET title = %s, status = 'success', updated_at = NOW() WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], conversation_id))
+            cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model) VALUES (%s, 'assistant', %s, %s)", (conversation_id, instant, 'sadeem-database'))
+            cur.execute("INSERT INTO ai_usage (user_id, conversation_id, model, input_tokens, output_tokens) VALUES (%s, %s, %s, 0, 0)", (user_id, conversation_id, 'sadeem-database'))
+            conn.commit()
+        finally:
+            conn.close()
+        return {"content": instant, "message_id": user_message_id, "tools": []}
 
     context_message = message
     if page_context:
