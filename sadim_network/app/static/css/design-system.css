@@ -418,9 +418,11 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
    على #mobile-sidebar وينشئ .overlay بنفسه، هذا الملف يوفر فقط شكل الحالتين. */
 .sd-mobile-drawer {
     position: fixed; inset-block: 0; inset-inline-end: 0; width: min(280px, 82vw);
-    z-index: var(--sd-z-overlay); transition: inset-inline-end 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: var(--sd-z-overlay);
     box-shadow: var(--sd-shadow-lg); overflow-y: auto; transform: translateX(110%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+/* inset-inline-end منطقي ويعتمد على اتجاه الصفحة (= left:0 في RTL)، لكن transform: translateX() فيزيائي دائماً بغض النظر عن dir. بدون هذا السطر، القائمة على صفحات RTL (كل صفحات الموقع) كانت تنزاح لليمين بدل اليسار وهي "مغلقة"، فيظل جزء منها ظاهراً دائماً فوق حافة الشاشة اليمنى (تراكب جزئي دائم مع المحتوى، حتى بدون فتح القائمة أصلاً) — وهذا هو السبب الفعلي وراء الخطأ 1 المبلّغ عنه. */
+[dir="rtl"] .sd-mobile-drawer { transform: translateX(-110%); }
 .sd-mobile-drawer.active { transform: translateX(0); }
 
 @media (max-width: 600px) {
