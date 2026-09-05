@@ -28,25 +28,32 @@
         color: var(--sd-accent-light);
         font-weight: 700;
     }
+    .sd-welcome-banner {
+        display:flex; align-items:center; gap:var(--sd-sp-4); margin-bottom:var(--sd-sp-5);
+        padding:var(--sd-sp-4) var(--sd-sp-5); background:var(--sd-accent-soft);
+        border:1px solid var(--sd-accent-soft-strong); border-radius:var(--sd-radius-md);
+    }
+    .sd-welcome-banner .sd-welcome-icon { width:48px; height:48px; flex:0 0 48px; margin:0; font-size:1.15rem; }
+    .sd-welcome-copy { min-width:0; flex:1; }
+    .sd-welcome-copy h2 { margin:0 0 4px; font-size:var(--sd-fs-md); }
+    .sd-welcome-copy p { margin:0; color:var(--sd-text-secondary); font-size:var(--sd-fs-sm); }
+    .sd-welcome-close { flex:0 0 auto; }
+    @media (max-width:600px) { .sd-welcome-banner { align-items:flex-start; padding:var(--sd-sp-4); } .sd-welcome-banner .sd-welcome-icon { display:none; } .sd-welcome-close { min-width:44px; padding-inline:0; } .sd-welcome-close span { display:none; } }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<div class="sd-modal-overlay is-open" id="welcomeModal" role="dialog" aria-modal="true" aria-labelledby="welcomeModalTitle">
-    <div class="sd-modal">
-        <div class="sd-welcome-icon"><i class="fas fa-user-shield"></i></div>
-        <h2 class="sd-modal-title" id="welcomeModalTitle" style="text-align:center;">مرحباً بك مجدداً</h2>
-        <p class="sd-modal-desc" style="text-align:center;">
+<div class="sd-welcome-banner" id="welcomeBanner" role="status" aria-labelledby="welcomeBannerTitle">
+    <div class="sd-welcome-icon"><i class="fas fa-user-shield"></i></div>
+    <div class="sd-welcome-copy">
+        <h2 id="welcomeBannerTitle">مرحباً بك مجدداً</h2>
+        <p>
             المشرف: <strong style="color: var(--sd-accent-light);">{{ username }}</strong><br>
             نظام التشغيل آمن، تم تسجيل الدخول وجاهز لاستقبال العمليات الإدارية.
         </p>
-        <div class="sd-modal-actions" style="justify-content:center;">
-            <button type="button" class="sd-btn sd-btn-primary sd-ripple" id="closeWelcomeBtn">
-                دخول لوحة التحكم <i class="fas fa-arrow-left"></i>
-            </button>
-        </div>
     </div>
+    <button type="button" class="sd-btn sd-btn-ghost sd-welcome-close" id="closeWelcomeBtn" aria-label="إغلاق رسالة الترحيب"><span>إخفاء</span><i class="fas fa-xmark"></i></button>
 </div>
 
 <div style="display:flex; flex-wrap:wrap; gap: var(--sd-sp-3); align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-5);">
@@ -121,14 +128,12 @@
 {% block extra_scripts %}
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        var modal = document.getElementById("welcomeModal");
+        var banner = document.getElementById("welcomeBanner");
         if (sessionStorage.getItem("sadeem_admin_welcomed")) {
-            modal.classList.remove("is-open");
-            modal.style.display = "none";
+            banner.style.display = "none";
         }
         document.getElementById("closeWelcomeBtn").addEventListener("click", function () {
-            modal.classList.remove("is-open");
-            modal.style.display = "none";
+            banner.style.display = "none";
             sessionStorage.setItem("sadeem_admin_welcomed", "true");
         });
     });
