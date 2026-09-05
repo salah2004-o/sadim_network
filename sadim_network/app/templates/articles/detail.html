@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
     <title>{{ post.title }} — شبكة سديم</title>
     {% set article_url = url_for('articles.view_article', post_id=post.id, _external=True) %}
     <meta property="og:type" content="article">
@@ -16,20 +19,20 @@
     <meta name="twitter:card" content="summary_large_image">
     <style>
         :root {
-            --color-bg: #09090d;
-            --color-primary: rgba(18, 18, 24, 0.75);
-            --color-accent: #7c4dff;
-            --color-light: #b388ff;
-            --color-deep: #ffffff;
-            --text-muted: #9c9cab;
-            --border-color: rgba(255, 255, 255, 0.08);
+            --color-bg: #0a1018;
+            --color-primary: rgba(18, 26, 38, 0.85);
+            --color-accent: #c4a35a;
+            --color-light: #d9bc74;
+            --color-deep: #e8edf0;
+            --text-muted: #9aa8b8;
+            --border-color: rgba(228, 233, 240, 0.08);
             --blur: blur(18px);
-            --radius: 24px;
-            --radius-sm: 14px;
-            --red: #ff5252;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --red: #c45c5c;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--color-bg); color: var(--color-deep); font-family: 'Segoe UI', Tahoma, sans-serif; min-height: 100vh; }
+        body { background: var(--color-bg); color: var(--color-deep); font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
         .page-header {
             position: sticky; top: 0; z-index: 100;
             background: rgba(9, 9, 13, 0.85); backdrop-filter: var(--blur);
@@ -267,7 +270,7 @@ if (navigator.share) {
 
 {% if session.get('user_id') %}<script>function toggleFavorite(button){fetch('/api/personal/favorite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'article',content_id:{{ post.id }}})}).then(r=>{if(!r.ok)throw Error();button.innerHTML='<i class="fas fa-bookmark"></i> تمت الإضافة';button.disabled=true;}).catch(()=>{});}function setReading(status){fetch('/api/personal/reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'article',content_id:{{ post.id }},status})});}setReading('reading');</script>{% endif %}<link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
 {% if not request.path.startswith('/ai') %}{% include 'partials/_ai_float.html' %}<script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>{% endif %}
-
+{% include 'partials/_bottom_nav.html' %}
 </body>
 {% include 'partials/_page_nav.html' %}
 </html>

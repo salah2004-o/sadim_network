@@ -1,13 +1,11 @@
 import json
 import os
-import random
-import socket
-import urllib.error
-import urllib.request
-from decimal import Decimal
 import re
+from decimal import Decimal
 
 from app.db.sadim_db import get_db_connection
+from app.models.ai_providers import ProviderRouter
+from app.models.ai_providers.base import ChatAttachment, ChatRequest
 
 SYSTEM_PROMPT = """أنت Sadeem AI، المساعد الذكي داخل شبكة سديم.
 أنت جزء من منظومة سديم ولست خدمة منفصلة عنها.
@@ -23,8 +21,13 @@ SYSTEM_PROMPT = """أنت Sadeem AI، المساعد الذكي داخل شبك�
 MAX_MESSAGE_LENGTH = 4000
 MAX_CONTEXT_MESSAGES = 16
 DAILY_LIMIT = int(os.getenv("SADEEM_AI_DAILY_LIMIT", "20"))
-MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
-REQUEST_TIMEOUT = int(os.getenv("GEMINI_REQUEST_TIMEOUT", "20"))
+GUEST_DAILY_LIMIT = int(os.getenv("SADEEM_AI_GUEST_DAILY_LIMIT", "8"))
+MAX_UPLOAD_BYTES = int(os.getenv("SADEEM_AI_MAX_UPLOAD_MB", "5")) * 1024 * 1024
+ALLOWED_UPLOAD_TYPES = {
+    "image/jpeg", "image/png", "image/webp", "image/gif",
+    "application/pdf", "text/plain",
+}
+ALLOWED_UPLOAD_EXT = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".pdf", ".txt"}
 
 TOOLS = [
     {"function_declarations": [
@@ -117,35 +120,33 @@ def get_reading_history(user_id):
         WHERE h.user_id = %s ORDER BY h.last_updated DESC LIMIT 5""", (user_id,))
 
 
-TOOL_HANDLERS = {"search_library": search_library, "get_book": get_book, "search_articles": search_articles, "get_article": get_article, "search_services": search_services, "get_user_context": get_user_context, "get_user_favorites": get_user_favorites, "get_reading_history": get_reading_history}
+TOOL_HANDLERS = {
+    "search_library": search_library, "get_book": get_book, "search_articles": search_articles,
+    "get_article": get_article, "search_services": search_services, "get_user_context": get_user_context,
+    "get_user_favorites": get_user_favorites, "get_reading_history": get_reading_history,
+}
 
 
-def _keys():
-    preferred = [value for key, value in sorted(os.environ.items()) if key.startswith("GEMINI_API_KEY_") and value]
-    if preferred:
-        return preferred
-    return [os.environ[name] for name in ("API_KEY1", "API_KEY2") if os.environ.get(name)]
-
-
-def _gemini(contents, user_id):
-    keys = _keys()
-    if not keys:
-        raise RuntimeError("Gemini API is not configured")
-    payload = {"system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]}, "contents": contents, "tools": TOOLS, "generationConfig": {"temperature": 0.25, "maxOutputTokens": 800}}
-    errors = []
-    for key in random.sample(keys, len(keys)):
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={key}"
-        request = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers={"Content-Type": "application/json"}, method="POST")
-        try:
-            with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT) as response:
-                return json.loads(response.read().decode("utf-8"))
-        except (urllib.error.HTTPError, urllib.error.URLError, socket.timeout) as exc:
-            errors.append(str(exc))
-    raise RuntimeError("Gemini request failed: " + "; ".join(errors[-2:]))
-
-
-def _text(response):
-    return "".join(part.get("text", "") for part in response.get("candidates", [{}])[0].get("content", {}).get("parts", [])).strip()
+def validate_upload(file_storage):
+    """Validate an uploaded Werkzeug FileStorage. Returns ChatAttachment or raises ValueError."""
+    if not file_storage or not file_storage.filename:
+        raise ValueError("empty_file")
+    filename = file_storage.filename
+    ext = ("." + filename.rsplit(".", 1)[-1].lower()) if "." in filename else ""
+    mime = (file_storage.mimetype or "").split(";")[0].strip().lower()
+    if ext not in ALLOWED_UPLOAD_EXT and mime not in ALLOWED_UPLOAD_TYPES:
+        raise ValueError("file_type_not_allowed")
+    data = file_storage.read()
+    if len(data) > MAX_UPLOAD_BYTES:
+        raise ValueError("file_too_large")
+    if not data:
+        raise ValueError("empty_file")
+    if mime not in ALLOWED_UPLOAD_TYPES:
+        mime = {
+            ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png",
+            ".webp": "image/webp", ".gif": "image/gif", ".pdf": "application/pdf", ".txt": "text/plain",
+        }.get(ext, "application/octet-stream")
+    return ChatAttachment(filename=filename[:120], mime_type=mime, data=data)
 
 
 def _ground_links(answer):
@@ -204,8 +205,7 @@ def _database_fallback(message):
         if suggestions:
             return 'هذه اقتراحات حقيقية من شبكة سديم:\n' + '\n'.join(suggestions)
     if any(word in lowered for word in ('كتاب', 'رواية', 'قراءة', 'book')):
-        query = message
-        rows = search_library(query, limit=3)
+        rows = search_library(message, limit=3)
         if rows:
             return 'هذه نتائج من مكتبة سديم:\n' + '\n'.join(f"- [{row['title']}](/Library/Agatha_Christie/{row['id']})" for row in rows)
     if any(word in lowered for word in ('خدمة', 'cv', 'سيرة', 'service')):
@@ -225,7 +225,92 @@ def _instant_response(message):
     return _database_fallback(message) if any(phrase in lowered for phrase in instant_phrases) else None
 
 
-def chat(user_id, conversation_id, message, page_context=None):
+def _history_to_messages(history_rows):
+    """Convert DB or session history rows to provider-neutral messages."""
+    messages = []
+    for row in history_rows:
+        role = row[0] if isinstance(row, (list, tuple)) else row.get("role")
+        content = row[1] if isinstance(row, (list, tuple)) else row.get("content")
+        messages.append({
+            "role": "user" if role == "user" else "assistant",
+            "content": content,
+        })
+    return messages
+
+
+def _run_model(messages, page_context=None, attachments=None, preferred_provider=None, user_id=None, tools=True):
+    context_messages = list(messages)
+    if page_context and context_messages:
+        safe_context = str(page_context)[:2000]
+        last = dict(context_messages[-1])
+        last["content"] = f"[سياق الصفحة الحالي للاستخدام الداخلي فقط: {safe_context}]\n{last.get('content', '')}"
+        context_messages[-1] = last
+
+    prefer_vision = bool(attachments)
+    router = ProviderRouter(preferred=preferred_provider)
+    req = ChatRequest(
+        system_prompt=SYSTEM_PROMPT,
+        messages=context_messages,
+        tools=TOOLS if tools else None,
+        attachments=attachments or [],
+    )
+    response = router.generate(req, prefer_vision=prefer_vision)
+
+    # Gemini-style tool loop when function calls are returned
+    if response.tool_calls and response.provider == "gemini":
+        tool_results = []
+        tool_names = []
+        for call in response.tool_calls:
+            name, args = call.get("name"), call.get("args", {}) or {}
+            if name not in TOOL_HANDLERS:
+                continue
+            if name in ("get_user_context", "get_user_favorites", "get_reading_history"):
+                if not user_id:
+                    result = {"error": "guest_no_personal_data"}
+                else:
+                    result = TOOL_HANDLERS[name](user_id=user_id)
+            else:
+                result = TOOL_HANDLERS[name](**args)
+            tool_names.append(name)
+            tool_results.append({"functionResponse": {"name": name, "response": {"result": result}}})
+
+        if tool_results:
+            # Rebuild with Gemini-native parts for follow-up
+            from app.models.ai_providers.gemini import GeminiProvider
+            gemini = GeminiProvider()
+            if gemini.is_configured():
+                gemini_history = []
+                for msg in context_messages:
+                    role = "user" if msg["role"] == "user" else "model"
+                    gemini_history.append({"role": role, "parts": [{"text": msg.get("content", "")}]})
+                parts = response.raw.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+                follow = ChatRequest(
+                    system_prompt=SYSTEM_PROMPT,
+                    messages=gemini_history + [
+                        {"role": "model", "parts": parts},
+                        {"role": "user", "parts": tool_results},
+                    ],
+                    tools=TOOLS,
+                )
+                try:
+                    response = gemini.generate(follow)
+                    response.tool_calls = [{"name": n} for n in tool_names]
+                except Exception:
+                    response.text = _database_fallback(context_messages[-1].get("content", ""))
+                    response.tool_calls = tool_names
+
+    answer = _validate_links(_ground_links(response.text or _database_fallback(context_messages[-1].get("content", ""))))
+    return {
+        "content": answer,
+        "model": response.model,
+        "provider": response.provider,
+        "tools": [c.get("name") if isinstance(c, dict) else c for c in (response.tool_calls or [])],
+        "input_tokens": response.input_tokens,
+        "output_tokens": response.output_tokens,
+    }
+
+
+def chat(user_id, conversation_id, message, page_context=None, attachments=None, preferred_provider=None):
     if len(message) > MAX_MESSAGE_LENGTH:
         raise ValueError("message_too_long")
     conn = get_db_connection()
@@ -236,7 +321,7 @@ def chat(user_id, conversation_id, message, page_context=None):
         if cur.fetchone()[0] >= DAILY_LIMIT:
             raise ValueError("daily_limit")
         cur.execute("SELECT role, content FROM ai_messages WHERE conversation_id = %s ORDER BY created_at DESC LIMIT %s", (conversation_id, MAX_CONTEXT_MESSAGES))
-        history = [{"role": "user" if row[0] == "user" else "model", "parts": [{"text": row[1]}]} for row in reversed(cur.fetchall())]
+        history = list(reversed(cur.fetchall()))
         cur.execute("INSERT INTO ai_messages (conversation_id, role, content) VALUES (%s, 'user', %s) RETURNING id", (conversation_id, message))
         user_message_id = cur.fetchone()[0]
         cur.execute("INSERT INTO ai_usage (user_id, conversation_id, model, input_tokens, output_tokens) VALUES (%s, %s, %s, 0, 0) RETURNING id", (user_id, conversation_id, 'pending'))
@@ -245,7 +330,7 @@ def chat(user_id, conversation_id, message, page_context=None):
     finally:
         conn.close()
 
-    instant = _instant_response(message)
+    instant = _instant_response(message) if not attachments else None
     _extract_explicit_knowledge(user_id, conversation_id, user_message_id, message)
     if instant:
         conn = get_db_connection()
@@ -257,14 +342,11 @@ def chat(user_id, conversation_id, message, page_context=None):
             conn.commit()
         finally:
             conn.close()
-        return {"content": instant, "message_id": user_message_id, "tools": []}
+        return {"content": instant, "message_id": user_message_id, "tools": [], "provider": "database"}
 
-    context_message = message
-    if page_context:
-        safe_context = str(page_context)[:1000]
-        context_message = f"[سياق الصفحة الحالي للاستخدام الداخلي فقط: {safe_context}]\n{message}"
+    messages = _history_to_messages(history) + [{"role": "user", "content": message}]
     try:
-        response = _gemini(history + [{"role": "user", "parts": [{"text": context_message}]}], user_id)
+        result = _run_model(messages, page_context=page_context, attachments=attachments, preferred_provider=preferred_provider, user_id=user_id)
     except Exception as exc:
         fallback = _database_fallback(message)
         conn = get_db_connection()
@@ -276,35 +358,50 @@ def chat(user_id, conversation_id, message, page_context=None):
             conn.commit()
         finally:
             conn.close()
-        return {"content": fallback, "message_id": user_message_id, "tools": []}
-    tool_calls = []
-    parts = response.get("candidates", [{}])[0].get("content", {}).get("parts", [])
-    function_parts = [part.get("functionCall") for part in parts if part.get("functionCall")]
-    response_status = 'success'
-    if function_parts:
-        tool_results = []
-        for call in function_parts:
-            name, args = call.get("name"), call.get("args", {})
-            if name not in TOOL_HANDLERS:
-                continue
-            result = TOOL_HANDLERS[name](**args, user_id=user_id) if name in ("get_user_context", "get_user_favorites", "get_reading_history") else TOOL_HANDLERS[name](**args)
-            tool_calls.append(name)
-            tool_results.append({"functionResponse": {"name": name, "response": {"result": result}}})
-        try:
-            response = _gemini(history + [{"role": "user", "parts": [{"text": context_message}]}, {"role": "model", "parts": parts}, {"role": "user", "parts": tool_results}], user_id)
-        except Exception:
-            response_status = 'fallback'
-            response = {"candidates": [{"content": {"parts": [{"text": _database_fallback(message)}]}}]}
-    answer = _validate_links(_ground_links(_text(response) or _database_fallback(message)))
-    usage = response.get("usageMetadata", {})
+        return {"content": fallback, "message_id": user_message_id, "tools": [], "provider": "database"}
+
+    model_label = f"{result['provider']}:{result['model']}"
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        cur.execute("UPDATE ai_conversations SET title = %s, status = %s, updated_at = NOW() WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], response_status, conversation_id))
-        cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, input_tokens, output_tokens, tools_invoked, status) VALUES (%s, 'assistant', %s, %s, %s, %s, %s, %s)", (conversation_id, answer, MODEL, usage.get("promptTokenCount", 0), usage.get("candidatesTokenCount", 0), json.dumps(tool_calls), response_status))
-        cur.execute("UPDATE ai_usage SET model = %s, input_tokens = %s, output_tokens = %s WHERE id = %s", (MODEL, usage.get("promptTokenCount", 0), usage.get("candidatesTokenCount", 0), usage_id))
+        cur.execute("UPDATE ai_conversations SET title = %s, status = %s, updated_at = NOW() WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], 'success', conversation_id))
+        cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, input_tokens, output_tokens, tools_invoked, status) VALUES (%s, 'assistant', %s, %s, %s, %s, %s, %s)", (conversation_id, result["content"], model_label, result["input_tokens"], result["output_tokens"], json.dumps(result["tools"]), 'success'))
+        cur.execute("UPDATE ai_usage SET model = %s, input_tokens = %s, output_tokens = %s WHERE id = %s", (model_label, result["input_tokens"], result["output_tokens"], usage_id))
         cur.execute("UPDATE ai_conversations SET updated_at = NOW() WHERE id = %s", (conversation_id,))
         conn.commit()
     finally:
         conn.close()
-    return {"content": answer, "message_id": user_message_id, "tools": tool_calls}
+    return {"content": result["content"], "message_id": user_message_id, "tools": result["tools"], "provider": result["provider"]}
+
+
+def guest_chat(session_messages, message, page_context=None, attachments=None, preferred_provider=None):
+    """Ephemeral chat for anonymous visitors — caller stores history in session only."""
+    if len(message) > MAX_MESSAGE_LENGTH:
+        raise ValueError("message_too_long")
+    user_turns = sum(1 for m in session_messages if m.get("role") == "user")
+    if user_turns >= GUEST_DAILY_LIMIT:
+        raise ValueError("guest_limit")
+
+    instant = _instant_response(message) if not attachments else None
+    if instant:
+        return {"content": instant, "tools": [], "provider": "database", "persisted": False}
+
+    history = session_messages[-MAX_CONTEXT_MESSAGES:]
+    messages = [{"role": m["role"], "content": m["content"]} for m in history]
+    messages.append({"role": "user", "content": message})
+    try:
+        result = _run_model(messages, page_context=page_context, attachments=attachments, preferred_provider=preferred_provider, user_id=None, tools=True)
+        result["persisted"] = False
+        return result
+    except Exception:
+        return {"content": _database_fallback(message), "tools": [], "provider": "database", "persisted": False}
+
+
+def summarize_content(title, content, content_type="article", preferred_provider=None):
+    prompt = f"لخّص المحتوى التالي من شبكة سديم باختصار واضح بالعربية (3–6 نقاط أو فقرة قصيرة):\nالنوع: {content_type}\nالعنوان: {title}\n\n{str(content)[:6000]}"
+    try:
+        result = _run_model([{"role": "user", "content": prompt}], preferred_provider=preferred_provider, user_id=None, tools=False)
+        return result
+    except Exception:
+        excerpt = str(content)[:400].strip()
+        return {"content": f"ملخص سريع لـ «{title}»:\n{excerpt}{'…' if len(str(content)) > 400 else ''}", "provider": "local", "tools": []}

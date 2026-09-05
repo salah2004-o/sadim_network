@@ -6,10 +6,11 @@
     <title>مكتبة أجاثا</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/Agatha.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;700&family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
+    <style>body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px));}</style>
 <style>
     /* الحاوية الخارجية للصورة */
 .profile-pic-wrapper {
@@ -319,6 +320,7 @@
 </script>
 
 {% include 'partials/_ai_float.html' %}
+{% include 'partials/_bottom_nav.html' %}
 <script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>
 </body>
 </html>

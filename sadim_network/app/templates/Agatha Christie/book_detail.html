@@ -14,20 +14,21 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      --bg: #0d0b08;
-      --bg-secondary: #161410;
-      --bg-card: #1a1713;
-      --gold: #c9a84c;
-      --gold-light: #e2c97e;
-      --gold-dim: rgba(201,168,76,0.15);
-      --text: #ede8df;
-      --text-secondary: #9a9080;
-      --text-muted: #5a5248;
-      --border: rgba(201,168,76,0.15);
+      --bg: #0a1018;
+      --bg-secondary: #121a26;
+      --bg-card: #1a2433;
+      --gold: #c4a35a;
+      --gold-light: #d9bc74;
+      --gold-dim: rgba(196,163,90,0.15);
+      --text: #e8edf0;
+      --text-secondary: #9aa8b8;
+      --text-muted: #6e7d8f;
+      --border: rgba(196,163,90,0.18);
       --border-light: rgba(255,255,255,0.06);
     }
 
@@ -587,6 +588,7 @@ function toggleFavorite(button){fetch('/api/personal/favorite',{method:'POST',he
 function setReading(status){fetch('/api/personal/reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'book',content_id:{{ book['id'] }},status})});}
 setReading('reading');
 </script>{% endif %}{% include 'partials/_ai_float.html' %}
+{% include 'partials/_bottom_nav.html' %}
 <script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>
 </body>
 </html>

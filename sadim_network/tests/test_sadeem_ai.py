@@ -25,9 +25,17 @@ def login(client, user_id=1, role="user"):
         session["role"] = role
 
 
-def test_ai_requires_login(client):
+def test_ai_allows_guest_page(client):
     response = client.get("/ai/")
-    assert response.status_code == 302
+    assert response.status_code == 200
+    assert b"Sadeem AI" in response.data or "Sadeem AI".encode() in response.data
+
+
+def test_guest_chat_not_persisted_to_db():
+    with patch("app.models.ai_service._run_model", return_value={"content": "رد تجريبي", "tools": [], "provider": "gemini", "model": "x", "input_tokens": 1, "output_tokens": 1}):
+        result = ai_service.guest_chat([], "ما هي شبكة سديم؟")
+    assert result["content"] == "رد تجريبي"
+    assert result.get("persisted") is False
 
 
 def test_private_conversation_isolated(client):

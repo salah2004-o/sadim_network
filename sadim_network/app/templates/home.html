@@ -3,34 +3,35 @@
 
 {% block extra_head %}
 <style>
-    body:has(.sd-home-hero) { background:#020914; }
-    body:has(.sd-home-hero) .sd-navbar { position:absolute; inset-block-start:0; inset-inline:0; background:linear-gradient(180deg,rgba(1,8,18,.72),transparent); border-bottom:0; }
+    body:has(.sd-home-hero) { background:#0a1018; }
+    body:has(.sd-home-hero) .sd-navbar { position:absolute; inset-block-start:0; inset-inline:0; background:linear-gradient(180deg,rgba(10,16,24,.72),transparent); border-bottom:0; }
     body:has(.sd-home-hero) .sd-navbar-brand { color:#fff; }
     body:has(.sd-home-hero) .sd-navbar-links a { color:rgba(255,255,255,.82); }
-    body:has(.sd-home-hero) .sd-navbar-links a:hover { background:rgba(76,210,255,.12); color:#fff; }
+    body:has(.sd-home-hero) .sd-navbar-links a:hover { background:rgba(196,163,90,.14); color:#fff; }
     body:has(.sd-home-hero) .sd-global-back-wrap, body:has(.sd-home-hero) .sd-footer { display:none; }
-    .sd-home-hero { position:relative; min-height:100svh; overflow:hidden; isolation:isolate; display:grid; place-items:center; padding:clamp(7rem, 14vh, 10rem) var(--sd-sp-6) clamp(7rem, 14vh, 10rem); background:#020914 url('{{ url_for('static', filename='images/sadim-hero.png') }}') center center / cover no-repeat; }
-    .sd-home-hero::before { content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(90deg,rgba(1,7,17,.68) 0%,rgba(1,7,17,.18) 48%,rgba(1,7,17,.12) 100%),linear-gradient(180deg,rgba(1,7,17,.42) 0%,transparent 30%,rgba(1,7,17,.28) 74%,rgba(1,7,17,.78) 100%); pointer-events:none; }
+    body:has(.sd-home-hero) .sd-bottom-nav { background:rgba(10,16,24,.92); }
+    .sd-home-hero { position:relative; min-height:100svh; overflow:hidden; isolation:isolate; display:grid; place-items:center; padding:clamp(7rem, 14vh, 10rem) var(--sd-sp-6) clamp(7rem, 14vh, 10rem); background:#0a1018 url('{{ url_for('static', filename='images/sadim-hero.png') }}') center center / cover no-repeat; }
+    .sd-home-hero::before { content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(90deg,rgba(10,16,24,.72) 0%,rgba(10,16,24,.22) 48%,rgba(10,16,24,.18) 100%),linear-gradient(180deg,rgba(10,16,24,.42) 0%,transparent 30%,rgba(10,16,24,.35) 74%,rgba(10,16,24,.82) 100%); pointer-events:none; }
     .sd-home-hero::after { content:""; position:absolute; inset:-6%; z-index:-2; background:inherit; background-position:center; background-size:cover; filter:saturate(1.04); transform:scale(1.05); animation:sd-home-drift 18s ease-in-out infinite alternate; pointer-events:none; }
     .sd-home-content { width:min(100%, 1120px); display:flex; align-items:flex-end; justify-content:space-between; gap:var(--sd-sp-8); margin-top:auto; animation:sd-home-rise .8s ease both; }
     .sd-home-copy { max-width:470px; color:#fff; text-align:start; }
-    .sd-home-kicker { display:inline-flex; align-items:center; gap:8px; color:#b9efff; font-size:var(--sd-fs-sm); letter-spacing:.08em; text-transform:uppercase; }
-    .sd-home-kicker::before { content:""; width:8px; height:8px; border-radius:50%; background:#5ce1ff; box-shadow:0 0 14px #5ce1ff; }
-    .sd-home-copy h1 { margin:var(--sd-sp-3) 0 var(--sd-sp-2); font-size:clamp(2rem, 5vw, 3.5rem); line-height:1.1; letter-spacing:.01em; }
-    .sd-home-copy p { margin:0; color:rgba(235,249,255,.78); font-size:var(--sd-fs-md); line-height:1.9; }
+    .sd-home-kicker { display:inline-flex; align-items:center; gap:8px; color:var(--sd-mist-soft, #6a9bb0); font-size:var(--sd-fs-sm); }
+    .sd-home-kicker::before { content:""; width:8px; height:8px; border-radius:50%; background:var(--sd-brass, #c4a35a); box-shadow:0 0 12px rgba(196,163,90,.5); }
+    .sd-home-copy h1 { margin:var(--sd-sp-3) 0 var(--sd-sp-2); font-family:var(--sd-font-display), Amiri, serif; font-size:clamp(2.2rem, 5vw, 3.6rem); line-height:1.1; letter-spacing:.01em; }
+    .sd-home-copy p { margin:0; color:rgba(232,237,240,.8); font-size:var(--sd-fs-md); line-height:1.9; }
     .sd-home-actions { display:flex; gap:var(--sd-sp-3); flex-wrap:wrap; margin-top:var(--sd-sp-5); }
-    .sd-home-actions .sd-btn-primary { background:linear-gradient(135deg,#65e4ff,#168cc8); color:#02101b; box-shadow:0 8px 28px rgba(45,196,255,.22); }
-    .sd-home-actions .sd-btn-secondary { background:rgba(5,19,34,.48); border-color:rgba(143,229,255,.35); color:#fff; backdrop-filter:blur(12px); }
-    .sd-home-signals { display:flex; align-items:center; gap:var(--sd-sp-3); flex-wrap:wrap; max-width:440px; padding:var(--sd-sp-3) var(--sd-sp-4); border:1px solid rgba(144,222,255,.18); border-radius:var(--sd-radius-md); background:rgba(4,16,29,.42); backdrop-filter:blur(12px); color:rgba(235,249,255,.82); font-size:var(--sd-fs-sm); }
+    .sd-home-actions .sd-btn-primary { background:linear-gradient(135deg,#d9bc74,#c4a35a); color:#0a1018; box-shadow:0 8px 28px rgba(196,163,90,.22); }
+    .sd-home-actions .sd-btn-secondary { background:rgba(10,16,24,.48); border-color:rgba(106,155,176,.4); color:#fff; backdrop-filter:blur(12px); }
+    .sd-home-signals { display:flex; align-items:center; gap:var(--sd-sp-3); flex-wrap:wrap; max-width:440px; padding:var(--sd-sp-3) var(--sd-sp-4); border:1px solid rgba(106,155,176,.22); border-radius:var(--sd-radius-md); background:rgba(10,16,24,.5); backdrop-filter:blur(12px); color:rgba(232,237,240,.82); font-size:var(--sd-fs-sm); }
     .sd-home-signal { display:inline-flex; align-items:center; gap:7px; white-space:nowrap; }
-    .sd-home-signal i { color:#7de7ff; }
-    .sd-home-scroll { position:absolute; inset-block-end:var(--sd-sp-5); inset-inline-start:50%; transform:translateX(-50%); color:rgba(235,249,255,.68); font-size:var(--sd-fs-xs); display:flex; align-items:center; gap:8px; animation:sd-home-pulse 2.4s ease-in-out infinite; }
-    .sd-home-scroll i { color:#6fe3ff; }
+    .sd-home-signal i { color:var(--sd-brass-bright, #d9bc74); }
+    .sd-home-scroll { position:absolute; inset-block-end:calc(var(--sd-bottom-nav-h, 64px) + var(--sd-sp-5)); inset-inline-start:50%; transform:translateX(-50%); color:rgba(232,237,240,.68); font-size:var(--sd-fs-xs); display:flex; align-items:center; gap:8px; animation:sd-home-pulse 2.4s ease-in-out infinite; }
+    .sd-home-scroll i { color:var(--sd-mist-soft, #6a9bb0); }
     @keyframes sd-home-rise { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
     @keyframes sd-home-drift { from { transform:scale(1.05) translate3d(0,0,0); } to { transform:scale(1.08) translate3d(-.5%, -.4%, 0); } }
     @keyframes sd-home-pulse { 0%,100% { opacity:.55; } 50% { opacity:1; } }
     @media (max-width:760px) {
-        body:has(.sd-home-hero) .sd-navbar { background:linear-gradient(180deg,rgba(1,8,18,.8),transparent); }
+        body:has(.sd-home-hero) .sd-navbar { background:linear-gradient(180deg,rgba(10,16,24,.85),transparent); }
         .sd-home-hero { min-height:100svh; padding:7rem var(--sd-sp-4) 5.5rem; background-position:center center; }
         .sd-home-content { display:block; margin-top:auto; }
         .sd-home-copy { max-width:100%; text-align:center; }
@@ -50,12 +51,12 @@
 <section class="sd-home-hero" aria-labelledby="home-title">
     <div class="sd-home-content">
         <div class="sd-home-copy">
-            <span class="sd-home-kicker">SADIM NETWORK</span>
+            <span class="sd-home-kicker">شبكة رقمية وأدب بوليسي</span>
             <h1 id="home-title">شبكة سديم</h1>
-            <p>تقنيات مترابطة. حلول ذكية. مستقبل بلا حدود.</p>
+            <p>منصة تجمع الخدمات الرقمية، البوتات، والمساعد الذكي مع مكتبة أجاثا كريستي.</p>
             <div class="sd-home-actions">
-                <a href="{{ url_for('loading_bp.login') }}" class="sd-btn sd-btn-primary sd-btn-lg">دخول إلى شبكة سديم <i class="fas fa-arrow-left" aria-hidden="true"></i></a>
-                <a href="{{ url_for('main.discover') }}" class="sd-btn sd-btn-secondary sd-btn-lg">استكشاف المنصة</a>
+                <a href="{{ url_for('main.discover') }}" class="sd-btn sd-btn-primary sd-btn-lg"><i class="fas fa-compass" aria-hidden="true"></i> استكشاف المنصة</a>
+                <a href="{{ url_for('loading_bp.login') }}" class="sd-btn sd-btn-secondary sd-btn-lg"><i class="fas fa-right-to-bracket" aria-hidden="true"></i> تسجيل الدخول</a>
             </div>
         </div>
         <div class="sd-home-signals" aria-label="مزايا شبكة سديم">

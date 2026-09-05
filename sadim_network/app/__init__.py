@@ -29,6 +29,21 @@ def inject_nav_user():
     from app.models.user import User
     return {'nav_user': User.get_by_id(session['user_id'])}
 
+
+@app.context_processor
+def inject_ai_page_context():
+    """Detect article/book detail pages so the FAB can open a context side panel."""
+    from flask import request
+    import re
+    path = request.path or ''
+    article = re.search(r'^/articles/(\d+)/?$', path)
+    if article:
+        return {'ai_context_type': 'article', 'ai_context_id': article.group(1)}
+    book = re.search(r'^/Library/Agatha_Christie/(\d+)/?$', path, re.I)
+    if book:
+        return {'ai_context_type': 'book', 'ai_context_id': book.group(1)}
+    return {'ai_context_type': '', 'ai_context_id': ''}
+
 oauth = OAuth(app)
 google_oauth = oauth.register(
     name='google',

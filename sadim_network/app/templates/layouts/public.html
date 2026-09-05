@@ -5,26 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}شبكة سديم{% endblock %}</title>
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/interactions.css') }}">
 {% if not request.path.startswith('/ai') %}<link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">{% endif %}
 {% block extra_head %}{% endblock %}
 </head>
-<body class="sd-app sd-root">
+<body class="sd-app sd-root has-bottom-nav">
 
 <header class="sd-navbar">
     <a href="{{ url_for('main.index') }}" class="sd-navbar-brand">
-        <i class="fas fa-circle-nodes" style="color: var(--sd-accent-light);"></i> شبكة سديم
+        <i class="fas fa-circle-nodes" style="color: var(--sd-brass-bright);"></i> شبكة سديم
     </a>
 
     <nav aria-label="التنقل الرئيسي" class="sd-navbar-links-wrap" style="display:flex; align-items:center; gap: var(--sd-sp-2);">
         <ul class="sd-navbar-links" id="sd-desktop-nav">
             <li><a href="{{ url_for('main.discover') }}"><i class="fas fa-compass"></i> اكتشف</a></li>
+            <li><a href="{{ url_for('articles.list_articles') }}"><i class="fas fa-newspaper"></i> المقالات</a></li>
+            <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}"><i class="fas fa-book-open"></i> المكتبة</a></li>
             {% if session.get('user_id') %}
             <li><a href="{{ url_for('bots.my_bots') }}"><i class="fas fa-toolbox"></i> أدواتي</a></li>
-            <li><a href="{{ url_for('ai.index') }}"><i class="fas fa-wand-magic-sparkles"></i> Sadeem AI</a></li>
             {% endif %}
+            <li><a href="{{ url_for('ai.index') }}"><i class="fas fa-wand-magic-sparkles"></i> Sadeem AI</a></li>
             <li><a href="{{ url_for('loading_bp.account') if session.get('user_id') else url_for('loading_bp.login') }}"><i class="fas fa-user-circle"></i> حسابي</a></li>
             {% if session.get('role') == 'admin' %}
             <li><a href="{{ url_for('admin.services_dashboard') }}"><i class="fas fa-gauge"></i> لوحة التحكم</a></li>
@@ -45,7 +50,9 @@
             </div>
         </div>
         {% else %}
-        <a href="{{ url_for('loading_bp.login') }}" class="sd-btn sd-btn-primary sd-ripple sd-btn-sm">تسجيل الدخول</a>
+        <a href="{{ url_for('loading_bp.login') }}" class="sd-btn sd-btn-primary sd-ripple sd-btn-sm">
+            <i class="fas fa-right-to-bracket" aria-hidden="true"></i> تسجيل الدخول
+        </a>
         {% endif %}
 
         <button type="button" id="menu-toggle" class="sd-btn sd-btn-icon sd-btn-ghost" aria-expanded="false" aria-controls="mobile-sidebar" aria-label="فتح القائمة" style="display:none;">
@@ -57,16 +64,17 @@
 <div id="mobile-sidebar" class="sd-sidebar sd-mobile-drawer">
     <button id="close-sidebar" class="sd-btn sd-btn-icon sd-btn-ghost" style="align-self:flex-end;" aria-label="إغلاق القائمة"><i class="fas fa-xmark"></i></button>
     <a href="{{ url_for('main.discover') }}" class="sd-sidebar-item"><i class="fas fa-compass"></i> اكتشف</a>
+    <a href="{{ url_for('articles.list_articles') }}" class="sd-sidebar-item"><i class="fas fa-newspaper"></i> المقالات</a>
+    <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-sidebar-item"><i class="fas fa-book-open"></i> المكتبة</a>
     {% if session.get('user_id') %}
     <a href="{{ url_for('bots.my_bots') }}" class="sd-sidebar-item"><i class="fas fa-toolbox"></i> أدواتي</a>
-    <a href="{{ url_for('ai.index') }}" class="sd-sidebar-item"><i class="fas fa-wand-magic-sparkles"></i> Sadeem AI</a>
     {% endif %}
+    <a href="{{ url_for('ai.index') }}" class="sd-sidebar-item"><i class="fas fa-wand-magic-sparkles"></i> Sadeem AI</a>
     <a href="{{ url_for('loading_bp.account') if session.get('user_id') else url_for('loading_bp.login') }}" class="sd-sidebar-item"><i class="fas fa-user-circle"></i> حسابي</a>
     {% if session.get('role') == 'admin' %}
     <a href="{{ url_for('admin.services_dashboard') }}" class="sd-sidebar-item"><i class="fas fa-gauge"></i> لوحة التحكم</a>
     {% endif %}
     {% if session.get('user_id') %}
-    <a href="{{ url_for('loading_bp.account') }}" class="sd-sidebar-item"><i class="fas fa-id-badge"></i> حسابي</a>
     <a href="{{ url_for('loading_bp.logout') }}" class="sd-sidebar-item" style="color:var(--sd-danger);"><i class="fas fa-right-from-bracket"></i> تسجيل الخروج</a>
     {% else %}
     <a href="{{ url_for('loading_bp.login') }}" class="sd-sidebar-item"><i class="fas fa-right-to-bracket"></i> تسجيل الدخول</a>
@@ -101,6 +109,7 @@
     {% endblock %}
 </footer>
 
+{% include 'partials/_bottom_nav.html' %}
 {% if not request.path.startswith('/ai') %}{% include 'partials/_ai_float.html' %}{% endif %}
 
 <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
@@ -117,10 +126,10 @@ function sdGoBack(event) {
 </script>
 {% if not request.path.startswith('/ai') %}<script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>{% endif %}
 <script>
-    // إظهار زر الهامبرغر بالجوال فقط (النطاق العريض يبقى على القائمة الأفقية)
     function sdSyncNavForWidth() {
         const toggle = document.getElementById('menu-toggle');
         const desktopNav = document.getElementById('sd-desktop-nav');
+        if (!toggle || !desktopNav) return;
         if (window.innerWidth <= 860) {
             toggle.style.display = 'inline-flex';
             desktopNav.style.display = 'none';

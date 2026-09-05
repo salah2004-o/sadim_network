@@ -1,57 +1,73 @@
 /*
-  نظام التصميم الموحّد لمنصة شبكة سديم — "Cyberpunk Purple"
-  ملف واحد: رموز التصميم (Design Tokens) + مكتبة المكوّنات الأساسية + حالات النظام.
-  كل قيمة قياس تستخدم خصائص RTL-آمنة (inline/block) بدل left/right المباشرة.
+  نظام التصميم الموحّد لمنصة شبكة سديم — "سديم ليلي / Nebula Noir"
+  مزيج: حبر ليلي تقني + نحاس بوليسي كلاسيكي (مكتبة أجاثا) + ضباب سديمي.
+  ملف واحد: رموز التصميم + مكوّنات + حالات. خصائص RTL-آمنة (inline/block).
 */
 
 /* ==================== 1. الرموز (Design Tokens) ==================== */
 :root {
+    /* لوحة الألوان الأساسية المسماة */
+    --sd-ink: #0a1018;
+    --sd-slate: #121a26;
+    --sd-slate-2: #1a2433;
+    --sd-brass: #c4a35a;
+    --sd-brass-bright: #d9bc74;
+    --sd-mist: #4a7d95;
+    --sd-mist-soft: #6a9bb0;
+    --sd-fog: #e4e9f0;
+
     /* ألوان الخلفية */
-    --sd-bg: #09090d;
-    --sd-bg-elevated: #121218;
-    --sd-bg-elevated-2: #1a1a22;
-    --sd-bg-overlay: rgba(5, 5, 8, 0.72);
+    --sd-bg: var(--sd-ink);
+    --sd-bg-elevated: var(--sd-slate);
+    --sd-bg-elevated-2: var(--sd-slate-2);
+    --sd-bg-overlay: rgba(6, 10, 16, 0.78);
+    --sd-bg-pattern:
+        radial-gradient(ellipse 80% 50% at 10% -10%, rgba(74, 125, 149, 0.14), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(196, 163, 90, 0.07), transparent 50%);
 
     /* ألوان الحدود */
-    --sd-border: rgba(255, 255, 255, 0.08);
-    --sd-border-strong: rgba(255, 255, 255, 0.16);
+    --sd-border: rgba(228, 233, 240, 0.08);
+    --sd-border-strong: rgba(228, 233, 240, 0.16);
 
     /* ألوان النص */
-    --sd-text: #f2f2f7;
-    --sd-text-secondary: #b8b8c4;
-    --sd-text-muted: #83838f;
-    --sd-text-on-accent: #ffffff;
+    --sd-text: var(--sd-fog);
+    --sd-text-secondary: #9aa8b8;
+    --sd-text-muted: #6e7d8f;
+    --sd-text-on-accent: #0a1018;
 
-    /* اللون الأساسي (Brand) */
-    --sd-accent: #7c4dff;
-    --sd-accent-hover: #6c3ce0;
-    --sd-accent-light: #b388ff;
-    --sd-accent-soft: rgba(124, 77, 255, 0.12);
-    --sd-accent-soft-strong: rgba(124, 77, 255, 0.24);
-    --sd-gradient: linear-gradient(135deg, var(--sd-accent-light), var(--sd-accent));
+    /* اللون الأساسي (Brand) — نحاس بوليسي */
+    --sd-accent: var(--sd-brass);
+    --sd-accent-hover: #b08f45;
+    --sd-accent-light: var(--sd-brass-bright);
+    --sd-accent-soft: rgba(196, 163, 90, 0.12);
+    --sd-accent-soft-strong: rgba(196, 163, 90, 0.24);
+    --sd-gradient: linear-gradient(135deg, var(--sd-brass-bright), var(--sd-brass));
+    --sd-secondary: var(--sd-mist);
+    --sd-secondary-soft: rgba(74, 125, 149, 0.16);
 
-    /* ألوان الحالة (Semantic) */
-    --sd-success: #00e676;
-    --sd-success-soft: rgba(0, 230, 118, 0.12);
-    --sd-warning: #ffb020;
-    --sd-warning-soft: rgba(255, 176, 32, 0.12);
-    --sd-danger: #ff5252;
-    --sd-danger-soft: rgba(255, 82, 82, 0.12);
-    --sd-info: #29b6f6;
-    --sd-info-soft: rgba(41, 182, 246, 0.12);
+    /* ألوان الحالة (Semantic) — بدون فسفور نيون */
+    --sd-success: #3d9a6a;
+    --sd-success-soft: rgba(61, 154, 106, 0.14);
+    --sd-warning: #d4a017;
+    --sd-warning-soft: rgba(212, 160, 23, 0.14);
+    --sd-danger: #c45c5c;
+    --sd-danger-soft: rgba(196, 92, 92, 0.14);
+    --sd-info: var(--sd-mist-soft);
+    --sd-info-soft: rgba(106, 155, 176, 0.14);
 
-    /* الخط */
-    --sd-font: "Tajawal", "Segoe UI", system-ui, -apple-system, Tahoma, Arial, sans-serif;
+    /* الخطوط: واجهة + عرض أدبي */
+    --sd-font: "IBM Plex Sans Arabic", "Tajawal", "Segoe UI", system-ui, sans-serif;
+    --sd-font-display: "Amiri", "IBM Plex Sans Arabic", Georgia, serif;
     --sd-fs-xs: 0.75rem;
     --sd-fs-sm: 0.85rem;
     --sd-fs-base: 0.95rem;
     --sd-fs-md: 1.05rem;
     --sd-fs-lg: 1.25rem;
-    --sd-fs-xl: 1.6rem;
-    --sd-fs-2xl: 2rem;
-    --sd-fs-3xl: 2.6rem;
+    --sd-fs-xl: 1.55rem;
+    --sd-fs-2xl: 1.95rem;
+    --sd-fs-3xl: 2.55rem;
     --sd-lh-tight: 1.25;
-    --sd-lh-normal: 1.6;
+    --sd-lh-normal: 1.65;
     --sd-lh-loose: 1.9;
     --sd-fw-regular: 400;
     --sd-fw-medium: 500;
@@ -70,29 +86,32 @@
     --sd-sp-12: 3rem;
     --sd-sp-16: 4rem;
 
-    /* الاستدارة */
-    --sd-radius-sm: 8px;
-    --sd-radius-md: 12px;
-    --sd-radius-lg: 18px;
-    --sd-radius-xl: 24px;
+    /* استدارة أوضح وأقل «SaaS» */
+    --sd-radius-sm: 4px;
+    --sd-radius-md: 8px;
+    --sd-radius-lg: 12px;
+    --sd-radius-xl: 16px;
     --sd-radius-full: 999px;
 
     /* الظلال */
-    --sd-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
-    --sd-shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
-    --sd-shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.5);
-    --sd-shadow-glow: 0 0 0 1px rgba(124, 77, 255, 0.25), 0 8px 30px rgba(124, 77, 255, 0.18);
+    --sd-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.28);
+    --sd-shadow-md: 0 10px 28px rgba(0, 0, 0, 0.4);
+    --sd-shadow-lg: 0 22px 48px rgba(0, 0, 0, 0.55);
+    --sd-shadow-glow: 0 0 0 1px rgba(196, 163, 90, 0.28), 0 10px 28px rgba(74, 125, 149, 0.16);
 
     /* طبقات Z-index */
     --sd-z-dropdown: 200;
     --sd-z-sticky: 300;
+    --sd-z-bottom-nav: 350;
     --sd-z-overlay: 900;
     --sd-z-modal: 1000;
     --sd-z-toast: 1100;
     --sd-z-tooltip: 1200;
+    --sd-z-fab: 400;
 
     /* مقاسات لمس دنيا (إتاحة الوصول) */
     --sd-tap-min: 44px;
+    --sd-bottom-nav-h: 64px;
 
     color-scheme: dark;
 }
@@ -100,11 +119,16 @@
 /* ==================== 2. القواعد الأساسية ==================== */
 .sd-root, body.sd-app {
     background: var(--sd-bg);
+    background-image: var(--sd-bg-pattern);
+    background-attachment: fixed;
     color: var(--sd-text);
     font-family: var(--sd-font);
     font-size: var(--sd-fs-base);
     line-height: var(--sd-lh-normal);
     -webkit-font-smoothing: antialiased;
+}
+body.sd-app.has-bottom-nav {
+    padding-bottom: calc(var(--sd-bottom-nav-h) + env(safe-area-inset-bottom, 0px));
 }
 
 .sd-app * { box-sizing: border-box; }
@@ -154,15 +178,15 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
 }
 
 /* ==================== 3. العناوين والنصوص ==================== */
-.sd-h1 { font-size: var(--sd-fs-3xl); font-weight: var(--sd-fw-black); line-height: var(--sd-lh-tight); }
-.sd-h2 { font-size: var(--sd-fs-2xl); font-weight: var(--sd-fw-bold); line-height: var(--sd-lh-tight); }
+.sd-h1 { font-family: var(--sd-font-display); font-size: var(--sd-fs-3xl); font-weight: var(--sd-fw-bold); line-height: var(--sd-lh-tight); }
+.sd-h2 { font-family: var(--sd-font-display); font-size: var(--sd-fs-2xl); font-weight: var(--sd-fw-bold); line-height: var(--sd-lh-tight); }
 .sd-h3 { font-size: var(--sd-fs-xl); font-weight: var(--sd-fw-bold); line-height: var(--sd-lh-tight); }
 .sd-h4 { font-size: var(--sd-fs-md); font-weight: var(--sd-fw-bold); }
 .sd-text-secondary { color: var(--sd-text-secondary); }
 .sd-text-muted { color: var(--sd-text-muted); }
 .sd-eyebrow {
-    font-size: var(--sd-fs-xs); font-weight: var(--sd-fw-bold); letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--sd-accent-light);
+    font-size: var(--sd-fs-sm); font-weight: var(--sd-fw-medium);
+    color: var(--sd-mist-soft); letter-spacing: 0.02em;
 }
 
 /* ==================== 4. الأزرار (Buttons) ==================== */
@@ -223,10 +247,19 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
 
 /* ==================== 6. البطاقات (Cards) ==================== */
 .sd-card {
-    background: var(--sd-bg-elevated); border: 1px solid var(--sd-border); border-radius: var(--sd-radius-lg);
-    padding: var(--sd-sp-6); box-shadow: var(--sd-shadow-sm); transition: border-color 0.2s ease, transform 0.2s ease;
+    background: var(--sd-bg-elevated);
+    border: 1px solid var(--sd-border);
+    border-inline-start: 3px solid transparent;
+    border-radius: var(--sd-radius-md);
+    padding: var(--sd-sp-6);
+    box-shadow: none;
+    transition: border-color 0.2s ease, background 0.2s ease;
 }
-.sd-card-hover:hover { border-color: var(--sd-accent-soft-strong); transform: translateY(-2px); }
+.sd-card-hover:hover {
+    border-color: var(--sd-border-strong);
+    border-inline-start-color: var(--sd-brass);
+    background: var(--sd-bg-elevated-2);
+}
 .sd-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sd-sp-4); gap: var(--sd-sp-3); }
 .sd-card-footer { margin-top: var(--sd-sp-4); padding-top: var(--sd-sp-4); border-top: 1px solid var(--sd-border); }
 
@@ -346,7 +379,7 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
 /* ==================== 11. الشريط الجانبي والعلوي (Sidebar / Navbar / Footer) ==================== */
 .sd-navbar {
     position: sticky; top: 0; z-index: var(--sd-z-sticky); display: flex; align-items: center; justify-content: space-between;
-    gap: var(--sd-sp-3); padding: var(--sd-sp-4) var(--sd-sp-6); background: rgba(9, 9, 13, 0.85);
+    gap: var(--sd-sp-3); padding: var(--sd-sp-4) var(--sd-sp-6); background: rgba(10, 16, 24, 0.88);
     backdrop-filter: blur(16px); border-bottom: 1px solid var(--sd-border); flex-wrap: nowrap; min-width: 0;
 }
 .sd-navbar-links-wrap { min-width: 0; }
@@ -442,4 +475,155 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
 
 @media (prefers-reduced-motion: reduce) {
     .sd-app *, .sd-app *::before, .sd-app *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ==================== 13. شريط التنقل السفلي (Bottom Nav) ==================== */
+.sd-bottom-nav {
+    position: fixed;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: var(--sd-z-bottom-nav);
+    display: none;
+    height: calc(var(--sd-bottom-nav-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(10, 16, 24, 0.94);
+    backdrop-filter: blur(18px);
+    border-top: 1px solid var(--sd-border-strong);
+    grid-template-columns: repeat(5, 1fr);
+    align-items: stretch;
+}
+.sd-bottom-nav__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: var(--sd-tap-min);
+    color: var(--sd-text-muted);
+    text-decoration: none;
+    font-size: 0.68rem;
+    font-weight: var(--sd-fw-medium);
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+.sd-bottom-nav__item i { font-size: 1.15rem; }
+.sd-bottom-nav__item:hover,
+.sd-bottom-nav__item.is-active {
+    color: var(--sd-brass-bright);
+    background: var(--sd-accent-soft);
+}
+.sd-bottom-nav__item:focus-visible {
+    outline: 2px solid var(--sd-accent-light);
+    outline-offset: -2px;
+}
+@media (max-width: 860px) {
+    .sd-bottom-nav { display: grid; }
+}
+
+/* ==================== 14. شبكة المقالات ==================== */
+.sd-articles-hero {
+    padding: var(--sd-sp-8) 0 var(--sd-sp-4);
+    border-bottom: 1px solid var(--sd-border);
+    margin-bottom: var(--sd-sp-6);
+}
+.sd-articles-hero h1 {
+    font-family: var(--sd-font-display);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    margin: 0 0 var(--sd-sp-2);
+}
+.sd-articles-featured {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 0;
+    text-decoration: none;
+    color: inherit;
+    background: var(--sd-bg-elevated);
+    border: 1px solid var(--sd-border);
+    border-radius: var(--sd-radius-lg);
+    overflow: hidden;
+    margin-bottom: var(--sd-sp-8);
+    transition: border-color 0.2s ease;
+}
+.sd-articles-featured:hover { border-color: var(--sd-brass); }
+.sd-articles-featured__media {
+    min-height: 260px;
+    background:
+        linear-gradient(135deg, rgba(74, 125, 149, 0.35), rgba(10, 16, 24, 0.9)),
+        var(--sd-slate-2);
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+.sd-articles-featured__media img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    min-height: 260px;
+}
+.sd-articles-featured__body { padding: var(--sd-sp-6); display: flex; flex-direction: column; justify-content: center; }
+.sd-articles-featured__label {
+    display: inline-flex; align-items: center; gap: var(--sd-sp-2);
+    color: var(--sd-brass-bright); font-size: var(--sd-fs-sm); margin-bottom: var(--sd-sp-3);
+}
+.sd-articles-featured__title {
+    font-family: var(--sd-font-display);
+    font-size: clamp(1.35rem, 3vw, 1.9rem);
+    margin: 0 0 var(--sd-sp-3); line-height: 1.35;
+}
+.sd-articles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+    gap: var(--sd-sp-5);
+}
+.sd-article-card {
+    display: flex; flex-direction: column;
+    background: var(--sd-bg-elevated);
+    border: 1px solid var(--sd-border);
+    border-radius: var(--sd-radius-md);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.sd-article-card:hover {
+    border-color: var(--sd-mist);
+    transform: translateY(-2px);
+}
+.sd-article-card__thumb {
+    aspect-ratio: 16 / 9;
+    background: linear-gradient(145deg, var(--sd-slate-2), var(--sd-ink));
+    display: flex; align-items: center; justify-content: center;
+    color: var(--sd-mist-soft); font-size: 1.6rem;
+    overflow: hidden;
+}
+.sd-article-card__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.sd-article-card__body { padding: var(--sd-sp-4); flex: 1; display: flex; flex-direction: column; gap: var(--sd-sp-2); }
+.sd-article-card__title {
+    font-family: var(--sd-font-display);
+    font-size: var(--sd-fs-md);
+    margin: 0; line-height: 1.4;
+}
+.sd-article-card__excerpt {
+    color: var(--sd-text-secondary); font-size: var(--sd-fs-sm);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; margin: 0; flex: 1;
+}
+.sd-article-card__meta {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--sd-sp-2); font-size: var(--sd-fs-xs); color: var(--sd-text-muted); margin-top: var(--sd-sp-2);
+}
+.sd-article-card__author { display: inline-flex; align-items: center; gap: var(--sd-sp-2); color: inherit; text-decoration: none; }
+.sd-article-card__author img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+.sd-articles-discussed { display: flex; flex-direction: column; gap: var(--sd-sp-2); margin-bottom: var(--sd-sp-8); }
+.sd-articles-discussed a {
+    display: flex; align-items: center; gap: var(--sd-sp-3);
+    padding: var(--sd-sp-3) var(--sd-sp-4);
+    background: var(--sd-bg-elevated); border: 1px solid var(--sd-border);
+    border-radius: var(--sd-radius-md); text-decoration: none; color: inherit;
+}
+.sd-articles-discussed a:hover { border-color: var(--sd-brass); }
+.sd-articles-discussed__rank { color: var(--sd-brass); font-weight: var(--sd-fw-bold); font-variant-numeric: tabular-nums; min-width: 1.5rem; }
+@media (max-width: 760px) {
+    .sd-articles-featured { grid-template-columns: 1fr; }
+    .sd-articles-featured__media, .sd-articles-featured__media img { min-height: 180px; }
 }

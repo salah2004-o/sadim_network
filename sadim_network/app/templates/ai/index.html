@@ -1,15 +1,272 @@
-const pageContext={{ initial_context|tojson }};
 {% extends 'layouts/public.html' %}
 {% block title %}Sadeem AI{% endblock %}
-{% block extra_head %}<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script><script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script><style>
-.ai-shell{max-width:1100px;margin:auto;padding:2rem 1rem;display:grid;grid-template-columns:240px minmax(0,1fr);gap:1rem;min-height:75vh;min-width:0}.ai-panel,.ai-chat{background:var(--sd-surface,#15151b);border:1px solid var(--sd-border,#2b2b35);border-radius:12px;min-width:0}.ai-panel{padding:1rem}.ai-panel h1{font-size:1.6rem;color:var(--sd-accent-light,#e3b341)}.ai-panel button,.prompt{width:100%;margin:.35rem 0;padding:.7rem;border:1px solid #3d3d48;background:#20202a;color:inherit;border-radius:8px;text-align:right;cursor:pointer}.ai-chat{display:flex;flex-direction:column;overflow:hidden}.ai-messages{flex:1;padding:1.25rem;overflow:auto;min-height:420px;min-width:0}.msg{max-width:80%;padding:.75rem 1rem;margin:.6rem 0;border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.8}.user{margin-right:auto;background:#2a4350}.assistant{margin-left:auto;background:#25252f}.ai-compose{display:flex;gap:.6rem;padding:1rem;border-top:1px solid #2b2b35;min-width:0}.ai-compose textarea{flex:1;min-width:0;resize:none;min-height:50px;background:#101015;color:inherit;border:1px solid #3d3d48;border-radius:8px;padding:.7rem}.ai-compose button{flex:0 0 auto;min-height:44px;padding:0 1.2rem;background:#d7a52e;color:#111;border:0;border-radius:8px;font-weight:700}.muted{color:#92929e;font-size:.9rem}@media(max-width:760px){.ai-shell{grid-template-columns:1fr;padding:1rem .75rem;min-height:calc(100dvh - 120px)}.ai-panel{order:2}.ai-messages{min-height:45dvh;max-height:none}.ai-compose{position:sticky;bottom:0;background:var(--sd-bg-elevated,#121218);padding:.75rem}.ai-compose textarea{min-height:48px}.ai-compose button{padding-inline:.9rem}}
-</style>{% endblock %}
-{% block content %}<section class="ai-shell" dir="rtl"><aside class="ai-panel"><h1>Sadeem AI</h1><p class="muted">ذكاء داخل شبكة سديم</p><button id="new-chat">+ محادثة جديدة</button><div id="history"></div><hr><button class="prompt">🔎 ابحث داخل سديم</button><button class="prompt">📚 ساعدني في اختيار كتاب</button><button class="prompt">🤖 ساعدني في بوت Telegram</button><button class="prompt">📖 لخص لي مقالاً</button></aside><div class="ai-chat"><div id="messages" class="ai-messages"><p class="muted">مرحباً، أنا Sadeem AI. اسألني عن محتوى وخدمات شبكة سديم.</p></div><form id="compose" class="ai-compose"><textarea id="input" maxlength="4000" placeholder="اكتب رسالتك هنا..." aria-label="رسالتك"></textarea><button id="send" type="submit">إرسال</button></form></div></section>{% endblock %}
-{% block extra_scripts %}<script>
-const $=id=>document.getElementById(id);let conversationId=null;let sending=false;const pageContext=new URLSearchParams(location.search).get('context')||document.title;
-function add(role,text){const el=document.createElement('div');el.className='msg '+role;if(role==='assistant'&&window.marked&&window.DOMPurify){el.innerHTML=DOMPurify.sanitize(marked.parse(text,{breaks:true}));}else{el.textContent=text;}$('messages').append(el);$('messages').scrollTop=$('messages').scrollHeight;}
-async function newChat(){const r=await fetch('/ai/conversations',{method:'POST'});if(!r.ok)throw new Error('تعذر إنشاء المحادثة');const d=await r.json();conversationId=d.id;$('messages').innerHTML='';await loadHistory();}
-async function loadHistory(){const r=await fetch('/ai/conversations');if(!r.ok)return;const list=await r.json();$('history').innerHTML='';list.forEach(c=>{const b=document.createElement('button');b.textContent=c.title;b.onclick=()=>loadChat(c.id);$('history').append(b);});if(!conversationId&&list[0])loadChat(list[0].id);}
-async function loadChat(id){conversationId=id;$('messages').innerHTML='';const r=await fetch('/ai/conversations/'+id);if(!r.ok){add('assistant','تعذر فتح هذه المحادثة.');return;}(await r.json()).forEach(m=>add(m.role==='user'?'user':'assistant',m.content));}
-$('new-chat').onclick=()=>newChat().catch(error=>add('assistant',error.message));$('compose').onsubmit=async e=>{e.preventDefault();if(sending)return;const input=$('input'),text=input.value.trim();if(!text)return;sending=true;$('send').disabled=true;if(!conversationId)await newChat();add('user',text);input.value='';add('assistant','جارٍ البحث داخل سديم...');const pending=$('messages').lastElementChild;try{const r=await fetch('/ai/conversations/'+conversationId+'/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,page_context:pageContext})});const d=await r.json();pending.remove();add('assistant',r.ok?d.content:(d.error==='daily_limit'?'تم استهلاك حدك اليومي من الرسائل.': 'تعذر تنفيذ الطلب حالياً.'));await loadHistory();}catch(error){pending.remove();add('assistant','تعذر الاتصال بخدمة Sadeem AI.');}finally{sending=false;$('send').disabled=false;}};document.querySelectorAll('.prompt').forEach(b=>b.onclick=()=>{$('input').value=b.textContent.replace(/^\S+\s/,'');$('input').focus();});loadHistory();
-</script>{% endblock %}
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<style>
+.ai-shell{max-width:1100px;margin:auto;padding:2rem 1rem;display:grid;grid-template-columns:240px minmax(0,1fr);gap:1rem;min-height:75vh;min-width:0}
+.ai-panel,.ai-chat{background:var(--sd-bg-elevated);border:1px solid var(--sd-border);border-radius:var(--sd-radius-md);min-width:0}
+.ai-panel{padding:1rem;border-inline-start:3px solid var(--sd-brass)}
+.ai-panel h1{font-family:var(--sd-font-display);font-size:1.55rem;color:var(--sd-brass-bright);margin:0 0 .35rem}
+.ai-panel button,.prompt{width:100%;margin:.35rem 0;padding:.7rem;border:1px solid var(--sd-border-strong);background:var(--sd-bg-elevated-2);color:inherit;border-radius:var(--sd-radius-sm);text-align:right;cursor:pointer;font:inherit}
+.ai-panel button:hover,.prompt:hover{border-color:var(--sd-brass);background:var(--sd-accent-soft)}
+.ai-chat{display:flex;flex-direction:column;overflow:hidden}
+.ai-messages{flex:1;padding:1.25rem;overflow:auto;min-height:420px;min-width:0}
+.msg{max-width:82%;padding:.75rem 1rem;margin:.6rem 0;border-radius:var(--sd-radius-md);white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.8}
+.user{margin-inline-start:auto;background:rgba(74,125,149,.28);border:1px solid rgba(74,125,149,.35)}
+.assistant{margin-inline-end:auto;background:var(--sd-bg-elevated-2);border:1px solid var(--sd-border)}
+.ai-compose{display:flex;flex-wrap:wrap;gap:.6rem;padding:1rem;border-top:1px solid var(--sd-border);min-width:0;align-items:flex-end}
+.ai-compose textarea{flex:1;min-width:0;resize:none;min-height:50px;background:var(--sd-ink);color:inherit;border:1px solid var(--sd-border-strong);border-radius:var(--sd-radius-sm);padding:.7rem;font:inherit}
+.ai-compose .ai-send{flex:0 0 auto;min-height:44px;padding:0 1.2rem;background:var(--sd-gradient);color:var(--sd-text-on-accent);border:0;border-radius:var(--sd-radius-sm);font-weight:700;cursor:pointer}
+.ai-attach{display:inline-flex;align-items:center;gap:.4rem;min-height:44px;padding:0 .85rem;border:1px solid var(--sd-border-strong);background:transparent;color:var(--sd-text-secondary);border-radius:var(--sd-radius-sm);cursor:pointer;font:inherit}
+.ai-attach input{display:none}
+.ai-file-chips{width:100%;display:flex;flex-wrap:wrap;gap:.4rem}
+.ai-file-chip{font-size:.75rem;padding:.25rem .55rem;background:var(--sd-secondary-soft);border-radius:var(--sd-radius-sm);color:var(--sd-mist-soft)}
+.ai-guest-banner{display:flex;align-items:flex-start;gap:.6rem;padding:.85rem 1rem;margin:0 0 1rem;background:var(--sd-secondary-soft);border:1px solid rgba(74,125,149,.35);border-radius:var(--sd-radius-md);font-size:.88rem;color:var(--sd-mist-soft)}
+.ai-guest-banner a{color:var(--sd-brass-bright);font-weight:700}
+.ai-provider{width:100%;margin:.5rem 0;padding:.55rem;border-radius:var(--sd-radius-sm);border:1px solid var(--sd-border-strong);background:var(--sd-ink);color:inherit;font:inherit}
+.muted{color:var(--sd-text-muted);font-size:.9rem}
+@media(max-width:760px){
+  .ai-shell{grid-template-columns:1fr;padding:1rem .75rem;min-height:calc(100dvh - 160px)}
+  .ai-panel{order:2}
+  .ai-messages{min-height:42dvh}
+  .ai-compose{position:sticky;bottom:0;background:var(--sd-bg-elevated)}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="ai-shell" dir="rtl">
+  <aside class="ai-panel">
+    <h1>Sadeem AI</h1>
+    <p class="muted">{% if is_guest %}محادثة زائر — لا تُحفظ{% else %}ذكاء داخل شبكة سديم{% endif %}</p>
+
+    {% if not is_guest %}
+    <button type="button" id="new-chat"><i class="fas fa-plus" aria-hidden="true"></i> محادثة جديدة</button>
+    <div id="history"></div>
+    {% else %}
+    <button type="button" id="clear-guest"><i class="fas fa-broom" aria-hidden="true"></i> مسح المحادثة</button>
+    {% endif %}
+
+    <label class="muted" for="provider-select" style="display:block;margin-top:1rem;">المزوّد</label>
+    <select id="provider-select" class="ai-provider" aria-label="اختيار مزود الذكاء الاصطناعي">
+      <option value="">تلقائي (مع احتياطي)</option>
+      {% for p in providers %}
+        {% if p.configured %}
+        <option value="{{ p.id }}">{{ p.id }} — {{ p.model }}</option>
+        {% endif %}
+      {% endfor %}
+    </select>
+
+    <hr style="border:0;border-top:1px solid var(--sd-border);margin:1rem 0;">
+    <button type="button" class="prompt">ابحث داخل سديم</button>
+    <button type="button" class="prompt">ساعدني في اختيار كتاب</button>
+    <button type="button" class="prompt">ساعدني في بوت Telegram</button>
+    <button type="button" class="prompt">لخص لي مقالاً</button>
+  </aside>
+
+  <div class="ai-chat">
+    {% if is_guest %}
+    <div class="ai-guest-banner" role="status">
+      <i class="fas fa-circle-info" aria-hidden="true"></i>
+      <span>أنت تتصفح كزائر — المحادثة تبقى في هذه الجلسة فقط وتُمسح عند إغلاق الصفحة.
+        <a href="{{ url_for('loading_bp.login') }}">سجّل دخولك لحفظ محادثاتك</a>
+      </span>
+    </div>
+    {% endif %}
+    <div id="messages" class="ai-messages"><p class="muted">مرحباً، أنا Sadeem AI. اسألني عن محتوى وخدمات شبكة سديم — ويمكنك إرفاق صورة أو ملفاً.</p></div>
+    <form id="compose" class="ai-compose">
+      <div class="ai-file-chips" id="file-chips" hidden></div>
+      <label class="ai-attach">
+        <i class="fas fa-paperclip" aria-hidden="true"></i>
+        <span>مرفق</span>
+        <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,.jpg,.jpeg,.png,.webp,.gif,.pdf,.txt" multiple>
+      </label>
+      <textarea id="input" maxlength="4000" placeholder="اكتب رسالتك هنا..." aria-label="رسالتك"></textarea>
+      <button id="send" class="ai-send" type="submit"><i class="fas fa-paper-plane" aria-hidden="true"></i> إرسال</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const isGuest = {{ 'true' if is_guest else 'false' }};
+const initialContext = {{ initial_context|tojson }};
+const $ = id => document.getElementById(id);
+let conversationId = null;
+let sending = false;
+let pendingFiles = [];
+
+function add(role, text) {
+  const el = document.createElement('div');
+  el.className = 'msg ' + role;
+  if (role === 'assistant' && window.marked && window.DOMPurify) {
+    el.innerHTML = DOMPurify.sanitize(marked.parse(text, { breaks: true }));
+  } else {
+    el.textContent = text;
+  }
+  $('messages').append(el);
+  $('messages').scrollTop = $('messages').scrollHeight;
+}
+
+function pageContextPayload() {
+  if (initialContext && initialContext.type) {
+    return { type: initialContext.type, id: initialContext.id };
+  }
+  return document.title;
+}
+
+function selectedProvider() {
+  return ($('provider-select') && $('provider-select').value) || '';
+}
+
+function renderChips() {
+  const wrap = $('file-chips');
+  if (!pendingFiles.length) { wrap.hidden = true; wrap.innerHTML = ''; return; }
+  wrap.hidden = false;
+  wrap.innerHTML = pendingFiles.map((f, i) =>
+    `<span class="ai-file-chip">${f.name} <button type="button" data-i="${i}" aria-label="إزالة" style="border:0;background:transparent;color:inherit;cursor:pointer;">×</button></span>`
+  ).join('');
+  wrap.querySelectorAll('button').forEach(btn => {
+    btn.onclick = () => { pendingFiles.splice(Number(btn.dataset.i), 1); renderChips(); };
+  });
+}
+
+$('file-input').addEventListener('change', () => {
+  const files = Array.from($('file-input').files || []);
+  const max = 5 * 1024 * 1024;
+  for (const f of files) {
+    if (f.size > max) { add('assistant', 'الملف أكبر من 5 ميغابايت: ' + f.name); continue; }
+    pendingFiles.push(f);
+  }
+  $('file-input').value = '';
+  renderChips();
+});
+
+async function newChat() {
+  const r = await fetch('/ai/conversations', { method: 'POST' });
+  if (!r.ok) throw new Error('تعذر إنشاء المحادثة');
+  const d = await r.json();
+  conversationId = d.id;
+  $('messages').innerHTML = '';
+  await loadHistory();
+}
+
+async function loadHistory() {
+  if (isGuest) {
+    const r = await fetch('/ai/guest/messages');
+    if (!r.ok) return;
+    const list = await r.json();
+    $('messages').innerHTML = '';
+    if (!list.length) {
+      $('messages').innerHTML = '<p class="muted">مرحباً، أنا Sadeem AI. اسألني عن محتوى وخدمات شبكة سديم.</p>';
+      return;
+    }
+    list.forEach(m => add(m.role === 'user' ? 'user' : 'assistant', m.content));
+    return;
+  }
+  const r = await fetch('/ai/conversations');
+  if (!r.ok) return;
+  const list = await r.json();
+  $('history').innerHTML = '';
+  list.forEach(c => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = c.title;
+    b.onclick = () => loadChat(c.id);
+    $('history').append(b);
+  });
+  if (!conversationId && list[0]) loadChat(list[0].id);
+}
+
+async function loadChat(id) {
+  conversationId = id;
+  $('messages').innerHTML = '';
+  const r = await fetch('/ai/conversations/' + id);
+  if (!r.ok) { add('assistant', 'تعذر فتح هذه المحادثة.'); return; }
+  (await r.json()).forEach(m => add(m.role === 'user' ? 'user' : 'assistant', m.content));
+}
+
+if ($('new-chat')) {
+  $('new-chat').onclick = () => newChat().catch(error => add('assistant', error.message));
+}
+if ($('clear-guest')) {
+  $('clear-guest').onclick = async () => {
+    await fetch('/ai/guest/messages', { method: 'DELETE' });
+    $('messages').innerHTML = '<p class="muted">تم مسح محادثة الزائر.</p>';
+  };
+}
+
+$('compose').onsubmit = async e => {
+  e.preventDefault();
+  if (sending) return;
+  const input = $('input');
+  const text = input.value.trim();
+  if (!text && !pendingFiles.length) return;
+  sending = true;
+  $('send').disabled = true;
+
+  const display = text || ('[مرفق: ' + pendingFiles.map(f => f.name).join(', ') + ']');
+  add('user', display);
+  input.value = '';
+  add('assistant', 'جارٍ البحث داخل سديم...');
+  const pending = $('messages').lastElementChild;
+
+  try {
+    let r, d;
+    const provider = selectedProvider();
+    if (pendingFiles.length) {
+      const fd = new FormData();
+      fd.append('message', text);
+      if (provider) fd.append('provider', provider);
+      fd.append('page_context', JSON.stringify(pageContextPayload()));
+      pendingFiles.forEach(f => fd.append('files', f));
+      pendingFiles = [];
+      renderChips();
+      const url = isGuest
+        ? '/ai/guest/messages'
+        : '/ai/conversations/' + (conversationId || (await newChat(), conversationId)) + '/messages';
+      if (!isGuest && !conversationId) await newChat();
+      r = await fetch(isGuest ? '/ai/guest/messages' : '/ai/conversations/' + conversationId + '/messages', {
+        method: 'POST', body: fd
+      });
+    } else {
+      if (!isGuest && !conversationId) await newChat();
+      const url = isGuest ? '/ai/guest/messages' : '/ai/conversations/' + conversationId + '/messages';
+      r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, page_context: pageContextPayload(), provider })
+      });
+    }
+    d = await r.json();
+    pending.remove();
+    if (r.ok) {
+      add('assistant', d.content);
+    } else {
+      const errMap = {
+        daily_limit: 'تم استهلاك حدك اليومي من الرسائل.',
+        guest_limit: 'وصلتَ حد رسائل الزائر لهذه الجلسة. سجّل دخولك للمتابعة.',
+        file_too_large: 'حجم الملف أكبر من المسموح (5 ميغابايت).',
+        file_type_not_allowed: 'نوع الملف غير مدعوم.',
+      };
+      add('assistant', errMap[d.error] || 'تعذر تنفيذ الطلب حالياً.');
+    }
+    if (!isGuest) await loadHistory();
+  } catch (error) {
+    pending.remove();
+    add('assistant', 'تعذر الاتصال بخدمة Sadeem AI.');
+  } finally {
+    sending = false;
+    $('send').disabled = false;
+  }
+};
+
+document.querySelectorAll('.prompt').forEach(b => b.onclick = () => {
+  $('input').value = b.textContent.trim();
+  $('input').focus();
+});
+loadHistory();
+</script>
+{% endblock %}

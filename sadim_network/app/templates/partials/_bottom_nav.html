@@ -1,0 +1,23 @@
+{% set path = request.path %}
+<nav class="sd-bottom-nav" aria-label="التنقل السريع">
+    <a href="{{ url_for('main.index') }}" class="sd-bottom-nav__item {% if path == '/' %}is-active{% endif %}">
+        <i class="fas fa-house" aria-hidden="true"></i>
+        <span>الرئيسية</span>
+    </a>
+    <a href="{{ url_for('main.discover') }}" class="sd-bottom-nav__item {% if path.startswith('/discover') %}is-active{% endif %}">
+        <i class="fas fa-compass" aria-hidden="true"></i>
+        <span>اكتشف</span>
+    </a>
+    <a href="{{ url_for('articles.list_articles') }}" class="sd-bottom-nav__item {% if path.startswith('/articles') %}is-active{% endif %}">
+        <i class="fas fa-newspaper" aria-hidden="true"></i>
+        <span>المقالات</span>
+    </a>
+    <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-bottom-nav__item {% if 'agatha' in path.lower() or path.startswith('/library') or path.startswith('/Library') %}is-active{% endif %}">
+        <i class="fas fa-book-open" aria-hidden="true"></i>
+        <span>المكتبة</span>
+    </a>
+    <a href="{{ url_for('loading_bp.account') if session.get('user_id') else url_for('loading_bp.login') }}" class="sd-bottom-nav__item {% if path.startswith('/account') or path.startswith('/login') %}is-active{% endif %}">
+        <i class="fas fa-user" aria-hidden="true"></i>
+        <span>حسابي</span>
+    </a>
+</nav>
