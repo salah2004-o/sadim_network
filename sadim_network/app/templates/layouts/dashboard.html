@@ -9,15 +9,17 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/interactions.css') }}">
 <style>
-    .sd-dash-shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
-    .sd-dash-sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+    .sd-dash-shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 100dvh; }
+    .sd-dash-sidebar { position: sticky; top: 0; height: 100dvh; overflow-y: auto; }
     .sd-dash-main { min-width: 0; }
-    .sd-dash-content { padding: var(--sd-sp-6); }
+    .sd-dash-content { padding: var(--sd-sp-6); min-width:0; }
     #menu-toggle { display: none; }
     @media (max-width: 900px) {
         .sd-dash-shell { grid-template-columns: 1fr; }
         .sd-dash-sidebar.sd-static-sidebar { display: none; }
         #menu-toggle { display: inline-flex; }
+        .sd-dash-content { padding: var(--sd-sp-4); }
+        .sd-dash-main > .sd-navbar h1 { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     }
     /* النوافذ المنبثقة (modal) تتمركز افتراضياً على كامل الشاشة — بس بهذا الشل فيه
        شريط جانبي ثابت (240px) بعرض ≥901px، فنعوّض عنه حتى تتمركز النافذة فعلياً

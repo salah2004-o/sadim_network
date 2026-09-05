@@ -132,6 +132,12 @@ function sdGoBack(event) {
     sdSyncNavForWidth();
     window.addEventListener('resize', sdSyncNavForWidth);
 </script>
+<style>
+    @media (max-width: 860px) {
+        .sd-navbar .sd-dropdown { display:none; }
+        .sd-navbar-links-wrap { flex:1; justify-content:flex-end; }
+    }
+</style>
 {% block extra_scripts %}{% endblock %}
 </body>
 </html>

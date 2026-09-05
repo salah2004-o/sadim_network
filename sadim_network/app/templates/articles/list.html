@@ -74,7 +74,7 @@
         .discussed-count { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.3rem; flex-shrink: 0; }
 
         /* Post cards */
-        .post-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem; }
+        .post-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 1.2rem; }
         .post-card {
             background: var(--color-primary); border: 1px solid var(--border-color);
             border-radius: var(--radius); overflow: hidden;
