@@ -5,6 +5,7 @@
     const trigger = widget.querySelector('[data-sd-ai-trigger]');
     const close = widget.querySelector('[data-sd-ai-close]');
     const drawer = widget.querySelector('[data-sd-ai-drawer]');
+    const backdrop = widget.querySelector('[data-sd-ai-backdrop]');
     const summarizeBtn = widget.querySelector('[data-sd-ai-summarize]');
     const summaryEl = widget.querySelector('[data-sd-ai-summary]');
     const contextType = widget.getAttribute('data-sd-ai-context-type') || '';
@@ -18,11 +19,15 @@
         widget.classList.toggle('is-open', open);
         trigger.setAttribute('aria-expanded', String(open));
         if (drawer) drawer.setAttribute('aria-hidden', String(!open));
+        // يمنع تمرير/تفاعل المستخدم مع محتوى الصفحة الخلفي أثناء فتح النافذة
+        // (نفس النمط المستخدم للقائمة الجانبية في nav.js).
+        document.body.style.overflow = open ? 'hidden' : '';
         if (open && close) close.focus();
     };
 
     trigger.addEventListener('click', () => setOpen(!widget.classList.contains('is-open')));
     if (close) close.addEventListener('click', () => setOpen(false));
+    if (backdrop) backdrop.addEventListener('click', () => setOpen(false));
     document.addEventListener('click', (event) => {
         if (!widget.contains(event.target)) setOpen(false);
     });
@@ -48,7 +53,12 @@
                         : 'تعذر التلخيص حالياً.';
                     return;
                 }
-                summaryEl.textContent = data.content || 'لا يوجد ملخص.';
+                const summaryText = data.content || 'لا يوجد ملخص.';
+                if (window.marked && window.DOMPurify) {
+                    summaryEl.innerHTML = DOMPurify.sanitize(marked.parse(summaryText, { breaks: true }));
+                } else {
+                    summaryEl.textContent = summaryText;
+                }
             } catch (err) {
                 summaryEl.textContent = 'تعذر الاتصال بـ Sadeem AI.';
             } finally {

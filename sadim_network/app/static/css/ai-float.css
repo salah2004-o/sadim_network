@@ -52,6 +52,20 @@
     font-size: var(--sd-fs-sm);
 }
 
+.sd-ai-float__backdrop {
+    position: fixed;
+    inset: 0;
+    background: var(--sd-bg-overlay, rgba(0, 0, 0, 0.6));
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.sd-ai-float.is-open .sd-ai-float__backdrop {
+    opacity: 1;
+    visibility: visible;
+}
+
 .sd-ai-float__panel,
 .sd-ai-float__drawer {
     position: absolute;
@@ -174,6 +188,29 @@
         position: absolute;
         width: 1px; height: 1px; padding: 0; margin: -1px;
         overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
+
+    /* على شاشة موبايل ضيقة: نافذة Sadeem AI (بوضعيها العادي وside-panel) تصبح
+       طبقة كاملة الشاشة فعلياً بدل نافذة صغيرة/جانبية جزئية قد تتراكب مع المحتوى. */
+    .sd-ai-float__panel,
+    .sd-ai-float.is-side-panel .sd-ai-float__panel,
+    .sd-ai-float__drawer {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        max-width: none;
+        max-height: 100dvh;
+        border-radius: 0;
+        border-inline-start: 0;
+        padding-top: var(--sd-sp-6);
+        transform: translateY(100%);
+        transform-origin: bottom center;
+    }
+
+    .sd-ai-float.is-open .sd-ai-float__panel,
+    .sd-ai-float.is-side-panel.is-open .sd-ai-float__panel,
+    .sd-ai-float.is-open .sd-ai-float__drawer {
+        transform: translateY(0);
     }
 }
 

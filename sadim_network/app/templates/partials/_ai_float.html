@@ -3,6 +3,7 @@
        data-sd-ai-context-id="{{ ai_context_id|default('') }}"
        data-logged-in="{{ '1' if session.get('user_id') else '0' }}"
        dir="rtl">
+    <div class="sd-ai-float__backdrop" data-sd-ai-backdrop aria-hidden="true"></div>
     <div class="sd-ai-float__panel" data-sd-ai-drawer aria-hidden="true" role="dialog" aria-labelledby="sd-ai-float-title">
         <header class="sd-ai-float__header">
             <h2 id="sd-ai-float-title">Sadeem AI</h2>
