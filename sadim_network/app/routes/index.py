@@ -1,9 +1,35 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, session, g, url_for
+from app.models.home_feed import get_resume_items, get_signal_summary, get_user_state
+
 main_bp = Blueprint('main', __name__)
+
+
+def _resume_url(item):
+    """يبني رابط الاستئناف حسب نوع المحتوى — يستخدم endpoints الموجودة فعلاً
+    (لا روتات جديدة)، متطابقاً مع أسماء المسارات الحقيقية في app/routes."""
+    if item['content_type'] == 'book':
+        return url_for('Library_Agatha.view_book', book_id=item['content_id'])
+    return url_for('articles.view_article', post_id=item['content_id'])
+
 
 @main_bp.route('/')
 def index():
-    return render_template('home.html')
+    user_id = session.get('user_id')
+    resume_items = []
+    signals = None
+    if user_id:
+        resume_items = get_resume_items(user_id, limit=3)
+        for item in resume_items:
+            item['url'] = _resume_url(item)
+        signals = get_signal_summary(user_id)
+    user_state = get_user_state(user_id, session_id=g.get('sd_session_id'))
+    return render_template(
+        'home.html',
+        resume_items=resume_items,
+        signals=signals,
+        user_state=user_state,
+        is_authenticated=bool(user_id),
+    )
 
 
 @main_bp.route('/about')

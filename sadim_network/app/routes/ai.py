@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, render_template, request, session
+from flask import Blueprint, jsonify, render_template, request, session, g
 
 from app.db.sadim_db import get_db_connection
 from app.models.ai_service import (
@@ -11,12 +11,33 @@ from app.models.ai_service import (
     validate_upload,
 )
 from app.models.ai_providers import list_available_providers as providers_status
+from app.models.analytics_model import log_event
 from app.utlis.login_required import login_required
 from app.limiter import limiter
 
 ai_bp = Blueprint('ai', __name__, url_prefix='/ai')
 
 GUEST_SESSION_KEY = 'sadeem_ai_guest_messages'
+
+
+def _log_ai_event(event_type, metadata=None):
+    """تسجيل حدث AI في analytics_events — بنفس نمط _log_article_event/_log_lib_event
+    الموجود فعلاً ببقية المشروع. لا يخزّن نص الرسائل هنا (مخزّن أصلاً
+    بجدول ai_messages لغرض وظيفي مختلف)، حتى لا تتكرر بيانات حساسة في analytics.
+    فشل التسجيل لا يكسر استجابة AI الفعلية أبداً."""
+    try:
+        log_event(
+            event_type,
+            user_id=session.get('user_id'),
+            session_id=g.get('sd_session_id'),
+            ip=request.remote_addr,
+            user_agent=request.headers.get("User-Agent"),
+            path=request.path,
+            visitor_type=g.get('sd_visitor_type', 'unknown'),
+            metadata=metadata,
+        )
+    except Exception as e:
+        print(f"Failed to log analytics event '{event_type}':", e)
 
 
 def _conversation(conversation_id, user_id):
@@ -99,6 +120,7 @@ def new_conversation():
         cur.execute("INSERT INTO ai_conversations (user_id, title) VALUES (%s, %s) RETURNING id", (session['user_id'], 'محادثة جديدة'))
         conversation_id = cur.fetchone()[0]
         conn.commit()
+        _log_ai_event('ai_chat_started', metadata={'conversation_id': conversation_id})
         return jsonify({'id': conversation_id, 'title': 'محادثة جديدة'})
     finally:
         conn.close()
@@ -168,12 +190,18 @@ def send_message(conversation_id):
         page_context = _parse_page_context(data)
         if not page_context:
             page_context = 'تخصيص المستخدم: ' + str(__import__('app.models.ai_service', fromlist=['get_user_context']).get_user_context(session['user_id']))[:1500]
-        return jsonify(chat(
+        result = chat(
             session['user_id'], conversation_id, message,
             page_context=page_context,
             attachments=attachments or None,
             preferred_provider=preferred,
-        ))
+        )
+        _log_ai_event('ai_message_sent', metadata={
+            'conversation_id': conversation_id,
+            'context_type': (data.get('page_context') or {}).get('type') if isinstance(data.get('page_context'), dict) else None,
+            'provider': result.get('provider'),
+        })
+        return jsonify(result)
     except ValueError as exc:
         return jsonify({'error': str(exc)}), 429 if str(exc) == 'daily_limit' else 400
     except Exception:
@@ -236,6 +264,7 @@ def guest_send_message():
     history.append({'role': 'assistant', 'content': result['content']})
     session[GUEST_SESSION_KEY] = history[-40:]
     session.modified = True
+    _log_ai_event('ai_message_sent', metadata={'guest': True, 'provider': result.get('provider')})
     return jsonify(result)
 
 
@@ -267,4 +296,8 @@ def summarize():
         result = summarize_content(record.get('title', ''), record.get('desc_text', ''), 'book', preferred)
     else:
         return jsonify({'error': 'unsupported_type'}), 400
+
+    _log_ai_event('ai_summarize_used', metadata={
+        'context_type': context_type, 'context_id': context_id, 'provider': result.get('provider'),
+    })
     return jsonify(result)

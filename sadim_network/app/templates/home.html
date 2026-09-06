@@ -28,6 +28,21 @@
     .sd-home-signal i { color:var(--sd-brass-bright, #d9bc74); }
     .sd-home-scroll { position:absolute; inset-block-end:calc(var(--sd-bottom-nav-h, 64px) + var(--sd-sp-5)); inset-inline-start:50%; transform:translateX(-50%); color:rgba(232,237,240,.68); font-size:var(--sd-fs-xs); display:flex; align-items:center; gap:8px; animation:sd-home-pulse 2.4s ease-in-out infinite; }
     .sd-home-scroll i { color:var(--sd-mist-soft, #6a9bb0); }
+    /* قسم النية (Intent) + الاستئناف — يحل محل زري الأزرار القديمين (استكشاف/تسجيل دخول) */
+    .sd-home-resume { width:100%; margin-bottom:var(--sd-sp-5); padding:var(--sd-sp-4); border:1px solid rgba(196,163,90,.28); border-radius:var(--sd-radius-md); background:rgba(10,16,24,.55); backdrop-filter:blur(12px); }
+    .sd-home-resume__title { color:var(--sd-brass-bright,#d9bc74); font-size:var(--sd-fs-sm); font-weight:var(--sd-fw-bold); margin:0 0 var(--sd-sp-2); }
+    .sd-home-resume__list { display:flex; flex-direction:column; gap:6px; }
+    .sd-home-resume__list a { color:#fff; text-decoration:none; font-size:var(--sd-fs-sm); display:flex; align-items:center; gap:8px; }
+    .sd-home-resume__list a:hover { color:var(--sd-brass-bright,#d9bc74); }
+    .sd-home-signal-line { color:rgba(232,237,240,.85); font-size:var(--sd-fs-sm); margin:0 0 var(--sd-sp-4); }
+    .sd-home-intent-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:var(--sd-sp-3); width:100%; margin-top:var(--sd-sp-4); }
+    .sd-home-intent { display:flex; flex-direction:column; align-items:center; gap:6px; padding:var(--sd-sp-4) var(--sd-sp-3); border:1px solid rgba(106,155,176,.28); border-radius:var(--sd-radius-md); background:rgba(10,16,24,.42); backdrop-filter:blur(10px); color:#fff; text-decoration:none; font-size:var(--sd-fs-sm); font-weight:var(--sd-fw-medium); text-align:center; transition:border-color .2s ease, background .2s ease, transform .2s ease; }
+    .sd-home-intent i { font-size:1.35rem; color:var(--sd-brass-bright,#d9bc74); }
+    .sd-home-intent:hover { border-color:var(--sd-brass,#c4a35a); background:rgba(196,163,90,.14); transform:translateY(-2px); }
+    .sd-home-search { width:100%; display:flex; gap:var(--sd-sp-2); margin-top:var(--sd-sp-4); }
+    .sd-home-search input { flex:1; min-height:var(--sd-tap-min); padding-inline:var(--sd-sp-4); border-radius:var(--sd-radius-md); border:1px solid rgba(106,155,176,.35); background:rgba(10,16,24,.55); color:#fff; font:inherit; }
+    .sd-home-search input::placeholder { color:rgba(232,237,240,.55); }
+    @media (max-width:760px) { .sd-home-intent-grid { grid-template-columns:repeat(2, 1fr); } }
     @keyframes sd-home-rise { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
     @keyframes sd-home-drift { from { transform:scale(1.05) translate3d(0,0,0); } to { transform:scale(1.08) translate3d(-.5%, -.4%, 0); } }
     @keyframes sd-home-pulse { 0%,100% { opacity:.55; } 50% { opacity:1; } }
@@ -52,20 +67,63 @@
 <section class="sd-home-hero" aria-labelledby="home-title">
     <div class="sd-home-content">
         <div class="sd-home-copy">
-            <span class="sd-home-kicker">شبكة رقمية وأدب بوليسي</span>
-            <h1 id="home-title">شبكة سديم</h1>
-            <p>منصة تجمع الخدمات الرقمية، البوتات، والمساعد الذكي مع مكتبة أجاثا كريستي.</p>
-            <div class="sd-home-actions">
-                <a href="{{ url_for('main.discover') }}" class="sd-btn sd-btn-primary sd-btn-lg"><i class="fas fa-compass" aria-hidden="true"></i> استكشاف المنصة</a>
-                <a href="{{ url_for('loading_bp.login') }}" class="sd-btn sd-btn-secondary sd-btn-lg"><i class="fas fa-right-to-bracket" aria-hidden="true"></i> تسجيل الدخول</a>
+            {% if is_authenticated %}
+                <span class="sd-home-kicker">{{ "أهلاً بك في سديم" if user_state == "new_user" else "أهلاً بعودتك" }}</span>
+                <h1 id="home-title">ماذا تريد اليوم؟</h1>
+                {% if signals %}
+                <p class="sd-home-signal-line">
+                    {% if signals.finished_books > 0 %}
+                        أنت قرأت {{ signals.finished_books }} رواية من مكتبتنا حتى الآن، وبقي لك {{ signals.remaining_books }}.
+                    {% elif signals.favorites_count > 0 %}
+                        لديك {{ signals.favorites_count }} عنصر محفوظ في مساحتي.
+                    {% else %}
+                        جاهزة مكتبتنا بأكملها لمن يريد البدء.
+                    {% endif %}
+                </p>
+                {% endif %}
+            {% else %}
+                <span class="sd-home-kicker">شبكة رقمية وأدب بوليسي</span>
+                <h1 id="home-title">ماذا تريد اليوم؟</h1>
+                <p>اختر ما تحتاجه، وسديم تأخذك إليه مباشرة.</p>
+            {% endif %}
+
+            {% if resume_items %}
+            <div class="sd-home-resume">
+                <p class="sd-home-resume__title"><i class="fas fa-bookmark" aria-hidden="true"></i> أكمل ما بدأت</p>
+                <div class="sd-home-resume__list">
+                    {% for item in resume_items %}
+                    <a href="{{ item.url }}"><i class="fas fa-arrow-left" aria-hidden="true"></i> {{ item.title }}</a>
+                    {% endfor %}
+                </div>
             </div>
-        </div>
-        <div class="sd-home-signals" aria-label="مزايا شبكة سديم">
-            <span class="sd-home-signal"><i class="fas fa-shield-halved" aria-hidden="true"></i> أمان عالٍ</span>
-            <span class="sd-home-signal"><i class="fas fa-cloud" aria-hidden="true"></i> خدمات سحابية</span>
-            <span class="sd-home-signal"><i class="fas fa-chart-line" aria-hidden="true"></i> أداء موثوق</span>
+            {% endif %}
+
+            <div class="sd-home-intent-grid" role="navigation" aria-label="ماذا تريد اليوم">
+                <a class="sd-home-intent" href="{{ url_for('Library_Agatha.agatha_christie') }}">
+                    <i class="fas fa-book-open" aria-hidden="true"></i> أريد أن أقرأ
+                </a>
+                <a class="sd-home-intent" href="{{ url_for('articles.list_articles') }}">
+                    <i class="fas fa-lightbulb" aria-hidden="true"></i> أريد أن أتعلم
+                </a>
+                <a class="sd-home-intent" href="{{ url_for('ai.index') }}">
+                    <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> أريد مساعدة من Sadeem AI
+                </a>
+                <a class="sd-home-intent" href="{{ url_for('main.services') }}">
+                    <i class="fas fa-toolbox" aria-hidden="true"></i> أريد أداة
+                </a>
+            </div>
+
+            <form class="sd-home-search" action="{{ url_for('ai.index') }}" method="get">
+                <input type="text" name="q" placeholder="أبحث عن شيء محدد… مثلاً: رواية قصيرة فيها جريمة" aria-label="ابحث عن شيء محدد">
+                <button type="submit" class="sd-btn sd-btn-primary"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></button>
+            </form>
+
+            {% if not is_authenticated %}
+            <div class="sd-home-actions">
+                <a href="{{ url_for('loading_bp.login') }}" class="sd-btn sd-btn-secondary"><i class="fas fa-right-to-bracket" aria-hidden="true"></i> تسجيل الدخول</a>
+            </div>
+            {% endif %}
         </div>
     </div>
-    <span class="sd-home-scroll"><i class="fas fa-chevron-down" aria-hidden="true"></i> استكشف شبكة سديم</span>
 </section>
 {% endblock %}

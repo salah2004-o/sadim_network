@@ -143,6 +143,9 @@ EVENT_LABELS = {
     "download.failed": "تحميل فاشل",
     "article.view": "مشاهدة مقال",
     "referral.success": "انضمّ عبر دعوتك",
+    "ai_chat_started": "بدأ محادثة مع Sadeem AI",
+    "ai_message_sent": "رسالة إلى Sadeem AI",
+    "ai_summarize_used": "طلب تلخيص من Sadeem AI",
 }
 
 
