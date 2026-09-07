@@ -162,7 +162,8 @@
     </div>
 
     <div class="post-content">{{ post.content }}</div>
-    {% if session.get('user_id') %}<button class="share-btn" data-content-type="article" data-content-id="{{ post.id }}" onclick="toggleFavorite(this)"><i class="fa-regular fa-bookmark"></i> أضف للمفضلة</button><button class="share-btn" onclick="setReading('finished')"><i class="fas fa-check"></i> أنهيت القراءة</button><a class="share-btn" href="{{ url_for('ai.index', context_type='article', context_id=post.id) }}"><i class="fas fa-wand-magic-sparkles"></i> اسأل Sadeem AI عن المقال</a>{% endif %}
+    {% if session.get('user_id') %}<button class="share-btn" data-content-type="article" data-content-id="{{ post.id }}" onclick="toggleFavorite(this)"><i class="fa-regular fa-bookmark"></i> أضف للمفضلة</button><button class="share-btn" onclick="setReading('finished')"><i class="fas fa-check"></i> أنهيت القراءة</button><button class="share-btn" id="summarize-btn" onclick="summarizeArticle()"><i class="fas fa-wand-magic-sparkles"></i> تلخيص AI</button><a class="share-btn" href="{{ url_for('ai.index', context_type='article', context_id=post.id) }}"><i class="fas fa-comments"></i> محادثة كاملة</a>{% endif %}
+    <div id="summarize-result" style="display:none; margin:1rem 0; padding:1rem; background:var(--color-primary); border:1px solid var(--border-color); border-radius:var(--radius-sm); font-size:0.9rem; line-height:1.8; white-space:pre-wrap;"></div>
 
     {% if session.get('user_id') and (session.get('user_id') == post.user_id or session.get('role') == 'admin') %}
     <div class="post-actions">
@@ -268,7 +269,7 @@ if (navigator.share) {
 }
 </script>
 
-{% if session.get('user_id') %}<script>function toggleFavorite(button){fetch('/api/personal/favorite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'article',content_id:{{ post.id }}})}).then(r=>{if(!r.ok)throw Error();button.innerHTML='<i class="fas fa-bookmark"></i> تمت الإضافة';button.disabled=true;}).catch(()=>{});}function setReading(status){fetch('/api/personal/reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'article',content_id:{{ post.id }},status})});}setReading('reading');</script>{% endif %}<link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
+{% if session.get('user_id') %}<script>function toggleFavorite(button){fetch('/api/personal/favorite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'article',content_id:{{ post.id }}})}).then(r=>{if(!r.ok)throw Error();button.innerHTML='<i class="fas fa-bookmark"></i> تمت الإضافة';button.disabled=true;}).catch(()=>{});}function setReading(status){fetch('/api/personal/reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'article',content_id:{{ post.id }},status})});}setReading('reading');function summarizeArticle(){const result = document.getElementById('summarize-result'); if(!result) return; result.style.display = 'block'; result.textContent = 'جارٍ التلخيص...'; fetch('/ai/summarize', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({type:'article', id:{{ post.id }}})}).then(r => r.json()).then(d => { result.textContent = d.content || d.error || 'لم يتم إنشاء ملخص.'; }).catch(() => { result.textContent = 'تعذر الاتصال بخدمة التلخيص.'; });}</script>{% endif %}<link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
 {% if not request.path.startswith('/ai') %}{% include 'partials/_ai_float.html' %}<script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>{% endif %}
 {% include 'partials/_bottom_nav.html' %}
 </body>

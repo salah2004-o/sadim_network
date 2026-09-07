@@ -419,31 +419,61 @@ def create_tables():
         CREATE TABLE IF NOT EXISTS ai_usage (
             id BIGSERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            visitor_id VARCHAR(64),
             conversation_id INTEGER REFERENCES ai_conversations(id) ON DELETE SET NULL,
+            event_type VARCHAR(32) NOT NULL DEFAULT 'chat_message',
             model VARCHAR(80) NOT NULL,
             input_tokens INTEGER DEFAULT 0,
             output_tokens INTEGER DEFAULT 0,
+            metadata JSONB NOT NULL DEFAULT '{}'::jsonb,
             created_at TIMESTAMP DEFAULT NOW()
         );
     """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_usage_user_date ON ai_usage(user_id, created_at);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_usage_event_date ON ai_usage(event_type, created_at);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_usage_visitor_id ON ai_usage(visitor_id) WHERE visitor_id IS NOT NULL;")
+
+#----------AI QUOTAS TABLE (حدود الاستخدام لكل مستخدم)----------#
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS ai_user_knowledge (
-            id BIGSERIAL PRIMARY KEY,
-            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            key VARCHAR(120) NOT NULL,
-            value TEXT NOT NULL,
-            confidence NUMERIC(4, 3) DEFAULT 0.5,
-            source_conversation_id INTEGER REFERENCES ai_conversations(id) ON DELETE SET NULL,
-            source_message_id BIGINT REFERENCES ai_messages(id) ON DELETE SET NULL,
-            created_at TIMESTAMP DEFAULT NOW(),
+        CREATE TABLE IF NOT EXISTS ai_quotas (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            quota_key VARCHAR(64) NOT NULL,
+            quota_limit INTEGER NOT NULL DEFAULT 0,
+            period VARCHAR(16) NOT NULL DEFAULT 'daily',
+            is_unlimited BOOLEAN NOT NULL DEFAULT FALSE,
             updated_at TIMESTAMP DEFAULT NOW(),
-            UNIQUE(user_id, key)
+            UNIQUE(user_id, quota_key)
         );
     """)
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_conversations_user_time ON ai_conversations(user_id, updated_at DESC);")
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_conversations_visitor_id ON ai_conversations(visitor_id) WHERE visitor_id IS NOT NULL;")
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_messages_conversation_time ON ai_messages(conversation_id, created_at);")
-    cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_usage_user_date ON ai_usage(user_id, created_at);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_quotas_user ON ai_quotas(user_id);")
+    cur.execute("""
+        INSERT INTO ai_quotas (user_id, quota_key, quota_limit, period)
+        SELECT u.id, 'daily_summaries', 5, 'daily'
+        FROM users u
+        WHERE NOT EXISTS (
+            SELECT 1 FROM ai_quotas aq WHERE aq.user_id = u.id AND aq.quota_key = 'daily_summaries'
+        )
+        ON CONFLICT (user_id, quota_key) DO NOTHING
+    """)
+    cur.execute("""
+        INSERT INTO ai_quotas (user_id, quota_key, quota_limit, period)
+        SELECT u.id, 'daily_chat_messages', 20, 'daily'
+        FROM users u
+        WHERE NOT EXISTS (
+            SELECT 1 FROM ai_quotas aq WHERE aq.user_id = u.id AND aq.quota_key = 'daily_chat_messages'
+        )
+        ON CONFLICT (user_id, quota_key) DO NOTHING
+    """)
+    cur.execute("""
+        INSERT INTO ai_quotas (user_id, quota_key, quota_limit, period)
+        SELECT u.id, 'daily_file_uploads', 3, 'daily'
+        FROM users u
+        WHERE NOT EXISTS (
+            SELECT 1 FROM ai_quotas aq WHERE aq.user_id = u.id AND aq.quota_key = 'daily_file_uploads'
+        )
+        ON CONFLICT (user_id, quota_key) DO NOTHING
+    """)
 
 #----------USER CONTENT TABLES----------#
     cur.execute("""

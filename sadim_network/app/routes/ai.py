@@ -11,6 +11,7 @@ from app.models.ai_service import (
     validate_upload,
 )
 from app.models.ai_providers import list_available_providers as providers_status
+from app.models.ai_quota import AIQuota
 from app.models.analytics_model import log_event
 from app.utlis.login_required import login_required
 from app.limiter import limiter
@@ -240,6 +241,9 @@ def send_message(conversation_id):
         message = 'حلّل المرفق من فضلك.'
     if len(message) > MAX_MESSAGE_LENGTH:
         return jsonify({'error': 'message_too_long', 'max_length': MAX_MESSAGE_LENGTH}), 400
+    allowed, quota_info = AIQuota.check_quota(session['user_id'], 'daily_chat_messages')
+    if not allowed:
+        return jsonify({'error': 'daily_limit', 'quota': quota_info}), 429
     try:
         page_context = _parse_page_context(data)
         if not page_context:
@@ -344,18 +348,24 @@ def summarize():
     except (TypeError, ValueError):
         return jsonify({'error': 'invalid_id'}), 400
 
+    user_id = session.get('user_id')
+    if user_id:
+        allowed, quota_info = AIQuota.check_quota(user_id, 'daily_summaries')
+        if not allowed:
+            return jsonify({'content': f"استخدمت حد التلخيص المجاني ({quota_info['limit']} {quota_info['period']}).", 'quota_exceeded': True}), 429
+
     if context_type == 'article':
         rows = get_article(context_id)
         if not rows:
             return jsonify({'error': 'not_found'}), 404
         record = rows[0]
-        result = summarize_content(record.get('title', ''), record.get('content', ''), 'article', preferred)
+        result = summarize_content(record.get('title', ''), record.get('content', ''), 'article', preferred, user_id=user_id)
     elif context_type == 'book':
         rows = get_book(context_id)
         if not rows:
             return jsonify({'error': 'not_found'}), 404
         record = rows[0]
-        result = summarize_content(record.get('title', ''), record.get('desc_text', ''), 'book', preferred)
+        result = summarize_content(record.get('title', ''), record.get('desc_text', ''), 'book', preferred, user_id=user_id)
     else:
         return jsonify({'error': 'unsupported_type'}), 400
 

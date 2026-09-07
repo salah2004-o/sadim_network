@@ -1,0 +1,40 @@
+{% extends 'layouts/dashboard.html' %}
+{% block title %}إدارة حدود AI{% endblock %}
+{% block page_title %}إدارة حدود AI{% endblock %}
+{% block extra_head %}
+<style>
+.ai-quota-table td, .ai-quota-table th { vertical-align: middle; }
+.ai-quota-table a { color: var(--sd-accent-light); text-decoration: none; }
+.ai-quota-table a:hover { text-decoration: underline; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="sd-card" style="padding:0; overflow:hidden;">
+  <div class="sd-table-wrapper" style="border:0; border-radius:0;">
+    <table class="sd-table ai-quota-table">
+      <thead>
+        <tr>
+          <th>المستخدم</th>
+          <th>البريد</th>
+          <th>عدد الحدود</th>
+          <th>استخدام اليوم</th>
+          <th>الإجراء</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u[1] or u[2] }}</td>
+        <td>{{ u[3] }}</td>
+        <td>{{ u[4] }}</td>
+        <td>{{ u[6] }}</td>
+        <td><a href="{{ url_for('admin.ai_quota_edit', user_id=u[0]) }}">إدارة الحدود</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" style="text-align:center; color:var(--sd-text-secondary);">لا يوجد مستخدمون.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

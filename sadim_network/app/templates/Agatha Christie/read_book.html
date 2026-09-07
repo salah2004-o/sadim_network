@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ book.title }} | قراءة — شبكة سديم</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
+  <style>
+    :root {
+      --bg: #0a1018;
+      --bg-secondary: #121a26;
+      --gold: #c4a35a;
+      --gold-light: #d9bc74;
+      --text: #e8edf0;
+      --text-secondary: #9aa8b8;
+      --border: rgba(196,163,90,0.18);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Sans Arabic', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .read-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(9, 9, 13, 0.9); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    }
+    .read-header .brand { color: var(--gold); text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+    .read-header .book-title { font-size: 0.85rem; color: var(--text-secondary); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .read-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.45rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-family: inherit;
+      text-decoration: none; border: 1px solid var(--border); color: var(--text-secondary); background: transparent; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover { border-color: var(--gold); color: var(--gold-light); }
+    .btn-primary { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: #1a1200; border: none; font-weight: 700; }
+    .btn-primary:hover { box-shadow: 0 4px 12px rgba(196,163,90,0.3); color: #1a1200; }
+    .pdf-container {
+      flex: 1; display: flex; flex-direction: column; padding: 0;
+    }
+    .pdf-frame {
+      flex: 1; width: 100%; border: none; min-height: calc(100dvh - 120px);
+      background: #1a1a1a;
+    }
+    .summarize-bar {
+      background: var(--bg-secondary); border-top: 1px solid var(--border);
+      padding: 1rem 1.5rem; display: none;
+    }
+    .summarize-bar.is-open { display: block; }
+    .summarize-bar pre {
+      white-space: pre-wrap; font-size: 0.9rem; line-height: 1.8; color: var(--text);
+      max-height: 40vh; overflow: auto;
+    }
+    @media (max-width: 600px) {
+      .read-header { padding: 0.6rem 1rem; }
+      .btn { padding: 0.4rem 0.7rem; font-size: 0.75rem; }
+    }
+  </style>
+</head>
+<body>
+  <header class="read-header">
+    <a href="{{ url_for('Library_Agatha.view_book', book_id=book.id) }}" class="brand"><i class="fas fa-arrow-right"></i> العودة للرواية</a>
+    <span class="book-title">{{ book.title }}</span>
+    <div class="read-actions">
+      <button class="btn" id="summarize-btn" onclick="summarizeBook()">
+        <i class="fas fa-wand-magic-sparkles"></i> تلخيص AI
+      </button>
+      <a href="{{ url_for('Library_Agatha.download_file', book_id=book.id) }}" class="btn btn-primary">
+        <i class="fas fa-download"></i> تحميل PDF
+      </a>
+    </div>
+  </header>
+
+  <div class="pdf-container">
+    <iframe src="{{ pdf_url }}" class="pdf-frame" title="{{ book.title }}"></iframe>
+  </div>
+
+  <div class="summarize-bar" id="summarize-bar">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+      <strong><i class="fas fa-wand-magic-sparkles" style="color:var(--gold);"></i> ملخص الرواية</strong>
+      <button class="btn" onclick="closeSummary()" style="padding:0.3rem 0.6rem;"><i class="fas fa-xmark"></i></button>
+    </div>
+    <pre id="summarize-result">جارٍ التلخيص...</pre>
+  </div>
+
+  <script>
+    async function summarizeBook() {
+      const bar = document.getElementById('summarize-bar');
+      const result = document.getElementById('summarize-result');
+      bar.classList.add('is-open');
+      result.textContent = 'جارٍ التلخيص...';
+      try {
+        const r = await fetch('/ai/summarize', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'book', id: {{ book.id }} })
+        });
+        const d = await r.json();
+        if (r.ok) {
+          result.textContent = d.content || 'لم يتم إنشاء ملخص.';
+        } else {
+          result.textContent = d.content || d.error || 'تعذر التلخيص.';
+        }
+      } catch (e) {
+        result.textContent = 'تعذر الاتصال بخدمة التلخيص.';
+      }
+    }
+    function closeSummary() {
+      document.getElementById('summarize-bar').classList.remove('is-open');
+    }
+  </script>
+</body>
+</html>

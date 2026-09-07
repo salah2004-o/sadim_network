@@ -1,0 +1,87 @@
+{% extends 'layouts/dashboard.html' %}
+{% block title %}تعديل حدود AI{% endblock %}
+{% block page_title %}تعديل حدود AI — {{ user.name }}{% endblock %}
+{% block content %}
+<div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
+  <h3 style="margin:0 0 1rem;">معلومات المستخدم</h3>
+  <p style="margin:0; color:var(--sd-text-secondary);">
+    <strong>{{ user.name }}</strong> — {{ user.email }} — @{{ user.username }}
+  </p>
+</div>
+
+{% if usage_today %}
+<div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
+  <h3 style="margin:0 0 1rem;">استخدام اليوم</h3>
+  <table class="sd-table">
+    <thead><tr><th>النوع</th><th>العدد</th><th>Input Tokens</th><th>Output Tokens</th></tr></thead>
+    <tbody>
+    {% for row in usage_today %}
+    <tr>
+      <td>{{ row[0] }}</td>
+      <td>{{ row[1] }}</td>
+      <td>{{ row[2] }}</td>
+      <td>{{ row[3] }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+
+<div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
+  <h3 style="margin:0 0 1rem;">الحدود الحالية</h3>
+  {% if quotas %}
+  <table class="sd-table">
+    <thead><tr><th>المفتاح</th><th>الحد</th><th>الفترة</th><th>غير محدود</th></tr></thead>
+    <tbody>
+    {% for q in quotas %}
+    <tr>
+      <td>{{ q.quota_key }}</td>
+      <td>{{ q.quota_limit }}</td>
+      <td>{{ q.period }}</td>
+      <td>{{ 'نعم' if q.is_unlimited else 'لا' }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="color:var(--sd-text-secondary);">لا توجد حدود مخصصة — يتم استخدام الافتراضية.</p>
+  {% endif %}
+</div>
+
+<div class="sd-card">
+  <h3 style="margin:0 0 1rem;">تعديل / إضافة حد</h3>
+  <form method="POST">
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+      <div class="sd-form-group">
+        <label class="sd-label">مفتاح الحد</label>
+        <select class="sd-select" name="quota_key" required>
+          <option value="daily_summaries">تلخيصات يومية</option>
+          <option value="daily_chat_messages">رسائل محادثة يومية</option>
+          <option value="daily_file_uploads">رفع ملفات يومي</option>
+        </select>
+      </div>
+      <div class="sd-form-group">
+        <label class="sd-label">الحد</label>
+        <input class="sd-input" type="number" name="quota_limit" value="5" min="0" required>
+      </div>
+      <div class="sd-form-group">
+        <label class="sd-label">الفترة</label>
+        <select class="sd-select" name="period">
+          <option value="daily">يومي</option>
+          <option value="weekly">أسبوعي</option>
+          <option value="monthly">شهري</option>
+        </select>
+      </div>
+    </div>
+    <div class="sd-form-group" style="margin-bottom: 1rem;">
+      <label class="sd-checkbox">
+        <input type="checkbox" name="is_unlimited">
+        <span>غير محدود</span>
+      </label>
+    </div>
+    <button type="submit" class="sd-btn sd-btn-primary"><i class="fas fa-save"></i> حفظ</button>
+    <a href="{{ url_for('admin.ai_quotas') }}" class="sd-btn sd-btn-ghost">رجوع</a>
+  </form>
+</div>
+{% endblock %}

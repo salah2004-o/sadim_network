@@ -248,6 +248,52 @@ def download_file(book_id):
         download_name=f"{book['title']}.pdf"
     )
 
+
+@Library_Agatha_bp.route('/Library/Agatha_Christie/<int:book_id>/read')
+@limiter.limit("20 per minute")
+def read_book(book_id):
+    book = Library.get_book_id(book_id)
+    if not book:
+        return "الكتاب غير موجود", 404
+
+    relative_pdf_path = (book.get('pdf_path') or '').strip()
+    file_path = os.path.realpath(os.path.join(UPLOAD_FOLDER, relative_pdf_path))
+    upload_root = os.path.realpath(UPLOAD_FOLDER)
+    try:
+        is_inside_uploads = os.path.commonpath((upload_root, file_path)) == upload_root
+    except ValueError:
+        is_inside_uploads = False
+
+    if not relative_pdf_path or not is_inside_uploads or not os.path.exists(file_path):
+        return "الملف غير صالح أو غير موجود", 404
+
+    user = User.get_by_id(session['user_id']) if 'user_id' in session else None
+    if user:
+        conn = get_db_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE reading_history SET status = 'reading', last_updated = NOW() WHERE user_id = %s AND content_type = 'book' AND book_id = %s",
+                (user.id, book_id)
+            )
+            if cur.rowcount == 0:
+                cur.execute(
+                    "INSERT INTO reading_history (user_id, content_type, book_id, status) VALUES (%s, 'book', %s, 'reading')",
+                    (user.id, book_id)
+                )
+            conn.commit()
+        finally:
+            conn.close()
+
+    _log_lib_event("book.read", metadata={"book_id": book_id, "title": book.get('title')})
+
+    return render_template(
+        "Agatha Christie/read_book.html",
+        book=book,
+        pdf_url=url_for('Library_Agatha.static', filename='uploads/' + relative_pdf_path),
+    )
+
+
 # =========================
 # 1. [قديم/متروك] تحديث عداد التحميلات المستقل — تسبَّب بمشكلة عدّ غير دقيق (يزيد العداد
 # حتى لو فشل التحميل الفعلي بعده). العداد الآن جزء من download_file() نفسها (طلب واحد ذرّي).

@@ -445,9 +445,11 @@
         <p class="book-desc">{{ book['desc_text'] }}</p>
 
         <div class="actions">
-          <a href="{{ url_for('Library_Agatha.download_file', book_id=book['id']) }}"
-             class="btn-download">
-            <i class="fa-solid fa-download"></i> تحميل PDF ملكي
+          <a href="{{ url_for('Library_Agatha.read_book', book_id=book['id']) }}" class="btn-download" style="background: linear-gradient(135deg, #7c4dff, #b388ff); color: #fff;">
+            <i class="fa-solid fa-book-open"></i> قراءة مباشرة
+          </a>
+          <a href="{{ url_for('Library_Agatha.download_file', book_id=book['id']) }}" class="btn-download">
+            <i class="fa-solid fa-download"></i> تحميل PDF
           </a>
           <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="btn-back">
             <i class="fa-solid fa-books"></i> روايات أخرى
@@ -462,7 +464,8 @@
           </a>
           {% endif %}
           {% if session.get('user_id') %}<button type="button" class="btn-back" data-content-type="book" data-content-id="{{ book['id'] }}" onclick="toggleFavorite(this)"><i class="fa-regular fa-bookmark"></i> أضف للمفضلة</button><button type="button" class="btn-back" onclick="setReading('finished')"><i class="fa-solid fa-check"></i> أنهيت القراءة</button>{% endif %}
-          {% if session.get('user_id') %}<a href="{{ url_for('ai.index', context_type='book', context_id=book['id']) }}" class="btn-back"><i class="fa-solid fa-wand-magic-sparkles"></i> اسأل Sadeem AI</a>{% endif %}
+          {% if session.get('user_id') %}<button type="button" class="btn-back" id="summarize-btn" onclick="summarizeBook()"><i class="fas fa-wand-magic-sparkles"></i> تلخيص AI</button>{% endif %}
+          <div id="summarize-result" style="display:none; margin-top:1rem; padding:1rem; background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; font-size:0.9rem; line-height:1.8; white-space:pre-wrap;"></div>
         </div>
       </div>
 
@@ -615,6 +618,24 @@ function toggleLike(btn){
     })
     .catch(()=>{})
     .finally(()=>{btn.dataset.busy='0';});
+}
+function summarizeBook(){
+  const result = document.getElementById('summarize-result');
+  if(!result) return;
+  result.textContent = 'جارٍ التلخيص...';
+  result.style.display = 'block';
+  fetch('/ai/summarize', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({type:'book', id:{{ book['id'] }}})
+  })
+  .then(r => r.json())
+  .then(d => {
+    result.textContent = d.content || d.error || 'لم يتم إنشاء ملخص.';
+  })
+  .catch(() => {
+    result.textContent = 'تعذر الاتصال بخدمة التلخيص.';
+  });
 }
 </script>{% endif %}{% include 'partials/_ai_float.html' %}
 {% include 'partials/_bottom_nav.html' %}

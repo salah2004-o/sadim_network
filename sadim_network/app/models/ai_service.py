@@ -5,6 +5,7 @@ from decimal import Decimal
 
 from app.db.sadim_db import get_db_connection
 from app.models.ai_providers import ProviderRouter
+from app.models.ai_quota import AIQuota
 from app.models.ai_providers.base import ChatAttachment, ChatRequest
 
 SYSTEM_PROMPT = """أنت Sadeem AI، المساعد الذكي داخل شبكة سديم.
@@ -313,18 +314,18 @@ def _run_model(messages, page_context=None, attachments=None, preferred_provider
 def chat(user_id, conversation_id, message, page_context=None, attachments=None, preferred_provider=None):
     if len(message) > MAX_MESSAGE_LENGTH:
         raise ValueError("message_too_long")
+    allowed, quota_info = AIQuota.check_quota(user_id, 'daily_chat_messages')
+    if not allowed:
+        raise ValueError("daily_limit")
     conn = get_db_connection()
     try:
         cur = conn.cursor()
         cur.execute("SELECT pg_advisory_xact_lock(%s)", (int(user_id),))
-        cur.execute("SELECT COUNT(*) FROM ai_usage WHERE user_id = %s AND created_at::date = CURRENT_DATE", (user_id,))
-        if cur.fetchone()[0] >= DAILY_LIMIT:
-            raise ValueError("daily_limit")
         cur.execute("SELECT role, content FROM ai_messages WHERE conversation_id = %s ORDER BY created_at DESC LIMIT %s", (conversation_id, MAX_CONTEXT_MESSAGES))
         history = list(reversed(cur.fetchall()))
         cur.execute("INSERT INTO ai_messages (conversation_id, role, content) VALUES (%s, 'user', %s) RETURNING id", (conversation_id, message))
         user_message_id = cur.fetchone()[0]
-        cur.execute("INSERT INTO ai_usage (user_id, conversation_id, model, input_tokens, output_tokens) VALUES (%s, %s, %s, 0, 0) RETURNING id", (user_id, conversation_id, 'pending'))
+        cur.execute("INSERT INTO ai_usage (user_id, conversation_id, event_type, model, input_tokens, output_tokens) VALUES (%s, %s, 'chat_message', 'pending', 0, 0) RETURNING id", (user_id, conversation_id))
         usage_id = cur.fetchone()[0]
         conn.commit()
     finally:
@@ -338,10 +339,11 @@ def chat(user_id, conversation_id, message, page_context=None, attachments=None,
             cur = conn.cursor()
             cur.execute("UPDATE ai_conversations SET title = %s, status = 'success', updated_at = NOW() WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], conversation_id))
             cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, status) VALUES (%s, 'assistant', %s, %s, 'success')", (conversation_id, instant, 'sadeem-database'))
-            cur.execute("UPDATE ai_usage SET model = 'sadeem-database' WHERE id = %s", (usage_id,))
+            cur.execute("UPDATE ai_usage SET model = 'sadeem-database', event_type = 'chat_message' WHERE id = %s", (usage_id,))
             conn.commit()
         finally:
             conn.close()
+        AIQuota.record_usage(user_id, 'chat_message', model='sadeem-database', conversation_id=conversation_id)
         return {"content": instant, "message_id": user_message_id, "tools": [], "provider": "database"}
 
     messages = _history_to_messages(history) + [{"role": "user", "content": message}]
@@ -354,10 +356,11 @@ def chat(user_id, conversation_id, message, page_context=None, attachments=None,
             cur = conn.cursor()
             cur.execute("UPDATE ai_conversations SET title = %s, status = 'fallback', error_message = %s, updated_at = NOW() WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], str(exc)[:500], conversation_id))
             cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, status) VALUES (%s, 'assistant', %s, %s, 'fallback')", (conversation_id, fallback, 'database-fallback'))
-            cur.execute("UPDATE ai_usage SET model = 'database-fallback' WHERE id = %s", (usage_id,))
+            cur.execute("UPDATE ai_usage SET model = 'database-fallback', event_type = 'chat_message' WHERE id = %s", (usage_id,))
             conn.commit()
         finally:
             conn.close()
+        AIQuota.record_usage(user_id, 'chat_message', model='database-fallback', conversation_id=conversation_id)
         return {"content": fallback, "message_id": user_message_id, "tools": [], "provider": "database"}
 
     model_label = f"{result['provider']}:{result['model']}"
@@ -366,11 +369,12 @@ def chat(user_id, conversation_id, message, page_context=None, attachments=None,
         cur = conn.cursor()
         cur.execute("UPDATE ai_conversations SET title = %s, status = %s, updated_at = NOW() WHERE id = %s AND title = 'محادثة جديدة'", (message[:70], 'success', conversation_id))
         cur.execute("INSERT INTO ai_messages (conversation_id, role, content, model, input_tokens, output_tokens, tools_invoked, status) VALUES (%s, 'assistant', %s, %s, %s, %s, %s, %s)", (conversation_id, result["content"], model_label, result["input_tokens"], result["output_tokens"], json.dumps(result["tools"]), 'success'))
-        cur.execute("UPDATE ai_usage SET model = %s, input_tokens = %s, output_tokens = %s WHERE id = %s", (model_label, result["input_tokens"], result["output_tokens"], usage_id))
+        cur.execute("UPDATE ai_usage SET model = %s, input_tokens = %s, output_tokens = %s, event_type = 'chat_message' WHERE id = %s", (model_label, result["input_tokens"], result["output_tokens"], usage_id))
         cur.execute("UPDATE ai_conversations SET updated_at = NOW() WHERE id = %s", (conversation_id,))
         conn.commit()
     finally:
         conn.close()
+    AIQuota.record_usage(user_id, 'chat_message', model=model_label, conversation_id=conversation_id)
     return {"content": result["content"], "message_id": user_message_id, "tools": result["tools"], "provider": result["provider"]}
 
 
@@ -397,10 +401,16 @@ def guest_chat(session_messages, message, page_context=None, attachments=None, p
         return {"content": _database_fallback(message), "tools": [], "provider": "database", "persisted": False}
 
 
-def summarize_content(title, content, content_type="article", preferred_provider=None):
+def summarize_content(title, content, content_type="article", preferred_provider=None, user_id=None):
+    if user_id:
+        allowed, quota_info = AIQuota.check_quota(user_id, 'daily_summaries')
+        if not allowed:
+            return {"content": f"استخدمت حد التلخيص المجاني ({quota_info['limit']} {quota_info['period']}). يمكنك العودة غداً أو الترقية للحصول على حد أعلى.", "provider": "quota", "tools": [], "quota_exceeded": True}
     prompt = f"لخّص المحتوى التالي من شبكة سديم باختصار واضح بالعربية (3–6 نقاط أو فقرة قصيرة):\nالنوع: {content_type}\nالعنوان: {title}\n\n{str(content)[:6000]}"
     try:
-        result = _run_model([{"role": "user", "content": prompt}], preferred_provider=preferred_provider, user_id=None, tools=False)
+        result = _run_model([{"role": "user", "content": prompt}], preferred_provider=preferred_provider, user_id=user_id, tools=False)
+        if user_id:
+            AIQuota.record_usage(user_id, 'daily_summaries', model=result.get('provider', 'unknown'), metadata={'content_type': content_type, 'title': title[:100]})
         return result
     except Exception:
         excerpt = str(content)[:400].strip()
