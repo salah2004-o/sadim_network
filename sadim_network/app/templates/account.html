@@ -1,62 +1,65 @@
 {% extends "layouts/public.html" %}
-{% block title %}حسابي — شبكة سديم{% endblock %}
+{% block title %}مساحتي — شبكة سديم{% endblock %}
 {% block extra_head %}
 <style>
-    .account-quick-card { min-height: 132px; }
-    .account-section-header { display:flex; align-items:center; justify-content:space-between; gap:var(--sd-sp-3); margin-bottom:var(--sd-sp-3); }
-    .account-list { display:flex; flex-direction:column; gap:var(--sd-sp-2); }
-    .account-list-row { display:flex; align-items:center; justify-content:space-between; gap:var(--sd-sp-3); min-height:48px; padding:var(--sd-sp-2) var(--sd-sp-3); border-radius:var(--sd-radius-sm); background:var(--sd-bg-elevated); color:var(--sd-text); text-decoration:none; }
-    .account-list-row > span:first-child { min-width:0; overflow-wrap:anywhere; }
-    .account-list-row small { color:var(--sd-text-secondary); }
-    .account-inline-actions { display:flex; gap:var(--sd-sp-2); align-items:center; }
-    @media (max-width:600px) {
-        .account-quick-card { min-height:0; padding:var(--sd-sp-4); }
-        .account-section-header { align-items:flex-start; flex-direction:column; }
-        .account-section-header .sd-btn { width:100%; }
-        .account-list-row { align-items:flex-start; min-height:52px; }
-        .account-inline-actions { width:100%; }
-        .account-inline-actions .sd-btn { flex:1; }
-        #referralLinkInput { min-width:0; }
+    .sd-my-space { max-width: 900px; margin: 0 auto; padding: var(--sd-sp-5) var(--sd-sp-4); }
+    .sd-identity { display: flex; align-items: center; gap: var(--sd-sp-4); margin-bottom: var(--sd-sp-5); }
+    .sd-identity-img { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid var(--sd-border); }
+    .sd-identity-info h1 { margin: 0 0 4px; font-size: var(--sd-fs-xl); }
+    .sd-identity-info p { margin: 0; color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); }
+    .sd-section { margin-bottom: var(--sd-sp-5); }
+    .sd-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sd-sp-3); }
+    .sd-section-title { display: flex; align-items: center; gap: var(--sd-sp-2); font-size: var(--sd-fs-md); font-weight: var(--sd-fw-semibold); margin: 0; }
+    .sd-section-title i { color: var(--sd-accent-light); }
+    .sd-empty { padding: var(--sd-sp-4); text-align: center; color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); background: var(--sd-bg-elevated); border-radius: var(--sd-radius-md); border: 1px dashed var(--sd-border); }
+    .sd-card-list { display: flex; flex-direction: column; gap: var(--sd-sp-2); }
+    .sd-card-item { display: flex; align-items: center; gap: var(--sd-sp-3); padding: var(--sd-sp-3); background: var(--sd-bg-elevated); border-radius: var(--sd-radius-md); border: 1px solid var(--sd-border); text-decoration: none; color: var(--sd-text); transition: border-color 0.2s; }
+    .sd-card-item:hover { border-color: var(--sd-accent); }
+    .sd-card-item img { width: 48px; height: 64px; object-fit: cover; border-radius: var(--sd-radius-sm); flex-shrink: 0; }
+    .sd-card-item-info { flex: 1; min-width: 0; }
+    .sd-card-item-title { font-weight: var(--sd-fw-medium); margin: 0 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sd-card-item-meta { font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); }
+    .sd-card-item-badge { font-size: var(--sd-fs-xs); padding: 2px 8px; border-radius: var(--sd-radius-full); background: var(--sd-accent-soft); color: var(--sd-accent); }
+    .sd-quick-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--sd-sp-3); margin-bottom: var(--sd-sp-4); }
+    .sd-quick-card { display: flex; flex-direction: column; align-items: center; gap: var(--sd-sp-2); padding: var(--sd-sp-4) var(--sd-sp-3); background: var(--sd-bg-elevated); border: 1px solid var(--sd-border); border-radius: var(--sd-radius-md); text-decoration: none; color: var(--sd-text); text-align: center; transition: border-color 0.2s, transform 0.2s; }
+    .sd-quick-card:hover { border-color: var(--sd-accent); transform: translateY(-2px); }
+    .sd-quick-card i { font-size: 1.5rem; color: var(--sd-accent-light); }
+    .sd-quick-card span { font-size: var(--sd-fs-sm); font-weight: var(--sd-fw-medium); }
+    .sd-ai-convo { display: flex; align-items: center; gap: var(--sd-sp-3); padding: var(--sd-sp-3); background: var(--sd-bg-elevated); border-radius: var(--sd-radius-md); border: 1px solid var(--sd-border); text-decoration: none; color: var(--sd-text); transition: border-color 0.2s; }
+    .sd-ai-convo:hover { border-color: var(--sd-accent); }
+    .sd-ai-convo i { font-size: 1.2rem; color: var(--sd-brass-bright); }
+    .sd-ai-convo-info { flex: 1; min-width: 0; }
+    .sd-ai-convo-title { font-weight: var(--sd-fw-medium); margin: 0 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sd-ai-convo-meta { font-size: var(--sd-fs-xs); color: var(--sd-text-secondary); }
+    .sd-settings-row { display: flex; flex-wrap: wrap; gap: var(--sd-sp-2); padding-top: var(--sd-sp-4); border-top: 1px solid var(--sd-border); }
+    .sd-badge-count { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; font-size: 11px; font-weight: var(--sd-fw-bold); background: var(--sd-accent); color: var(--sd-text-on-accent); border-radius: var(--sd-radius-full); }
+    @media (max-width: 600px) {
+        .sd-identity { flex-direction: column; text-align: center; }
+        .sd-identity-img { width: 80px; height: 80px; }
+        .sd-quick-grid { grid-template-columns: repeat(2, 1fr); }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="sd-container" style="max-width:1100px; padding-block: var(--sd-sp-6);">
-
-    <div style="text-align:center; margin-bottom: var(--sd-sp-5);">
+<div class="sd-my-space">
+    <section class="sd-identity">
         {% if user.profile_image %}
-            <img src="{{ url_for('static', filename='uploads/' + user.profile_image) }}?v=1" width="110" height="110" style="border-radius:50%; object-fit:cover; border:3px solid var(--sd-border);">
+            <img src="{{ url_for('static', filename='uploads/' + user.profile_image) }}?v=1" alt="" class="sd-identity-img">
         {% else %}
-            <img src="{{ url_for('static', filename='uploads/default_user.png') }}" width="110" height="110" style="border-radius:50%; object-fit:cover; border:3px solid var(--sd-border);">
+            <img src="{{ url_for('static', filename='uploads/default_user.png') }}" alt="" class="sd-identity-img">
         {% endif %}
-        <h1 style="font-size: var(--sd-fs-xl); margin: var(--sd-sp-3) 0 0;">مساحتك في سديم</h1>
-        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin: 4px 0 0;">مرحباً {{ user.username }}، هنا تجد أدواتك ومحتواك وتقدمك.</p>
-    </div>
-
-    <div class="sd-grid-3" style="margin-bottom: var(--sd-sp-5);">
-        <a href="{{ url_for('bots.my_bots') }}" class="sd-card sd-card-hover" style="text-decoration:none; color:inherit;">
-            <i class="fas fa-toolbox" style="color:var(--sd-accent-light); font-size:1.3rem;"></i>
-            <h2 style="font-size:var(--sd-fs-md); margin:var(--sd-sp-2) 0 4px;">أدواتي</h2>
-            <p style="color:var(--sd-text-secondary); margin:0; font-size:var(--sd-fs-sm);">{{ my_bots|length }} نظام مرتبط</p>
-        </a>
-        <a href="{{ url_for('ai.index') }}" class="sd-card sd-card-hover" style="text-decoration:none; color:inherit;">
-            <i class="fas fa-wand-magic-sparkles" style="color:var(--sd-accent-light); font-size:1.3rem;"></i>
-            <h2 style="font-size:var(--sd-fs-md); margin:var(--sd-sp-2) 0 4px;">Sadeem AI</h2>
-            <p style="color:var(--sd-text-secondary); margin:0; font-size:var(--sd-fs-sm);">مساعدك داخل المنصة</p>
-        </a>
-        <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-card sd-card-hover" style="text-decoration:none; color:inherit;">
-            <i class="fas fa-book-open" style="color:var(--sd-accent-light); font-size:1.3rem;"></i>
-            <h2 style="font-size:var(--sd-fs-md); margin:var(--sd-sp-2) 0 4px;">متابعة القراءة</h2>
-            <p style="color:var(--sd-text-secondary); margin:0; font-size:var(--sd-fs-sm);">{{ reading_history|length }} عناصر محفوظة</p>
-        </a>
-    </div>
+        <div class="sd-identity-info">
+            <h1>{{ user.name or user.username }}</h1>
+            <p>{% if user.bio %}{{ user.bio }}{% else %}مرحباً بك في مساحتك{% endif %}</p>
+        </div>
+    </section>
 
     {% if not user.is_verified %}
     <div class="sd-alert sd-alert-warning" style="margin-bottom: var(--sd-sp-4);">
         <i class="fas fa-triangle-exclamation sd-alert-icon"></i>
         <span style="flex:1;">
-            بريدك الإلكتروني غير موثّق بعد.
+            بريدك الإلكتروني غير موثّق.
             <form method="POST" action="{{ url_for('loading_bp.resend_verification') }}" style="display:inline;">
                 <button type="submit" style="background:none; border:none; padding:0; color: inherit; text-decoration:underline; cursor:pointer; font: inherit;">إعادة إرسال رابط التفعيل</button>
             </form>
@@ -64,141 +67,177 @@
     </div>
     {% endif %}
 
-    {% if limit_status and limit_status.status != 'default' %}
-    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-3);">
-            <strong style="font-size: var(--sd-fs-md);">حد البوتات</strong>
-            {% if limit_status.status == 'active' %}
-                <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> نشط</span>
-            {% elif limit_status.status == 'expiring_soon' %}
-                <span class="sd-badge sd-badge-warning"><span class="sd-badge-dot"></span> ينتهي قريباً</span>
-            {% elif limit_status.status == 'expired' %}
-                <span class="sd-badge sd-badge-danger"><span class="sd-badge-dot"></span> منتهي</span>
-            {% endif %}
-        </div>
-        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-base); margin:0 0 .5rem;">
-            البوتات: <strong style="color: var(--sd-text);">{{ limit_status.current_bot_count }} / {{ 'غير محدود' if limit_status.is_unlimited else limit_status.effective_limit }}</strong>
-        </p>
-        {% if limit_status.expires_at %}
-        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0 0 .5rem;">
-            ينتهي بتاريخ: <strong style="color: var(--sd-text);">{{ limit_status.expires_at.strftime('%Y-%m-%d') }}</strong>
-        </p>
-        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0;">
-            المتبقي: <strong style="color: var(--sd-text);">{{ limit_status.days_left }} يوم</strong>
-        </p>
-        {% endif %}
-    </div>
-    {% endif %}
-
-    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
-        <div class="account-section-header">
-            <strong style="font-size: var(--sd-fs-md);"><i class="fas fa-robot"></i> أنظمتي</strong>
-            <a href="{{ url_for('bots.my_bots') }}" class="sd-btn sd-btn-ghost sd-btn-sm">إدارة الكل</a>
-        </div>
-        {% if my_bots %}
-            <div class="account-list">
-            {% for b in my_bots %}
-                <a href="{{ url_for('bots.manage_bot', bot_id=b.id) }}" class="account-list-row">
-                    <span>{{ b.telegram_first_name or ('بوت #' ~ b.id) }} <span style="color: var(--sd-text-secondary); font-size: var(--sd-fs-xs);">{{ b.channel }}</span></span>
-                    {% if b.is_active %}
-                        <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> نشط</span>
-                    {% else %}
-                        <span class="sd-badge sd-badge-danger"><span class="sd-badge-dot"></span> موقوف</span>
-                    {% endif %}
-                </a>
-            {% endfor %}
-            </div>
-        {% else %}
-            <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0 0 var(--sd-sp-2);">ما عندك أي نظام بعد.</p>
-            <a href="{{ url_for('bots.my_bots') }}" class="sd-btn sd-btn-primary sd-btn-sm sd-btn-block">أنشئ نظامك الأول</a>
+    <div class="sd-quick-grid">
+        <a href="{{ url_for('ai.index') }}" class="sd-quick-card">
+            <i class="fas fa-wand-magic-sparkles"></i>
+            <span>Sadeem AI</span>
+        </a>
+        <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-quick-card">
+            <i class="fas fa-book-open"></i>
+            <span>المكتبة</span>
+        </a>
+        <a href="{{ url_for('articles.list_articles') }}" class="sd-quick-card">
+            <i class="fas fa-newspaper"></i>
+            <span>المقالات</span>
+        </a>
+        {% if session.get('role') == 'admin' %}
+        <a href="{{ url_for('admin.services_dashboard') }}" class="sd-quick-card">
+            <i class="fas fa-gauge"></i>
+            <span>الإدارة</span>
+        </a>
         {% endif %}
     </div>
 
-    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-2);">
-            <strong style="font-size: var(--sd-fs-md);"><i class="fas fa-user-plus"></i> ادعُ صديقاً</strong>
-            <span class="sd-badge sd-badge-info">{{ referral_count }} دعوة ناجحة</span>
+    {% if reading_history %}
+    <section class="sd-section">
+        <div class="sd-section-header">
+            <h2 class="sd-section-title"><i class="fas fa-clock-rotate-left"></i> تابع القراءة</h2>
+            <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-btn sd-btn-ghost sd-btn-sm">عرض الكل</a>
         </div>
-        <p style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm); margin:0 0 var(--sd-sp-3);">
-            كل صديق ينضم عبر رابطك يمنحك <strong style="color: var(--sd-text);">بوت إضافي مجاناً لمدة 30 يوم</strong>.
-        </p>
-        <div style="display:flex; gap: var(--sd-sp-2);">
-            <input type="text" class="sd-input" id="referralLinkInput" value="{{ referral_link }}" readonly style="font-size: var(--sd-fs-xs);">
-            <button type="button" class="sd-btn sd-btn-secondary sd-ripple" onclick="copyReferralLink(this)">
-                <i class="fas fa-copy"></i> نسخ
-            </button>
-        </div>
-    </div>
-
-    {% if my_articles %}
-    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: var(--sd-sp-3);">
-            <strong style="font-size: var(--sd-fs-md);"><i class="fas fa-newspaper"></i> نشاطي بالمقالات</strong>
-            <a href="{{ url_for('articles.new_article') }}" class="sd-btn sd-btn-ghost sd-btn-sm">مقالة جديدة</a>
-        </div>
-        <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2);">
-        {% for a in my_articles[:5] %}
-            <a href="{{ url_for('articles.view_article', post_id=a.id) }}" style="display:block; padding: var(--sd-sp-2) var(--sd-sp-3); border-radius: var(--sd-radius-sm); background: var(--sd-bg-elevated); text-decoration:none; color: var(--sd-text);">
-                {{ a.title }}
+        <div class="sd-card-list">
+            {% for item in reading_history[:5] %}
+            <a href="{{ url_for('Library_Agatha.view_book', book_id=item[1]) if item[0] == 'book' else url_for('articles.view_article', post_id=item[1]) }}" class="sd-card-item">
+                <i class="fas fa-{{ 'book' if item[0] == 'book' else 'newspaper' }}" style="font-size: 1.5rem; color: var(--sd-accent-light); flex-shrink: 0;"></i>
+                <div class="sd-card-item-info">
+                    <p class="sd-card-item-title">{{ item[4] }}</p>
+                    <span class="sd-card-item-meta">{{ 'منتهية' if item[2] == 'finished' else 'تقرأ حالياً' }}</span>
+                </div>
+                <span class="sd-card-item-badge">{{ '✓' if item[2] == 'finished' else '◐' }}</span>
             </a>
-        {% endfor %}
+            {% endfor %}
         </div>
-    </div>
+    </section>
     {% endif %}
 
     {% if favorites %}
-    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
-        <strong style="font-size: var(--sd-fs-md);"><i class="fas fa-bookmark"></i> مفضلتي</strong>
-        <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2); margin-top: var(--sd-sp-3);">
-        {% for item in favorites %}
-            <a href="{{ url_for('Library_Agatha.view_book', book_id=item[1]) if item[0] == 'book' else url_for('articles.view_article', post_id=item[1]) }}" class="sd-btn sd-btn-secondary sd-btn-block" style="justify-content:flex-start; min-height:44px;">{{ item[3] }}</a>
-        {% endfor %}
+    <section class="sd-section">
+        <div class="sd-section-header">
+            <h2 class="sd-section-title"><i class="fas fa-bookmark"></i> المحفوظات</h2>
+            <span class="sd-badge-count">{{ favorites|length }}</span>
         </div>
-    </div>
+        <div class="sd-card-list">
+            {% for item in favorites[:5] %}
+            <a href="{{ url_for('Library_Agatha.view_book', book_id=item[1]) if item[0] == 'book' else url_for('articles.view_article', post_id=item[1]) }}" class="sd-card-item">
+                <i class="fas fa-{{ 'book' if item[0] == 'book' else 'newspaper' }}" style="font-size: 1.5rem; color: var(--sd-brass-bright); flex-shrink: 0;"></i>
+                <div class="sd-card-item-info">
+                    <p class="sd-card-item-title">{{ item[3] }}</p>
+                    <span class="sd-card-item-meta">{{ item[2].strftime('%Y-%m-%d') if item[2] else '' }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
     {% endif %}
 
-    {% if reading_history %}
-    <div class="sd-card" style="margin-bottom: var(--sd-sp-4);">
-        <strong style="font-size: var(--sd-fs-md);"><i class="fas fa-clock-rotate-left"></i> سجل قراءتي</strong>
-        <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2); margin-top: var(--sd-sp-3);">
-        {% for item in reading_history %}
-            <a href="{{ url_for('Library_Agatha.view_book', book_id=item[1]) if item[0] == 'book' else url_for('articles.view_article', post_id=item[1]) }}" class="sd-btn sd-btn-ghost sd-btn-block" style="justify-content:space-between; min-height:44px;"><span>{{ item[4] }}</span><small>{{ 'منتهية' if item[2] == 'finished' else 'تقرأ حالياً' }}</small></a>
-        {% endfor %}
+    {% if book_likes %}
+    <section class="sd-section">
+        <div class="sd-section-header">
+            <h2 class="sd-section-title"><i class="fas fa-heart"></i> الإعجابات</h2>
+            <span class="sd-badge-count">{{ book_likes|length }}</span>
         </div>
-    </div>
+        <div class="sd-card-list">
+            {% for item in book_likes[:5] %}
+            <a href="{{ url_for('Library_Agatha.view_book', book_id=item[0]) }}" class="sd-card-item">
+                <i class="fas fa-heart" style="font-size: 1.5rem; color: #ff4d6d; flex-shrink: 0;"></i>
+                <div class="sd-card-item-info">
+                    <p class="sd-card-item-title">{{ item[1] }}</p>
+                    <span class="sd-card-item-meta">أعجبت في {{ item[3].strftime('%Y-%m-%d') if item[3] else '' }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
     {% endif %}
 
-    <a href="https://t.me/SADIM_NETWORK" target="_blank" class="sd-btn sd-btn-secondary sd-btn-block sd-ripple" style="margin-bottom: var(--sd-sp-5);">
-        <i class="fab fa-telegram"></i> تابع قناة شبكة سديم الرسمية بتيليجرام
-    </a>
+    {% if ai_conversations %}
+    <section class="sd-section">
+        <div class="sd-section-header">
+            <h2 class="sd-section-title"><i class="fas fa-comments"></i> محادثات Sadeem AI</h2>
+            <span class="sd-badge-count">{{ ai_conversations_count }}</span>
+        </div>
+        <div class="sd-card-list">
+            {% for convo in ai_conversations %}
+            <a href="{{ url_for('ai.index') }}" class="sd-ai-convo">
+                <i class="fas fa-wand-magic-sparkles"></i>
+                <div class="sd-ai-convo-info">
+                    <p class="sd-ai-convo-title">{{ convo[1] }}</p>
+                    <span class="sd-ai-convo-meta">{{ convo[5] }} رسائل · {{ convo[3].strftime('%Y-%m-%d') if convo[3] else '' }}</span>
+                </div>
+                <i class="fas fa-chevron-left" style="color: var(--sd-text-secondary);"></i>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <section class="sd-section">
+        <div class="sd-section-header">
+            <h2 class="sd-section-title"><i class="fas fa-comments"></i> محادثات Sadeem AI</h2>
+        </div>
+        <a href="{{ url_for('ai.index') }}" class="sd-quick-card" style="text-align: center; padding: var(--sd-sp-5);">
+            <i class="fas fa-wand-magic-sparkles" style="font-size: 2rem;"></i>
+            <span>ابدأ محادثة جديدة مع Sadeem AI</span>
+        </a>
+    </section>
+    {% endif %}
 
-    <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2);">
-        <a href="{{ url_for('loading_bp.account_settings') }}" class="sd-btn sd-btn-primary sd-btn-block sd-ripple">تعديل البيانات</a>
-        <a href="{{ url_for('loading_bp.landing_page') }}" class="sd-btn sd-btn-ghost sd-btn-block">الرجوع للرئيسية</a>
-        <a href="{{ url_for('loading_bp.logout') }}" class="sd-btn sd-btn-ghost sd-btn-block" style="color: var(--sd-danger);">تسجيل الخروج</a>
+    {% if my_bots %}
+    <section class="sd-section">
+        <div class="sd-section-header">
+            <h2 class="sd-section-title"><i class="fas fa-toolbox"></i> أنظمتي</h2>
+            <a href="{{ url_for('bots.my_bots') }}" class="sd-btn sd-btn-ghost sd-btn-sm">إدارة</a>
+        </div>
+        <div class="sd-card-list">
+            {% for b in my_bots[:3] %}
+            <a href="{{ url_for('bots.manage_bot', bot_id=b.id) }}" class="sd-card-item">
+                <i class="fas fa-robot" style="font-size: 1.5rem; color: var(--sd-accent-light); flex-shrink: 0;"></i>
+                <div class="sd-card-item-info">
+                    <p class="sd-card-item-title">{{ b.telegram_first_name or ('بوت #' ~ b.id) }}</p>
+                    <span class="sd-card-item-meta">{{ b.channel }}</span>
+                </div>
+                {% if b.is_active %}
+                <span class="sd-badge sd-badge-success"><span class="sd-badge-dot"></span> نشط</span>
+                {% else %}
+                <span class="sd-badge sd-badge-danger"><span class="sd-badge-dot"></span> موقوف</span>
+                {% endif %}
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    {% if my_articles %}
+    <section class="sd-section">
+        <div class="sd-section-header">
+            <h2 class="sd-section-title"><i class="fas fa-pen"></i> مقالاتي</h2>
+            <a href="{{ url_for('articles.new_article') }}" class="sd-btn sd-btn-ghost sd-btn-sm">مقالة جديدة</a>
+        </div>
+        <div class="sd-card-list">
+            {% for a in my_articles[:3] %}
+            <a href="{{ url_for('articles.view_article', post_id=a.id) }}" class="sd-card-item">
+                <i class="fas fa-newspaper" style="font-size: 1.5rem; color: var(--sd-accent-light); flex-shrink: 0;"></i>
+                <div class="sd-card-item-info">
+                    <p class="sd-card-item-title">{{ a.title }}</p>
+                    <span class="sd-card-item-meta">{{ a.created_at.strftime('%Y-%m-%d') if a.created_at else '' }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <div class="sd-settings-row">
+        <a href="{{ url_for('loading_bp.account_settings') }}" class="sd-btn sd-btn-primary sd-btn-sm">
+            <i class="fas fa-gear"></i> الإعدادات
+        </a>
+        <a href="{{ url_for('loading_bp.logout') }}" class="sd-btn sd-btn-ghost sd-btn-sm" style="color: var(--sd-danger);">
+            <i class="fas fa-right-from-bracket"></i> تسجيل الخروج
+        </a>
     </div>
 
+    <div style="text-align: center; margin-top: var(--sd-sp-6); padding-top: var(--sd-sp-4); border-top: 1px solid var(--sd-border);">
+        <a href="https://t.me/SADIM_NETWORK" target="_blank" class="sd-btn sd-btn-ghost sd-btn-sm">
+            <i class="fab fa-telegram"></i> تابعنا على تيليجرام
+        </a>
+    </div>
 </div>
-{% endblock %}
-
-{% block extra_scripts %}
-<script>
-function copyReferralLink(btn) {
-    const input = document.getElementById('referralLinkInput');
-    const done = () => {
-        const original = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> تم النسخ';
-        setTimeout(() => { btn.innerHTML = original; }, 1800);
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(input.value).then(done).catch(() => {
-            input.select();
-            try { document.execCommand('copy'); done(); } catch (e) {}
-        });
-    } else {
-        input.select();
-        try { document.execCommand('copy'); done(); } catch (e) {}
-    }
-}
-</script>
 {% endblock %}

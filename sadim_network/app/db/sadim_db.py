@@ -391,10 +391,14 @@ def create_tables():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS ai_conversations (
             id SERIAL PRIMARY KEY,
-            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+            visitor_id VARCHAR(64),
             title VARCHAR(200) NOT NULL DEFAULT 'محادثة جديدة',
+            status VARCHAR(20) NOT NULL DEFAULT 'success',
+            error_message TEXT,
             created_at TIMESTAMP DEFAULT NOW(),
-            updated_at TIMESTAMP DEFAULT NOW()
+            updated_at TIMESTAMP DEFAULT NOW(),
+            CONSTRAINT ai_conversations_owner_check CHECK (user_id IS NOT NULL OR visitor_id IS NOT NULL)
         );
     """)
     cur.execute("""
@@ -414,7 +418,7 @@ def create_tables():
     cur.execute("""
         CREATE TABLE IF NOT EXISTS ai_usage (
             id BIGSERIAL PRIMARY KEY,
-            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
             conversation_id INTEGER REFERENCES ai_conversations(id) ON DELETE SET NULL,
             model VARCHAR(80) NOT NULL,
             input_tokens INTEGER DEFAULT 0,
@@ -437,15 +441,9 @@ def create_tables():
         );
     """)
     cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_conversations_user_time ON ai_conversations(user_id, updated_at DESC);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_conversations_visitor_id ON ai_conversations(visitor_id) WHERE visitor_id IS NOT NULL;")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_messages_conversation_time ON ai_messages(conversation_id, created_at);")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_ai_usage_user_date ON ai_usage(user_id, created_at);")
-    cur.execute("ALTER TABLE ai_conversations ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'success';")
-    cur.execute("ALTER TABLE ai_conversations ADD COLUMN IF NOT EXISTS error_message TEXT;")
-    cur.execute("ALTER TABLE ai_messages ADD COLUMN IF NOT EXISTS status VARCHAR(20) NOT NULL DEFAULT 'success';")
-    cur.execute("ALTER TABLE ai_messages ADD COLUMN IF NOT EXISTS model VARCHAR(80);")
-    cur.execute("ALTER TABLE ai_messages ADD COLUMN IF NOT EXISTS input_tokens INTEGER DEFAULT 0;")
-    cur.execute("ALTER TABLE ai_messages ADD COLUMN IF NOT EXISTS output_tokens INTEGER DEFAULT 0;")
-    cur.execute("ALTER TABLE ai_messages ADD COLUMN IF NOT EXISTS tools_invoked JSONB NOT NULL DEFAULT '[]'::jsonb;")
 
 #----------USER CONTENT TABLES----------#
     cur.execute("""
@@ -479,6 +477,18 @@ def create_tables():
     cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_user_favorite_article ON user_favorites(user_id, article_id) WHERE content_type = 'article';")
     cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_reading_book ON reading_history(user_id, book_id) WHERE content_type = 'book';")
     cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_reading_article ON reading_history(user_id, article_id) WHERE content_type = 'article';")
+
+#----------BOOK LIKES TABLE (إعجاب منفصل عن المفضلة)----------#
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS book_likes (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            book_id INTEGER NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+            UNIQUE (user_id, book_id)
+        );
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_book_likes_book_id ON book_likes (book_id);")
 
 #----------REFERRALS TABLE (نظام الدعوة — رابط ?ref=<user_id>، مكافأة حد بوت إضافي مؤقت)----------#
     cur.execute("""

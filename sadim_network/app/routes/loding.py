@@ -197,10 +197,32 @@ def account():
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT content_type, COALESCE(book_id, article_id), added_at, COALESCE(b.title, p.title) FROM user_favorites f LEFT JOIN books b ON b.id=f.book_id LEFT JOIN posts p ON p.id=f.article_id WHERE f.user_id=%s ORDER BY added_at DESC LIMIT 10", (session['user_id'],))
+        cur.execute("SELECT content_type, COALESCE(book_id, article_id), added_at, COALESCE(b.title, p.title), COALESCE(b.cover_path, p.image_path) FROM user_favorites f LEFT JOIN books b ON b.id=f.book_id LEFT JOIN posts p ON p.id=f.article_id WHERE f.user_id=%s ORDER BY added_at DESC LIMIT 10", (session['user_id'],))
         favorites = cur.fetchall()
-        cur.execute("SELECT content_type, COALESCE(book_id, article_id), status, last_updated, COALESCE(b.title, p.title) FROM reading_history h LEFT JOIN books b ON b.id=h.book_id LEFT JOIN posts p ON p.id=h.article_id WHERE h.user_id=%s ORDER BY last_updated DESC LIMIT 10", (session['user_id'],))
+        cur.execute("SELECT content_type, COALESCE(book_id, article_id), status, last_updated, COALESCE(b.title, p.title), COALESCE(b.cover_path, p.image_path) FROM reading_history h LEFT JOIN books b ON b.id=h.book_id LEFT JOIN posts p ON p.id=h.article_id WHERE h.user_id=%s ORDER BY last_updated DESC LIMIT 10", (session['user_id'],))
         reading_history = cur.fetchall()
+        cur.execute("""
+            SELECT bl.book_id, b.title, b.cover_path, bl.created_at
+            FROM book_likes bl
+            JOIN books b ON b.id = bl.book_id
+            WHERE bl.user_id = %s
+            ORDER BY bl.created_at DESC
+            LIMIT 10
+        """, (session['user_id'],))
+        book_likes = cur.fetchall()
+        cur.execute("""
+            SELECT id, title, created_at, updated_at,
+                   (SELECT COUNT(*) FROM ai_messages WHERE conversation_id = ai_conversations.id) as message_count
+            FROM ai_conversations
+            WHERE user_id = %s
+            ORDER BY updated_at DESC
+            LIMIT 5
+        """, (session['user_id'],))
+        ai_conversations = cur.fetchall()
+        cur.execute("""
+            SELECT COUNT(*) FROM ai_conversations WHERE user_id = %s
+        """, (session['user_id'],))
+        ai_conversations_count = cur.fetchone()[0]
     finally:
         conn.close()
 
@@ -214,6 +236,9 @@ def account():
         referral_link=referral_link,
         favorites=favorites,
         reading_history=reading_history,
+        book_likes=book_likes,
+        ai_conversations=ai_conversations,
+        ai_conversations_count=ai_conversations_count,
     )
 
 

@@ -124,13 +124,67 @@ def view_book(book_id):
     _log_lib_event("book.view", metadata={"book_id": book_id, "title": book.get('title')})
 
     user = User.get_by_id(session['user_id']) if 'user_id' in session else None
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(*) FROM book_likes WHERE book_id = %s", (book_id,))
+    likes_count = cur.fetchone()[0]
+    user_has_liked = False
+    if user:
+        cur.execute("SELECT 1 FROM book_likes WHERE book_id = %s AND user_id = %s", (book_id, user.id))
+        user_has_liked = cur.fetchone() is not None
+    cur.close()
+    conn.close()
+
     return render_template(
         "Agatha Christie/book_detail.html",
         book=book,
         comments=comments,
         other_books=other_books,
-        user=user
+        user=user,
+        likes_count=likes_count,
+        user_has_liked=user_has_liked,
     )
+
+
+@Library_Agatha_bp.route('/Library/Agatha_Christie/<int:book_id>/like', methods=['POST'])
+@limiter.limit("20 per minute")
+def toggle_like(book_id):
+    """تبديل إعجاب/إلغاء إعجاب لرواية — منفصل عمداً عن user_favorites
+    (المفضلة/الحفظ لها معنى مختلف عن الإعجاب البسيط). يمنع الزائر بوضوح
+    بدل من كسر التجربة بخطأ 500."""
+    if 'user_id' not in session:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.accept_mimetypes.best == 'application/json':
+            return {'error': 'login_required'}, 401
+        flash('سجّل دخولك لتضيف إعجاب لرواية.', 'warning')
+        return redirect(url_for('loading_bp.login'))
+
+    user_id = session['user_id']
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM book_likes WHERE user_id = %s AND book_id = %s", (user_id, book_id))
+        already_liked = cur.fetchone() is not None
+        if already_liked:
+            cur.execute("DELETE FROM book_likes WHERE user_id = %s AND book_id = %s", (user_id, book_id))
+            liked = False
+        else:
+            cur.execute(
+                "INSERT INTO book_likes (user_id, book_id) VALUES (%s, %s) ON CONFLICT (user_id, book_id) DO NOTHING",
+                (user_id, book_id),
+            )
+            liked = True
+        conn.commit()
+        cur.execute("SELECT COUNT(*) FROM book_likes WHERE book_id = %s", (book_id,))
+        likes_count = cur.fetchone()[0]
+    finally:
+        conn.close()
+
+    _log_lib_event("book.like" if liked else "book.unlike", metadata={"book_id": book_id})
+
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 'application/json' in (request.headers.get('Accept') or ''):
+        return {'liked': liked, 'likes_count': likes_count}
+    return redirect(url_for('Library_Agatha.view_book', book_id=book_id))
 # =========================
 # 2. تحميل الملف الفعلي — طلب واحد ذرّي: يتحقق من الملف، يزيد العداد، يسجّل الحدث، ثم يرسل الملف.
 # لا يعتمد على أي طلب منفصل قبله (كان فيه طلبان غير مرتبطين: زيادة عداد + تحميل فعلي، ممكن الأول

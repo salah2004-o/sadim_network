@@ -226,6 +226,8 @@
       border-color: var(--border);
       color: var(--text);
     }
+    .btn-back.is-liked { border-color: #ff4d6d; color: #ff4d6d; }
+    .btn-back.is-liked:hover { border-color: #ff4d6d; color: #ff4d6d; }
 
     /* COMMENTS SECTION SYSTEM */
     .comment-header {
@@ -450,6 +452,15 @@
           <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="btn-back">
             <i class="fa-solid fa-books"></i> روايات أخرى
           </a>
+          {% if session.get('user_id') %}
+          <button type="button" id="like-btn" class="btn-back{% if user_has_liked %} is-liked{% endif %}" data-liked="{{ '1' if user_has_liked else '0' }}" onclick="toggleLike(this)">
+            <i class="fa-{{ 'solid' if user_has_liked else 'regular' }} fa-heart"></i> <span id="like-label">{{ 'أعجبت' if user_has_liked else 'إعجاب' }}</span> (<span id="like-count">{{ likes_count }}</span>)
+          </button>
+          {% else %}
+          <a href="{{ url_for('loading_bp.login') }}" class="btn-back">
+            <i class="fa-regular fa-heart"></i> سجّل دخولك لتعجب (<span id="like-count">{{ likes_count }}</span>)
+          </a>
+          {% endif %}
           {% if session.get('user_id') %}<button type="button" class="btn-back" data-content-type="book" data-content-id="{{ book['id'] }}" onclick="toggleFavorite(this)"><i class="fa-regular fa-bookmark"></i> أضف للمفضلة</button><button type="button" class="btn-back" onclick="setReading('finished')"><i class="fa-solid fa-check"></i> أنهيت القراءة</button>{% endif %}
           {% if session.get('user_id') %}<a href="{{ url_for('ai.index', context_type='book', context_id=book['id']) }}" class="btn-back"><i class="fa-solid fa-wand-magic-sparkles"></i> اسأل Sadeem AI</a>{% endif %}
         </div>
@@ -587,6 +598,24 @@
 function toggleFavorite(button){fetch('/api/personal/favorite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'book',content_id:{{ book['id'] }}})}).then(r=>{if(!r.ok)throw Error();button.innerHTML='<i class="fa-solid fa-bookmark"></i> تمت الإضافة';button.disabled=true;}).catch(()=>{});}
 function setReading(status){fetch('/api/personal/reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'book',content_id:{{ book['id'] }},status})});}
 setReading('reading');
+function toggleLike(btn){
+  if(btn.dataset.busy==='1')return;
+  btn.dataset.busy='1';
+  fetch("{{ url_for('Library_Agatha.toggle_like', book_id=book['id']) }}",{method:'POST',headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}})
+    .then(r=>{if(!r.ok)throw Error();return r.json();})
+    .then(data=>{
+      const icon=btn.querySelector('i');
+      const label=btn.querySelector('#like-label');
+      const countEls=document.querySelectorAll('#like-count');
+      btn.dataset.liked=data.liked?'1':'0';
+      btn.classList.toggle('is-liked',data.liked);
+      icon.className='fa-'+(data.liked?'solid':'regular')+' fa-heart';
+      if(label)label.textContent=data.liked?'أعجبت':'إعجاب';
+      countEls.forEach(el=>{el.textContent=data.likes_count;});
+    })
+    .catch(()=>{})
+    .finally(()=>{btn.dataset.busy='0';});
+}
 </script>{% endif %}{% include 'partials/_ai_float.html' %}
 {% include 'partials/_bottom_nav.html' %}
 <script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>

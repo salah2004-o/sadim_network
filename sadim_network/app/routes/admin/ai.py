@@ -17,8 +17,8 @@ def ai_conversations():
         cur = conn.cursor()
         pattern = f'%{query}%'
         cur.execute("""SELECT c.id, c.title, c.created_at, c.updated_at, u.id, u.username, u.name, c.status,
-                   COALESCE(m.message_count, 0) AS message_count, COALESCE(us.tokens, 0) AS tokens
-                       FROM ai_conversations c JOIN users u ON u.id = c.user_id
+                   COALESCE(m.message_count, 0) AS message_count, COALESCE(us.tokens, 0) AS tokens, c.visitor_id
+                       FROM ai_conversations c LEFT JOIN users u ON u.id = c.user_id
                    LEFT JOIN (SELECT conversation_id, COUNT(*) AS message_count FROM ai_messages GROUP BY conversation_id) m ON m.conversation_id = c.id
                    LEFT JOIN (SELECT conversation_id, SUM(input_tokens + output_tokens) AS tokens FROM ai_usage GROUP BY conversation_id) us ON us.conversation_id = c.id
                        WHERE (%s = '' OR u.username ILIKE %s OR u.name ILIKE %s OR c.title ILIKE %s)
@@ -45,11 +45,11 @@ def ai_conversation(conversation_id):
     conn = get_db_connection()
     try:
         cur = conn.cursor()
-        cur.execute("SELECT c.id, c.title, c.created_at, c.updated_at, u.id, u.username, u.name FROM ai_conversations c JOIN users u ON u.id = c.user_id WHERE c.id = %s", (conversation_id,))
+        cur.execute("SELECT c.id, c.title, c.created_at, c.updated_at, u.id, u.username, u.name, c.visitor_id FROM ai_conversations c LEFT JOIN users u ON u.id = c.user_id WHERE c.id = %s", (conversation_id,))
         conversation = cur.fetchone()
         if not conversation:
             return render_template('dashboard/ai_conversation.html', conversation=None, messages=[]), 404
-        cur.execute("INSERT INTO audit_logs (actor_user_id, action, target_type, target_id, ip, metadata) VALUES (%s, 'ai.conversation.view', 'ai_conversation', %s, %s, %s)", (session['user_id'], conversation_id, request.remote_addr, json.dumps({'user_id': conversation[4]})))
+        cur.execute("INSERT INTO audit_logs (actor_user_id, action, target_type, target_id, ip, metadata) VALUES (%s, 'ai.conversation.view', 'ai_conversation', %s, %s, %s)", (session['user_id'], conversation_id, request.remote_addr, json.dumps({'user_id': conversation[4], 'visitor_id': conversation[7]})))
         cur.execute("SELECT role, content, created_at, model, tools_invoked FROM ai_messages WHERE conversation_id = %s ORDER BY created_at", (conversation_id,))
         messages = cur.fetchall()
         conn.commit()

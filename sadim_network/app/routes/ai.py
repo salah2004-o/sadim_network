@@ -18,6 +18,60 @@ from app.limiter import limiter
 ai_bp = Blueprint('ai', __name__, url_prefix='/ai')
 
 GUEST_SESSION_KEY = 'sadeem_ai_guest_messages'
+GUEST_VISITOR_ID_KEY = 'sadeem_ai_visitor_id'
+GUEST_CONVERSATION_ID_KEY = 'sadeem_ai_guest_conversation_id'
+
+
+def _get_visitor_id():
+    """معرّف ثابت للزائر عبر نفس آلية session المستخدمة أصلاً لحفظ رسائل الزائر المؤقتة
+    (GUEST_SESSION_KEY) — لا يرتبط بأي هوية حقيقية (لا بريد، لا اسم، لا IP)، ويبقى
+    مجهول الهوية تماماً حتى لو تسجّل الزائر لاحقاً (لا ربط تلقائي بين الزائر والحساب الجديد)."""
+    if not session.get(GUEST_VISITOR_ID_KEY):
+        import secrets
+        session[GUEST_VISITOR_ID_KEY] = secrets.token_urlsafe(24)
+        session.permanent = True
+        session.modified = True
+    return session[GUEST_VISITOR_ID_KEY]
+
+
+def _get_or_create_guest_conversation(visitor_id):
+    """يعيد نفس محادثة الزائر المفتوحة حالياً (مخزّنة بمعرّف الجلسة)، أو ينشئ واحدة جديدة
+    في نفس جدول ai_conversations الموجود (user_id=NULL, visitor_id=X) — لا جدول موازٍ."""
+    conversation_id = session.get(GUEST_CONVERSATION_ID_KEY)
+    conn = get_db_connection()
+    try:
+        cur = conn.cursor()
+        if conversation_id:
+            cur.execute("SELECT id FROM ai_conversations WHERE id = %s AND visitor_id = %s", (conversation_id, visitor_id))
+            if cur.fetchone():
+                return conversation_id
+        cur.execute(
+            "INSERT INTO ai_conversations (user_id, visitor_id, title) VALUES (NULL, %s, %s) RETURNING id",
+            (visitor_id, 'محادثة زائر'),
+        )
+        new_id = cur.fetchone()[0]
+        conn.commit()
+        session[GUEST_CONVERSATION_ID_KEY] = new_id
+        session.modified = True
+        return new_id
+    finally:
+        conn.close()
+
+
+def _persist_guest_message(conversation_id, role, content):
+    """يخزّن رسالة زائر واحدة في ai_messages الموجود أصلاً — فشل الحفظ لا يكسر استجابة الزائر
+    الفعلية أبداً (المحادثة تبقى في session كاحتياطي مهما حدث بقاعدة البيانات)."""
+    try:
+        conn = get_db_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute("INSERT INTO ai_messages (conversation_id, role, content) VALUES (%s, %s, %s)", (conversation_id, role, content))
+            cur.execute("UPDATE ai_conversations SET updated_at = NOW() WHERE id = %s", (conversation_id,))
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception as e:
+        print('Failed to persist guest AI message:', e)
 
 
 def _log_ai_event(event_type, metadata=None):
@@ -216,6 +270,7 @@ def guest_messages():
 @ai_bp.route('/guest/messages', methods=['DELETE'])
 def clear_guest_messages():
     session.pop(GUEST_SESSION_KEY, None)
+    session.pop(GUEST_CONVERSATION_ID_KEY, None)  # يبدأ محادثة جديدة في القاعدة لاحقاً — لا يحذف المحادثة القديمة
     session.modified = True
     return ('', 204)
 
@@ -264,6 +319,13 @@ def guest_send_message():
     history.append({'role': 'assistant', 'content': result['content']})
     session[GUEST_SESSION_KEY] = history[-40:]
     session.modified = True
+
+    # حفظ دائم بجانب الذاكرة المؤقتة أعلاه — لا يؤثّر على استجابة الزائر إطلاقاً إذا فشل
+    visitor_id = _get_visitor_id()
+    guest_conversation_id = _get_or_create_guest_conversation(visitor_id)
+    _persist_guest_message(guest_conversation_id, 'user', message)
+    _persist_guest_message(guest_conversation_id, 'assistant', result['content'])
+
     _log_ai_event('ai_message_sent', metadata={'guest': True, 'provider': result.get('provider')})
     return jsonify(result)
 

@@ -59,7 +59,7 @@
 			<tbody>
 			{% for c in conversations %}
 			<tr>
-				<td><a href="{{ url_for('admin.ai_user_profile', user_id=c[4]) }}">{{ c[5] or c[6] }}</a></td>
+				<td>{% if c[4] %}<a href="{{ url_for('admin.ai_user_profile', user_id=c[4]) }}">{{ c[5] or c[6] }}</a>{% else %}<span class="sd-badge sd-badge-neutral"><i class="fas fa-user-secret"></i> زائر{% if c[10] %} #{{ c[10][:8] }}{% endif %}</span>{% endif %}</td>
 				<td>{{ c[1] }}</td>
 				<td><span class="ai-status{% if c[7] == 'fallback' %} is-fallback{% endif %}"><span class="sd-badge-dot"></span>{{ c[7] }}</span></td>
 				<td>{{ c[8] }}</td>
