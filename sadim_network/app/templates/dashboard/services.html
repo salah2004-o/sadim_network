@@ -14,53 +14,10 @@
 <body>
 {% include 'partials/_page_nav.html' %}
 
-
-<header class="nebula-header">
-    <a href="{{ url_for('loading_bp.landing_page') }}" class="logo-brand" style="text-decoration:none;color:inherit;">SADEEM NETWORK</a>
-    <div class="user-info">مرحباً، {{ username }} | {{ current_time }}</div>
-
-    <!-- قائمة الكمبيوتر -->
-    <nav class="desktop-nav">
-        <ul>
-            <li><a href="{{ url_for('loading_bp.landing_page') }}">الرئيسية</a></li>
-            <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
-            <li><a href="{{ url_for('bots.my_bots') }}">أنظمتي</a></li>
-            <li><a href="{{ url_for('articles.list_articles') }}">المقالات</a></li>
-
-            <li><a href="mailto:admin@sadim.cloud">اتصل بنا</a></li>
-            <li><a href="{{ url_for('loading_bp.account') }}">حسابي</a></li>
-            {% if session.get('role') == 'admin' %}
-            <li><a href="{{ url_for('admin.services_dashboard') }}">لوحة التحكم</a></li>
-            {% endif %}
-            <li><a href="{{ url_for('loading_bp.logout') }}" class="btn-logout">خروج</a></li>
-        </ul>
-    </nav>
-
-    <!-- زر الهامبرغر -->
-    <button id="menu-toggle" class="hamburger" aria-expanded="false" aria-controls="mobile-sidebar" aria-label="فتح القائمة"><i class="fas fa-bars"></i></button>
-</header>
-
-<!-- القائمة الجانبية للجوال -->
-<div id="mobile-sidebar" class="mobile-sidebar">
-    <button id="close-sidebar">×</button>
-    <ul class="mobile-nav-links">
-        <li><a href="{{ url_for('loading_bp.landing_page') }}">الرئيسية</a></li>
-        <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
-        <li><a href="{{ url_for('bots.my_bots') }}">أنظمتي</a></li>
-        <li><a href="{{ url_for('articles.list_articles') }}">المقالات</a></li>
-
-        <li><a href="mailto:admin@sadim.cloud">اتصل بنا</a></li>
-        <li><a href="{{ url_for('loading_bp.account') }}">حسابي</a></li>
-        {% if session.get('role') == 'admin' %}
-        <li><a href="{{ url_for('admin.services_dashboard') }}">لوحة التحكم</a></li>
-        {% endif %}
-        <li><a href="{{ url_for('loading_bp.logout') }}" style="color: #ff7675;">تسجيل الخروج</a></li>
-    </ul>
-</div>
-
     <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
 
 <main class="services-layout">
+    <div class="user-info">مرحباً، {{ username }} | {{ current_time }}</div>
 
     <section>
         <div class="section-banner banner-classic">

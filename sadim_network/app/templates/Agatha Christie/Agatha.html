@@ -100,37 +100,6 @@
     </ul>
 </nav>
 
-<header>
-    <button class="menu-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars-staggered"></i></button>
-    <a href="{{ url_for('loading_bp.landing_page') }}" class="brand">
-        <span class="top">SADEEM</span>
-        <span class="sub">ROYAL LIBRARY</span>
-    </a>
-    
-    <ul class="nav-links-desktop">
-        <li><a href="{{ url_for('main.index') }}">الرئيسية</a></li>
-        <li><a href="{{url_for('main.services')}}">خدماتنا</a></li>
-        <li><a href="{{url_for('main.about')}}">من نحن</a></li>
-    </ul>
-
-    <div class="user-action">
-        {% if session.user_id %}
-            <a href="{{ url_for('loading_bp.account') }}" class="header-profile-link">
-                <span class="header-username">{{ user.username }}</span>
-                
-                <div class="profile-pic-wrapper-header">
-                    {% set profile_img = user.profile_image if user.profile_image else 'default_user.png' %}
-                    <img src="{{ url_for('static', filename='uploads/' + profile_img) }}?v=1" 
-                         alt="Profile" 
-                         class="header-profile-img">
-                </div>
-            </a>
-        {% else %}
-            <a href="{{ url_for('loading_bp.login') }}" class="btn-royal" style="padding: 6px 20px;">دخول</a>
-        {% endif %}
-    </div>
-</header>
-
 <!-- ============ Collection Header ============ -->
 <section class="collection-hero">
     <img src="{{ url_for('Library_Agatha.static', filename='images/اغاثا.webp') }}" alt="Agatha Christie" class="collection-portrait">

@@ -1,37 +1,68 @@
-<style>
-    .sd-page-nav { display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:12px max(16px, 4vw); background:rgba(9,9,13,.92); border-bottom:1px solid rgba(255,255,255,.1); position:relative; z-index:20; font-family:inherit; }
-    .sd-page-nav a { color:#c9c9d8; text-decoration:none; }
-    .sd-page-nav__brand { display:inline-flex; align-items:center; gap:8px; color:#f2f2f7 !important; font-weight:700; white-space:nowrap; }
-    .sd-page-nav__links { display:flex; align-items:center; gap:6px; flex:1; flex-wrap:wrap; }
-    .sd-page-nav__links a, .sd-page-nav__back { min-height:44px; display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border-radius:8px; font:inherit; font-size:.88rem; }
-    .sd-page-nav__links a:hover, .sd-page-nav__back:hover { background:rgba(124,77,255,.16); color:#c3a6ff; }
-    .sd-page-nav__back { border:1px solid rgba(255,255,255,.14); background:transparent; color:#c9c9d8; cursor:pointer; }
-    @media (max-width:640px) { .sd-page-nav { gap:8px; } .sd-page-nav__links { order:3; flex-basis:100%; overflow-x:auto; flex-wrap:nowrap; } .sd-page-nav__links a { white-space:nowrap; } .sd-page-nav__back { margin-inline-start:auto; } }
-</style>
-<nav class="sd-page-nav" aria-label="التنقل داخل سديم">
-    <a href="{{ url_for('main.index') }}" class="sd-page-nav__brand"><i class="fas fa-circle-nodes" aria-hidden="true"></i> سديم</a>
-    <div class="sd-page-nav__links">
-        <a href="{{ url_for('main.discover') }}"><i class="fas fa-compass" aria-hidden="true"></i> اكتشف</a>
-        <a href="{{ url_for('Library_Agatha.agatha_christie') }}"><i class="fas fa-book" aria-hidden="true"></i> المكتبة</a>
-        <a href="{{ url_for('articles.list_articles') }}"><i class="fas fa-newspaper" aria-hidden="true"></i> المقالات</a>
+<header class="sd-navbar">
+    <a href="{{ url_for('main.index') }}" class="sd-navbar-brand">
+        <i class="fas fa-circle-nodes" style="color: var(--sd-brass-bright);"></i> شبكة سديم
+    </a>
+
+    <nav aria-label="التنقل الرئيسي" class="sd-navbar-links-wrap" style="display:flex; align-items:center; gap: var(--sd-sp-2);">
+        <ul class="sd-navbar-links" id="sd-desktop-nav">
+            <li><a href="{{ url_for('main.discover') }}"><i class="fas fa-compass"></i> اكتشف</a></li>
+            <li><a href="{{ url_for('articles.list_articles') }}"><i class="fas fa-newspaper"></i> المقالات</a></li>
+            <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}"><i class="fas fa-book-open"></i> المكتبة</a></li>
+            {% if session.get('user_id') %}
+            <li><a href="{{ url_for('bots.my_bots') }}"><i class="fas fa-toolbox"></i> أدواتي</a></li>
+            {% endif %}
+            <li><a href="{{ url_for('ai.index') }}"><i class="fas fa-wand-magic-sparkles"></i> Sadeem AI</a></li>
+            {% if session.get('user_id') %}
+            <li><a href="{{ url_for('loading_bp.account') }}"><i class="fas fa-user-circle"></i> حسابي</a></li>
+            {% endif %}
+            {% if session.get('role') == 'admin' %}
+            <li><a href="{{ url_for('admin.services_dashboard') }}"><i class="fas fa-gauge"></i> لوحة التحكم</a></li>
+            {% endif %}
+        </ul>
+
         {% if session.get('user_id') %}
-        <a href="{{ url_for('bots.my_bots') }}"><i class="fas fa-toolbox" aria-hidden="true"></i> أدواتي</a>
-        <a href="{{ url_for('loading_bp.account') }}"><i class="fas fa-user" aria-hidden="true"></i> حسابي</a>
+        <div class="sd-dropdown">
+            <button type="button" class="sd-btn sd-btn-ghost sd-ripple" data-sd-dropdown-trigger aria-expanded="false" aria-haspopup="true" style="gap: var(--sd-sp-2);">
+                {% set profile_img = nav_user.profile_image if nav_user and nav_user.profile_image else 'default_user.png' %}
+                <img src="{{ url_for('static', filename='uploads/' + profile_img) }}" alt="" style="width:26px; height:26px; border-radius:50%; object-fit:cover;">
+                {{ session.get('username', '') }} <i class="fas fa-chevron-down" style="font-size:.7em;"></i>
+            </button>
+            <div class="sd-dropdown-menu" role="menu">
+                <a href="{{ url_for('loading_bp.account') }}" class="sd-dropdown-item" role="menuitem"><i class="fas fa-id-badge"></i> حسابي</a>
+                <div class="sd-dropdown-divider"></div>
+                <a href="{{ url_for('loading_bp.logout') }}" class="sd-dropdown-item is-danger" role="menuitem"><i class="fas fa-right-from-bracket"></i> تسجيل الخروج</a>
+            </div>
+        </div>
         {% else %}
-        <a href="{{ url_for('loading_bp.login') }}"><i class="fas fa-right-to-bracket" aria-hidden="true"></i> تسجيل الدخول</a>
+        <a href="{{ url_for('loading_bp.login') }}" class="sd-btn sd-btn-primary sd-ripple sd-btn-sm">
+            <i class="fas fa-right-to-bracket" aria-hidden="true"></i> تسجيل الدخول
+        </a>
         {% endif %}
-    </div>
-    <button type="button" class="sd-page-nav__back" onclick="sdGoBack(event)" aria-label="العودة للصفحة السابقة">
-        <i class="fas fa-arrow-right" aria-hidden="true"></i><span>رجوع</span>
-    </button>
-</nav>
+
+        <button type="button" id="menu-toggle" class="sd-btn sd-btn-icon sd-btn-ghost" aria-expanded="false" aria-controls="mobile-sidebar" aria-label="فتح القائمة" style="display:none;">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+</header>
 <script>
-function sdGoBack(event) {
-    event.preventDefault();
-    if (window.history.length > 1 && document.referrer) {
-        window.history.back();
+function sdSyncNavForWidth() {
+    const toggle = document.getElementById('menu-toggle');
+    const desktopNav = document.getElementById('sd-desktop-nav');
+    if (!toggle || !desktopNav) return;
+    if (window.innerWidth <= 860) {
+        toggle.style.display = 'inline-flex';
+        desktopNav.style.display = 'none';
     } else {
-        window.location.href = '{{ url_for('main.discover') }}';
+        toggle.style.display = 'none';
+        desktopNav.style.display = 'flex';
     }
 }
+sdSyncNavForWidth();
+window.addEventListener('resize', sdSyncNavForWidth);
 </script>
+<style>
+    @media (max-width: 860px) {
+        .sd-navbar .sd-dropdown { display:none; }
+        .sd-navbar-links-wrap { flex:1; justify-content:flex-end; }
+    }
+</style>

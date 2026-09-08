@@ -19,17 +19,6 @@
 <body>
 {% include 'partials/_page_nav.html' %}
 
-<header>
-    <a href="{{ url_for('loading_bp.landing_page') }}" class="brand">
-        <span class="top">SADEEM</span>
-        <span class="sub">ROYAL LIBRARY</span>
-    </a>
-    <ul class="nav-links-desktop">
-        <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}">مكتبة أجاثا</a></li>
-        <li><a href="{{ url_for('main.about') }}">من نحن</a></li>
-    </ul>
-</header>
-
 <div class="search-header">
     <a href="{{ url_for('Library_Agatha.agatha_christie') }}" style="color: var(--text-muted); text-decoration:none; font-size:0.85rem;">
         <i class="fa-solid fa-arrow-right"></i> العودة للمكتبة
