@@ -1,0 +1,144 @@
+.sd-author-page .page-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(9, 9, 13, 0.85);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1rem 2rem;
+}
+
+.sd-author-page .back-btn {
+    color: #9c9cab;
+    text-decoration: none;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: fit-content;
+}
+
+.sd-author-page .back-btn:hover {
+    color: #b388ff;
+}
+
+.sd-author-page .profile-hero {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    background: rgba(18, 18, 24, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 1.8rem;
+    margin-bottom: 2rem;
+}
+
+.sd-author-page .profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(124, 77, 255, 0.35);
+    flex-shrink: 0;
+}
+
+.sd-author-page .profile-name {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.sd-author-page .profile-username {
+    font-size: 0.85rem;
+    color: #9c9cab;
+    margin-bottom: 0.5rem;
+}
+
+.sd-author-page .profile-bio {
+    font-size: 0.9rem;
+    color: #ffffff;
+    line-height: 1.6;
+    margin-top: 0.6rem;
+    white-space: pre-line;
+}
+
+.sd-author-page .profile-meta {
+    display: flex;
+    gap: 1.2rem;
+    margin-top: 0.8rem;
+    font-size: 0.78rem;
+    color: #9c9cab;
+    flex-wrap: wrap;
+}
+
+.sd-author-page .profile-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.sd-author-page .section-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    color: #9c9cab;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.sd-author-page .post-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    background: rgba(18, 18, 24, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    padding: 1.4rem;
+    margin-bottom: 1rem;
+    transition: all 0.25s ease;
+}
+
+.sd-author-page .post-card:hover {
+    border-color: rgba(124, 77, 255, 0.35);
+    transform: translateY(-2px);
+}
+
+.sd-author-page .post-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.sd-author-page .post-excerpt {
+    font-size: 0.85rem;
+    color: #9c9cab;
+    line-height: 1.6;
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.sd-author-page .post-date {
+    font-size: 0.72rem;
+    color: #9c9cab;
+    margin-top: 0.6rem;
+}
+
+.sd-author-page .empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    opacity: 0.5;
+}
+
+@media (max-width: 600px) {
+    .sd-author-page .profile-hero {
+        flex-direction: column;
+        text-align: center;
+    }
+    .sd-author-page .profile-meta {
+        justify-content: center;
+    }
+}

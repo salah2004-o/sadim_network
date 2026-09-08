@@ -1,75 +1,13 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <title>{{ author.username }} — شبكة سديم</title>
-    <style>
-        :root {
-            --color-bg: #09090d;
-            --color-primary: rgba(18, 18, 24, 0.75);
-            --color-accent: #7c4dff;
-            --color-light: #b388ff;
-            --color-deep: #ffffff;
-            --text-muted: #9c9cab;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --blur: blur(18px);
-            --radius: 24px;
-            --radius-sm: 14px;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--color-bg); color: var(--color-deep); font-family: 'Segoe UI', Tahoma, sans-serif; min-height: 100vh; }
-        .page-header {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(9, 9, 13, 0.85); backdrop-filter: var(--blur);
-            border-bottom: 1px solid var(--border-color); padding: 1rem 2rem;
-        }
-        .back-btn { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; width: fit-content; }
-        .back-btn:hover { color: var(--color-light); }
-        .container { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+{% extends "layouts/public.html" %}
 
-        .profile-hero {
-            display: flex; align-items: center; gap: 1.2rem;
-            background: var(--color-primary); border: 1px solid var(--border-color);
-            border-radius: var(--radius); padding: 1.8rem; margin-bottom: 2rem;
-        }
-        .profile-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(124,77,255,0.35); flex-shrink: 0; }
-        .profile-name { font-size: 1.3rem; font-weight: 800; }
-        .profile-username { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem; }
-        .profile-bio { font-size: 0.9rem; color: var(--color-deep); line-height: 1.6; margin-top: 0.6rem; white-space: pre-line; }
-        .profile-meta { display: flex; gap: 1.2rem; margin-top: 0.8rem; font-size: 0.78rem; color: var(--text-muted); }
-        .profile-meta span { display: flex; align-items: center; gap: 0.4rem; }
+{% block title %}{{ author.username }} — شبكة سديم{% endblock %}
 
-        .section-label { font-size: 0.72rem; letter-spacing: 0.15em; color: var(--text-muted); font-weight: 700; margin-bottom: 1rem; }
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/author.css') }}">
+{% endblock %}
 
-        .post-card {
-            background: var(--color-primary); border: 1px solid var(--border-color);
-            border-radius: var(--radius); padding: 1.4rem; margin-bottom: 1rem;
-            display: block; text-decoration: none; color: inherit;
-            transition: all 0.25s ease;
-        }
-        .post-card:hover { border-color: rgba(124,77,255,0.35); transform: translateY(-2px); }
-        .post-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.4rem; }
-        .post-excerpt { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
-        .post-date { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.6rem; }
-
-        .empty-state { text-align: center; padding: 3rem 2rem; opacity: 0.5; }
-
-        @media (max-width: 600px) {
-            .profile-hero { flex-direction: column; text-align: center; }
-            .profile-meta { justify-content: center; }
-        }
-    </style>
-</head>
-<body>
-
-<header class="page-header">
-    <a href="{{ url_for('articles.list_articles') }}" class="back-btn"><i class="fas fa-arrow-right"></i> كل المقالات</a>
-</header>
-
-<div class="container">
+{% block content %}
+<div class="sd-container sd-author-page" style="padding-block: var(--sd-sp-4) var(--sd-sp-12);">
     <div class="profile-hero">
         {% set author_img = author.profile_image if author.profile_image else 'default_user.png' %}
         <img src="{{ url_for('static', filename='uploads/' + author_img) }}" class="profile-avatar" alt="">
@@ -96,14 +34,9 @@
         {% endfor %}
     {% else %}
         <div class="empty-state">
-            <i class="fas fa-newspaper" style="font-size: 2rem; color: var(--color-light); display:block; margin-bottom: 1rem;"></i>
+            <i class="fas fa-newspaper" style="font-size: 2rem; color: #b388ff; display:block; margin-bottom: 1rem;"></i>
             <p>ما نشر أي مقال بعد.</p>
         </div>
     {% endif %}
 </div>
-
-{% include 'partials/_ai_float.html' %}
-<script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>
-</body>
-{% include 'partials/_page_nav.html' %}
-</html>
+{% endblock %}

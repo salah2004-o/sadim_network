@@ -604,6 +604,8 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
     font-family: var(--sd-font-display);
     font-size: var(--sd-fs-md);
     margin: 0; line-height: 1.4;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 .sd-article-card__excerpt {
     color: var(--sd-text-secondary); font-size: var(--sd-fs-sm);
