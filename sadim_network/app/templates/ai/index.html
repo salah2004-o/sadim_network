@@ -258,22 +258,36 @@
     font-size: .88rem;
 }
 @media (max-width: 760px) {
+    body.ai-page { overflow: hidden; }
+    body.ai-page.ai-keyboard-open .ai-compose {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+        border-top: 1px solid var(--sd-border);
+        box-shadow: var(--sd-shadow-md);
+    }
     .ai-shell {
         grid-template-columns: 1fr;
-        padding: .75rem;
-        height: calc(100dvh - 120px);
+        padding: .5rem;
+        height: 100dvh;
+        max-height: none;
+        min-height: 0;
     }
     .ai-panel {
         order: 2;
-        max-height: 35vh;
+        max-height: 28vh;
     }
     .ai-messages {
         min-height: 0;
+        min-height: 50vh;
     }
     .ai-compose {
         position: sticky;
         bottom: 0;
         background: var(--sd-bg-elevated);
+        min-height: 56px;
     }
     .ai-quick {
         grid-template-columns: 1fr;
@@ -569,5 +583,16 @@ document.querySelectorAll('.prompt').forEach(b => b.onclick = () => {
   $('input').focus();
 });
 setEmpty(true);
+
+if ('visualViewport' in window) {
+    const vv = window.visualViewport;
+    const updateKeyboard = () => {
+        const ratio = vv.height / window.innerHeight;
+        document.body.classList.toggle('ai-keyboard-open', ratio < 0.85);
+    };
+    vv.addEventListener('resize', updateKeyboard);
+    vv.addEventListener('scroll', updateKeyboard);
+    updateKeyboard();
+}
 </script>
 {% endblock %}

@@ -19,6 +19,11 @@
 {% block extra_head %}{% endblock %}
 </head>
 <body class="sd-app sd-root has-bottom-nav">
+<script>
+if (/^\/ai(\/|$)/.test(window.location.pathname)) {
+    document.body.classList.add('ai-page');
+}
+</script>
 
 <header class="sd-navbar">
     <a href="{{ url_for('main.index') }}" class="sd-navbar-brand">
