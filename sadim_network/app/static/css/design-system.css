@@ -524,7 +524,7 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
     .sd-bottom-nav { display: grid; }
 }
 
-/* ==================== 14. شبكة المقالات ==================== */
+/* ==================== 14. شبكة المنشورات ==================== */
 .sd-articles-hero {
     padding: var(--sd-sp-8) 0 var(--sd-sp-4);
     border-bottom: 1px solid var(--sd-border);

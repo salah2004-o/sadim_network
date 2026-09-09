@@ -1,17 +1,17 @@
 {% extends "layouts/public.html" %}
-{% block title %}المقالات — شبكة سديم{% endblock %}
+{% block title %}المنشورات — شبكة سديم{% endblock %}
 
 {% block content %}
 <div class="sd-container" style="padding-block: var(--sd-sp-4) var(--sd-sp-12);">
     <header class="sd-articles-hero" style="display:flex; align-items:flex-end; justify-content:space-between; gap:var(--sd-sp-4); flex-wrap:wrap;">
         <div>
             <p class="sd-eyebrow">معرفة من شبكة سديم</p>
-            <h1>المقالات</h1>
-            <p class="sd-text-secondary" style="margin:0; max-width:36rem;">مقالات تقنية وفكرية ضمن منظومة تجمع التقنية والأدب البوليسي.</p>
+            <h1>المنشورات</h1>
+            <p class="sd-text-secondary" style="margin:0; max-width:36rem;">منشورات تقنية وفكرية ضمن منظومة تجمع التقنية والأدب البوليسي.</p>
         </div>
         {% if session.get('user_id') %}
         <a href="{{ url_for('articles.new_article') }}" class="sd-btn sd-btn-primary">
-            <i class="fas fa-plus" aria-hidden="true"></i> مقال جديد
+            <i class="fas fa-plus" aria-hidden="true"></i> منشور جديد
         </a>
         {% endif %}
     </header>
@@ -29,7 +29,7 @@
                 {% endif %}
             </div>
             <div class="sd-articles-featured__body">
-                <span class="sd-articles-featured__label"><i class="fas fa-star" aria-hidden="true"></i> المقال المميز</span>
+                <span class="sd-articles-featured__label"><i class="fas fa-star" aria-hidden="true"></i> المنشور المميز</span>
                 <h2 class="sd-articles-featured__title">{{ featured.title }}</h2>
                 <p class="sd-text-secondary" style="margin:0 0 var(--sd-sp-4);">{{ featured.content|truncate(220) }}</p>
                 <div style="display:flex;align-items:center;gap:0.6rem;font-size:var(--sd-fs-sm);color:var(--sd-text-muted);flex-wrap:wrap;">
@@ -122,7 +122,7 @@
     {% else %}
         <div class="sd-state sd-state-empty">
             <div class="sd-state-icon"><i class="fas fa-newspaper" aria-hidden="true"></i></div>
-            <h2 class="sd-state-title">لا توجد مقالات بعد</h2>
+            <h2 class="sd-state-title">لا توجد منشورات بعد</h2>
             <p class="sd-state-desc">كن أول من ينشر في شبكة سديم.</p>
         </div>
     {% endif %}

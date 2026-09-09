@@ -1,6 +1,6 @@
 {% extends "layouts/dashboard.html" %}
-{% block title %}إدارة المقالات — شبكة سديم{% endblock %}
-{% block page_title %}لوحة إدارة المقالات{% endblock %}
+{% block title %}إدارة المنشورات — شبكة سديم{% endblock %}
+{% block page_title %}لوحة إدارة المنشورات{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -13,7 +13,7 @@
 {% block content %}
 
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: var(--sd-sp-5); flex-wrap: wrap; gap: var(--sd-sp-2);">
-    <h2 style="margin:0; font-size: var(--sd-fs-lg);"><i class="fa-solid fa-newspaper" style="color: var(--sd-accent-light);"></i> لوحة إدارة المقالات</h2>
+    <h2 style="margin:0; font-size: var(--sd-fs-lg);"><i class="fa-solid fa-newspaper" style="color: var(--sd-accent-light);"></i> لوحة إدارة المنشورات</h2>
     <span class="sd-badge sd-badge-neutral">الإجمالي: {{ posts|length }}</span>
 </div>
 
@@ -33,7 +33,7 @@
             </a>
             <form action="{{ url_for('admin.manage_articles') }}" method="POST" style="display:inline;">
                 <input type="hidden" name="post_id" value="{{ post.id }}">
-                <button type="submit" class="sd-btn sd-btn-danger sd-btn-sm sd-ripple" onclick="return confirm('إجراء إداري: هل أنت متأكد من حذف هذا المقال نهائياً؟')">
+                <button type="submit" class="sd-btn sd-btn-danger sd-btn-sm sd-ripple" onclick="return confirm('إجراء إداري: هل أنت متأكد من حذف هذا المنشور نهائياً؟')">
                     <i class="fa-solid fa-trash-can"></i> حذف
                 </button>
             </form>
@@ -46,7 +46,7 @@
 {% else %}
 <div class="sd-state sd-state-empty">
     <i class="fa-solid fa-newspaper"></i>
-    <p>لا توجد مقالات منشورة حالياً.</p>
+    <p>لا توجد منشورات منشورة حالياً.</p>
 </div>
 {% endfor %}
 

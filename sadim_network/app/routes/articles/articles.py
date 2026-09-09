@@ -17,7 +17,7 @@ POSTS_PER_PAGE = 10
 
 
 def _log_article_event(event_type, metadata=None):
-    """تسجيل حدث مقال بدون أي احتمال لكسر تدفق العرض الفعلي لو فشل التسجيل نفسه."""
+    """تسجيل حدث منشور بدون أي احتمال لكسر تدفق العرض الفعلي لو فشل التسجيل نفسه."""
     try:
         log_event(
             event_type,
@@ -104,7 +104,7 @@ def author_profile(user_id):
 def view_article(post_id):
     post = Post.get_by_id(post_id)
     if not post:
-        flash("المقال غير موجود.", "error")
+        flash("المنشور غير موجود.", "error")
         return redirect(url_for('articles.list_articles'))
 
     comments = Comments.get_comments_by_post(post_id)
@@ -128,7 +128,7 @@ def new_article():
         content = request.form.get("content", "").strip()
 
         if not title or not content:
-            flash("يرجى كتابة عنوان ومحتوى للمقال.", "error")
+            flash("يرجى كتابة عنوان ومحتوى للمنشور.", "error")
             return render_template("articles/form.html", post=None)
 
         image_path, error = _save_article_image(request.files.get("image"))
@@ -139,7 +139,7 @@ def new_article():
         new_post = Post(user_id=session['user_id'], title=title, content=content, image_path=image_path)
         post_id = new_post.add()
 
-        flash("✅ تم نشر المقال بنجاح!", "success")
+        flash("✅ تم نشر المنشور بنجاح!", "success")
         return redirect(url_for('articles.view_article', post_id=post_id))
 
     return render_template("articles/form.html", post=None)
@@ -152,12 +152,12 @@ def edit_article(post_id):
 
     post = Post.get_by_id(post_id)
     if not post:
-        flash("المقال غير موجود.", "error")
+        flash("المنشور غير موجود.", "error")
         return redirect(url_for('articles.list_articles'))
 
     user_id = session['user_id']
     if post['user_id'] != user_id and session.get('role') != 'admin':
-        flash("لا تملك صلاحية تعديل هذا المقال.", "error")
+        flash("لا تملك صلاحية تعديل هذا المنشور.", "error")
         return redirect(url_for('articles.view_article', post_id=post_id))
 
     if request.method == "POST":
@@ -165,7 +165,7 @@ def edit_article(post_id):
         content = request.form.get("content", "").strip()
 
         if not title or not content:
-            flash("يرجى كتابة عنوان ومحتوى للمقال.", "error")
+            flash("يرجى كتابة عنوان ومحتوى للمنشور.", "error")
             return render_template("articles/form.html", post=post)
 
         image_path, error = _save_article_image(request.files.get("image"))
@@ -174,7 +174,7 @@ def edit_article(post_id):
             return render_template("articles/form.html", post=post)
 
         Post.update(post_id, title, content, image_path)
-        flash("✅ تم تحديث المقال.", "success")
+        flash("✅ تم تحديث المنشور.", "success")
         return redirect(url_for('articles.view_article', post_id=post_id))
 
     return render_template("articles/form.html", post=post)
@@ -189,9 +189,9 @@ def delete_article(post_id):
     user_role = session.get('role', 'user')
 
     if Post.delete_post(post_id, user_id, user_role):
-        flash("🗑 تم حذف المقال.", "success")
+        flash("🗑 تم حذف المنشور.", "success")
     else:
-        flash("فشل حذف المقال أو لا تملك الصلاحية.", "error")
+        flash("فشل حذف المنشور أو لا تملك الصلاحية.", "error")
 
     return redirect(url_for('articles.list_articles'))
 

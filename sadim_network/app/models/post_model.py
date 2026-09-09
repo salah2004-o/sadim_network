@@ -30,7 +30,7 @@ class Post:
 
     @staticmethod
     def get_all(limit=10, offset=0):
-        """قائمة المقالات مع اسم الكاتب، للصفحة العامة."""
+        """قائمة المنشورات مع اسم الكاتب، للصفحة العامة."""
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute("""
@@ -72,7 +72,7 @@ class Post:
 
     @staticmethod
     def get_recent(limit=4, exclude_id=None):
-        """أحدث المقالات (عدا مقال معيّن اختيارياً) — لقسم 'مقالات أخرى' بصفحة المقال والمكتبة."""
+        """أحدث المنشورات (عدا منشور معيّن اختيارياً) — لقسم 'منشورات أخرى' بصفحة المنشور والمكتبة."""
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         if exclude_id:
@@ -139,7 +139,7 @@ class Post:
 
     @staticmethod
     def delete_post(post_id, user_id, user_role):
-        """حذف مقال (يسمح لصاحب المقال أو للأدمن فقط)."""
+        """حذف منشور (يسمح لصاحب المنشور أو للأدمن فقط)."""
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(

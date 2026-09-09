@@ -67,12 +67,12 @@
                     <h2 id="random-posts-title">من مجتمع سديم</h2>
                     <p>منشورات مختارة عشوائيًا لتكتشف فكرة جديدة في كل زيارة.</p>
                 </div>
-                <a href="{{ url_for('articles.list_articles') }}" class="sd-btn sd-btn-secondary sd-btn-sm">كل المقالات</a>
+                <a href="{{ url_for('articles.list_articles') }}" class="sd-btn sd-btn-secondary sd-btn-sm">كل المنشورات</a>
             </div>
             <div class="sd-random-posts-grid">
                 {% for post in random_posts %}
                 <a href="{{ url_for('articles.view_article', post_id=post.id) }}" class="sd-card sd-card-hover sd-random-post">
-                    <span class="sd-badge sd-badge-neutral" style="align-self:flex-start; margin-bottom:var(--sd-sp-3);">مقال</span>
+                    <span class="sd-badge sd-badge-neutral" style="align-self:flex-start; margin-bottom:var(--sd-sp-3);">منشور</span>
                     <h3>{{ post.title }}</h3>
                     <p>{{ post.content|striptags|truncate(160) }}</p>
                     <span class="sd-random-post-meta">بواسطة {{ post.username }} <i class="fas fa-arrow-left"></i></span>

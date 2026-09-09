@@ -15,7 +15,7 @@
             <p class="sd-ai-float__hint">تلخيص سريع للمحتوى الحالي دون مغادرة الصفحة.</p>
             <button type="button" class="sd-btn sd-btn-primary sd-btn-block" data-sd-ai-summarize>
                 <i class="fas fa-align-left" aria-hidden="true"></i>
-                {% if ai_context_type == 'book' %}لخّص هذه الرواية{% else %}لخّص هذه المقالة{% endif %}
+                {% if ai_context_type == 'book' %}لخّص هذه الرواية{% else %}لخّص هذا المنشور{% endif %}
             </button>
             <div class="sd-ai-float__summary" data-sd-ai-summary hidden></div>
             <a class="sd-btn sd-btn-secondary sd-btn-block sd-ai-float__action"
@@ -25,7 +25,7 @@
         </div>
         {% else %}
         <div class="sd-ai-float__intro">
-            <p>اسأل عن مكتبة سديم ومقالاتها وخدماتها{% if not session.get('user_id') %} — بدون تسجيل دخول (لا تُحفظ المحادثة){% endif %}.</p>
+            <p>اسأل عن مكتبة سديم ومنشوراتها وخدماتها{% if not session.get('user_id') %} — بدون تسجيل دخول (لا تُحفظ المحادثة){% endif %}.</p>
             {% if not session.get('user_id') %}
             <p class="sd-ai-float__guest-note"><i class="fas fa-circle-info" aria-hidden="true"></i> سجّل دخولك لحفظ محادثاتك.</p>
             {% endif %}

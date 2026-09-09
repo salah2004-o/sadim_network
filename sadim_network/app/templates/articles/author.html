@@ -16,13 +16,13 @@
             <div class="profile-username">@{{ author.username }}</div>
             {% if author.bio %}<div class="profile-bio">{{ author.bio }}</div>{% endif %}
             <div class="profile-meta">
-                <span><i class="fas fa-newspaper"></i> {{ posts|length }} مقال</span>
+                <span><i class="fas fa-newspaper"></i> {{ posts|length }} منشور</span>
                 <span><i class="fas fa-calendar-alt"></i> عضو منذ {{ author.created_at.strftime('%Y-%m-%d') if author.created_at else '—' }}</span>
             </div>
         </div>
     </div>
 
-    <div class="section-label">مقالات {{ author.username }}</div>
+    <div class="section-label">منشورات {{ author.username }}</div>
 
     {% if posts %}
         {% for post in posts %}
@@ -35,7 +35,7 @@
     {% else %}
         <div class="empty-state">
             <i class="fas fa-newspaper" style="font-size: 2rem; color: #b388ff; display:block; margin-bottom: 1rem;"></i>
-            <p>ما نشر أي مقال بعد.</p>
+            <p>ما نشر أي منشور بعد.</p>
         </div>
     {% endif %}
 </div>

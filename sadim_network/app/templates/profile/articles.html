@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>المقالات — {{ info.get('name', 'SAP1O') }}</title>
+<title>المنشورات — {{ info.get('name', 'SAP1O') }}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
@@ -81,7 +81,7 @@ footer { border-top:1px solid var(--border);padding:40px 0 20px;text-align:cente
 
   <div class="page-head">
     <div class="page-sub">// articles()</div>
-    <h1 class="page-title">المقالات</h1>
+    <h1 class="page-title">المنشورات</h1>
   </div>
 
   {% if articles %}
@@ -98,7 +98,7 @@ footer { border-top:1px solid var(--border);padding:40px 0 20px;text-align:cente
     {% endfor %}
   </div>
   {% else %}
-  <div class="empty-state">لا توجد مقالات منشورة بعد.</div>
+  <div class="empty-state">لا توجد منشورات منشورة بعد.</div>
   {% endif %}
 
   <footer>

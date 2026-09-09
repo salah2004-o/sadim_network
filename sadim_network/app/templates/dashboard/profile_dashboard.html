@@ -497,7 +497,7 @@
       <form method="POST" action="{{ url_for('profile_bp.profile_article_update', article_id=a.id) }}">
         <div class="g2">
           <div class="pf-field g-full">
-            <label>عنوان المقالة</label>
+            <label>عنوان المنشور</label>
             <input name="title" value="{{ a.title }}">
           </div>
           <div class="pf-field">
@@ -518,18 +518,18 @@
         </div>
       </form>
       <form method="POST" action="{{ url_for('profile_bp.profile_article_delete', article_id=a.id) }}" style="display:inline">
-        <button type="submit" class="pf-btn pf-btn-del" onclick="return confirm('حذف المقالة؟')">حذف</button>
+        <button type="submit" class="pf-btn pf-btn-del" onclick="return confirm('حذف المنشور؟')">حذف</button>
       </form>
     </div>
     {% endfor %}
 
     <div class="pf-add-card">
-      <div class="pf-add-title">+ إضافة مقالة</div>
+      <div class="pf-add-title">+ إضافة منشور</div>
       <form method="POST" action="{{ url_for('profile_bp.profile_article_add') }}">
         <div class="g2">
           <div class="pf-field g-full">
-            <label>عنوان المقالة</label>
-            <input name="title" placeholder="عنوان المقالة">
+            <label>عنوان المنشور</label>
+            <input name="title" placeholder="عنوان المنشور">
           </div>
           <div class="pf-field">
             <label>الرابط</label>
@@ -541,7 +541,7 @@
           </div>
           <div class="pf-field g-full">
             <label>ملخص قصير</label>
-            <textarea name="summary" placeholder="سطرين يلخّصون المقالة"></textarea>
+            <textarea name="summary" placeholder="سطرين يلخّصان المنشور"></textarea>
           </div>
         </div>
         <div class="pf-btn-row">

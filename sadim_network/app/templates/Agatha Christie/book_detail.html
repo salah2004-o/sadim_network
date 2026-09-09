@@ -387,7 +387,7 @@
 .related-book-card:hover img { border-color: var(--gold); transform: translateY(-4px); }
 .related-book-card span { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.4; }
 
-/* جسر النظام البيئي — يربط الرواية بالمقالات (هوية بنفسجية مقصودة لتمييز الانتقال) */
+/* جسر النظام البيئي — يربط الرواية بالمنشورات (هوية بنفسجية مقصودة لتمييز الانتقال) */
 .ecosystem-bridge { margin-top: 3rem; }
 .ecosystem-bridge-inner {
   display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; flex-wrap: wrap;
@@ -541,17 +541,17 @@
     </section>
     {% endif %}
 
-    <div class="ecosystem-bridge">
-      <div class="ecosystem-bridge-inner">
-        <div>
-          <h4><i class="fa-solid fa-newspaper"></i> مقالات شبكة سديم</h4>
-          <p>تحليلات وقراءات أدبية من مجتمع سديم — جزء من نفس المنظومة.</p>
+      <div class="ecosystem-bridge">
+        <div class="ecosystem-bridge-inner">
+          <div>
+            <h4><i class="fa-solid fa-newspaper"></i> منشورات شبكة سديم</h4>
+            <p>تحليلات وقراءات أدبية من مجتمع سديم — جزء من نفس المنظومة.</p>
+          </div>
+          <a href="{{ url_for('articles.list_articles') }}" class="btn-bridge">
+            استكشف المنشورات <i class="fa-solid fa-arrow-left"></i>
+          </a>
         </div>
-        <a href="{{ url_for('articles.list_articles') }}" class="btn-bridge">
-          استكشف المقالات <i class="fa-solid fa-arrow-left"></i>
-        </a>
       </div>
-    </div>
   </div>
 
   <footer>

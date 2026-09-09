@@ -78,7 +78,7 @@
         </a>
         <a href="{{ url_for('articles.list_articles') }}" class="sd-quick-card">
             <i class="fas fa-newspaper"></i>
-            <span>المقالات</span>
+            <span>المنشورات</span>
         </a>
         {% if session.get('role') == 'admin' %}
         <a href="{{ url_for('admin.services_dashboard') }}" class="sd-quick-card">
@@ -208,8 +208,8 @@
     {% if my_articles %}
     <section class="sd-section">
         <div class="sd-section-header">
-            <h2 class="sd-section-title"><i class="fas fa-pen"></i> مقالاتي</h2>
-            <a href="{{ url_for('articles.new_article') }}" class="sd-btn sd-btn-ghost sd-btn-sm">مقالة جديدة</a>
+            <h2 class="sd-section-title"><i class="fas fa-pen"></i> منشوراتي</h2>
+            <a href="{{ url_for('articles.new_article') }}" class="sd-btn sd-btn-ghost sd-btn-sm">منشور جديد</a>
         </div>
         <div class="sd-card-list">
             {% for a in my_articles[:3] %}

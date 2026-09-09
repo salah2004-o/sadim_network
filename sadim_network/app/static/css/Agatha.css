@@ -231,7 +231,7 @@ header {
 .discussion-text { color: #ddd; font-size: 0.88rem; line-height: 1.6; margin-bottom: 6px; }
 .discussion-date { font-size: 0.7rem; color: var(--text-muted); }
 
-/* --- Ecosystem bridge card (يربط المكتبة بالمقالات — هوية بنفسجية مقصودة لتمييز الانتقال) --- */
+/* --- Ecosystem bridge card (يربط المكتبة بالمنشورات — هوية بنفسجية مقصودة لتمييز الانتقال) --- */
 .ecosystem-bridge {
     max-width: 900px; margin: 50px auto; padding: 0 5%;
 }

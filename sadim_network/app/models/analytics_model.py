@@ -141,7 +141,7 @@ EVENT_LABELS = {
     "book.search": "بحث بالمكتبة",
     "download.success": "تحميل ناجح",
     "download.failed": "تحميل فاشل",
-    "article.view": "مشاهدة مقال",
+    "article.view": "مشاهدة منشور",
     "referral.success": "انضمّ عبر دعوتك",
     "ai_chat_started": "بدأ محادثة مع Sadeem AI",
     "ai_message_sent": "رسالة إلى Sadeem AI",

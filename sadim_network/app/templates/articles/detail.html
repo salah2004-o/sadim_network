@@ -98,7 +98,7 @@
         .related-post-title { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.4rem; line-height: 1.4; }
         .related-post-excerpt { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-        /* جسر النظام البيئي — يربط المقال بالمكتبة (هوية ذهبية مقصودة) */
+        /* جسر النظام البيئي — يربط المنشور بالمكتبة (هوية ذهبية مقصودة) */
         .ecosystem-bridge {
             display: flex; align-items: center; justify-content: space-between; gap: 1.2rem; flex-wrap: wrap;
             background: linear-gradient(135deg, rgba(225,177,44,0.12), rgba(225,177,44,0.04));
@@ -119,7 +119,7 @@
 <body>
 
 <header class="page-header">
-    <a href="{{ url_for('articles.list_articles') }}" class="back-btn"><i class="fas fa-arrow-right"></i> كل المقالات</a>
+    <a href="{{ url_for('articles.list_articles') }}" class="back-btn"><i class="fas fa-arrow-right"></i> كل المنشورات</a>
 </header>
 
 <div class="container">
@@ -169,14 +169,14 @@
     <div class="post-actions">
         <a href="{{ url_for('articles.edit_article', post_id=post.id) }}" class="btn-action"><i class="fas fa-pen"></i> تعديل</a>
         <form method="POST" action="{{ url_for('articles.delete_article', post_id=post.id) }}"
-              onsubmit="return confirm('حذف هذا المقال نهائياً؟')">
+              onsubmit="return confirm('حذف هذا المنشور نهائياً؟')">
             <button type="submit" class="btn-action danger" style="cursor:pointer;"><i class="fas fa-trash"></i> حذف</button>
         </form>
     </div>
     {% endif %}
 
     {% if related_posts %}
-    <div class="section-label">مقالات أخرى</div>
+    <div class="section-label">منشورات أخرى</div>
     <div class="related-posts-grid">
         {% for rp in related_posts %}
         <a href="{{ url_for('articles.view_article', post_id=rp.id) }}" class="related-post-card">

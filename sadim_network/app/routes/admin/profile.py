@@ -344,7 +344,7 @@ def profile_article_add():
         conn.commit()
         cur.close()
         conn.close()
-        flash('تمت إضافة المقالة', 'success')
+        flash('تمت إضافة المنشور', 'success')
     return redirect(url_for('profile_bp.profile_dashboard') + '#articles')
 
 
@@ -365,7 +365,7 @@ def profile_article_update(article_id):
     conn.commit()
     cur.close()
     conn.close()
-    flash('تم تحديث المقالة', 'success')
+    flash('تم تحديث المنشور', 'success')
     return redirect(url_for('profile_bp.profile_dashboard') + '#articles')
 
 
@@ -379,7 +379,7 @@ def profile_article_delete(article_id):
     conn.commit()
     cur.close()
     conn.close()
-    flash('تم حذف المقالة', 'success')
+    flash('تم حذف المنشور', 'success')
     return redirect(url_for('profile_bp.profile_dashboard') + '#articles')
 
 

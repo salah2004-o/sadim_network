@@ -10,8 +10,8 @@ from app.models.ai_providers.base import ChatAttachment, ChatRequest
 
 SYSTEM_PROMPT = """أنت Sadeem AI، المساعد الذكي داخل شبكة سديم.
 أنت جزء من منظومة سديم ولست خدمة منفصلة عنها.
-شبكة سديم منصة عربية تجمع مكتبة الكتب، المقالات، الخدمات الرقمية، وأنظمة البوتات. مهمتك مساعدة المستخدم في الوصول إلى هذه الموارد، إضافة إلى الإجابة عن الأسئلة العامة عندما لا تحتاج إلى بيانات داخلية.
-استخدم search_library لطلبات الكتب والروايات والقراءة، وsearch_articles للمقالات والمعرفة المنشورة، وsearch_services للخدمات المتاحة. استخدم get_book أو get_article فقط عند وجود معرف محدد. استخدم get_user_context وget_user_favorites وget_reading_history عند الحاجة إلى تخصيص غير حساس.
+شبكة سديم منصة عربية تجمع مكتبة الكتب، المنشورات، الخدمات الرقمية، وأنظمة البوتات. مهمتك مساعدة المستخدم في الوصول إلى هذه الموارد، إضافة إلى الإجابة عن الأسئلة العامة عندما لا تحتاج إلى بيانات داخلية.
+استخدم search_library لطلبات الكتب والروايات والقراءة، وsearch_articles للمنشورات والمعرفة المنشورة، وsearch_services للخدمات المتاحة. استخدم get_book أو get_article فقط عند وجود معرف محدد. استخدم get_user_context وget_user_favorites وget_reading_history عند الحاجة إلى تخصيص غير حساس.
 إذا احتوى السؤال على طلب توصية أو بحث داخل سديم، استخدم الأداة المناسبة قبل الإجابة، ولا تعتمد على معرفتك العامة وحدها.
 لا تخترع بيانات غير موجودة في سديم. إذا استخدمت أداة داخلية، اعتمد على نتيجتها ولا تفترض معلومات غير موجودة فيها.
 إذا لم تجد نتيجة مناسبة، صرّح بذلك بوضوح. لا تدّعي تنفيذ إجراء لم يتم تنفيذه فعلياً.
@@ -34,8 +34,8 @@ TOOLS = [
     {"function_declarations": [
         {"name": "search_library", "description": "البحث داخل مكتبة سديم", "parameters": {"type": "OBJECT", "properties": {"query": {"type": "STRING"}, "author": {"type": "STRING"}, "category": {"type": "STRING"}, "limit": {"type": "INTEGER"}}, "required": ["query"]}},
         {"name": "get_book", "description": "الحصول على معلومات كتاب محدد", "parameters": {"type": "OBJECT", "properties": {"book_id": {"type": "INTEGER"}}, "required": ["book_id"]}},
-        {"name": "search_articles", "description": "البحث داخل مقالات سديم", "parameters": {"type": "OBJECT", "properties": {"query": {"type": "STRING"}, "category": {"type": "STRING"}, "limit": {"type": "INTEGER"}}, "required": ["query"]}},
-        {"name": "get_article", "description": "الحصول على مقال محدد", "parameters": {"type": "OBJECT", "properties": {"article_id": {"type": "INTEGER"}}, "required": ["article_id"]}},
+        {"name": "search_articles", "description": "البحث داخل منشورات سديم", "parameters": {"type": "OBJECT", "properties": {"query": {"type": "STRING"}, "category": {"type": "STRING"}, "limit": {"type": "INTEGER"}}, "required": ["query"]}},
+        {"name": "get_article", "description": "الحصول على منشور محدد", "parameters": {"type": "OBJECT", "properties": {"article_id": {"type": "INTEGER"}}, "required": ["article_id"]}},
         {"name": "search_services", "description": "البحث داخل خدمات سديم", "parameters": {"type": "OBJECT", "properties": {"query": {"type": "STRING"}, "limit": {"type": "INTEGER"}}, "required": ["query"]}},
         {"name": "get_user_context", "description": "بيانات غير حساسة ضرورية للتخصيص", "parameters": {"type": "OBJECT", "properties": {}}},
         {"name": "get_user_favorites", "description": "آخر مفضلات المستخدم غير الحساسة", "parameters": {"type": "OBJECT", "properties": {}}},
@@ -197,8 +197,8 @@ def _extract_explicit_knowledge(user_id, conversation_id, message_id, message):
 def _database_fallback(message):
     lowered = message.lower()
     if any(word in lowered for word in ('هاي', 'مرحبا', 'أهلاً', 'اهلا', 'hello', 'hi')):
-        return 'أهلاً بك في Sadeem AI. أستطيع مساعدتك في البحث داخل مكتبة سديم ومقالاتها وخدماتها.'
-    if any(phrase in lowered for phrase in ('عطني رواية', 'اعطني رواية', 'أعطني رواية', 'اختار لي كتاب', 'اختر لي كتاب', 'ماذا أقرأ', 'ماذا اقرا', 'رواية او مقال', 'رواية أو مقال', 'شيء اقرأه')):
+        return 'أهلاً بك في Sadeem AI. أستطيع مساعدتك في البحث داخل مكتبة سديم ومنشوراتها وخدماتها.'
+    if any(phrase in lowered for phrase in ('عطني رواية', 'اعطني رواية', 'أعطني رواية', 'اختار لي كتاب', 'اختر لي كتاب', 'ماذا أقرأ', 'ماذا اقرا', 'رواية او منشور', 'رواية أو منشور', 'شيء اقرأه')):
         books = _rows("SELECT id, title FROM books ORDER BY download_count DESC NULLS LAST, id DESC LIMIT 3")
         articles = _rows("SELECT id, title FROM posts ORDER BY created_at DESC LIMIT 3")
         suggestions = [f"- [{row['title']}](/Library/Agatha_Christie/{row['id']})" for row in books]
@@ -213,16 +213,16 @@ def _database_fallback(message):
         rows = search_services(message, limit=3)
         if rows:
             return 'هذه خدمات سديم الأقرب لطلبك:\n' + '\n'.join(f"- {row['title']}" for row in rows)
-    if any(word in lowered for word in ('مقال', 'شرح', 'article')):
+    if any(word in lowered for word in ('منشور', 'شرح', 'article')):
         rows = search_articles(message, limit=3)
         if rows:
-            return 'هذه مقالات سديم الأقرب لطلبك:\n' + '\n'.join(f"- [{row['title']}](/articles/{row['id']})" for row in rows)
+            return 'هذه منشورات سديم الأقرب لطلبك:\n' + '\n'.join(f"- [{row['title']}](/articles/{row['id']})" for row in rows)
     return 'لم أتمكن من الوصول إلى الذكاء الاصطناعي الآن، ولم أجد نتيجة مباشرة مناسبة في شبكة سديم.'
 
 
 def _instant_response(message):
     lowered = message.lower()
-    instant_phrases = ('هاي', 'مرحبا', 'أهلاً', 'اهلا', 'hello', 'hi', 'عطني رواية', 'اعطني رواية', 'أعطني رواية', 'اختار لي كتاب', 'اختر لي كتاب', 'ماذا أقرأ', 'ماذا اقرا', 'رواية او مقال', 'رواية أو مقال', 'شيء اقرأه')
+    instant_phrases = ('هاي', 'مرحبا', 'أهلاً', 'اهلا', 'hello', 'hi', 'عطني رواية', 'اعطني رواية', 'أعطني رواية', 'اختار لي كتاب', 'اختر لي كتاب', 'ماذا أقرأ', 'ماذا اقرا', 'رواية او منشور', 'رواية أو منشور', 'شيء اقرأه')
     return _database_fallback(message) if any(phrase in lowered for phrase in instant_phrases) else None
 
 

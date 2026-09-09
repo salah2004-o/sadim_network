@@ -104,7 +104,7 @@ class Comments:
 
     @staticmethod
     def get_post_comment_counts():
-        """عدد التعليقات لكل مقال (دفعة واحدة) — لعرض 'الأكثر نقاشاً' بصفحة المقالات."""
+        """عدد التعليقات لكل منشور (دفعة واحدة) — لعرض 'الأكثر نقاشاً' بصفحة المنشورات."""
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("SELECT post_id, COUNT(*) FROM comments WHERE post_id IS NOT NULL GROUP BY post_id")

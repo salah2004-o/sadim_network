@@ -6,7 +6,7 @@
     <nav aria-label="التنقل الرئيسي" class="sd-navbar-links-wrap" style="display:flex; align-items:center; gap: var(--sd-sp-2);">
         <ul class="sd-navbar-links" id="sd-desktop-nav">
             <li><a href="{{ url_for('main.discover') }}"><i class="fas fa-compass"></i> اكتشف</a></li>
-            <li><a href="{{ url_for('articles.list_articles') }}"><i class="fas fa-newspaper"></i> المقالات</a></li>
+            <li><a href="{{ url_for('articles.list_articles') }}"><i class="fas fa-newspaper"></i> المنشورات</a></li>
             <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}"><i class="fas fa-book-open"></i> المكتبة</a></li>
             {% if session.get('user_id') %}
             <li><a href="{{ url_for('bots.my_bots') }}"><i class="fas fa-toolbox"></i> أدواتي</a></li>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <title>{{ 'تعديل مقال' if post else 'مقال جديد' }} — شبكة سديم</title>
+    <title>{{ 'تعديل منشور' if post else 'منشور جديد' }} — شبكة سديم</title>
     <style>
         :root {
             --color-bg: #09090d;
@@ -52,7 +52,7 @@
 <body>
 
 <header class="page-header">
-    <a href="{{ url_for('articles.list_articles') }}" class="back-btn"><i class="fas fa-arrow-right"></i> كل المقالات</a>
+    <a href="{{ url_for('articles.list_articles') }}" class="back-btn"><i class="fas fa-arrow-right"></i> كل المنشورات</a>
 </header>
 
 <div class="container">
@@ -82,7 +82,7 @@
             </div>
             <button type="submit" class="btn-submit">
                 <i class="fas fa-paper-plane"></i>
-                {{ 'حفظ التعديلات' if post else 'نشر المقال' }}
+                {{ 'حفظ التعديلات' if post else 'نشر المنشور' }}
             </button>
         </form>
     </div>
