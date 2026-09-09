@@ -16,6 +16,9 @@
     flex-wrap: wrap;
     border-radius: var(--sd-radius-lg);
     overflow: hidden;
+    width: 100vw;
+    max-width: none;
+    margin-inline: calc(-50vw + 50%);
 }
 .sd-articles-hero::before {
     content: '';

@@ -262,8 +262,10 @@ def send_message(conversation_id):
         return jsonify(result)
     except ValueError as exc:
         return jsonify({'error': str(exc)}), 429 if str(exc) == 'daily_limit' else 400
-    except Exception:
-        return jsonify({'error': 'ai_unavailable'}), 503
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'ai_unavailable', 'message': str(exc)}), 503
 
 
 @ai_bp.route('/guest/messages', methods=['GET'])
@@ -316,8 +318,10 @@ def guest_send_message():
     except ValueError as exc:
         code = 429 if str(exc) in ('guest_limit', 'daily_limit') else 400
         return jsonify({'error': str(exc)}), code
-    except Exception:
-        return jsonify({'error': 'ai_unavailable'}), 503
+    except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': 'ai_unavailable', 'message': str(exc)}), 503
 
     history.append({'role': 'user', 'content': message})
     history.append({'role': 'assistant', 'content': result['content']})

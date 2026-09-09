@@ -124,6 +124,13 @@
     }
     [dir="rtl"] .ai-panel-drawer { transform: translateX(-105%); }
     .ai-panel-overlay.is-open .ai-panel-drawer { transform: translateX(0); }
+    @media (min-width: 769px) {
+      .ai-panel-overlay.is-open ~ .read-area,
+      .ai-panel-overlay.is-open ~ .read-controls,
+      .ai-panel-overlay.is-open ~ .read-progress {
+        margin-inline-end: min(420px, 92vw);
+      }
+    }
     .ai-panel-drawer__header {
       padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem;
     }
@@ -175,6 +182,33 @@
   </style>
 </head>
 <body>
+  <div class="ai-panel-overlay" id="ai-overlay" aria-hidden="true">
+    <div class="ai-panel-drawer" role="dialog" aria-labelledby="ai-drawer-title" aria-hidden="true">
+      <div class="ai-panel-drawer__header">
+        <h3 id="ai-drawer-title"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> سديم AI</h3>
+        <button class="btn btn-icon" id="ai-close" aria-label="إغلاق"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="ai-panel-drawer__body" id="ai-body">
+        <div class="ai-quick-actions">
+          <button class="btn" data-ai-prompt="لخص هذا الفصل"><i class="fas fa-align-left" aria-hidden="true"></i> لخص هذا الفصل</button>
+          <button class="btn" data-ai-prompt="اشرح لي ما يحدث في الرواية"><i class="fas fa-lightbulb" aria-hidden="true"></i> اشرح لي ما يحدث</button>
+          <button class="btn" data-ai-prompt="من هذه الشخصية؟"><i class="fas fa-user-secret" aria-hidden="true"></i> من هذه الشخصية؟</button>
+          <button class="btn" data-ai-prompt="اسأل عن الرواية"><i class="fas fa-comments" aria-hidden="true"></i> اسأل عن الرواية</button>
+        </div>
+        <div id="ai-messages"></div>
+        <a href="{{ url_for('ai.index', context_type='book', context_id=book.id) }}" class="btn btn-ghost" style="width:100%; justify-content:center; margin-top:0.5rem;">
+          <i class="fas fa-comments" aria-hidden="true"></i> فتح محادثة كاملة
+        </a>
+      </div>
+      <div class="ai-panel-drawer__footer">
+        <form id="ai-form" class="ai-input-row">
+          <input type="text" id="ai-input" placeholder="اكتب سؤالك..." aria-label="سؤال لسديم AI">
+          <button type="submit" class="btn btn-primary btn-icon" aria-label="إرسال"><i class="fas fa-paper-plane"></i></button>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <div class="read-progress" aria-hidden="true"><div class="read-progress__bar" id="progress-bar"></div></div>
 
   <header class="read-header">
@@ -207,7 +241,7 @@
           <i class="fas fa-book-open" aria-hidden="true"></i> ابدأ القراءة
         </button>
         <button class="btn btn-ghost" id="hero-ai-trigger">
-          <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> تلخيص AI
+          <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> سديم AI
         </button>
       </div>
     </div>
@@ -228,30 +262,6 @@
     <span class="read-controls__divider" aria-hidden="true"></span>
     <button class="btn btn-icon" id="theme-light" title="فاتح" aria-label="الوضع الفاتح"><i class="fas fa-sun"></i></button>
     <button class="btn btn-icon" id="theme-dark" title="داكن" aria-label="الوضع الداكن"><i class="fas fa-moon"></i></button>
-  </div>
-
-  <div class="ai-panel-overlay" id="ai-overlay" aria-hidden="true">
-    <div class="ai-panel-drawer" role="dialog" aria-labelledby="ai-drawer-title" aria-hidden="true">
-      <div class="ai-panel-drawer__header">
-        <h3 id="ai-drawer-title"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> سديم AI</h3>
-        <button class="btn btn-icon" id="ai-close" aria-label="إغلاق"><i class="fas fa-xmark"></i></button>
-      </div>
-      <div class="ai-panel-drawer__body" id="ai-body">
-        <div class="ai-quick-actions">
-          <button class="btn" data-ai-prompt="لخص هذا الفصل"><i class="fas fa-align-left" aria-hidden="true"></i> لخص هذا الفصل</button>
-          <button class="btn" data-ai-prompt="اشرح لي ما يحدث في الرواية"><i class="fas fa-lightbulb" aria-hidden="true"></i> اشرح لي ما يحدث</button>
-          <button class="btn" data-ai-prompt="من هذه الشخصية؟"><i class="fas fa-user-secret" aria-hidden="true"></i> من هذه الشخصية؟</button>
-          <button class="btn" data-ai-prompt="اسأل عن الرواية"><i class="fas fa-comments" aria-hidden="true"></i> اسأل عن الرواية</button>
-        </div>
-        <div id="ai-messages"></div>
-      </div>
-      <div class="ai-panel-drawer__footer">
-        <form id="ai-form" class="ai-input-row">
-          <input type="text" id="ai-input" placeholder="اكتب سؤالك..." aria-label="سؤال لسديم AI">
-          <button type="submit" class="btn btn-primary btn-icon" aria-label="إرسال"><i class="fas fa-paper-plane"></i></button>
-        </form>
-      </div>
-    </div>
   </div>
 
   <script>
@@ -304,36 +314,54 @@
         if (el) el.remove();
       }
 
-      aiForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+      async function submitAi() {
         const text = aiInput.value.trim();
         if (!text) return;
         addAiMessage('user', text);
         aiInput.value = '';
         showAiLoading();
         try {
-          const r = await fetch('/ai/summarize', {
+          const r = await fetch('/ai/guest/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'book', id: {{ book.id }}, message: text })
+            body: JSON.stringify({ message: text, page_context: { type: 'book', id: {{ book.id }} } })
           });
           const d = await r.json();
           removeAiLoading();
           if (r.ok) {
             addAiMessage('assistant', d.content || 'لم يتم إنشاء نتيجة.');
           } else {
-            addAiMessage('assistant', d.content || d.error || 'تعذر تنفيذ الطلب.');
+            const errMap = {
+              daily_limit: 'تم استهلاك حدك اليومي من الرسائل.',
+              guest_limit: 'وصلتَ حد رسائل الزائر لهذه الجلسة. سجّل دخولك للمتابعة.',
+              ai_unavailable: 'خدمة الذكاء الاصطناعي غير متاحة حالياً. حاول مرة أخرى بعد قليل.',
+              missing_context: 'بيانات السياق غير مكتملة.',
+              not_found: 'لم يتم العثور على المحتوى المطلوب.',
+              quota_exceeded: 'تم استهلاك حدك المجاني لهذه الميزة.',
+            };
+            addAiMessage('assistant', d.content || d.error && errMap[d.error] || d.message || 'تعذر تنفيذ الطلب.');
           }
         } catch (err) {
           removeAiLoading();
           addAiMessage('assistant', 'تعذر الاتصال بخدمة سديم AI.');
         }
+      }
+
+      aiForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await submitAi();
       });
 
       document.querySelectorAll('[data-ai-prompt]').forEach(btn => {
         btn.addEventListener('click', () => {
-          aiInput.value = btn.dataset.ai_prompt;
-          aiInput.focus();
+          const prompt = btn.dataset.ai_prompt;
+          if (prompt === 'لخص هذا الفصل') {
+            aiInput.value = 'لخص هذا الكتاب باختصار';
+            submitAi();
+          } else {
+            aiInput.value = prompt;
+            aiInput.focus();
+          }
         });
       });
 
