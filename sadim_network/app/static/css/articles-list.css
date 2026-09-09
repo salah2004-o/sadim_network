@@ -1,0 +1,58 @@
+/* ==================== 16. صفحة المنشورات ==================== */
+.sd-articles-hero {
+    position: relative;
+    min-height: 260px;
+    padding: 2rem;
+    background-color: var(--sd-bg-elevated);
+    background-image: url('../images/خلفية المنشورات.png');
+    background-size: cover;
+    background-position: center 30%;
+    background-repeat: no-repeat;
+    isolation: isolate;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--sd-sp-4);
+    flex-wrap: wrap;
+    border-radius: var(--sd-radius-lg);
+    overflow: hidden;
+}
+.sd-articles-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10,16,24,0.35) 0%, rgba(10,16,24,0.65) 100%);
+    z-index: 0;
+    pointer-events: none;
+}
+.sd-articles-hero > * {
+    position: relative;
+    z-index: 1;
+}
+.sd-articles-hero h1 {
+    font-family: var(--sd-font-display);
+    font-size: var(--sd-fs-3xl);
+    color: var(--sd-text);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+.sd-articles-hero p,
+.sd-articles-hero .sd-eyebrow {
+    text-shadow: 0 1px 4px rgba(0,0,0,0.35);
+}
+
+@media (max-width: 640px) {
+    .sd-articles-hero {
+        background-position: center 40%;
+        min-height: 220px;
+        padding: 1.5rem;
+    }
+    .sd-articles-hero h1 {
+        font-size: var(--sd-fs-2xl);
+    }
+}
+@media (max-width: 400px) {
+    .sd-articles-hero {
+        min-height: 200px;
+        padding: 1.25rem;
+    }
+}

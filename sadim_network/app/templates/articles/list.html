@@ -1,9 +1,13 @@
 {% extends "layouts/public.html" %}
 {% block title %}المنشورات — شبكة سديم{% endblock %}
 
+{% block extra_styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/articles-list.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="sd-container" style="padding-block: var(--sd-sp-4) var(--sd-sp-12);">
-    <header class="sd-articles-hero" style="display:flex; align-items:flex-end; justify-content:space-between; gap:var(--sd-sp-4); flex-wrap:wrap;">
+    <header class="sd-articles-hero">
         <div>
             <p class="sd-eyebrow">معرفة من شبكة سديم</p>
             <h1>المنشورات</h1>
