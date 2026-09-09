@@ -38,7 +38,7 @@ if (/^\/ai(\/|$)/.test(window.location.pathname)) {
             {% if session.get('user_id') %}
             <li><a href="{{ url_for('bots.my_bots') }}"><i class="fas fa-toolbox"></i> أدواتي</a></li>
             {% endif %}
-            <li><a href="{{ url_for('ai.index') }}"><i class="fas fa-wand-magic-sparkles"></i> Sadeem AI</a></li>
+            <li><a href="{{ url_for('ai.index') }}"><img src="{{ url_for('static', filename='images/sadeem-ai-logo.png') }}" alt="Sadeem AI" style="width:22px; height:22px; object-fit:contain; margin-inline-end:.45rem; vertical-align:middle;"> Sadeem AI</a></li>
             {% if session.get('user_id') %}
             <li><a href="{{ url_for('loading_bp.account') }}"><i class="fas fa-user-circle"></i> حسابي</a></li>
             {% endif %}
@@ -80,7 +80,7 @@ if (/^\/ai(\/|$)/.test(window.location.pathname)) {
     {% if session.get('user_id') %}
     <a href="{{ url_for('bots.my_bots') }}" class="sd-sidebar-item"><i class="fas fa-toolbox"></i> أدواتي</a>
     {% endif %}
-    <a href="{{ url_for('ai.index') }}" class="sd-sidebar-item"><i class="fas fa-wand-magic-sparkles"></i> Sadeem AI</a>
+    <a href="{{ url_for('ai.index') }}" class="sd-sidebar-item"><img src="{{ url_for('static', filename='images/sadeem-ai-logo.png') }}" alt="Sadeem AI" style="width:22px; height:22px; object-fit:contain; margin-inline-end:.45rem; vertical-align:middle;"> Sadeem AI</a>
     {% if session.get('user_id') %}
     <a href="{{ url_for('loading_bp.account') }}" class="sd-sidebar-item"><i class="fas fa-user-circle"></i> حسابي</a>
     {% endif %}

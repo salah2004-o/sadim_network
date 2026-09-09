@@ -6,6 +6,25 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
 <style>
+:root {
+    --sd-ai-bg: #0b0b10;
+    --sd-ai-surface: #12121a;
+    --sd-ai-surface-2: #181825;
+    --sd-ai-border: rgba(255,255,255,0.08);
+    --sd-ai-border-strong: rgba(255,255,255,0.14);
+    --sd-ai-text: #f2f2f7;
+    --sd-ai-text-secondary: #9c9cab;
+    --sd-ai-muted: #6e6e7a;
+    --sd-ai-accent: #b388ff;
+    --sd-ai-accent-soft: rgba(179,136,255,0.12);
+    --sd-ai-gold: #d4af37;
+    --sd-ai-gold-soft: rgba(212,175,55,0.12);
+    --sd-ai-user-bg: rgba(74,125,149,0.22);
+    --sd-ai-user-border: rgba(74,125,149,0.35);
+    --sd-ai-radius: 18px;
+    --sd-ai-radius-sm: 12px;
+}
+
 .ai-shell {
     max-width: 1100px;
     margin: auto;
@@ -19,29 +38,29 @@
 }
 .ai-panel,
 .ai-chat {
-    background: var(--sd-bg-elevated);
-    border: 1px solid var(--sd-border);
-    border-radius: var(--sd-radius-md);
+    background: var(--sd-ai-surface);
+    border: 1px solid var(--sd-ai-border);
+    border-radius: var(--sd-ai-radius);
     min-width: 0;
     min-height: 0;
 }
 .ai-panel {
-    padding: 1rem;
-    border-inline-start: 3px solid var(--sd-brass);
+    padding: 1.1rem;
+    border-inline-start: 3px solid var(--sd-ai-gold);
     display: flex;
     flex-direction: column;
-    gap: .6rem;
+    gap: .55rem;
     overflow-y: auto;
 }
 .ai-panel h1 {
     font-family: var(--sd-font-display);
-    font-size: 1.4rem;
-    color: var(--sd-brass-bright);
+    font-size: 1.35rem;
+    color: var(--sd-ai-gold);
     margin: 0;
 }
 .ai-panel .ai-panel-sub {
-    color: var(--sd-text-muted);
-    font-size: .82rem;
+    color: var(--sd-ai-text-secondary);
+    font-size: .8rem;
     margin: 0;
     line-height: 1.5;
 }
@@ -50,34 +69,74 @@
     width: 100%;
     margin: 0;
     padding: .6rem .8rem;
-    border: 1px solid var(--sd-border-strong);
-    background: var(--sd-bg-elevated-2);
+    border: 1px solid var(--sd-ai-border-strong);
+    background: var(--sd-ai-surface-2);
     color: inherit;
-    border-radius: var(--sd-radius-sm);
+    border-radius: var(--sd-ai-radius-sm);
     text-align: right;
     cursor: pointer;
     font: inherit;
-    font-size: .85rem;
+    font-size: .82rem;
     min-height: 40px;
+    transition: border-color .2s, background .2s;
 }
 .ai-panel button:hover,
 .prompt:hover {
-    border-color: var(--sd-brass);
-    background: var(--sd-accent-soft);
+    border-color: var(--sd-ai-accent);
+    background: var(--sd-ai-accent-soft);
 }
 .ai-panel .ai-section-label {
-    font-size: .7rem;
+    font-size: .68rem;
     text-transform: uppercase;
-    letter-spacing: .08em;
-    color: var(--sd-text-muted);
+    letter-spacing: .1em;
+    color: var(--sd-ai-muted);
     font-weight: 700;
-    margin: .2rem 0 0;
+    margin: .3rem 0 0;
 }
 .ai-chat {
     display: flex;
     flex-direction: column;
     overflow: hidden;
     min-height: 0;
+    position: relative;
+}
+.ai-chat-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--sd-ai-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    min-height: 0;
+}
+.ai-chat-header__title {
+    font-family: var(--sd-font-display);
+    font-size: 1.1rem;
+    color: var(--sd-ai-gold);
+    margin: 0;
+}
+.ai-chat-header__meta {
+    font-size: .78rem;
+    color: var(--sd-ai-muted);
+}
+.ai-guest-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .55rem .85rem;
+    margin: 0 1.25rem .8rem;
+    background: var(--sd-ai-gold-soft);
+    border: 1px solid rgba(212,175,55,0.25);
+    border-radius: var(--sd-ai-radius-sm);
+    font-size: .78rem;
+    color: var(--sd-ai-text-secondary);
+    line-height: 1.5;
+}
+.ai-guest-banner a {
+    color: var(--sd-ai-accent);
+    font-weight: 700;
+    text-decoration: none;
 }
 .ai-messages {
     flex: 1 1 auto;
@@ -85,37 +144,39 @@
     overflow-y: auto;
     min-height: 0;
     min-width: 0;
+    scroll-behavior: smooth;
 }
 .ai-empty {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: .6rem;
+    gap: .55rem;
     text-align: center;
     padding: 2rem 1rem;
-    color: var(--sd-text-secondary);
+    color: var(--sd-ai-text-secondary);
 }
 .ai-empty-icon {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     display: grid;
     place-items: center;
-    background: var(--sd-accent-soft);
-    color: var(--sd-brass-bright);
-    font-size: 1.2rem;
+    background: var(--sd-ai-accent-soft);
+    color: var(--sd-ai-accent);
+    font-size: 1.1rem;
+    border: 1px solid rgba(179,136,255,0.25);
 }
 .ai-empty h2 {
     font-family: var(--sd-font-display);
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     margin: 0;
-    color: var(--sd-text);
+    color: var(--sd-ai-text);
 }
 .ai-empty p {
     margin: 0;
-    font-size: .88rem;
-    color: var(--sd-text-secondary);
+    font-size: .85rem;
+    color: var(--sd-ai-text-secondary);
     max-width: 26rem;
     line-height: 1.6;
 }
@@ -125,38 +186,40 @@
     gap: .5rem;
     width: 100%;
     max-width: 32rem;
-    margin-top: .4rem;
+    margin-top: .5rem;
 }
 .msg {
     max-width: 82%;
     padding: .75rem 1rem;
     margin: .5rem 0;
-    border-radius: var(--sd-radius-md);
+    border-radius: var(--sd-ai-radius);
     white-space: pre-wrap;
     overflow-wrap: anywhere;
     word-break: break-word;
     line-height: 1.8;
-    font-size: .95rem;
+    font-size: .92rem;
 }
 .user {
     margin-inline-start: auto;
-    background: rgba(74, 125, 149, .28);
-    border: 1px solid rgba(74, 125, 149, .35);
+    background: var(--sd-ai-user-bg);
+    border: 1px solid var(--sd-ai-user-border);
 }
 .assistant {
     margin-inline-end: auto;
-    background: var(--sd-bg-elevated-2);
-    border: 1px solid var(--sd-border);
+    background: var(--sd-ai-surface-2);
+    border: 1px solid var(--sd-ai-border);
 }
 .ai-compose {
     display: flex;
     flex-wrap: wrap;
     gap: .5rem;
     padding: .8rem 1rem;
-    border-top: 1px solid var(--sd-border);
+    border-top: 1px solid var(--sd-ai-border);
     min-width: 0;
     align-items: flex-end;
-    background: var(--sd-bg-elevated);
+    background: var(--sd-ai-surface);
+    position: relative;
+    z-index: 2;
 }
 .ai-compose textarea {
     flex: 1 1 auto;
@@ -164,10 +227,10 @@
     resize: none;
     min-height: 44px;
     max-height: 140px;
-    background: var(--sd-ink);
+    background: var(--sd-ai-bg);
     color: inherit;
-    border: 1px solid var(--sd-border-strong);
-    border-radius: var(--sd-radius-sm);
+    border: 1px solid var(--sd-ai-border-strong);
+    border-radius: var(--sd-ai-radius-sm);
     padding: .6rem .8rem;
     font: inherit;
 }
@@ -175,14 +238,14 @@
     flex: 0 0 auto;
     min-height: 44px;
     padding: 0 1rem;
-    background: var(--sd-gradient);
-    color: var(--sd-text-on-accent);
+    background: linear-gradient(135deg, #b388ff, #7c4dff);
+    color: var(--sd-ai-text);
     border: 0;
-    border-radius: var(--sd-radius-sm);
+    border-radius: var(--sd-ai-radius-sm);
     font-weight: 700;
     cursor: pointer;
     font: inherit;
-    font-size: .85rem;
+    font-size: .82rem;
 }
 .ai-attach {
     display: inline-flex;
@@ -190,13 +253,13 @@
     gap: .35rem;
     min-height: 44px;
     padding: 0 .7rem;
-    border: 1px solid var(--sd-border-strong);
+    border: 1px solid var(--sd-ai-border-strong);
     background: transparent;
-    color: var(--sd-text-secondary);
-    border-radius: var(--sd-radius-sm);
+    color: var(--sd-ai-text-secondary);
+    border-radius: var(--sd-ai-radius-sm);
     cursor: pointer;
     font: inherit;
-    font-size: .82rem;
+    font-size: .8rem;
 }
 .ai-attach input {
     display: none;
@@ -210,9 +273,9 @@
 .ai-file-chip {
     font-size: .72rem;
     padding: .2rem .5rem;
-    background: var(--sd-secondary-soft);
-    border-radius: var(--sd-radius-sm);
-    color: var(--sd-mist-soft);
+    background: var(--sd-ai-gold-soft);
+    border-radius: var(--sd-ai-radius-sm);
+    color: var(--sd-ai-gold);
     display: inline-flex;
     align-items: center;
     gap: .35rem;
@@ -225,38 +288,23 @@
     font: inherit;
     line-height: 1;
 }
-.ai-guest-banner {
-    display: flex;
-    align-items: flex-start;
-    gap: .6rem;
-    padding: .7rem .9rem;
-    margin: 0 0 .8rem;
-    background: var(--sd-secondary-soft);
-    border: 1px solid rgba(74, 125, 149, .35);
-    border-radius: var(--sd-radius-md);
-    font-size: .82rem;
-    color: var(--sd-mist-soft);
-}
-.ai-guest-banner a {
-    color: var(--sd-brass-bright);
-    font-weight: 700;
-}
 .ai-provider {
     width: 100%;
     margin: 0;
     padding: .5rem .6rem;
-    border-radius: var(--sd-radius-sm);
-    border: 1px solid var(--sd-border-strong);
-    background: var(--sd-ink);
+    border-radius: var(--sd-ai-radius-sm);
+    border: 1px solid var(--sd-ai-border-strong);
+    background: var(--sd-ai-bg);
     color: inherit;
     font: inherit;
-    font-size: .82rem;
+    font-size: .8rem;
     min-height: 36px;
 }
 .muted {
-    color: var(--sd-text-muted);
-    font-size: .88rem;
+    color: var(--sd-ai-muted);
+    font-size: .85rem;
 }
+
 @media (max-width: 760px) {
     body.ai-page { overflow: hidden; }
     body.ai-page.ai-keyboard-open .ai-compose {
@@ -265,8 +313,8 @@
         left: 0;
         right: 0;
         z-index: 50;
-        border-top: 1px solid var(--sd-border);
-        box-shadow: var(--sd-shadow-md);
+        border-top: 1px solid var(--sd-ai-border);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
     }
     .ai-shell {
         grid-template-columns: 1fr;
@@ -277,16 +325,16 @@
     }
     .ai-panel {
         order: 2;
-        max-height: 28vh;
+        max-height: 26vh;
     }
     .ai-messages {
         min-height: 0;
-        min-height: 50vh;
+        min-height: 45vh;
     }
     .ai-compose {
         position: sticky;
         bottom: 0;
-        background: var(--sd-bg-elevated);
+        background: var(--sd-ai-surface);
         min-height: 56px;
     }
     .ai-quick {
@@ -295,6 +343,15 @@
     .msg {
         max-width: 92%;
     }
+    .ai-chat-header {
+        padding: .8rem 1rem;
+    }
+    .ai-messages {
+        padding: 1rem;
+    }
+    .ai-guest-banner {
+        margin: 0 .8rem .7rem;
+    }
 }
 </style>
 {% endblock %}
@@ -302,14 +359,15 @@
 {% block content %}
 <section class="ai-shell" dir="rtl">
   <aside class="ai-panel">
-    <h1>Sadeem AI</h1>
-    <p class="ai-panel-sub">{% if is_guest %}محادثة زائر — لا تُحفظ{% else %}ذكاء داخل شبكة سديم{% endif %}</p>
+    <div style="display:flex; align-items:center; gap:.6rem;">
+      <img src="{{ url_for('static', filename='images/sadeem-ai-logo.png') }}" alt="Sadeem AI" style="width:32px; height:32px; object-fit:contain;">
+      <h1 style="font-family: var(--sd-font-display); font-size: 1.35rem; color: var(--sd-ai-gold); margin:0;">Sadeem AI</h1>
+    </div>
+    <p class="ai-panel-sub">{% if is_guest %}محادثة زائر{% else %}ذكاء داخل شبكة سديم{% endif %}</p>
 
     {% if not is_guest %}
     <button type="button" id="new-chat"><i class="fas fa-plus" aria-hidden="true"></i> محادثة جديدة</button>
     <div id="history"></div>
-    {% else %}
-    <button type="button" id="clear-guest"><i class="fas fa-broom" aria-hidden="true"></i> مسح المحادثة</button>
     {% endif %}
 
     <label class="ai-section-label" for="provider-select">المزوّد</label>
@@ -322,23 +380,35 @@
       {% endfor %}
     </select>
 
-    <hr style="border:0;border-top:1px solid var(--sd-border);margin:.6rem 0;">
+    <hr style="border:0;border-top:1px solid var(--sd-ai-border);margin:.6rem 0;">
     <p class="ai-section-label">اقتراحات</p>
     <button type="button" class="prompt">ابحث داخل سديم</button>
     <button type="button" class="prompt">ساعدني في اختيار كتاب</button>
+    <button type="button" class="prompt">لخّص لي منشوراً</button>
     <button type="button" class="prompt">ساعدني في بوت Telegram</button>
-    <button type="button" class="prompt">لخص لي مقالاً</button>
   </aside>
 
   <div class="ai-chat">
+    <div class="ai-chat-header">
+      <div style="display:flex; align-items:center; gap:.6rem;">
+        <img src="{{ url_for('static', filename='images/sadeem-ai-logo.png') }}" alt="Sadeem AI" style="width:28px; height:28px; object-fit:contain;">
+        <div>
+          <div class="ai-chat-header__title">Sadeem AI</div>
+          <div class="ai-chat-header__meta">{% if is_guest %}زائر{% else %}حساب موثوق{% endif %}</div>
+        </div>
+      </div>
+      <button type="button" id="clear-chat" class="ai-panel-sub" style="display:none; background:transparent; border:1px solid var(--sd-ai-border-strong); border-radius:var(--sd-ai-radius-sm); padding:.35rem .7rem; cursor:pointer; color:var(--sd-ai-text-secondary); font:inherit; font-size:.78rem;">
+        <i class="fas fa-broom" aria-hidden="true"></i> مسح المحادثة
+      </button>
+    </div>
+
     {% if is_guest %}
     <div class="ai-guest-banner" role="status">
       <i class="fas fa-circle-info" aria-hidden="true"></i>
-      <span>أنت تتصفح كزائر — المحادثة تبقى في هذه الجلسة فقط وتُمسح عند إغلاق الصفحة.
-        <a href="{{ url_for('loading_bp.login') }}">سجّل دخولك لحفظ محادثاتك</a>
-      </span>
+      <span>محادثة زائر — لن تُحفظ بعد إغلاق الصفحة. <a href="{{ url_for('loading_bp.login') }}">سجّل الدخول</a> لحفظ محادثاتك.</span>
     </div>
     {% endif %}
+
     <div id="messages" class="ai-messages">
       <div class="ai-empty" id="ai-empty">
         <div class="ai-empty-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
@@ -347,11 +417,12 @@
         <div class="ai-quick">
           <button type="button" class="prompt">ابحث داخل سديم</button>
           <button type="button" class="prompt">ساعدني في اختيار كتاب</button>
-          <button type="button" class="prompt">لخص لي مقالاً</button>
+          <button type="button" class="prompt">لخّص لي منشوراً</button>
           <button type="button" class="prompt">ساعدني في بوت Telegram</button>
         </div>
       </div>
     </div>
+
     <form id="compose" class="ai-compose">
       <div class="ai-file-chips" id="file-chips" hidden></div>
       <label class="ai-attach">
@@ -374,6 +445,7 @@ const $ = id => document.getElementById(id);
 let conversationId = null;
 let sending = false;
 let pendingFiles = [];
+let hasMessages = false;
 
 function setEmpty(show) {
   const el = $('ai-empty');
@@ -381,8 +453,19 @@ function setEmpty(show) {
   el.style.display = show ? '' : 'none';
 }
 
+function updateClearButton() {
+  const btn = $('clear-chat');
+  if (!btn) return;
+  const shouldShow = hasMessages && isGuest;
+  btn.style.display = shouldShow ? 'inline-flex' : 'none';
+}
+
 function add(role, text) {
-  setEmpty(false);
+  if (!hasMessages) {
+    hasMessages = true;
+    setEmpty(false);
+    updateClearButton();
+  }
   const el = document.createElement('div');
   el.className = 'msg ' + role;
   if (role === 'assistant' && window.marked && window.DOMPurify) {
@@ -447,7 +530,9 @@ async function newChat() {
   const d = await r.json();
   conversationId = d.id;
   $('messages').innerHTML = '';
+  hasMessages = false;
   setEmpty(true);
+  updateClearButton();
   await loadHistory();
 }
 
@@ -458,10 +543,14 @@ async function loadHistory() {
     const list = await r.json();
     $('messages').innerHTML = '';
     if (!list.length) {
+      hasMessages = false;
       setEmpty(true);
+      updateClearButton();
       return;
     }
+    hasMessages = true;
     setEmpty(false);
+    updateClearButton();
     list.forEach(m => add(m.role === 'user' ? 'user' : 'assistant', m.content));
     return;
   }
@@ -489,21 +578,27 @@ async function loadChat(id) {
   if (!r.ok) { add('assistant', 'تعذر فتح هذه المحادثة.'); return; }
   const items = await r.json();
   if (!items.length) {
+    hasMessages = false;
     setEmpty(true);
+    updateClearButton();
     return;
   }
+  hasMessages = true;
   setEmpty(false);
+  updateClearButton();
   items.forEach(m => add(m.role === 'user' ? 'user' : 'assistant', m.content));
 }
 
 if ($('new-chat')) {
   $('new-chat').onclick = () => newChat().catch(error => add('assistant', error.message));
 }
-if ($('clear-guest')) {
-  $('clear-guest').onclick = async () => {
+if ($('clear-chat')) {
+  $('clear-chat').onclick = async () => {
     await fetch('/ai/guest/messages', { method: 'DELETE' });
     $('messages').innerHTML = '';
+    hasMessages = false;
     setEmpty(true);
+    updateClearButton();
   };
 }
 
@@ -583,6 +678,7 @@ document.querySelectorAll('.prompt').forEach(b => b.onclick = () => {
   $('input').focus();
 });
 setEmpty(true);
+updateClearButton();
 
 if ('visualViewport' in window) {
     const vv = window.visualViewport;
