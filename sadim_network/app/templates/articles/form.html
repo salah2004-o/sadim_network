@@ -1,95 +1,52 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <title>{{ 'تعديل منشور' if post else 'منشور جديد' }} — شبكة سديم</title>
-    <style>
-        :root {
-            --color-bg: #09090d;
-            --color-primary: rgba(18, 18, 24, 0.75);
-            --color-accent: #7c4dff;
-            --color-light: #b388ff;
-            --color-deep: #ffffff;
-            --text-muted: #9c9cab;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --blur: blur(18px);
-            --radius: 24px;
-            --radius-sm: 14px;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: var(--color-bg); color: var(--color-deep); font-family: 'Segoe UI', Tahoma, sans-serif; min-height: 100vh; }
-        .page-header {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(9, 9, 13, 0.85); backdrop-filter: var(--blur);
-            border-bottom: 1px solid var(--border-color); padding: 1rem 2rem;
-        }
-        .back-btn { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; width: fit-content; }
-        .back-btn:hover { color: var(--color-light); }
-        .container { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-        .alert { padding: 0.9rem 1.2rem; border-radius: var(--radius-sm); font-size: 0.85rem; margin-bottom: 1.2rem; background: rgba(124,77,255,0.08); border: 1px solid rgba(124,77,255,0.25); color: var(--color-light); }
-        .form-card { background: var(--color-primary); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 2rem; }
-        .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1.2rem; }
-        .form-group label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
-        .form-group input[type="text"], .form-group textarea {
-            background: rgba(255,255,255,0.04); border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm); padding: 0.75rem 1rem; color: var(--color-deep);
-            font-size: 0.9rem; font-family: inherit; outline: none;
-        }
-        .form-group textarea { min-height: 220px; resize: vertical; line-height: 1.6; }
-        .form-group input:focus, .form-group textarea:focus { border-color: rgba(124,77,255,0.5); }
-        .hint { font-size: 0.72rem; color: var(--text-muted); opacity: 0.7; }
-        .current-cover { max-width: 160px; border-radius: var(--radius-sm); margin-bottom: 0.6rem; display: block; }
-        .btn-submit {
-            width: 100%; padding: 0.9rem; background: linear-gradient(135deg, var(--color-light), var(--color-accent));
-            border: none; border-radius: var(--radius-sm); color: white; font-size: 0.95rem; font-weight: 700;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
+{% extends "layouts/public.html" %}
 
-<header class="page-header">
-    <a href="{{ url_for('articles.list_articles') }}" class="back-btn"><i class="fas fa-arrow-right"></i> كل المنشورات</a>
-</header>
+{% block title %}{{ 'تعديل منشور' if post else 'منشور جديد' }} — شبكة سديم{% endblock %}
 
-<div class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-            <div class="alert">{{ message }}</div>
-        {% endfor %}
-    {% endwith %}
-
-    <div class="form-card">
-        <form method="POST" enctype="multipart/form-data">
-            <div class="form-group">
-                <label>العنوان</label>
-                <input type="text" name="title" value="{{ post.title if post else '' }}" required>
-            </div>
-            <div class="form-group">
-                <label>المحتوى</label>
-                <textarea name="content" required>{{ post.content if post else '' }}</textarea>
-            </div>
-            <div class="form-group">
-                <label>صورة الغلاف (اختياري)</label>
-                {% if post and post.image_path %}
-                    <img src="{{ url_for('static', filename=post.image_path) }}" class="current-cover" alt="">
+{% block content %}
+<div class="sd-container" style="padding-block: var(--sd-sp-4) var(--sd-sp-12);">
+    <div class="sd-card" style="max-width: 760px; margin-inline: auto;">
+        <div style="padding: var(--sd-sp-6);">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div style="display:flex; flex-direction:column; gap: var(--sd-sp-2); margin-bottom: var(--sd-sp-5);">
+                    {% for category, message in messages %}
+                    <div class="sd-alert sd-alert-{{ 'danger' if category == 'error' else category }}">
+                        <i class="fas {{ 'fa-circle-check' if category == 'success' else 'fa-triangle-exclamation' }} sd-alert-icon"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
                 {% endif %}
-                <input type="file" name="image" accept="image/png,image/jpeg,image/webp">
-                <span class="hint">الحد الأقصى ٥ ميجا — JPG أو PNG</span>
-            </div>
-            <button type="submit" class="btn-submit">
-                <i class="fas fa-paper-plane"></i>
-                {{ 'حفظ التعديلات' if post else 'نشر المنشور' }}
-            </button>
-        </form>
+            {% endwith %}
+
+            <form method="POST" enctype="multipart/form-data">
+                <div class="sd-form-group">
+                    <div class="sd-field">
+                        <label class="sd-label">العنوان</label>
+                        <input class="sd-input" type="text" name="title" value="{{ post.title if post else '' }}" required>
+                    </div>
+
+                    <div class="sd-field">
+                        <label class="sd-label">المحتوى</label>
+                        <textarea class="sd-textarea" name="content" required>{{ post.content if post else '' }}</textarea>
+                    </div>
+
+                    <div class="sd-field">
+                        <label class="sd-label">صورة الغلاف (اختياري)</label>
+                        {% if post and post.image_path %}
+                        <img src="{{ url_for('static', filename=post.image_path) }}" style="max-width: 160px; border-radius: var(--sd-radius-md); margin-bottom: var(--sd-sp-3); display:block;" alt="">
+                        {% endif %}
+                        <input class="sd-input" type="file" name="image" accept="image/png,image/jpeg,image/webp">
+                        <p class="sd-hint">الحد الأقصى ٥ ميجا — JPG أو PNG</p>
+                    </div>
+
+                    <button type="submit" class="sd-btn sd-btn-primary sd-btn-lg" style="width: 100%;">
+                        <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                        {{ 'حفظ التعديلات' if post else 'نشر المنشور' }}
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-
-{% include 'partials/_ai_float.html' %}
-<script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>
-</body>
-{% include 'partials/_page_nav.html' %}
-</html>
+{% endblock %}

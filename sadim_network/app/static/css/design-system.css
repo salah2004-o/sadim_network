@@ -224,6 +224,7 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
 
 /* ==================== 5. حقول الإدخال (Forms) ==================== */
 .sd-form-group { display: flex; flex-direction: column; gap: var(--sd-sp-2); margin-bottom: var(--sd-sp-5); }
+.sd-field { display: flex; flex-direction: column; gap: var(--sd-sp-2); margin-bottom: var(--sd-sp-5); }
 .sd-label { font-size: var(--sd-fs-sm); font-weight: var(--sd-fw-medium); color: var(--sd-text-secondary); }
 .sd-label .sd-required { color: var(--sd-danger); margin-inline-start: var(--sd-sp-1); }
 .sd-hint { font-size: var(--sd-fs-xs); color: var(--sd-text-muted); }

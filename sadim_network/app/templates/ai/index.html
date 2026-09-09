@@ -319,9 +319,16 @@
     .ai-shell {
         grid-template-columns: 1fr;
         padding: .5rem;
-        height: 100dvh;
+        position: fixed;
+        inset: 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: calc(var(--sd-bottom-nav-h, 64px) + env(safe-area-inset-bottom, 0px));
         max-height: none;
         min-height: 0;
+        z-index: 1;
+        overflow: hidden;
     }
     .ai-panel {
         order: 2;
@@ -329,13 +336,16 @@
     }
     .ai-messages {
         min-height: 0;
-        min-height: 45vh;
+        flex: 1 1 auto;
+        overflow-y: auto;
     }
     .ai-compose {
         position: sticky;
         bottom: 0;
         background: var(--sd-ai-surface);
         min-height: 56px;
+        padding-bottom: calc(.8rem + env(safe-area-inset-bottom, 0px));
+        margin-bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
     }
     .ai-quick {
         grid-template-columns: 1fr;
