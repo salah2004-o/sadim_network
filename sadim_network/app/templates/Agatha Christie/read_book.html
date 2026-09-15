@@ -2,270 +2,174 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1018">
+  <meta name="color-scheme" content="dark light">
   <title>{{ book.title }} | قراءة — شبكة سديم</title>
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com"/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
-  <style>
-    :root {
-      --bg: #0a1018;
-      --bg-secondary: #121a26;
-      --bg-tertiary: #1a2433;
-      --gold: #c4a35a;
-      --gold-light: #d9bc74;
-      --text: #e8edf0;
-      --text-secondary: #9aa8b8;
-      --border: rgba(196,163,90,0.18);
-      --reader-bg: #0d1117;
-      --reader-text: #c9d1d9;
-      --reader-width: 720px;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      font-family: 'IBM Plex Sans Arabic', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      min-height: 100dvh;
-      overflow-x: hidden;
-      padding-bottom: var(--sd-bottom-nav-h, 64px);
-    }
-
-    .read-header {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(9, 9, 13, 0.92); backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
-      padding: 0.6rem 1.25rem;
-      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
-    }
-    .read-header__brand { color: var(--gold); text-decoration: none; font-weight: 700; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 0.4rem; }
-    .read-header__title { font-size: 0.8rem; color: var(--text-secondary); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
-    .read-header__actions { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-end; }
-
-    .btn {
-      display: inline-flex; align-items: center; gap: 0.4rem;
-      padding: 0.4rem 0.85rem; border-radius: var(--sd-radius-md, 8px); font-size: 0.78rem; font-family: inherit;
-      text-decoration: none; border: 1px solid var(--border); color: var(--text-secondary); background: transparent; cursor: pointer;
-      transition: all 0.2s; white-space: nowrap; min-height: 36px;
-    }
-    .btn:hover { border-color: var(--gold); color: var(--gold-light); background: var(--bg-tertiary); }
-    .btn-primary { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: #1a1200; border: none; font-weight: 700; }
-    .btn-primary:hover { box-shadow: 0 4px 12px rgba(196,163,90,0.3); color: #1a1200; background: linear-gradient(135deg, var(--gold-light), var(--gold)); }
-    .btn-ghost { background: transparent; border-color: var(--border); }
-    .btn-icon { padding: 0.4rem; min-width: 36px; justify-content: center; }
-
-    .read-hero {
-      background: var(--bg-secondary);
-      border-bottom: 1px solid var(--border);
-      padding: 1.5rem 1.25rem;
-      display: flex; gap: 1.25rem; align-items: flex-start; justify-content: center;
-    }
-    .read-hero__cover {
-      width: 120px; height: 160px; border-radius: var(--sd-radius-md, 8px); object-fit: cover; flex-shrink: 0;
-      border: 1px solid var(--border); box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-    }
-    .read-hero__cover-placeholder {
-      width: 120px; height: 160px; border-radius: var(--sd-radius-md, 8px); flex-shrink: 0;
-      background: var(--bg-tertiary); border: 1px solid var(--border); display: grid; place-items: center;
-      color: var(--text-secondary); font-size: 2.5rem;
-    }
-    .read-hero__info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.5rem; }
-    .read-hero__title { font-family: 'Amiri', serif; font-size: 1.35rem; font-weight: 700; color: var(--gold-light); line-height: 1.4; }
-    .read-hero__author { font-size: 0.9rem; color: var(--text-secondary); }
-    .read-hero__desc { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .read-hero__actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
-
-    .read-area {
-      flex: 1; display: flex; flex-direction: column; padding: 0;
-      background: var(--reader-bg);
-    }
-    .pdf-frame {
-      flex: 1; width: 100%; border: none; min-height: calc(100dvh - 280px); background: var(--reader-bg);
-      transform-origin: top center;
-    }
-
-    .read-progress {
-      position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 200;
-      background: transparent;
-    }
-    .read-progress__bar {
-      height: 100%; background: var(--gold); width: 0%; transition: width 0.15s linear;
-      box-shadow: 0 0 8px rgba(196,163,90,0.4);
-    }
-
-    .read-controls {
-      position: fixed; bottom: calc(var(--sd-bottom-nav-h, 64px) + env(safe-area-inset-bottom, 0px) + 12px);
-      left: 50%; transform: translateX(-50%); z-index: 200;
-      background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--sd-radius-full, 999px);
-      padding: 0.35rem 0.6rem; display: flex; gap: 0.25rem; align-items: center;
-      box-shadow: var(--sd-shadow-md, 0 10px 28px rgba(0,0,0,0.4));
-      backdrop-filter: blur(12px);
-      max-width: calc(100vw - 32px);
-      overflow-x: auto;
-    }
-    .read-controls .btn { border: none; background: transparent; color: var(--text-secondary); min-height: 36px; border-radius: var(--sd-radius-full, 999px); }
-    .read-controls .btn:hover { background: var(--bg-tertiary); color: var(--gold-light); }
-    .read-controls .btn.is-active { color: var(--gold); background: rgba(196,163,90,0.12); }
-    .read-controls__divider { width: 1px; height: 20px; background: var(--border); margin: 0 0.2rem; }
-    .read-controls__zoom { font-variant-numeric: tabular-nums; font-size: 0.78rem; color: var(--text-secondary); min-width: 32px; text-align: center; }
-
-    .ai-panel-overlay {
-      position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.45); opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0.25s ease;
-    }
-    .ai-panel-overlay.is-open { opacity: 1; visibility: visible; }
-    .ai-panel-drawer {
-      position: fixed; top: 0; bottom: 0; inset-inline-end: 0; z-index: 310;
-      width: min(420px, 92vw); background: var(--bg-secondary); border-inline-start: 1px solid var(--border);
-      box-shadow: var(--sd-shadow-lg, 0 22px 48px rgba(0,0,0,0.55));
-      transform: translateX(105%); transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-      display: flex; flex-direction: column;
-    }
-    [dir="rtl"] .ai-panel-drawer { transform: translateX(-105%); }
-    .ai-panel-overlay.is-open .ai-panel-drawer { transform: translateX(0); }
-    @media (min-width: 769px) {
-      .ai-panel-overlay.is-open ~ .read-area,
-      .ai-panel-overlay.is-open ~ .read-controls,
-      .ai-panel-overlay.is-open ~ .read-progress {
-        margin-inline-end: min(420px, 92vw);
-      }
-    }
-    .ai-panel-drawer__header {
-      padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-    }
-    .ai-panel-drawer__header h3 { margin: 0; font-family: 'Amiri', serif; font-size: 1.05rem; color: var(--gold-light); }
-    .ai-panel-drawer__body { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
-    .ai-panel-drawer__footer { padding: 0.75rem 1rem; border-top: 1px solid var(--border); }
-    .ai-quick-actions { display: flex; flex-direction: column; gap: 0.4rem; }
-    .ai-quick-actions .btn { width: 100%; justify-content: flex-start; }
-    .ai-chat-bubble {
-      padding: 0.75rem 1rem; border-radius: var(--sd-radius-md, 8px); font-size: 0.88rem; line-height: 1.7;
-      max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere;
-    }
-    .ai-chat-bubble.user { background: rgba(74,125,149,0.22); border: 1px solid rgba(74,125,149,0.35); align-self: flex-end; }
-    .ai-chat-bubble.assistant { background: var(--bg-tertiary); border: 1px solid var(--border); align-self: flex-start; }
-    .ai-input-row { display: flex; gap: 0.5rem; }
-    .ai-input-row input {
-      flex: 1; min-height: 44px; padding: 0.5rem 0.85rem; border-radius: var(--sd-radius-md, 8px);
-      border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.88rem;
-    }
-    .ai-input-row input:focus { outline: none; border-color: var(--gold); }
-    .ai-skeleton {
-      height: 12px; background: var(--bg-tertiary); border-radius: 4px; margin-bottom: 0.5rem;
-      animation: ai-pulse 1.4s infinite ease-in-out;
-    }
-    .ai-skeleton:nth-child(2) { width: 85%; }
-    .ai-skeleton:nth-child(3) { width: 65%; }
-    @keyframes ai-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
-
-    .ai-summary-result {
-      background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--sd-radius-md, 8px);
-      padding: 1rem; font-size: 0.88rem; line-height: 1.8; color: var(--text); white-space: pre-wrap;
-    }
-
-    @media (max-width: 768px) {
-      .hide-mobile { display: none; }
-      .read-hero { flex-direction: column; align-items: center; text-align: center; }
-      .read-hero__cover, .read-hero__cover-placeholder { width: 140px; height: 190px; }
-      .read-hero__actions { justify-content: center; }
-      .read-header__title { display: none; }
-      .read-controls { bottom: calc(var(--sd-bottom-nav-h, 64px) + env(safe-area-inset-bottom, 0px) + 10px); }
-      .pdf-frame { min-height: calc(100dvh - 420px); }
-    }
-    @media (max-width: 400px) {
-      .read-header { padding: 0.5rem 0.75rem; gap: 0.5rem; }
-      .btn { padding: 0.35rem 0.65rem; font-size: 0.72rem; }
-      .read-hero__title { font-size: 1.15rem; }
-      .pdf-frame { min-height: calc(100dvh - 380px); }
-    }
-  </style>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js" defer></script>
+  <script src="{{ url_for('static', filename='js/reader.js') }}" defer></script>
 </head>
-<body>
-  <div class="ai-panel-overlay" id="ai-overlay" aria-hidden="true">
-    <div class="ai-panel-drawer" role="dialog" aria-labelledby="ai-drawer-title" aria-hidden="true">
+<body class="reader-page">
+  <a class="reader-skip-link" href="#reader-main">انتقل إلى القراءة</a>
+
+  <div class="ai-panel-overlay" id="ai-overlay" aria-hidden="true" inert>
+    <div class="ai-panel-drawer" id="ai-drawer" role="dialog" aria-labelledby="ai-drawer-title" aria-modal="true" aria-hidden="true">
       <div class="ai-panel-drawer__header">
         <h3 id="ai-drawer-title"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> سديم AI</h3>
-        <button class="btn btn-icon" id="ai-close" aria-label="إغلاق"><i class="fas fa-xmark"></i></button>
+        <button class="reader-button reader-button--icon" id="ai-close" type="button" aria-label="إغلاق"><i class="fas fa-xmark" aria-hidden="true"></i></button>
       </div>
       <div class="ai-panel-drawer__body" id="ai-body">
         <div class="ai-quick-actions">
-          <button class="btn" data-ai-prompt="لخص هذا الفصل"><i class="fas fa-align-left" aria-hidden="true"></i> لخص هذا الفصل</button>
-          <button class="btn" data-ai-prompt="اشرح لي ما يحدث في الرواية"><i class="fas fa-lightbulb" aria-hidden="true"></i> اشرح لي ما يحدث</button>
-          <button class="btn" data-ai-prompt="من هذه الشخصية؟"><i class="fas fa-user-secret" aria-hidden="true"></i> من هذه الشخصية؟</button>
-          <button class="btn" data-ai-prompt="اسأل عن الرواية"><i class="fas fa-comments" aria-hidden="true"></i> اسأل عن الرواية</button>
+          <button class="reader-button" type="button" data-ai-prompt="لخص هذا الفصل"><i class="fas fa-align-left" aria-hidden="true"></i> لخص هذا الفصل</button>
+          <button class="reader-button" type="button" data-ai-prompt="اشرح لي ما يحدث في الرواية"><i class="fas fa-lightbulb" aria-hidden="true"></i> اشرح لي ما يحدث</button>
+          <button class="reader-button" type="button" data-ai-prompt="من هذه الشخصية؟"><i class="fas fa-user-secret" aria-hidden="true"></i> من هذه الشخصية؟</button>
+          <button class="reader-button" type="button" data-ai-prompt="اسأل عن الرواية"><i class="fas fa-comments" aria-hidden="true"></i> اسأل عن الرواية</button>
         </div>
-        <div id="ai-messages"></div>
-        <a href="{{ url_for('ai.index', context_type='book', context_id=book.id) }}" class="btn btn-ghost" style="width:100%; justify-content:center; margin-top:0.5rem;">
+        <div id="ai-messages" aria-live="polite"></div>
+        <a href="{{ url_for('ai.index', context_type='book', context_id=book.id) }}" class="reader-button reader-button--ghost reader-button--block">
           <i class="fas fa-comments" aria-hidden="true"></i> فتح محادثة كاملة
         </a>
       </div>
       <div class="ai-panel-drawer__footer">
         <form id="ai-form" class="ai-input-row">
-          <input type="text" id="ai-input" placeholder="اكتب سؤالك..." aria-label="سؤال لسديم AI">
-          <button type="submit" class="btn btn-primary btn-icon" aria-label="إرسال"><i class="fas fa-paper-plane"></i></button>
+          <input type="text" id="ai-input" placeholder="اكتب سؤالك..." aria-label="سؤال لسديم AI" autocomplete="off" enterkeyhint="send" maxlength="1000">
+          <button type="submit" class="reader-button reader-button--primary reader-button--icon" aria-label="إرسال"><i class="fas fa-paper-plane" aria-hidden="true"></i></button>
         </form>
       </div>
     </div>
   </div>
 
-  <div class="read-progress" aria-hidden="true"><div class="read-progress__bar" id="progress-bar"></div></div>
+  <div class="read-progress" role="progressbar" aria-label="التقدم في الكتاب" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+    <div class="read-progress__bar" id="reader-progress-bar"></div>
+  </div>
 
-  <header class="read-header">
-    <a href="{{ url_for('Library_Agatha.view_book', book_id=book.id) }}" class="read-header__brand"><i class="fas fa-arrow-right"></i> العودة</a>
+  <header class="read-header" id="reader-header">
+    <a href="{{ url_for('Library_Agatha.view_book', book_id=book.id) }}" class="read-header__brand">
+      <i class="fas fa-arrow-right" aria-hidden="true"></i> العودة
+    </a>
     <span class="read-header__title" title="{{ book.title }}">{{ book.title }}</span>
     <div class="read-header__actions">
-      <button class="btn btn-ghost" id="ai-trigger" aria-label="فتح سديم AI">
-        <i class="fas fa-wand-magic-sparkles"></i> <span class="hide-mobile">سديم AI</span>
+      <button class="reader-button reader-button--ghost" id="ai-trigger" type="button" aria-label="فتح سديم AI">
+        <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> <span class="hide-mobile">سديم AI</span>
       </button>
-      <a href="{{ url_for('Library_Agatha.download_file', book_id=book.id) }}" class="btn btn-primary btn-icon" title="تحميل PDF" aria-label="تحميل PDF">
-        <i class="fas fa-download"></i>
+      <a href="{{ url_for('Library_Agatha.download_file', book_id=book.id) }}" class="reader-button reader-button--primary reader-button--icon" title="تحميل PDF" aria-label="تحميل PDF">
+        <i class="fas fa-download" aria-hidden="true"></i>
       </a>
     </div>
   </header>
 
-  <section class="read-hero">
+  <section class="read-hero" aria-labelledby="reader-title">
     {% if book.cover_path %}
-    <img src="{{ url_for('static', filename='uploads/' + book.cover_path) }}" alt="{{ book.title }}" class="read-hero__cover">
+      <img src="{{ url_for('static', filename='uploads/' + book.cover_path) }}" alt="{{ book.title }}" class="read-hero__cover">
     {% else %}
-    <div class="read-hero__cover-placeholder"><i class="fas fa-book-open"></i></div>
+      <div class="read-hero__cover-placeholder" aria-hidden="true"><i class="fas fa-book-open"></i></div>
     {% endif %}
     <div class="read-hero__info">
-      <h1 class="read-hero__title">{{ book.title }}</h1>
+      <h1 class="read-hero__title" id="reader-title">{{ book.title }}</h1>
       <div class="read-hero__author">Agatha Christie</div>
       {% if book.desc_text %}
-      <p class="read-hero__desc">{{ book.desc_text }}</p>
+        <p class="read-hero__desc">{{ book.desc_text }}</p>
       {% endif %}
       <div class="read-hero__actions">
-        <button class="btn btn-primary" onclick="document.getElementById('pdf-frame').scrollIntoView({behavior:'smooth', block:'start'})">
+        <button class="reader-button reader-button--primary" id="start-reading" type="button">
           <i class="fas fa-book-open" aria-hidden="true"></i> ابدأ القراءة
         </button>
-        <button class="btn btn-ghost" id="hero-ai-trigger">
+        <button class="reader-button reader-button--ghost" id="hero-ai-trigger" type="button">
           <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> سديم AI
         </button>
       </div>
     </div>
   </section>
 
-  <div class="read-area">
-    <iframe id="pdf-frame" src="{{ pdf_url }}" class="pdf-frame" title="{{ book.title }}"></iframe>
-  </div>
+  <main class="read-area" id="reader-main" tabindex="-1" aria-label="قارئ الكتاب">
+    <div class="reader-loading" id="reader-loading" role="status" aria-live="polite" aria-busy="true">
+      <div class="reader-loading__icon"><i class="fas fa-circle-notch" aria-hidden="true"></i></div>
+      <p>جاري تحميل الكتاب</p>
+      <div class="reader-loading__track"><span id="reader-loading-bar"></span></div>
+      <span id="reader-loading-label">بانتظار بدء التحميل</span>
+    </div>
 
-  <div class="read-controls" id="read-controls">
-    <button class="btn btn-icon" id="font-decrease" title="تصغير الخط" aria-label="تصغير الخط"><i class="fas fa-minus"></i></button>
-    <button class="btn btn-icon" id="font-reset" title="إعادة تعيين" aria-label="إعادة تعيين"><i class="fas fa-rotate-left"></i></button>
-    <button class="btn btn-icon" id="font-increase" title="تكبير الخط" aria-label="تكبير الخط"><i class="fas fa-plus"></i></button>
-    <span class="read-controls__divider" aria-hidden="true"></span>
-    <button class="btn btn-icon" id="zoom-out" title="تصغير" aria-label="تصغير العرض"><i class="fas fa-search-minus"></i></button>
-    <span class="read-controls__zoom" id="zoom-label" aria-live="polite">100%</span>
-    <button class="btn btn-icon" id="zoom-in" title="تكبير" aria-label="تكبير العرض"><i class="fas fa-search-plus"></i></button>
-    <span class="read-controls__divider" aria-hidden="true"></span>
-    <button class="btn btn-icon" id="theme-light" title="فاتح" aria-label="الوضع الفاتح"><i class="fas fa-sun"></i></button>
-    <button class="btn btn-icon" id="theme-dark" title="داكن" aria-label="الوضع الداكن"><i class="fas fa-moon"></i></button>
+    <div class="reader-error" id="reader-error" role="alert" hidden>
+      <div class="reader-error__icon"><i class="fas fa-triangle-exclamation" aria-hidden="true"></i></div>
+      <h2>تعذر فتح الكتاب</h2>
+      <p id="reader-error-msg">حدث خطأ غير متوقع أثناء تحميل الملف.</p>
+      <button class="reader-button reader-button--primary" id="reader-retry" type="button"><i class="fas fa-rotate-right" aria-hidden="true"></i> إعادة المحاولة</button>
+    </div>
+
+    <div class="reader-canvas-wrap" id="reader-canvas-wrap" tabindex="0" role="region" aria-label="مساحة عرض صفحات الكتاب" aria-describedby="reader-canvas-description">
+      <span id="reader-page-status" class="reader-sr-only" aria-live="polite"></span>
+      <span id="reader-canvas-description" class="reader-sr-only">استخدم السهمين الأيسر والأيمن للتنقل بين الصفحات، و+ أو - لتغيير التكبير، وI للدخول في وضع القراءة العميقة.</span>
+      <canvas id="pdf-canvas" class="reader-canvas" data-pdf-url="{{ pdf_url }}" data-book-id="{{ book.id }}" role="img" aria-label="{{ book.title }}" aria-describedby="reader-canvas-description"></canvas>
+    </div>
+
+    <aside class="reader-outline" id="reader-outline" aria-label="فهرس الكتاب" aria-hidden="true" inert>
+      <div class="reader-outline__header">
+        <h2>فهرس الكتاب</h2>
+        <button class="reader-button reader-button--icon" id="reader-outline-close" type="button" aria-label="إغلاق الفهرس"><i class="fas fa-xmark" aria-hidden="true"></i></button>
+      </div>
+      <nav aria-label="فهرس الصفحات">
+        <ol class="reader-outline__list" id="reader-outline-list"></ol>
+      </nav>
+    </aside>
+  </main>
+
+  <nav class="read-controls reader-toolbar" id="reader-toolbar" aria-label="أدوات القراءة">
+    <div class="reader-toolbar__group">
+      <button class="reader-button reader-button--icon" id="page-prev" type="button" aria-label="الصفحة السابقة" aria-keyshortcuts="ArrowRight ArrowLeft"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+      <label class="reader-page-picker">
+        <span class="reader-sr-only">رقم الصفحة</span>
+        <input id="page-number" type="number" min="1" value="1" inputmode="numeric" aria-label="رقم الصفحة الحالية">
+        <span>من</span>
+        <strong id="page-total">-</strong>
+      </label>
+      <button class="reader-button reader-button--icon" id="page-next" type="button" aria-label="الصفحة التالية" aria-keyshortcuts="ArrowRight ArrowLeft"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+    </div>
+    <div class="reader-toolbar__group">
+      <button class="reader-button reader-button--icon" id="zoom-out" type="button" aria-label="تصغير العرض"><i class="fas fa-magnifying-glass-minus" aria-hidden="true"></i></button>
+      <span class="reader-toolbar__zoom" id="zoom-label" aria-live="polite">100%</span>
+      <button class="reader-button reader-button--icon" id="zoom-in" type="button" aria-label="تكبير العرض"><i class="fas fa-magnifying-glass-plus" aria-hidden="true"></i></button>
+      <button class="reader-button reader-button--icon" id="preferences-toggle" type="button" aria-label="إعدادات القراءة" aria-expanded="false"><i class="fas fa-sliders" aria-hidden="true"></i></button>
+      <button class="reader-button reader-button--icon" id="outline-toggle" type="button" aria-label="فتح فهرس الكتاب" aria-expanded="false"><i class="fas fa-list" aria-hidden="true"></i></button>
+      <button class="reader-button reader-button--icon" id="immersive-toggle" type="button" aria-label="الدخول في وضع القراءة العميقة" aria-pressed="false"><i class="fas fa-up-right-and-down-left-from-center" aria-hidden="true"></i></button>
+    </div>
+  </nav>
+
+  <div class="reader-sheet-overlay" id="reader-sheet-overlay" aria-hidden="true" inert>
+    <section class="reader-sheet" id="reader-sheet" role="dialog" aria-modal="true" aria-labelledby="reader-sheet-title">
+      <div class="reader-sheet__header">
+        <h2 id="reader-sheet-title">إعدادات القراءة</h2>
+        <button class="reader-button reader-button--icon" id="reader-sheet-close" type="button" aria-label="إغلاق الإعدادات"><i class="fas fa-xmark" aria-hidden="true"></i></button>
+      </div>
+      <div class="reader-sheet__body">
+        <fieldset class="reader-preference">
+          <legend>مستوى التكبير <output id="zoom-output" for="zoom-range">100%</output></legend>
+          <div class="reader-preference__control">
+            <button class="reader-button reader-button--icon" id="sheet-zoom-out" type="button" aria-label="تصغير التكبير"><i class="fas fa-minus" aria-hidden="true"></i></button>
+            <input id="zoom-range" type="range" min="0.6" max="1.8" step="0.1" value="1" aria-label="مستوى تكبير الصفحة">
+            <button class="reader-button reader-button--icon" id="sheet-zoom-in" type="button" aria-label="تكبير التكبير"><i class="fas fa-plus" aria-hidden="true"></i></button>
+          </div>
+        </fieldset>
+        <fieldset class="reader-preference">
+          <legend>مظهر الصفحة</legend>
+          <div class="reader-theme-picker" role="group" aria-label="مظهر الصفحة">
+            <button type="button" data-reader-theme="light" aria-pressed="false"><i class="fas fa-sun" aria-hidden="true"></i> فاتح</button>
+            <button type="button" data-reader-theme="dark" aria-pressed="false"><i class="fas fa-moon" aria-hidden="true"></i> داكن</button>
+            <button type="button" data-reader-theme="sepia" aria-pressed="false"><i class="fas fa-mug-saucer" aria-hidden="true"></i> سبيًا</button>
+          </div>
+        </fieldset>
+        <button class="reader-button reader-button--ghost reader-button--block" id="reader-reset" type="button"><i class="fas fa-rotate-left" aria-hidden="true"></i> إعادة الضبط</button>
+      </div>
+    </section>
   </div>
 
   <script>
-    (function() {
+    (function () {
       const aiOverlay = document.getElementById('ai-overlay');
       const aiDrawer = aiOverlay.querySelector('.ai-panel-drawer');
       const aiTrigger = document.getElementById('ai-trigger');
@@ -274,25 +178,44 @@
       const aiForm = document.getElementById('ai-form');
       const aiInput = document.getElementById('ai-input');
       const aiMessages = document.getElementById('ai-messages');
-      const progressBar = document.getElementById('progress-bar');
+      let lastAiFocus = null;
+
+      function setAiInert(value) {
+        aiOverlay.inert = value;
+        if (value) {
+          aiOverlay.setAttribute('aria-hidden', 'true');
+        } else {
+          aiOverlay.removeAttribute('aria-hidden');
+        }
+      }
 
       function openAi() {
+        lastAiFocus = document.activeElement;
         aiOverlay.classList.add('is-open');
         aiOverlay.setAttribute('aria-hidden', 'false');
         aiDrawer.setAttribute('aria-hidden', 'false');
-        document.body.style.overflow = 'hidden';
+        aiOverlay.inert = false;
+        document.body.classList.add('reader-modal-open');
+        aiClose.focus();
       }
+
       function closeAi() {
         aiOverlay.classList.remove('is-open');
         aiOverlay.setAttribute('aria-hidden', 'true');
         aiDrawer.setAttribute('aria-hidden', 'true');
-        document.body.style.overflow = '';
+        aiOverlay.inert = true;
+        document.body.classList.remove('reader-modal-open');
+        if (lastAiFocus && typeof lastAiFocus.focus === 'function') {
+          lastAiFocus.focus();
+        }
       }
+
       aiTrigger.addEventListener('click', openAi);
       if (heroAiTrigger) heroAiTrigger.addEventListener('click', openAi);
       aiClose.addEventListener('click', closeAi);
-      aiOverlay.addEventListener('click', (e) => { if (e.target === aiOverlay) closeAi(); });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAi(); });
+      aiOverlay.addEventListener('click', (event) => {
+        if (event.target === aiOverlay) closeAi();
+      });
 
       function addAiMessage(role, text) {
         const el = document.createElement('div');
@@ -301,14 +224,20 @@
         aiMessages.appendChild(el);
         aiMessages.scrollTop = aiMessages.scrollHeight;
       }
+
       function showAiLoading() {
         const wrap = document.createElement('div');
         wrap.className = 'ai-chat-bubble assistant';
         wrap.id = 'ai-loading';
-        wrap.innerHTML = '<div class="ai-skeleton"></div><div class="ai-skeleton"></div><div class="ai-skeleton"></div>';
+        for (let index = 0; index < 3; index += 1) {
+          const line = document.createElement('span');
+          line.className = 'ai-skeleton';
+          wrap.appendChild(line);
+        }
         aiMessages.appendChild(wrap);
         aiMessages.scrollTop = aiMessages.scrollHeight;
       }
+
       function removeAiLoading() {
         const el = document.getElementById('ai-loading');
         if (el) el.remove();
@@ -321,40 +250,40 @@
         aiInput.value = '';
         showAiLoading();
         try {
-          const r = await fetch('/ai/guest/messages', {
+          const response = await fetch('/ai/guest/messages', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ message: text, page_context: { type: 'book', id: {{ book.id }} } })
           });
-          const d = await r.json();
+          const data = await response.json();
           removeAiLoading();
-          if (r.ok) {
-            addAiMessage('assistant', d.content || 'لم يتم إنشاء نتيجة.');
-          } else {
-            const errMap = {
-              daily_limit: 'تم استهلاك حدك اليومي من الرسائل.',
-              guest_limit: 'وصلتَ حد رسائل الزائر لهذه الجلسة. سجّل دخولك للمتابعة.',
-              ai_unavailable: 'خدمة الذكاء الاصطناعي غير متاحة حالياً. حاول مرة أخرى بعد قليل.',
-              missing_context: 'بيانات السياق غير مكتملة.',
-              not_found: 'لم يتم العثور على المحتوى المطلوب.',
-              quota_exceeded: 'تم استهلاك حدك المجاني لهذه الميزة.',
-            };
-            addAiMessage('assistant', d.content || d.error && errMap[d.error] || d.message || 'تعذر تنفيذ الطلب.');
+          if (response.ok) {
+            addAiMessage('assistant', data.content || 'لم يتم إنشاء نتيجة.');
+            return;
           }
-        } catch (err) {
+          const errorMap = {
+            daily_limit: 'تم استهلاك حدك اليومي من الرسائل.',
+            guest_limit: 'وصلتَ حد رسائل الزائر لهذه الجلسة. سجّل دخولك للمتابعة.',
+            ai_unavailable: 'خدمة الذكاء الاصطناعي غير متاحة حالياً. حاول مرة أخرى بعد قليل.',
+            missing_context: 'بيانات السياق غير مكتملة.',
+            not_found: 'لم يتم العثور على المحتوى المطلوب.',
+            quota_exceeded: 'تم استهلاك حدك المجاني لهذه الميزة.'
+          };
+          addAiMessage('assistant', data.content || (data.error && errorMap[data.error]) || data.message || 'تعذر تنفيذ الطلب.');
+        } catch (error) {
           removeAiLoading();
           addAiMessage('assistant', 'تعذر الاتصال بخدمة سديم AI.');
         }
       }
 
-      aiForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+      aiForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
         await submitAi();
       });
 
-      document.querySelectorAll('[data-ai-prompt]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const prompt = btn.dataset.ai_prompt;
+      document.querySelectorAll('[data-ai-prompt]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const prompt = button.dataset.aiPrompt;
           if (prompt === 'لخص هذا الفصل') {
             aiInput.value = 'لخص هذا الكتاب باختصار';
             submitAi();
@@ -365,99 +294,11 @@
         });
       });
 
-      // Reading Controls
-      const root = document.documentElement;
-      const fontStep = 2;
-      const minFont = 14;
-      const maxFont = 24;
-      let currentFont = parseInt(localStorage.getItem('sadim-reader-font') || '18', 10);
-      let currentZoom = parseFloat(localStorage.getItem('sadim-reader-zoom') || '1', 10);
-      let currentTheme = localStorage.getItem('sadim-reader-theme') || 'dark';
-      const zoomStep = 0.1; const minZoom = 0.6; const maxZoom = 1.8;
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && aiOverlay.classList.contains('is-open')) closeAi();
+      });
 
-      function applyFont() {
-        root.style.setProperty('--reader-text-size', currentFont + 'px');
-        const iframe = document.getElementById('pdf-frame');
-        if (iframe) {
-          try { iframe.style.fontSize = currentFont + 'px'; } catch(e) {}
-        }
-      }
-      function applyZoom() {
-        const iframe = document.getElementById('pdf-frame');
-        if (iframe) {
-          try {
-            if ('zoom' in iframe.style) {
-              iframe.style.zoom = currentZoom;
-            } else {
-              iframe.style.transform = 'scale(' + currentZoom + ')';
-              iframe.style.transformOrigin = 'top center';
-              iframe.style.width = (100 / currentZoom) + '%';
-              iframe.style.height = (100 / currentZoom) + '%';
-            }
-          } catch(e) {}
-        }
-        document.getElementById('zoom-label').textContent = Math.round(currentZoom * 100) + '%';
-        localStorage.setItem('sadim-reader-zoom', currentZoom);
-        updateZoomButtons();
-      }
-      function applyTheme() {
-        if (currentTheme === 'light') {
-          root.style.setProperty('--reader-bg', '#f5f5f0');
-          root.style.setProperty('--reader-text', '#1a1a1a');
-        } else {
-          root.style.setProperty('--reader-bg', '#0d1117');
-          root.style.setProperty('--reader-text', '#c9d1d9');
-        }
-        localStorage.setItem('sadim-reader-theme', currentTheme);
-        updateThemeButtons();
-      }
-      function updateThemeButtons() {
-        document.querySelectorAll('#theme-light, #theme-dark').forEach(b => b.classList.remove('is-active'));
-        const btn = document.getElementById(currentTheme === 'light' ? 'theme-light' : 'theme-dark');
-        if (btn) btn.classList.add('is-active');
-      }
-      function updateFontButtons() {
-        document.getElementById('font-decrease').disabled = currentFont <= minFont;
-        document.getElementById('font-increase').disabled = currentFont >= maxFont;
-      }
-      function updateZoomButtons() {
-        document.getElementById('zoom-out').disabled = currentZoom <= minZoom;
-        document.getElementById('zoom-in').disabled = currentZoom >= maxZoom;
-      }
-
-      document.getElementById('font-increase').addEventListener('click', () => {
-        if (currentFont < maxFont) { currentFont += fontStep; localStorage.setItem('sadim-reader-font', currentFont); applyFont(); updateFontButtons(); }
-      });
-      document.getElementById('font-decrease').addEventListener('click', () => {
-        if (currentFont > minFont) { currentFont -= fontStep; localStorage.setItem('sadim-reader-font', currentFont); applyFont(); updateFontButtons(); }
-      });
-      document.getElementById('font-reset').addEventListener('click', () => {
-        currentFont = 18; localStorage.setItem('sadim-reader-font', currentFont); applyFont(); updateFontButtons();
-      });
-      document.getElementById('zoom-in').addEventListener('click', () => {
-        if (currentZoom < maxZoom) { currentZoom += zoomStep; applyZoom(); }
-      });
-      document.getElementById('zoom-out').addEventListener('click', () => {
-        if (currentZoom > minZoom) { currentZoom -= zoomStep; applyZoom(); }
-      });
-      document.getElementById('theme-light').addEventListener('click', () => { currentTheme = 'light'; applyTheme(); });
-      document.getElementById('theme-dark').addEventListener('click', () => { currentTheme = 'dark'; applyTheme(); });
-
-      applyFont();
-      applyZoom();
-      applyTheme();
-      updateFontButtons();
-      updateZoomButtons();
-
-      // Progress
-      function updateProgress() {
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const pct = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 0;
-        progressBar.style.width = pct + '%';
-      }
-      window.addEventListener('scroll', updateProgress, { passive: true });
-      updateProgress();
+      setAiInert(true);
     })();
   </script>
 </body>
