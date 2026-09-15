@@ -1,129 +1,1052 @@
 {% extends "layouts/public.html" %}
+
 {% block title %}شبكة سديم | SADIM NETWORK{% endblock %}
 
 {% block extra_head %}
 <style>
-    body:has(.sd-home-hero) { background:#0a1018; }
-    body:has(.sd-home-hero) .sd-navbar { position:absolute; inset-block-start:0; inset-inline:0; background:linear-gradient(180deg,rgba(10,16,24,.72),transparent); border-bottom:0; }
-    body:has(.sd-home-hero) .sd-navbar-brand { color:#fff; }
-    body:has(.sd-home-hero) .sd-navbar-links a { color:rgba(255,255,255,.82); }
-    body:has(.sd-home-hero) .sd-navbar-links a:hover { background:rgba(196,163,90,.14); color:#fff; }
-    body:has(.sd-home-hero) .sd-global-back-wrap, body:has(.sd-home-hero) .sd-footer { display:none; }
-    body:has(.sd-home-hero) .sd-bottom-nav { background:rgba(10,16,24,.92); }
-    .sd-home-hero { position:relative; min-height:100svh; overflow:hidden; isolation:isolate; display:grid; place-items:center; padding:clamp(7rem, 14vh, 10rem) var(--sd-sp-6) clamp(7rem, 14vh, 10rem); background:#0a1018 url('{{ url_for('static', filename='images/sadim-hero.png') }}') center center / cover no-repeat; }
-    .sd-home-hero::before { content:""; position:absolute; inset:0; z-index:-1; background:linear-gradient(90deg,rgba(10,16,24,.72) 0%,rgba(10,16,24,.22) 48%,rgba(10,16,24,.18) 100%),linear-gradient(180deg,rgba(10,16,24,.42) 0%,transparent 30%,rgba(10,16,24,.35) 74%,rgba(10,16,24,.92) 100%); pointer-events:none; }
-    /* الصورة الخلفية تحوي شعار "شبكة سديم/SADIM NETWORK" مرسوماً في منتصف ارتفاعها، وهو مكان قريب من عنوان الصفحة الحقيقي المثبت أسفل (بسبب تقنية background-size:cover على شاشات طويلة/ضيقة). طبقة تعتيم إضافية فوق منطقة الشعار (box-shadow الداخلي) تضمن وضوح العنوان الحقيقي بشكل تام بغض النظر عن موقع القص الناتج. */
-    .sd-home-hero::after { content:""; position:absolute; inset:-6%; z-index:-2; background:inherit; background-position:center; background-size:cover; filter:saturate(1.04); transform:scale(1.05); animation:sd-home-drift 18s ease-in-out infinite alternate; pointer-events:none; box-shadow: inset 0 0 min(30vh, 220px) min(18vh, 140px) rgba(10,16,24,.55); }
-    .sd-home-content { width:min(100%, 1120px); display:flex; align-items:flex-end; justify-content:space-between; gap:var(--sd-sp-8); margin-top:auto; animation:sd-home-rise .8s ease both; }
-    .sd-home-copy { max-width:470px; color:#fff; text-align:start; }
-    .sd-home-kicker { display:inline-flex; align-items:center; gap:8px; color:var(--sd-mist-soft, #6a9bb0); font-size:var(--sd-fs-sm); }
-    .sd-home-kicker::before { content:""; width:8px; height:8px; border-radius:50%; background:var(--sd-brass, #c4a35a); box-shadow:0 0 12px rgba(196,163,90,.5); }
-    .sd-home-copy h1 { margin:var(--sd-sp-3) 0 var(--sd-sp-2); font-family:var(--sd-font-display), Amiri, serif; font-size:clamp(2.2rem, 5vw, 3.6rem); line-height:1.1; letter-spacing:.01em; text-shadow:0 2px 18px rgba(0,0,0,.65), 0 1px 3px rgba(0,0,0,.8); }
-    .sd-home-copy p { margin:0; color:rgba(232,237,240,.8); font-size:var(--sd-fs-md); line-height:1.9; }
-    .sd-home-actions { display:flex; gap:var(--sd-sp-3); flex-wrap:wrap; margin-top:var(--sd-sp-5); }
-    .sd-home-actions .sd-btn-primary { background:linear-gradient(135deg,#d9bc74,#c4a35a); color:#0a1018; box-shadow:0 8px 28px rgba(196,163,90,.22); }
-    .sd-home-actions .sd-btn-secondary { background:rgba(10,16,24,.48); border-color:rgba(106,155,176,.4); color:#fff; backdrop-filter:blur(12px); }
-    .sd-home-signals { display:flex; align-items:center; gap:var(--sd-sp-3); flex-wrap:wrap; max-width:440px; padding:var(--sd-sp-3) var(--sd-sp-4); border:1px solid rgba(106,155,176,.22); border-radius:var(--sd-radius-md); background:rgba(10,16,24,.5); backdrop-filter:blur(12px); color:rgba(232,237,240,.82); font-size:var(--sd-fs-sm); }
-    .sd-home-signal { display:inline-flex; align-items:center; gap:7px; white-space:nowrap; }
-    .sd-home-signal i { color:var(--sd-brass-bright, #d9bc74); }
-    .sd-home-scroll { position:absolute; inset-block-end:calc(var(--sd-bottom-nav-h, 64px) + var(--sd-sp-5)); inset-inline-start:50%; transform:translateX(-50%); color:rgba(232,237,240,.68); font-size:var(--sd-fs-xs); display:flex; align-items:center; gap:8px; animation:sd-home-pulse 2.4s ease-in-out infinite; }
-    .sd-home-scroll i { color:var(--sd-mist-soft, #6a9bb0); }
-    /* قسم النية (Intent) + الاستئناف — يحل محل زري الأزرار القديمين (استكشاف/تسجيل دخول) */
-    .sd-home-resume { width:100%; margin-bottom:var(--sd-sp-5); padding:var(--sd-sp-4); border:1px solid rgba(196,163,90,.28); border-radius:var(--sd-radius-md); background:rgba(10,16,24,.55); backdrop-filter:blur(12px); }
-    .sd-home-resume__title { color:var(--sd-brass-bright,#d9bc74); font-size:var(--sd-fs-sm); font-weight:var(--sd-fw-bold); margin:0 0 var(--sd-sp-2); }
-    .sd-home-resume__list { display:flex; flex-direction:column; gap:6px; }
-    .sd-home-resume__list a { color:#fff; text-decoration:none; font-size:var(--sd-fs-sm); display:flex; align-items:center; gap:8px; }
-    .sd-home-resume__list a:hover { color:var(--sd-brass-bright,#d9bc74); }
-    .sd-home-signal-line { color:rgba(232,237,240,.85); font-size:var(--sd-fs-sm); margin:0 0 var(--sd-sp-4); }
-    .sd-home-intent-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:var(--sd-sp-3); width:100%; margin-top:var(--sd-sp-4); }
-    .sd-home-intent { display:flex; flex-direction:column; align-items:center; gap:6px; padding:var(--sd-sp-4) var(--sd-sp-3); border:1px solid rgba(106,155,176,.28); border-radius:var(--sd-radius-md); background:rgba(10,16,24,.42); backdrop-filter:blur(10px); color:#fff; text-decoration:none; font-size:var(--sd-fs-sm); font-weight:var(--sd-fw-medium); text-align:center; transition:border-color .2s ease, background .2s ease, transform .2s ease; }
-    .sd-home-intent i { font-size:1.35rem; color:var(--sd-brass-bright,#d9bc74); }
-    .sd-home-intent:hover { border-color:var(--sd-brass,#c4a35a); background:rgba(196,163,90,.14); transform:translateY(-2px); }
-    .sd-home-search { width:100%; display:flex; gap:var(--sd-sp-2); margin-top:var(--sd-sp-4); }
-    .sd-home-search input { flex:1; min-height:var(--sd-tap-min); padding-inline:var(--sd-sp-4); border-radius:var(--sd-radius-md); border:1px solid rgba(106,155,176,.35); background:rgba(10,16,24,.55); color:#fff; font:inherit; }
-    .sd-home-search input::placeholder { color:rgba(232,237,240,.55); }
-    @media (max-width:760px) { .sd-home-intent-grid { grid-template-columns:repeat(2, 1fr); } }
-    @keyframes sd-home-rise { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
-    @keyframes sd-home-drift { from { transform:scale(1.05) translate3d(0,0,0); } to { transform:scale(1.08) translate3d(-.5%, -.4%, 0); } }
-    @keyframes sd-home-pulse { 0%,100% { opacity:.55; } 50% { opacity:1; } }
-    @media (max-width:760px) {
-        body:has(.sd-home-hero) .sd-navbar { background:linear-gradient(180deg,rgba(10,16,24,.85),transparent); }
-        .sd-home-hero { min-height:100svh; padding:7rem var(--sd-sp-4) 5.5rem; background-position:center center; }
-        .sd-home-content { display:block; margin-top:auto; }
-        .sd-home-copy { max-width:100%; text-align:center; }
-        .sd-home-kicker { justify-content:center; }
-        .sd-home-copy h1 { font-size:clamp(2rem,10vw,2.8rem); }
-        .sd-home-copy p { font-size:var(--sd-fs-base); }
-        .sd-home-actions { justify-content:center; }
-        .sd-home-actions .sd-btn { flex:1 1 180px; }
-        .sd-home-signals { justify-content:center; margin:var(--sd-sp-5) auto 0; gap:var(--sd-sp-2) var(--sd-sp-3); }
-        .sd-home-scroll { display:none; }
+    /* =========================================================
+       Sadim — Home
+       ========================================================= */
+
+    body:has(.sd-home-hero) {
+        background: #0a1018;
     }
-    @media (prefers-reduced-motion:reduce) { .sd-home-content, .sd-home-hero::after, .sd-home-scroll { animation:none; } }
+
+    body:has(.sd-home-hero) .sd-navbar {
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline: 0;
+        z-index: 20;
+
+        background:
+            linear-gradient(
+                180deg,
+                rgba(10, 16, 24, 0.78) 0%,
+                rgba(10, 16, 24, 0) 100%
+            );
+
+        border-bottom: 0;
+    }
+
+    body:has(.sd-home-hero) .sd-navbar-brand {
+        color: #fff;
+    }
+
+    body:has(.sd-home-hero) .sd-navbar-links a {
+        color: rgba(255, 255, 255, 0.84);
+    }
+
+    body:has(.sd-home-hero) .sd-navbar-links a:hover {
+        color: #fff;
+        background: rgba(196, 163, 90, 0.14);
+    }
+
+    body:has(.sd-home-hero) .sd-global-back-wrap,
+    body:has(.sd-home-hero) .sd-footer {
+        display: none;
+    }
+
+    body:has(.sd-home-hero) .sd-bottom-nav {
+        background: rgba(10, 16, 24, 0.94);
+    }
+
+
+    /* ---------------------------------------------------------
+       Hero
+       --------------------------------------------------------- */
+
+    .sd-home-hero {
+        position: relative;
+        isolation: isolate;
+
+        display: grid;
+        place-items: center;
+
+        min-height: 100svh;
+
+        overflow: hidden;
+
+        padding:
+            clamp(6.5rem, 13vh, 9rem)
+            clamp(1rem, 4vw, 3rem)
+            clamp(5.5rem, 12vh, 8rem);
+
+        background:
+            #0a1018
+            url('{{ url_for("static", filename="images/sadim-hero.png") }}')
+            center center /
+            cover
+            no-repeat;
+    }
+
+    .sd-home-hero::before {
+        content: "";
+
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+
+        background:
+            linear-gradient(
+                90deg,
+                rgba(10, 16, 24, 0.78) 0%,
+                rgba(10, 16, 24, 0.30) 48%,
+                rgba(10, 16, 24, 0.18) 100%
+            ),
+            linear-gradient(
+                180deg,
+                rgba(10, 16, 24, 0.48) 0%,
+                transparent 30%,
+                rgba(10, 16, 24, 0.34) 72%,
+                rgba(10, 16, 24, 0.94) 100%
+            );
+
+        pointer-events: none;
+    }
+
+    .sd-home-hero::after {
+        content: "";
+
+        position: absolute;
+        inset: -6%;
+        z-index: -2;
+
+        background:
+            url('{{ url_for("static", filename="images/sadim-hero.png") }}')
+            center center /
+            cover
+            no-repeat;
+
+        filter: saturate(1.04);
+
+        transform: scale(1.05);
+
+        box-shadow:
+            inset 0 0 min(30vh, 220px)
+            min(18vh, 140px)
+            rgba(10, 16, 24, 0.55);
+
+        animation:
+            sd-home-drift
+            18s
+            ease-in-out
+            infinite
+            alternate;
+
+        pointer-events: none;
+    }
+
+
+    /* ---------------------------------------------------------
+       Main Content
+       --------------------------------------------------------- */
+
+    .sd-home-content {
+        width: min(100%, 1120px);
+
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+
+        gap: clamp(2rem, 6vw, 5rem);
+
+        margin-top: auto;
+
+        animation:
+            sd-home-rise
+            0.8s
+            ease
+            both;
+    }
+
+    .sd-home-copy {
+        width: min(100%, 620px);
+
+        color: #fff;
+        text-align: start;
+    }
+
+
+    /* ---------------------------------------------------------
+       Kicker
+       --------------------------------------------------------- */
+
+    .sd-home-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        color: var(--sd-mist-soft, #6a9bb0);
+
+        font-size: var(--sd-fs-sm);
+        line-height: 1.5;
+    }
+
+    .sd-home-kicker::before {
+        content: "";
+
+        width: 0.5rem;
+        height: 0.5rem;
+
+        flex: 0 0 auto;
+
+        border-radius: 50%;
+
+        background: var(--sd-brass, #c4a35a);
+
+        box-shadow:
+            0 0 12px
+            rgba(196, 163, 90, 0.5);
+    }
+
+
+    /* ---------------------------------------------------------
+       Heading
+       --------------------------------------------------------- */
+
+    .sd-home-copy h1 {
+        margin:
+            var(--sd-sp-3)
+            0
+            var(--sd-sp-2);
+
+        color: #fff;
+
+        font-family:
+            var(--sd-font-display),
+            Amiri,
+            serif;
+
+        font-size:
+            clamp(2.2rem, 5vw, 4rem);
+
+        line-height: 1.12;
+
+        letter-spacing: 0.01em;
+
+        text-wrap: balance;
+
+        text-shadow:
+            0 2px 18px rgba(0, 0, 0, 0.65),
+            0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    .sd-home-copy p {
+        margin: 0;
+
+        max-width: 600px;
+
+        color: rgba(232, 237, 240, 0.82);
+
+        font-size: var(--sd-fs-md);
+        line-height: 1.9;
+
+        text-wrap: pretty;
+    }
+
+    .sd-home-signal-line {
+        margin:
+            0
+            0
+            var(--sd-sp-4);
+
+        color: rgba(232, 237, 240, 0.86);
+
+        font-size: var(--sd-fs-sm);
+        line-height: 1.8;
+    }
+
+
+    /* ---------------------------------------------------------
+       Resume
+       --------------------------------------------------------- */
+
+    .sd-home-resume {
+        width: 100%;
+
+        margin-top: var(--sd-sp-5);
+        margin-bottom: var(--sd-sp-5);
+
+        padding: var(--sd-sp-4);
+
+        border:
+            1px solid
+            rgba(196, 163, 90, 0.28);
+
+        border-radius: var(--sd-radius-md);
+
+        background:
+            rgba(10, 16, 24, 0.56);
+
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    .sd-home-resume__title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        margin: 0 0 var(--sd-sp-2);
+
+        color:
+            var(--sd-brass-bright, #d9bc74);
+
+        font-size: var(--sd-fs-sm);
+        font-weight: var(--sd-fw-bold);
+    }
+
+    .sd-home-resume__list {
+        display: flex;
+        flex-direction: column;
+
+        gap: 0.4rem;
+    }
+
+    .sd-home-resume__list a {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+
+        min-width: 0;
+
+        color: #fff;
+
+        text-decoration: none;
+
+        font-size: var(--sd-fs-sm);
+        line-height: 1.6;
+
+        overflow-wrap: anywhere;
+
+        transition:
+            color 180ms ease;
+    }
+
+    .sd-home-resume__list a:hover {
+        color:
+            var(--sd-brass-bright, #d9bc74);
+    }
+
+    .sd-home-resume__list i {
+        flex: 0 0 auto;
+        margin-top: 0.35rem;
+    }
+
+
+    /* ---------------------------------------------------------
+       Intent Navigation
+       --------------------------------------------------------- */
+
+    .sd-home-intent-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
+
+        gap: var(--sd-sp-3);
+
+        width: 100%;
+
+        margin-top: var(--sd-sp-4);
+    }
+
+    .sd-home-intent {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        min-width: 0;
+        min-height: 108px;
+
+        gap: 0.5rem;
+
+        padding:
+            var(--sd-sp-4)
+            var(--sd-sp-3);
+
+        border:
+            1px solid
+            rgba(106, 155, 176, 0.28);
+
+        border-radius: var(--sd-radius-md);
+
+        background:
+            rgba(10, 16, 24, 0.44);
+
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+
+        color: #fff;
+
+        text-decoration: none;
+        text-align: center;
+
+        font-size: var(--sd-fs-sm);
+        font-weight: var(--sd-fw-medium);
+        line-height: 1.5;
+
+        transition:
+            border-color 180ms ease,
+            background-color 180ms ease,
+            transform 180ms ease,
+            box-shadow 180ms ease;
+    }
+
+    .sd-home-intent i {
+        flex: 0 0 auto;
+
+        color:
+            var(--sd-brass-bright, #d9bc74);
+
+        font-size: 1.3rem;
+    }
+
+    .sd-home-intent:hover {
+        border-color:
+            var(--sd-brass, #c4a35a);
+
+        background:
+            rgba(196, 163, 90, 0.14);
+
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 8px 24px rgba(0, 0, 0, 0.14);
+    }
+
+    .sd-home-intent:focus-visible {
+        outline:
+            2px solid
+            rgba(217, 188, 116, 0.9);
+
+        outline-offset: 3px;
+    }
+
+
+    /* ---------------------------------------------------------
+       Search
+       --------------------------------------------------------- */
+
+    .sd-home-search {
+        display: flex;
+
+        width: 100%;
+
+        gap: var(--sd-sp-2);
+
+        margin-top: var(--sd-sp-4);
+    }
+
+    .sd-home-search input {
+        flex: 1 1 auto;
+
+        min-width: 0;
+        min-height: var(--sd-tap-min);
+
+        padding-inline: var(--sd-sp-4);
+
+        border:
+            1px solid
+            rgba(106, 155, 176, 0.35);
+
+        border-radius: var(--sd-radius-md);
+
+        background:
+            rgba(10, 16, 24, 0.58);
+
+        color: #fff;
+
+        font: inherit;
+
+        outline: none;
+
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+
+        transition:
+            border-color 180ms ease,
+            background-color 180ms ease,
+            box-shadow 180ms ease;
+    }
+
+    .sd-home-search input::placeholder {
+        color:
+            rgba(232, 237, 240, 0.55);
+    }
+
+    .sd-home-search input:focus {
+        border-color:
+            rgba(217, 188, 116, 0.65);
+
+        background:
+            rgba(10, 16, 24, 0.72);
+
+        box-shadow:
+            0 0 0 3px
+            rgba(196, 163, 90, 0.1);
+    }
+
+    .sd-home-search button {
+        flex: 0 0 auto;
+
+        min-width: var(--sd-tap-min);
+        min-height: var(--sd-tap-min);
+    }
+
+
+    /* ---------------------------------------------------------
+       Login
+       --------------------------------------------------------- */
+
+    .sd-home-actions {
+        display: flex;
+        flex-wrap: wrap;
+
+        gap: var(--sd-sp-3);
+
+        margin-top: var(--sd-sp-5);
+    }
+
+    .sd-home-actions .sd-btn {
+        min-height: var(--sd-tap-min);
+    }
+
+    .sd-home-actions .sd-btn-primary {
+        background:
+            linear-gradient(
+                135deg,
+                #d9bc74,
+                #c4a35a
+            );
+
+        color: #0a1018;
+
+        box-shadow:
+            0 8px 28px
+            rgba(196, 163, 90, 0.22);
+    }
+
+    .sd-home-actions .sd-btn-secondary {
+        background:
+            rgba(10, 16, 24, 0.5);
+
+        border-color:
+            rgba(106, 155, 176, 0.4);
+
+        color: #fff;
+
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+
+    /* ---------------------------------------------------------
+       Scroll Indicator
+       --------------------------------------------------------- */
+
+    .sd-home-scroll {
+        position: absolute;
+
+        inset-block-end:
+            calc(
+                var(--sd-bottom-nav-h, 64px)
+                + var(--sd-sp-5)
+            );
+
+        inset-inline-start: 50%;
+
+        transform: translateX(-50%);
+
+        display: flex;
+        align-items: center;
+
+        gap: 0.5rem;
+
+        color:
+            rgba(232, 237, 240, 0.68);
+
+        font-size: var(--sd-fs-xs);
+
+        animation:
+            sd-home-pulse
+            2.4s
+            ease-in-out
+            infinite;
+    }
+
+    .sd-home-scroll i {
+        color:
+            var(--sd-mist-soft, #6a9bb0);
+    }
+
+
+    /* =========================================================
+       Responsive
+       ========================================================= */
+
+    @media (max-width: 900px) {
+
+        .sd-home-content {
+            width: min(100%, 760px);
+        }
+
+        .sd-home-intent-grid {
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
+        }
+
+    }
+
+
+    @media (max-width: 760px) {
+
+        body:has(.sd-home-hero) .sd-navbar {
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(10, 16, 24, 0.88),
+                    rgba(10, 16, 24, 0)
+                );
+        }
+
+        .sd-home-hero {
+            min-height: 100svh;
+
+            padding:
+                6.5rem
+                var(--sd-sp-4)
+                5.5rem;
+
+            background-position: center center;
+        }
+
+        .sd-home-content {
+            display: block;
+
+            width: 100%;
+
+            margin-top: auto;
+        }
+
+        .sd-home-copy {
+            width: 100%;
+            max-width: 680px;
+
+            margin-inline: auto;
+
+            text-align: center;
+        }
+
+        .sd-home-kicker {
+            justify-content: center;
+        }
+
+        .sd-home-copy h1 {
+            font-size:
+                clamp(2rem, 10vw, 2.8rem);
+        }
+
+        .sd-home-copy p {
+            margin-inline: auto;
+
+            font-size: var(--sd-fs-base);
+        }
+
+        .sd-home-signal-line {
+            margin-inline: auto;
+        }
+
+        .sd-home-resume {
+            text-align: start;
+        }
+
+        .sd-home-intent {
+            min-height: 96px;
+        }
+
+        .sd-home-search {
+            margin-top: var(--sd-sp-3);
+        }
+
+        .sd-home-actions {
+            justify-content: center;
+        }
+
+        .sd-home-actions .sd-btn {
+            flex:
+                1 1
+                180px;
+        }
+
+        .sd-home-scroll {
+            display: none;
+        }
+
+    }
+
+
+    @media (max-width: 480px) {
+
+        .sd-home-hero {
+            padding-inline: var(--sd-sp-3);
+        }
+
+        .sd-home-copy h1 {
+            font-size:
+                clamp(1.85rem, 11vw, 2.45rem);
+
+            line-height: 1.16;
+        }
+
+        .sd-home-copy p {
+            font-size: 0.88rem;
+            line-height: 1.8;
+        }
+
+        .sd-home-resume {
+            padding: var(--sd-sp-3);
+        }
+
+        .sd-home-intent-grid {
+            gap: var(--sd-sp-2);
+        }
+
+        .sd-home-intent {
+            min-height: 90px;
+
+            padding:
+                var(--sd-sp-3)
+                var(--sd-sp-2);
+
+            font-size: 0.78rem;
+        }
+
+        .sd-home-intent i {
+            font-size: 1.15rem;
+        }
+
+        .sd-home-search {
+            gap: 0.4rem;
+        }
+
+        .sd-home-search input {
+            padding-inline: var(--sd-sp-3);
+
+            font-size: 0.82rem;
+        }
+
+    }
+
+
+    @media (max-width: 360px) {
+
+        .sd-home-hero {
+            padding-inline: 0.7rem;
+        }
+
+        .sd-home-intent-grid {
+            gap: 0.4rem;
+        }
+
+        .sd-home-intent {
+            min-height: 84px;
+
+            padding-inline: 0.35rem;
+
+            font-size: 0.73rem;
+        }
+
+        .sd-home-intent i {
+            font-size: 1rem;
+        }
+
+        .sd-home-search input {
+            font-size: 0.78rem;
+        }
+
+    }
+
+
+    /* =========================================================
+       Motion
+       ========================================================= */
+
+    @keyframes sd-home-rise {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    @keyframes sd-home-drift {
+        from {
+            transform:
+                scale(1.05)
+                translate3d(0, 0, 0);
+        }
+
+        to {
+            transform:
+                scale(1.08)
+                translate3d(-0.5%, -0.4%, 0);
+        }
+    }
+
+    @keyframes sd-home-pulse {
+        0%,
+        100% {
+            opacity: 0.55;
+        }
+
+        50% {
+            opacity: 1;
+        }
+    }
+
+
+    @media (prefers-reduced-motion: reduce) {
+
+        .sd-home-content,
+        .sd-home-hero::after,
+        .sd-home-scroll {
+            animation: none;
+        }
+
+        .sd-home-intent,
+        .sd-home-search input,
+        .sd-home-resume__list a {
+            transition: none;
+        }
+
+    }
 </style>
 {% endblock %}
 
+
 {% block content %}
-<section class="sd-home-hero" aria-labelledby="home-title">
+
+<section
+    class="sd-home-hero"
+    aria-labelledby="home-title"
+>
+
     <div class="sd-home-content">
+
         <div class="sd-home-copy">
+
             {% if is_authenticated %}
-                <span class="sd-home-kicker">{{ "أهلاً بك في سديم" if user_state == "new_user" else "أهلاً بعودتك" }}</span>
-                <h1 id="home-title">ماذا تريد اليوم؟</h1>
+
+                <span class="sd-home-kicker">
+                    {{ "أهلاً بك في سديم" if user_state == "new_user" else "أهلاً بعودتك" }}
+                </span>
+
+                <h1 id="home-title">
+                    ماذا تريد اليوم؟
+                </h1>
+
                 {% if signals %}
-                <p class="sd-home-signal-line">
-                    {% if signals.finished_books > 0 %}
-                        أنت قرأت {{ signals.finished_books }} رواية من مكتبتنا حتى الآن، وبقي لك {{ signals.remaining_books }}.
-                    {% elif signals.favorites_count > 0 %}
-                        لديك {{ signals.favorites_count }} عنصر محفوظ في مساحتي.
-                    {% else %}
-                        جاهزة مكتبتنا بأكملها لمن يريد البدء.
-                    {% endif %}
-                </p>
+
+                    <p class="sd-home-signal-line">
+
+                        {% if signals.finished_books > 0 %}
+
+                            أنت قرأت
+                            {{ signals.finished_books }}
+                            رواية من مكتبتنا حتى الآن،
+                            وبقي لك
+                            {{ signals.remaining_books }}.
+
+                        {% elif signals.favorites_count > 0 %}
+
+                            لديك
+                            {{ signals.favorites_count }}
+                            عنصر محفوظ في مساحتي.
+
+                        {% else %}
+
+                            جاهزة مكتبتنا بأكملها لمن يريد البدء.
+
+                        {% endif %}
+
+                    </p>
+
                 {% endif %}
+
             {% else %}
-                <span class="sd-home-kicker">شبكة رقمية وأدب بوليسي</span>
-                <h1 id="home-title">ماذا تريد اليوم؟</h1>
-                <p>اختر ما تحتاجه، وسديم تأخذك إليه مباشرة.</p>
+
+                <span class="sd-home-kicker">
+                    شبكة رقمية وأدب بوليسي
+                </span>
+
+                <h1 id="home-title">
+                    ماذا تريد اليوم؟
+                </h1>
+
+                <p>
+                    اختر ما تحتاجه، وسديم تأخذك إليه مباشرة.
+                </p>
+
             {% endif %}
+
 
             {% if resume_items %}
-            <div class="sd-home-resume">
-                <p class="sd-home-resume__title"><i class="fas fa-bookmark" aria-hidden="true"></i> أكمل ما بدأت</p>
-                <div class="sd-home-resume__list">
-                    {% for item in resume_items %}
-                    <a href="{{ item.url }}"><i class="fas fa-arrow-left" aria-hidden="true"></i> {{ item.title }}</a>
-                    {% endfor %}
+
+                <div class="sd-home-resume">
+
+                    <p class="sd-home-resume__title">
+                        <i
+                            class="fas fa-bookmark"
+                            aria-hidden="true"
+                        ></i>
+
+                        أكمل ما بدأت
+                    </p>
+
+                    <div class="sd-home-resume__list">
+
+                        {% for item in resume_items %}
+
+                            <a href="{{ item.url }}">
+                                <i
+                                    class="fas fa-arrow-left"
+                                    aria-hidden="true"
+                                ></i>
+
+                                <span>
+                                    {{ item.title }}
+                                </span>
+                            </a>
+
+                        {% endfor %}
+
+                    </div>
+
                 </div>
-            </div>
+
             {% endif %}
 
-            <div class="sd-home-intent-grid" role="navigation" aria-label="ماذا تريد اليوم">
-                <a class="sd-home-intent" href="{{ url_for('Library_Agatha.agatha_christie') }}">
-                    <i class="fas fa-book-open" aria-hidden="true"></i> أريد أن أقرأ
-                </a>
-                <a class="sd-home-intent" href="{{ url_for('articles.list_articles') }}">
-                    <i class="fas fa-lightbulb" aria-hidden="true"></i> أريد أن أتعلم
-                </a>
-                <a class="sd-home-intent" href="{{ url_for('ai.index') }}">
-                    <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> أريد مساعدة من Sadeem AI
-                </a>
-                <a class="sd-home-intent" href="{{ url_for('main.services') }}">
-                    <i class="fas fa-toolbox" aria-hidden="true"></i> أريد أداة
-                </a>
-            </div>
 
-            <form class="sd-home-search" action="{{ url_for('ai.index') }}" method="get">
-                <input type="text" name="q" placeholder="أبحث عن شيء محدد… مثلاً: رواية قصيرة فيها جريمة" aria-label="ابحث عن شيء محدد">
-                <button type="submit" class="sd-btn sd-btn-primary"><i class="fas fa-magnifying-glass" aria-hidden="true"></i></button>
+            <nav
+                class="sd-home-intent-grid"
+                aria-label="ماذا تريد اليوم"
+            >
+
+                <a
+                    class="sd-home-intent"
+                    href="{{ url_for('Library_Agatha.agatha_christie') }}"
+                >
+                    <i
+                        class="fas fa-book-open"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span>أريد أن أقرأ</span>
+                </a>
+
+
+                <a
+                    class="sd-home-intent"
+                    href="{{ url_for('articles.list_articles') }}"
+                >
+                    <i
+                        class="fas fa-lightbulb"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span>أريد أن أتعلم</span>
+                </a>
+
+
+                <a
+                    class="sd-home-intent"
+                    href="{{ url_for('ai.index') }}"
+                >
+                    <i
+                        class="fas fa-wand-magic-sparkles"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span>أريد مساعدة من Sadeem AI</span>
+                </a>
+
+
+                <a
+                    class="sd-home-intent"
+                    href="{{ url_for('main.services') }}"
+                >
+                    <i
+                        class="fas fa-toolbox"
+                        aria-hidden="true"
+                    ></i>
+
+                    <span>أريد أداة</span>
+                </a>
+
+            </nav>
+
+
+            <form
+                class="sd-home-search"
+                action="{{ url_for('ai.index') }}"
+                method="get"
+                role="search"
+            >
+
+                <input
+                    type="search"
+                    name="q"
+                    placeholder="أبحث عن شيء محدد… مثلاً: رواية قصيرة فيها جريمة"
+                    aria-label="ابحث عن شيء محدد"
+                    autocomplete="off"
+                    enterkeyhint="search"
+                >
+
+                <button
+                    type="submit"
+                    class="sd-btn sd-btn-primary"
+                    aria-label="بحث"
+                    title="بحث"
+                >
+                    <i
+                        class="fas fa-magnifying-glass"
+                        aria-hidden="true"
+                    ></i>
+                </button>
+
             </form>
 
+
             {% if not is_authenticated %}
-            <div class="sd-home-actions">
-                <a href="{{ url_for('loading_bp.login') }}" class="sd-btn sd-btn-secondary"><i class="fas fa-right-to-bracket" aria-hidden="true"></i> تسجيل الدخول</a>
-            </div>
+
+                <div class="sd-home-actions">
+
+                    <a
+                        href="{{ url_for('loading_bp.login') }}"
+                        class="sd-btn sd-btn-secondary"
+                    >
+                        <i
+                            class="fas fa-right-to-bracket"
+                            aria-hidden="true"
+                        ></i>
+
+                        تسجيل الدخول
+                    </a>
+
+                </div>
+
             {% endif %}
+
         </div>
+
     </div>
+
 </section>
+
 {% endblock %}
