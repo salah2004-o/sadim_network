@@ -7,36 +7,123 @@
 {% endblock %}
 
 {% block content %}
-<div class="sd-container sd-author-page" style="padding-block: var(--sd-sp-4) var(--sd-sp-12);">
-    <div class="profile-hero">
-        {% set author_img = author.profile_image if author.profile_image else 'default_user.png' %}
-        <img src="{{ url_for('static', filename='uploads/' + author_img) }}" class="profile-avatar" alt="">
-        <div>
-            <div class="profile-name">{{ author.name or author.username }}</div>
-            <div class="profile-username">@{{ author.username }}</div>
-            {% if author.bio %}<div class="profile-bio">{{ author.bio }}</div>{% endif %}
-            <div class="profile-meta">
-                <span><i class="fas fa-newspaper"></i> {{ posts|length }} منشور</span>
-                <span><i class="fas fa-calendar-alt"></i> عضو منذ {{ author.created_at.strftime('%Y-%m-%d') if author.created_at else '—' }}</span>
+<main class="sd-container sd-author-page">
+
+    <section class="author-profile" aria-labelledby="author-name">
+
+        <div class="author-avatar-wrap">
+            {% set author_img = author.profile_image if author.profile_image else 'default_user.png' %}
+
+            <img
+                src="{{ url_for('static', filename='uploads/' + author_img) }}"
+                class="author-avatar"
+                alt="صورة {{ author.name or author.username }}"
+                width="96"
+                height="96"
+                loading="eager"
+                decoding="async"
+            >
+        </div>
+
+        <div class="author-info">
+
+            <h1 id="author-name" class="author-name">
+                {{ author.name or author.username }}
+            </h1>
+
+            <div class="author-username" dir="ltr">
+                @{{ author.username }}
             </div>
+
+            {% if author.bio %}
+            <p class="author-bio">
+                {{ author.bio }}
+            </p>
+            {% endif %}
+
+            <div class="author-meta" aria-label="معلومات المؤلف">
+
+                <span class="author-meta-item">
+                    <i class="fas fa-newspaper" aria-hidden="true"></i>
+                    <span>{{ posts|length }} منشور</span>
+                </span>
+
+                <span class="author-meta-item">
+                    <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                    <span>
+                        عضو منذ
+                        {{ author.created_at.strftime('%Y-%m-%d') if author.created_at else '—' }}
+                    </span>
+                </span>
+
+            </div>
+
         </div>
-    </div>
 
-    <div class="section-label">منشورات {{ author.username }}</div>
+    </section>
 
-    {% if posts %}
-        {% for post in posts %}
-        <a href="{{ url_for('articles.view_article', post_id=post.id) }}" class="post-card">
-            <div class="post-title">{{ post.title }}</div>
-            <div class="post-excerpt">{{ post.content|truncate(140) }}</div>
-            <div class="post-date">{{ post.created_at.strftime('%Y-%m-%d') if post.created_at else '—' }}</div>
-        </a>
-        {% endfor %}
-    {% else %}
+
+    <section class="author-posts" aria-labelledby="posts-heading">
+
+        <div class="section-heading">
+            <h2 id="posts-heading" class="section-title">
+                منشورات {{ author.username }}
+            </h2>
+        </div>
+
+
+        {% if posts %}
+
+        <div class="posts-list">
+
+            {% for post in posts %}
+
+            <a
+                href="{{ url_for('articles.view_article', post_id=post.id) }}"
+                class="post-card"
+                aria-label="قراءة {{ post.title }}"
+            >
+
+                <div class="post-content">
+
+                    <h3 class="post-title">
+                        {{ post.title }}
+                    </h3>
+
+                    <p class="post-excerpt">
+                        {{ post.content|striptags|truncate(140, True, '…') }}
+                    </p>
+
+                </div>
+
+                <time
+                    class="post-date"
+                    datetime="{{ post.created_at.isoformat() if post.created_at else '' }}"
+                >
+                    {{ post.created_at.strftime('%Y-%m-%d') if post.created_at else '—' }}
+                </time>
+
+            </a>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
         <div class="empty-state">
-            <i class="fas fa-newspaper" style="font-size: 2rem; color: #b388ff; display:block; margin-bottom: 1rem;"></i>
-            <p>ما نشر أي منشور بعد.</p>
+            <div class="empty-icon" aria-hidden="true">
+                <i class="fas fa-newspaper"></i>
+            </div>
+
+            <p class="empty-text">
+                لم ينشر هذا المؤلف أي منشور بعد.
+            </p>
         </div>
-    {% endif %}
-</div>
+
+        {% endif %}
+
+    </section>
+
+</main>
 {% endblock %}

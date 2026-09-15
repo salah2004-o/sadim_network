@@ -1,144 +1,476 @@
-.sd-author-page .page-header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(9, 9, 13, 0.85);
-    backdrop-filter: blur(18px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 1rem 2rem;
+/* =========================================================
+   Sadim — Author Page
+   Responsive author profile & posts
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   Page
+   --------------------------------------------------------- */
+
+.sd-author-page {
+    width: min(100%, 960px);
+    margin-inline: auto;
+    padding-block: clamp(1rem, 3vw, 2rem) clamp(4rem, 8vw, 6rem);
 }
 
-.sd-author-page .back-btn {
-    color: #9c9cab;
-    text-decoration: none;
-    font-size: 0.85rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    width: fit-content;
-}
 
-.sd-author-page .back-btn:hover {
-    color: #b388ff;
-}
+/* ---------------------------------------------------------
+   Author Profile
+   --------------------------------------------------------- */
 
-.sd-author-page .profile-hero {
+.sd-author-page .author-profile {
     display: flex;
     align-items: center;
-    gap: 1.2rem;
-    background: rgba(18, 18, 24, 0.75);
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+
+    padding: clamp(1.25rem, 3vw, 2rem);
+
+    margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
+
+    background: rgba(18, 18, 24, 0.72);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    padding: 1.8rem;
-    margin-bottom: 2rem;
+    border-radius: clamp(18px, 3vw, 24px);
+
+    box-shadow:
+        0 10px 35px rgba(0, 0, 0, 0.12);
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
+    min-width: 0;
 }
 
-.sd-author-page .profile-avatar {
-    width: 80px;
-    height: 80px;
+
+/* ---------------------------------------------------------
+   Avatar
+   --------------------------------------------------------- */
+
+.sd-author-page .author-avatar-wrap {
+    flex: 0 0 auto;
+}
+
+.sd-author-page .author-avatar {
+    display: block;
+
+    width: clamp(72px, 10vw, 96px);
+    height: clamp(72px, 10vw, 96px);
+
     border-radius: 50%;
     object-fit: cover;
+
     border: 2px solid rgba(124, 77, 255, 0.35);
-    flex-shrink: 0;
+
+    background: rgba(255, 255, 255, 0.04);
+
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.18);
 }
 
-.sd-author-page .profile-name {
-    font-size: 1.3rem;
+
+/* ---------------------------------------------------------
+   Author Info
+   --------------------------------------------------------- */
+
+.sd-author-page .author-info {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.sd-author-page .author-name {
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    line-height: 1.35;
     font-weight: 800;
-    color: #ffffff;
+
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
-.sd-author-page .profile-username {
-    font-size: 0.85rem;
+.sd-author-page .author-username {
+    margin-top: 0.2rem;
+
     color: #9c9cab;
-    margin-bottom: 0.5rem;
+
+    font-size: clamp(0.78rem, 1.5vw, 0.88rem);
+    line-height: 1.5;
+
+    overflow-wrap: anywhere;
 }
 
-.sd-author-page .profile-bio {
-    font-size: 0.9rem;
-    color: #ffffff;
-    line-height: 1.6;
-    margin-top: 0.6rem;
+.sd-author-page .author-bio {
+    max-width: 720px;
+
+    margin: 0.75rem 0 0;
+
+    color: rgba(255, 255, 255, 0.82);
+
+    font-size: clamp(0.82rem, 1.5vw, 0.92rem);
+    line-height: 1.75;
+
     white-space: pre-line;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
-.sd-author-page .profile-meta {
+
+/* ---------------------------------------------------------
+   Author Meta
+   --------------------------------------------------------- */
+
+.sd-author-page .author-meta {
     display: flex;
-    gap: 1.2rem;
-    margin-top: 0.8rem;
-    font-size: 0.78rem;
-    color: #9c9cab;
+    align-items: center;
     flex-wrap: wrap;
+
+    gap: 0.55rem 1.25rem;
+
+    margin-top: 0.9rem;
+
+    color: #9c9cab;
+
+    font-size: 0.78rem;
+    line-height: 1.5;
 }
 
-.sd-author-page .profile-meta span {
+.sd-author-page .author-meta-item {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
+
+    min-width: 0;
 }
 
-.sd-author-page .section-label {
-    font-size: 0.72rem;
-    letter-spacing: 0.15em;
-    color: #9c9cab;
-    font-weight: 700;
-    margin-bottom: 1rem;
+.sd-author-page .author-meta-item i {
+    flex: 0 0 auto;
+
+    color: #b388ff;
+    font-size: 0.78rem;
 }
+
+
+/* ---------------------------------------------------------
+   Posts Section
+   --------------------------------------------------------- */
+
+.sd-author-page .author-posts {
+    min-width: 0;
+}
+
+.sd-author-page .section-heading {
+    display: flex;
+    align-items: center;
+
+    margin-bottom: 0.9rem;
+}
+
+.sd-author-page .section-title {
+    margin: 0;
+
+    color: #9c9cab;
+
+    font-size: clamp(0.72rem, 1.5vw, 0.78rem);
+    line-height: 1.5;
+    font-weight: 700;
+
+    letter-spacing: 0.08em;
+}
+
+
+/* ---------------------------------------------------------
+   Posts List
+   --------------------------------------------------------- */
+
+.sd-author-page .posts-list {
+    display: grid;
+    gap: 0.85rem;
+}
+
+
+/* ---------------------------------------------------------
+   Post Card
+   --------------------------------------------------------- */
 
 .sd-author-page .post-card {
-    display: block;
-    text-decoration: none;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1.5rem;
+
+    width: 100%;
+    min-width: 0;
+
+    padding: clamp(1.05rem, 2.5vw, 1.4rem);
+
     color: inherit;
-    background: rgba(18, 18, 24, 0.75);
+    text-decoration: none;
+
+    background: rgba(18, 18, 24, 0.72);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 24px;
-    padding: 1.4rem;
-    margin-bottom: 1rem;
-    transition: all 0.25s ease;
+    border-radius: clamp(16px, 2.5vw, 22px);
+
+    transition:
+        border-color 180ms ease,
+        background-color 180ms ease,
+        transform 180ms ease,
+        box-shadow 180ms ease;
 }
 
 .sd-author-page .post-card:hover {
-    border-color: rgba(124, 77, 255, 0.35);
+    border-color: rgba(124, 77, 255, 0.32);
+
+    background: rgba(22, 21, 30, 0.82);
+
     transform: translateY(-2px);
+
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+.sd-author-page .post-card:focus-visible {
+    outline: 2px solid rgba(179, 136, 255, 0.8);
+    outline-offset: 3px;
+}
+
+
+/* ---------------------------------------------------------
+   Post Content
+   --------------------------------------------------------- */
+
+.sd-author-page .post-content {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 .sd-author-page .post-title {
-    font-size: 1.05rem;
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: clamp(0.92rem, 1.8vw, 1.05rem);
+    line-height: 1.55;
     font-weight: 700;
-    margin-bottom: 0.4rem;
-    min-width: 0;
+
     overflow-wrap: anywhere;
     word-break: break-word;
 }
 
 .sd-author-page .post-excerpt {
-    font-size: 0.85rem;
+    margin: 0.4rem 0 0;
+
     color: #9c9cab;
-    line-height: 1.6;
-    margin: 0;
-    min-width: 0;
+
+    font-size: clamp(0.8rem, 1.5vw, 0.86rem);
+    line-height: 1.7;
+
     overflow-wrap: anywhere;
     word-break: break-word;
 }
 
 .sd-author-page .post-date {
-    font-size: 0.72rem;
-    color: #9c9cab;
-    margin-top: 0.6rem;
+    flex: 0 0 auto;
+
+    margin-top: 0.1rem;
+
+    color: #777786;
+
+    font-size: 0.7rem;
+    line-height: 1.5;
+
+    white-space: nowrap;
 }
+
+
+/* ---------------------------------------------------------
+   Empty State
+   --------------------------------------------------------- */
 
 .sd-author-page .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 180px;
+
+    padding: 2rem 1rem;
+
     text-align: center;
-    padding: 3rem 2rem;
-    opacity: 0.5;
+
+    color: #9c9cab;
+
+    background: rgba(18, 18, 24, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
 }
 
-@media (max-width: 600px) {
-    .sd-author-page .profile-hero {
-        flex-direction: column;
-        text-align: center;
+.sd-author-page .empty-icon {
+    display: grid;
+    place-items: center;
+
+    width: 48px;
+    height: 48px;
+
+    margin-bottom: 0.8rem;
+
+    color: #b388ff;
+
+    font-size: 1.25rem;
+
+    background: rgba(124, 77, 255, 0.08);
+    border-radius: 50%;
+}
+
+.sd-author-page .empty-text {
+    margin: 0;
+
+    font-size: 0.86rem;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   Tablet
+   --------------------------------------------------------- */
+
+@media (max-width: 767px) {
+
+    .sd-author-page .author-profile {
+        align-items: flex-start;
     }
-    .sd-author-page .profile-meta {
+
+    .sd-author-page .post-card {
+        gap: 1rem;
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Mobile
+   --------------------------------------------------------- */
+
+@media (max-width: 600px) {
+
+    .sd-author-page {
+        padding-inline: 0.9rem;
+    }
+
+    .sd-author-page .author-profile {
+        flex-direction: column;
+        align-items: center;
+
+        text-align: center;
+
+        padding: 1.4rem 1rem;
+    }
+
+    .sd-author-page .author-info {
+        width: 100%;
+    }
+
+    .sd-author-page .author-bio {
+        margin-inline: auto;
+    }
+
+    .sd-author-page .author-meta {
         justify-content: center;
     }
+
+    .sd-author-page .post-card {
+        flex-direction: column;
+        gap: 0.45rem;
+    }
+
+    .sd-author-page .post-date {
+        margin-top: 0.1rem;
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Small Mobile
+   --------------------------------------------------------- */
+
+@media (max-width: 400px) {
+
+    .sd-author-page {
+        padding-inline: 0.7rem;
+    }
+
+    .sd-author-page .author-profile {
+        border-radius: 17px;
+        padding: 1.2rem 0.85rem;
+    }
+
+    .sd-author-page .post-card {
+        border-radius: 16px;
+        padding: 1rem;
+    }
+
+    .sd-author-page .author-meta {
+        gap: 0.45rem 0.85rem;
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Very Small Devices
+   --------------------------------------------------------- */
+
+@media (max-width: 340px) {
+
+    .sd-author-page .author-profile {
+        padding-inline: 0.7rem;
+    }
+
+    .sd-author-page .author-meta {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .sd-author-page .post-excerpt {
+        font-size: 0.78rem;
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Large Screens
+   --------------------------------------------------------- */
+
+@media (min-width: 1200px) {
+
+    .sd-author-page {
+        width: min(100%, 1000px);
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   Reduced Motion
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .sd-author-page .post-card {
+        transition: none;
+    }
+
+    .sd-author-page .post-card:hover {
+        transform: none;
+    }
+
 }
