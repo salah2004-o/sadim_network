@@ -3,722 +3,3019 @@
 {% block title %}Sadeem AI{% endblock %}
 
 {% block extra_head %}
+
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+
 <style>
-:root {
-    --sd-ai-bg: #0b0b10;
-    --sd-ai-surface: #12121a;
-    --sd-ai-surface-2: #181825;
-    --sd-ai-border: rgba(255,255,255,0.08);
-    --sd-ai-border-strong: rgba(255,255,255,0.14);
-    --sd-ai-text: #f2f2f7;
-    --sd-ai-text-secondary: #9c9cab;
-    --sd-ai-muted: #6e6e7a;
-    --sd-ai-accent: #b388ff;
-    --sd-ai-accent-soft: rgba(179,136,255,0.12);
-    --sd-ai-gold: #d4af37;
-    --sd-ai-gold-soft: rgba(212,175,55,0.12);
-    --sd-ai-user-bg: rgba(74,125,149,0.22);
-    --sd-ai-user-border: rgba(74,125,149,0.35);
-    --sd-ai-radius: 18px;
-    --sd-ai-radius-sm: 12px;
-}
+    /* =========================================================
+       SADEEM AI
+       Responsive / Accessible / Mobile-first
+       ========================================================= */
 
-.ai-shell {
-    max-width: 1100px;
-    margin: auto;
-    padding: 1rem;
-    display: grid;
-    grid-template-columns: 240px minmax(0, 1fr);
-    gap: 1rem;
-    height: calc(100dvh - 140px);
-    min-height: 0;
-    min-width: 0;
-}
-.ai-panel,
-.ai-chat {
-    background: var(--sd-ai-surface);
-    border: 1px solid var(--sd-ai-border);
-    border-radius: var(--sd-ai-radius);
-    min-width: 0;
-    min-height: 0;
-}
-.ai-panel {
-    padding: 1.1rem;
-    border-inline-start: 3px solid var(--sd-ai-gold);
-    display: flex;
-    flex-direction: column;
-    gap: .55rem;
-    overflow-y: auto;
-}
-.ai-panel h1 {
-    font-family: var(--sd-font-display);
-    font-size: 1.35rem;
-    color: var(--sd-ai-gold);
-    margin: 0;
-}
-.ai-panel .ai-panel-sub {
-    color: var(--sd-ai-text-secondary);
-    font-size: .8rem;
-    margin: 0;
-    line-height: 1.5;
-}
-.ai-panel button,
-.prompt {
-    width: 100%;
-    margin: 0;
-    padding: .6rem .8rem;
-    border: 1px solid var(--sd-ai-border-strong);
-    background: var(--sd-ai-surface-2);
-    color: inherit;
-    border-radius: var(--sd-ai-radius-sm);
-    text-align: right;
-    cursor: pointer;
-    font: inherit;
-    font-size: .82rem;
-    min-height: 40px;
-    transition: border-color .2s, background .2s;
-}
-.ai-panel button:hover,
-.prompt:hover {
-    border-color: var(--sd-ai-accent);
-    background: var(--sd-ai-accent-soft);
-}
-.ai-panel .ai-section-label {
-    font-size: .68rem;
-    text-transform: uppercase;
-    letter-spacing: .1em;
-    color: var(--sd-ai-muted);
-    font-weight: 700;
-    margin: .3rem 0 0;
-}
-.ai-chat {
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    min-height: 0;
-    position: relative;
-}
-.ai-chat-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--sd-ai-border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-    min-height: 0;
-}
-.ai-chat-header__title {
-    font-family: var(--sd-font-display);
-    font-size: 1.1rem;
-    color: var(--sd-ai-gold);
-    margin: 0;
-}
-.ai-chat-header__meta {
-    font-size: .78rem;
-    color: var(--sd-ai-muted);
-}
-.ai-guest-banner {
-    display: inline-flex;
-    align-items: center;
-    gap: .55rem;
-    padding: .55rem .85rem;
-    margin: 0 1.25rem .8rem;
-    background: var(--sd-ai-gold-soft);
-    border: 1px solid rgba(212,175,55,0.25);
-    border-radius: var(--sd-ai-radius-sm);
-    font-size: .78rem;
-    color: var(--sd-ai-text-secondary);
-    line-height: 1.5;
-}
-.ai-guest-banner a {
-    color: var(--sd-ai-accent);
-    font-weight: 700;
-    text-decoration: none;
-}
-.ai-messages {
-    flex: 1 1 auto;
-    padding: 1.25rem;
-    overflow-y: auto;
-    min-height: 0;
-    min-width: 0;
-    scroll-behavior: smooth;
-}
-.ai-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: .55rem;
-    text-align: center;
-    padding: 2rem 1rem;
-    color: var(--sd-ai-text-secondary);
-}
-.ai-empty-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    background: var(--sd-ai-accent-soft);
-    color: var(--sd-ai-accent);
-    font-size: 1.1rem;
-    border: 1px solid rgba(179,136,255,0.25);
-}
-.ai-empty h2 {
-    font-family: var(--sd-font-display);
-    font-size: 1.05rem;
-    margin: 0;
-    color: var(--sd-ai-text);
-}
-.ai-empty p {
-    margin: 0;
-    font-size: .85rem;
-    color: var(--sd-ai-text-secondary);
-    max-width: 26rem;
-    line-height: 1.6;
-}
-.ai-quick {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: .5rem;
-    width: 100%;
-    max-width: 32rem;
-    margin-top: .5rem;
-}
-.msg {
-    max-width: 82%;
-    padding: .75rem 1rem;
-    margin: .5rem 0;
-    border-radius: var(--sd-ai-radius);
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-    line-height: 1.8;
-    font-size: .92rem;
-}
-.user {
-    margin-inline-start: auto;
-    background: var(--sd-ai-user-bg);
-    border: 1px solid var(--sd-ai-user-border);
-}
-.assistant {
-    margin-inline-end: auto;
-    background: var(--sd-ai-surface-2);
-    border: 1px solid var(--sd-ai-border);
-}
-.ai-compose {
-    display: flex;
-    flex-wrap: wrap;
-    gap: .5rem;
-    padding: .8rem 1rem;
-    border-top: 1px solid var(--sd-ai-border);
-    min-width: 0;
-    align-items: flex-end;
-    background: var(--sd-ai-surface);
-    position: relative;
-    z-index: 2;
-}
-.ai-compose textarea {
-    flex: 1 1 auto;
-    min-width: 0;
-    resize: none;
-    min-height: 44px;
-    max-height: 140px;
-    background: var(--sd-ai-bg);
-    color: inherit;
-    border: 1px solid var(--sd-ai-border-strong);
-    border-radius: var(--sd-ai-radius-sm);
-    padding: .6rem .8rem;
-    font: inherit;
-}
-.ai-compose .ai-send {
-    flex: 0 0 auto;
-    min-height: 44px;
-    padding: 0 1rem;
-    background: linear-gradient(135deg, #b388ff, #7c4dff);
-    color: var(--sd-ai-text);
-    border: 0;
-    border-radius: var(--sd-ai-radius-sm);
-    font-weight: 700;
-    cursor: pointer;
-    font: inherit;
-    font-size: .82rem;
-}
-.ai-attach {
-    display: inline-flex;
-    align-items: center;
-    gap: .35rem;
-    min-height: 44px;
-    padding: 0 .7rem;
-    border: 1px solid var(--sd-ai-border-strong);
-    background: transparent;
-    color: var(--sd-ai-text-secondary);
-    border-radius: var(--sd-ai-radius-sm);
-    cursor: pointer;
-    font: inherit;
-    font-size: .8rem;
-}
-.ai-attach input {
-    display: none;
-}
-.ai-file-chips {
-    width: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    gap: .4rem;
-}
-.ai-file-chip {
-    font-size: .72rem;
-    padding: .2rem .5rem;
-    background: var(--sd-ai-gold-soft);
-    border-radius: var(--sd-ai-radius-sm);
-    color: var(--sd-ai-gold);
-    display: inline-flex;
-    align-items: center;
-    gap: .35rem;
-}
-.ai-file-chip button {
-    border: 0;
-    background: transparent;
-    color: inherit;
-    cursor: pointer;
-    font: inherit;
-    line-height: 1;
-}
-.ai-provider {
-    width: 100%;
-    margin: 0;
-    padding: .5rem .6rem;
-    border-radius: var(--sd-ai-radius-sm);
-    border: 1px solid var(--sd-ai-border-strong);
-    background: var(--sd-ai-bg);
-    color: inherit;
-    font: inherit;
-    font-size: .8rem;
-    min-height: 36px;
-}
-.muted {
-    color: var(--sd-ai-muted);
-    font-size: .85rem;
-}
+    :root {
+        --sd-ai-bg: #0b0b10;
+        --sd-ai-surface: #12121a;
+        --sd-ai-surface-2: #181825;
 
-@media (max-width: 760px) {
-    body.ai-page { 
-        overflow: hidden;
-        height: 100vh;
-        height: 100dvh;
+        --sd-ai-border: rgba(255, 255, 255, 0.08);
+        --sd-ai-border-strong: rgba(255, 255, 255, 0.14);
+
+        --sd-ai-text: #f2f2f7;
+        --sd-ai-text-secondary: #9c9cab;
+        --sd-ai-muted: #6e6e7a;
+
+        --sd-ai-accent: #b388ff;
+        --sd-ai-accent-strong: #7c4dff;
+        --sd-ai-accent-soft: rgba(179, 136, 255, 0.12);
+
+        --sd-ai-gold: #d4af37;
+        --sd-ai-gold-bright: #e2c45f;
+        --sd-ai-gold-soft: rgba(212, 175, 55, 0.12);
+
+        --sd-ai-user-bg: rgba(74, 125, 149, 0.22);
+        --sd-ai-user-border: rgba(74, 125, 149, 0.35);
+
+        --sd-ai-radius: 18px;
+        --sd-ai-radius-sm: 12px;
+
+        --sd-ai-panel-width: 250px;
+        --sd-ai-max-width: 1240px;
+        --sd-ai-gap: 1rem;
+
+        --sd-ai-safe-bottom: env(
+            safe-area-inset-bottom,
+            0px
+        );
     }
-    body.ai-page.ai-keyboard-open .ai-compose {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 50;
-        border-top: 1px solid var(--sd-ai-border);
-        box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
+
+    /* =========================================================
+       PAGE
+       ========================================================= */
+
+    body:has(.ai-shell) {
+        background: var(--sd-ai-bg);
     }
+
+    body.ai-page {
+        min-height: 100dvh;
+    }
+
+    /* =========================================================
+       MAIN SHELL
+       ========================================================= */
+
     .ai-shell {
-        display: flex;
-        flex-direction: column;
-        padding: .5rem;
-        height: 100%;
-        max-height: none;
-        min-height: 0;
+        width: min(
+            calc(100% - 2rem),
+            var(--sd-ai-max-width)
+        );
+
+        height: calc(100dvh - 140px);
+
+        min-height: 560px;
         min-width: 0;
-        overflow: hidden;
-        gap: .5rem;
+
+        margin-inline: auto;
+        margin-block: 1rem;
+
+        display: grid;
+        grid-template-columns:
+            var(--sd-ai-panel-width)
+            minmax(0, 1fr);
+
+        gap: var(--sd-ai-gap);
     }
-    .ai-panel {
-        order: 2;
-        max-height: 26vh;
-        overflow-y: auto;
-        flex-shrink: 0;
-    }
+
+    /* =========================================================
+       COMMON SURFACES
+       ========================================================= */
+
+    .ai-panel,
     .ai-chat {
-        flex: 1;
+        min-width: 0;
         min-height: 0;
+
+        background: var(--sd-ai-surface);
+
+        border:
+            1px solid
+            var(--sd-ai-border);
+
+        border-radius: var(--sd-ai-radius);
+
+        box-shadow:
+            0 12px 40px
+            rgba(0, 0, 0, 0.16);
+    }
+
+    /* =========================================================
+       SIDE PANEL
+       ========================================================= */
+
+    .ai-panel {
+        position: relative;
+
         display: flex;
         flex-direction: column;
-        overflow: hidden;
-    }
-    .ai-messages {
-        flex: 1;
+
+        gap: 0.65rem;
+
+        padding: 1.1rem;
+
         overflow-y: auto;
         overscroll-behavior: contain;
-        -webkit-overflow-scrolling: touch;
+
+        border-inline-start:
+            3px solid
+            var(--sd-ai-gold);
+
+        scrollbar-width: thin;
+    }
+
+    .ai-panel__brand {
+        display: flex;
+        align-items: center;
+
+        gap: 0.65rem;
+
+        min-width: 0;
+
+        padding-block: 0.1rem;
+    }
+
+    .ai-panel__brand img {
+        width: 34px;
+        height: 34px;
+
+        flex: 0 0 auto;
+
+        object-fit: contain;
+    }
+
+    .ai-panel h1 {
+        margin: 0;
+
+        min-width: 0;
+
+        color: var(--sd-ai-gold);
+
+        font-family:
+            var(--sd-font-display),
+            Amiri,
+            serif;
+
+        font-size: 1.3rem;
+        line-height: 1.3;
+
+        overflow-wrap: anywhere;
+    }
+
+    .ai-panel-sub {
+        margin: 0;
+
+        color: var(--sd-ai-text-secondary);
+
+        font-size: 0.78rem;
+        line-height: 1.6;
+    }
+
+    .ai-section-label {
+        margin: 0.45rem 0 0;
+
+        color: var(--sd-ai-muted);
+
+        font-size: 0.68rem;
+        font-weight: 700;
+
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .ai-panel-divider {
+        width: 100%;
+        height: 1px;
+
+        margin: 0.4rem 0;
+
+        border: 0;
+
+        background: var(--sd-ai-border);
+    }
+
+    /* =========================================================
+       PANEL BUTTONS
+       ========================================================= */
+
+    .ai-panel button,
+    .prompt {
+        width: 100%;
+        min-height: 42px;
+
+        margin: 0;
+
+        padding:
+            0.6rem
+            0.8rem;
+
+        border:
+            1px solid
+            var(--sd-ai-border-strong);
+
+        border-radius:
+            var(--sd-ai-radius-sm);
+
+        background:
+            var(--sd-ai-surface-2);
+
+        color: var(--sd-ai-text);
+
+        font: inherit;
+        font-size: 0.81rem;
+
+        line-height: 1.45;
+
+        text-align: right;
+
+        cursor: pointer;
+
+        transition:
+            border-color 180ms ease,
+            background-color 180ms ease,
+            transform 180ms ease,
+            color 180ms ease;
+    }
+
+    .ai-panel button:hover,
+    .prompt:hover {
+        border-color: var(--sd-ai-accent);
+
+        background:
+            var(--sd-ai-accent-soft);
+
+        color: #fff;
+    }
+
+    .ai-panel button:active,
+    .prompt:active {
+        transform: translateY(1px);
+    }
+
+    .ai-panel button:focus-visible,
+    .prompt:focus-visible,
+    .ai-send:focus-visible,
+    .ai-attach:focus-within,
+    .ai-provider:focus-visible,
+    #clear-chat:focus-visible {
+        outline:
+            2px solid
+            rgba(226, 196, 95, 0.9);
+
+        outline-offset: 2px;
+    }
+
+    /* =========================================================
+       PROVIDER
+       ========================================================= */
+
+    .ai-provider {
+        width: 100%;
+        min-height: 40px;
+
+        margin: 0;
+
+        padding:
+            0.55rem
+            0.65rem;
+
+        border:
+            1px solid
+            var(--sd-ai-border-strong);
+
+        border-radius:
+            var(--sd-ai-radius-sm);
+
+        background:
+            var(--sd-ai-bg);
+
+        color: var(--sd-ai-text);
+
+        font: inherit;
+        font-size: 0.78rem;
+
+        cursor: pointer;
+
+        outline: none;
+    }
+
+    .ai-provider:hover {
+        border-color:
+            rgba(179, 136, 255, 0.45);
+    }
+
+    /* =========================================================
+       HISTORY
+       ========================================================= */
+
+    #history {
+        display: flex;
+        flex-direction: column;
+
+        gap: 0.35rem;
+
         min-height: 0;
     }
-    .ai-compose {
-        position: sticky;
-        bottom: 0;
-        background: var(--sd-ai-surface);
-        min-height: 56px;
-        padding-bottom: calc(.8rem + env(safe-area-inset-bottom, 0px));
-        margin-bottom: calc(-1 * env(safe-area-inset-bottom, 0px));
-        z-index: 2;
-        flex-shrink: 0;
+
+    #history:empty {
+        display: none;
     }
-    .ai-quick {
-        grid-template-columns: 1fr;
+
+    #history button {
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
-    .msg {
-        max-width: 92%;
+
+    /* =========================================================
+       CHAT
+       ========================================================= */
+
+    .ai-chat {
+        position: relative;
+
+        display: flex;
+        flex-direction: column;
+
+        overflow: hidden;
     }
+
+    /* =========================================================
+       CHAT HEADER
+       ========================================================= */
+
     .ai-chat-header {
-        padding: .8rem 1rem;
+        flex: 0 0 auto;
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 1rem;
+
+        min-width: 0;
+
+        padding:
+            0.9rem
+            1.15rem;
+
+        border-bottom:
+            1px solid
+            var(--sd-ai-border);
     }
-    .ai-messages {
-        padding: 1rem;
+
+    .ai-chat-header__identity {
+        display: flex;
+        align-items: center;
+
+        gap: 0.6rem;
+
+        min-width: 0;
     }
+
+    .ai-chat-header__identity img {
+        width: 30px;
+        height: 30px;
+
+        flex: 0 0 auto;
+
+        object-fit: contain;
+    }
+
+    .ai-chat-header__copy {
+        min-width: 0;
+    }
+
+    .ai-chat-header__title {
+        margin: 0;
+
+        color: var(--sd-ai-gold);
+
+        font-family:
+            var(--sd-font-display),
+            Amiri,
+            serif;
+
+        font-size: 1.05rem;
+        font-weight: 700;
+
+        line-height: 1.35;
+    }
+
+    .ai-chat-header__meta {
+        margin-top: 0.1rem;
+
+        color: var(--sd-ai-muted);
+
+        font-size: 0.72rem;
+        line-height: 1.4;
+    }
+
+    #clear-chat {
+        flex: 0 0 auto;
+
+        display: none;
+        align-items: center;
+        justify-content: center;
+
+        gap: 0.4rem;
+
+        min-height: 36px;
+
+        padding:
+            0.35rem
+            0.65rem;
+
+        border:
+            1px solid
+            var(--sd-ai-border-strong);
+
+        border-radius:
+            var(--sd-ai-radius-sm);
+
+        background: transparent;
+
+        color:
+            var(--sd-ai-text-secondary);
+
+        font: inherit;
+        font-size: 0.75rem;
+
+        cursor: pointer;
+
+        transition:
+            border-color 180ms ease,
+            color 180ms ease,
+            background-color 180ms ease;
+    }
+
+    #clear-chat:hover {
+        border-color:
+            rgba(212, 175, 55, 0.45);
+
+        color:
+            var(--sd-ai-gold-bright);
+
+        background:
+            var(--sd-ai-gold-soft);
+    }
+
+    /* =========================================================
+       GUEST BANNER
+       ========================================================= */
+
     .ai-guest-banner {
-        margin: 0 .8rem .7rem;
+        flex: 0 0 auto;
+
+        display: flex;
+        align-items: flex-start;
+
+        gap: 0.55rem;
+
+        margin:
+            0.7rem
+            1.15rem
+            0;
+
+        padding:
+            0.55rem
+            0.8rem;
+
+        border:
+            1px solid
+            rgba(212, 175, 55, 0.25);
+
+        border-radius:
+            var(--sd-ai-radius-sm);
+
+        background:
+            var(--sd-ai-gold-soft);
+
+        color:
+            var(--sd-ai-text-secondary);
+
+        font-size: 0.76rem;
+        line-height: 1.6;
     }
-}
+
+    .ai-guest-banner > i {
+        flex: 0 0 auto;
+
+        margin-top: 0.2rem;
+
+        color:
+            var(--sd-ai-gold);
+    }
+
+    .ai-guest-banner a {
+        color:
+            var(--sd-ai-accent);
+
+        font-weight: 700;
+
+        text-decoration: none;
+    }
+
+    .ai-guest-banner a:hover {
+        text-decoration: underline;
+    }
+
+    /* =========================================================
+       MESSAGES
+       ========================================================= */
+
+    .ai-messages {
+        flex: 1 1 auto;
+
+        min-height: 0;
+        min-width: 0;
+
+        padding:
+            1.2rem;
+
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        overscroll-behavior-y: contain;
+
+        scroll-behavior: smooth;
+
+        scrollbar-width: thin;
+    }
+
+    /* =========================================================
+       EMPTY STATE
+       ========================================================= */
+
+    .ai-empty {
+        width: min(100%, 540px);
+
+        min-height: 100%;
+
+        margin-inline: auto;
+
+        display: flex;
+        flex-direction: column;
+
+        align-items: center;
+        justify-content: center;
+
+        gap: 0.55rem;
+
+        padding:
+            2rem
+            1rem;
+
+        color:
+            var(--sd-ai-text-secondary);
+
+        text-align: center;
+    }
+
+    .ai-empty-icon {
+        width: 48px;
+        height: 48px;
+
+        display: grid;
+        place-items: center;
+
+        margin-bottom: 0.2rem;
+
+        border:
+            1px solid
+            rgba(179, 136, 255, 0.25);
+
+        border-radius: 50%;
+
+        background:
+            var(--sd-ai-accent-soft);
+
+        color:
+            var(--sd-ai-accent);
+
+        font-size: 1.1rem;
+    }
+
+    .ai-empty h2 {
+        margin: 0;
+
+        color:
+            var(--sd-ai-text);
+
+        font-family:
+            var(--sd-font-display),
+            Amiri,
+            serif;
+
+        font-size: 1.08rem;
+        line-height: 1.5;
+    }
+
+    .ai-empty p {
+        max-width: 30rem;
+
+        margin: 0;
+
+        color:
+            var(--sd-ai-text-secondary);
+
+        font-size: 0.83rem;
+        line-height: 1.7;
+    }
+
+    /* =========================================================
+       QUICK PROMPTS
+       ========================================================= */
+
+    .ai-quick {
+        width: min(100%, 34rem);
+
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 0.5rem;
+
+        margin-top: 0.7rem;
+    }
+
+    /* =========================================================
+       MESSAGES
+       ========================================================= */
+
+    .msg {
+        width: fit-content;
+        max-width: min(82%, 760px);
+
+        margin:
+            0.55rem 0;
+
+        padding:
+            0.75rem
+            1rem;
+
+        border-radius:
+            var(--sd-ai-radius);
+
+        font-size: 0.9rem;
+
+        line-height: 1.85;
+
+        overflow-wrap: anywhere;
+        word-break: break-word;
+
+        white-space: pre-wrap;
+    }
+
+    .user {
+        margin-inline-start: auto;
+
+        border:
+            1px solid
+            var(--sd-ai-user-border);
+
+        border-radius:
+            var(--sd-ai-radius)
+            6px
+            var(--sd-ai-radius)
+            var(--sd-ai-radius);
+
+        background:
+            var(--sd-ai-user-bg);
+    }
+
+    .assistant {
+        margin-inline-end: auto;
+
+        border:
+            1px solid
+            var(--sd-ai-border);
+
+        border-radius:
+            6px
+            var(--sd-ai-radius)
+            var(--sd-ai-radius)
+            var(--sd-ai-radius);
+
+        background:
+            var(--sd-ai-surface-2);
+    }
+
+    /* Markdown */
+
+    .msg p {
+        margin:
+            0 0
+            0.65rem;
+    }
+
+    .msg p:last-child {
+        margin-bottom: 0;
+    }
+
+    .msg ul,
+    .msg ol {
+        margin:
+            0.5rem 0;
+
+        padding-inline-start:
+            1.4rem;
+    }
+
+    .msg li {
+        margin-bottom: 0.3rem;
+    }
+
+    .msg code {
+        padding:
+            0.12rem
+            0.3rem;
+
+        border-radius: 5px;
+
+        background:
+            rgba(255, 255, 255, 0.07);
+
+        font-size: 0.84em;
+    }
+
+    .msg pre {
+        max-width: 100%;
+
+        margin:
+            0.7rem 0;
+
+        padding:
+            0.75rem;
+
+        overflow-x: auto;
+
+        border:
+            1px solid
+            var(--sd-ai-border);
+
+        border-radius:
+            var(--sd-ai-radius-sm);
+
+        background:
+            #09090d;
+
+        direction: ltr;
+        text-align: left;
+    }
+
+    .msg pre code {
+        padding: 0;
+
+        background: transparent;
+
+        white-space: pre;
+    }
+
+    .msg a {
+        color:
+            var(--sd-ai-accent);
+
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    /* =========================================================
+       COMPOSER
+       ========================================================= */
+
+    .ai-compose {
+        flex: 0 0 auto;
+
+        position: relative;
+        z-index: 5;
+
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+
+        gap: 0.5rem;
+
+        min-width: 0;
+
+        padding:
+            0.75rem
+            1rem
+            calc(
+                0.75rem
+                + var(--sd-ai-safe-bottom)
+            );
+
+        border-top:
+            1px solid
+            var(--sd-ai-border);
+
+        background:
+            var(--sd-ai-surface);
+
+        box-shadow:
+            0 -8px 24px
+            rgba(0, 0, 0, 0.08);
+    }
+
+    .ai-compose textarea {
+        flex:
+            1 1
+            240px;
+
+        width: 100%;
+
+        min-width: 0;
+        min-height: 44px;
+        max-height: 150px;
+
+        resize: none;
+
+        padding:
+            0.65rem
+            0.8rem;
+
+        border:
+            1px solid
+            var(--sd-ai-border-strong);
+
+        border-radius:
+            var(--sd-ai-radius-sm);
+
+        background:
+            var(--sd-ai-bg);
+
+        color:
+            var(--sd-ai-text);
+
+        font: inherit;
+        font-size: 0.86rem;
+
+        line-height: 1.6;
+
+        outline: none;
+
+        transition:
+            border-color 180ms ease,
+            box-shadow 180ms ease;
+    }
+
+    .ai-compose textarea::placeholder {
+        color:
+            var(--sd-ai-muted);
+    }
+
+    .ai-compose textarea:focus {
+        border-color:
+            rgba(179, 136, 255, 0.55);
+
+        box-shadow:
+            0 0 0 3px
+            rgba(179, 136, 255, 0.08);
+    }
+
+    /* =========================================================
+       SEND
+       ========================================================= */
+
+    .ai-send {
+        flex: 0 0 auto;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 0.45rem;
+
+        min-width: 82px;
+        min-height: 44px;
+
+        padding:
+            0 1rem;
+
+        border: 0;
+
+        border-radius:
+            var(--sd-ai-radius-sm);
+
+        background:
+            linear-gradient(
+                135deg,
+                var(--sd-ai-accent),
+                var(--sd-ai-accent-strong)
+            );
+
+        color:
+            #fff;
+
+        font: inherit;
+        font-size: 0.8rem;
+        font-weight: 700;
+
+        cursor: pointer;
+
+        transition:
+            transform 180ms ease,
+            filter 180ms ease,
+            opacity 180ms ease;
+    }
+
+    .ai-send:hover {
+        filter: brightness(1.08);
+
+        transform: translateY(-1px);
+    }
+
+    .ai-send:active {
+        transform: translateY(0);
+    }
+
+    .ai-send:disabled {
+        opacity: 0.55;
+
+        cursor: not-allowed;
+
+        transform: none;
+    }
+
+    /* =========================================================
+       ATTACHMENT
+       ========================================================= */
+
+    .ai-attach {
+        flex: 0 0 auto;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 0.35rem;
+
+        min-height: 44px;
+
+        padding:
+            0 0.7rem;
+
+        border:
+            1px solid
+            var(--sd-ai-border-strong);
+
+        border-radius:
+            var(--sd-ai-radius-sm);
+
+        background:
+            transparent;
+
+        color:
+            var(--sd-ai-text-secondary);
+
+        font: inherit;
+        font-size: 0.78rem;
+
+        cursor: pointer;
+
+        transition:
+            border-color 180ms ease,
+            color 180ms ease,
+            background-color 180ms ease;
+    }
+
+    .ai-attach:hover {
+        border-color:
+            rgba(179, 136, 255, 0.45);
+
+        color:
+            var(--sd-ai-accent);
+
+        background:
+            var(--sd-ai-accent-soft);
+    }
+
+    .ai-attach input {
+        position: absolute;
+
+        width: 1px;
+        height: 1px;
+
+        opacity: 0;
+
+        pointer-events: none;
+    }
+
+    /* =========================================================
+       FILE CHIPS
+       ========================================================= */
+
+    .ai-file-chips {
+        width: 100%;
+
+        display: flex;
+        flex-wrap: wrap;
+
+        gap: 0.4rem;
+
+        order: -1;
+    }
+
+    .ai-file-chip {
+        max-width: 100%;
+
+        display: inline-flex;
+        align-items: center;
+
+        gap: 0.35rem;
+
+        padding:
+            0.28rem
+            0.55rem;
+
+        border-radius:
+            var(--sd-ai-radius-sm);
+
+        background:
+            var(--sd-ai-gold-soft);
+
+        color:
+            var(--sd-ai-gold-bright);
+
+        font-size: 0.7rem;
+
+        overflow-wrap: anywhere;
+    }
+
+    .ai-file-chip span {
+        min-width: 0;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+    }
+
+    .ai-file-chip button {
+        width: 22px;
+        height: 22px;
+
+        flex: 0 0 auto;
+
+        display: grid;
+        place-items: center;
+
+        padding: 0;
+
+        border: 0;
+
+        background: transparent;
+
+        color: inherit;
+
+        cursor: pointer;
+
+        font: inherit;
+        font-size: 0.9rem;
+
+        border-radius: 50%;
+    }
+
+    .ai-file-chip button:hover {
+        background:
+            rgba(255, 255, 255, 0.08);
+    }
+
+    /* =========================================================
+       MUTED
+       ========================================================= */
+
+    .muted {
+        color:
+            var(--sd-ai-muted);
+
+        font-size: 0.8rem;
+    }
+
+    /* =========================================================
+       LARGE SCREENS
+       ========================================================= */
+
+    @media (min-width: 1400px) {
+        .ai-shell {
+            width: min(
+                calc(100% - 3rem),
+                1360px
+            );
+
+            grid-template-columns:
+                270px
+                minmax(0, 1fr);
+
+            height:
+                calc(100dvh - 120px);
+        }
+
+        .msg {
+            max-width: min(78%, 820px);
+        }
+    }
+
+    /* =========================================================
+       TABLET
+       ========================================================= */
+
+    @media (max-width: 1000px) {
+        .ai-shell {
+            grid-template-columns:
+                220px
+                minmax(0, 1fr);
+
+            width:
+                min(
+                    calc(100% - 1.25rem),
+                    1100px
+                );
+        }
+
+        .ai-panel {
+            padding: 0.9rem;
+        }
+
+        .ai-chat-header {
+            padding-inline: 1rem;
+        }
+
+        .ai-messages {
+            padding: 1rem;
+        }
+
+        .msg {
+            max-width: 88%;
+        }
+    }
+
+    /* =========================================================
+       MOBILE
+       ========================================================= */
+
+    @media (max-width: 760px) {
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body.ai-page {
+            height: 100dvh;
+            min-height: 100dvh;
+
+            overflow: hidden;
+        }
+
+        .ai-shell {
+            width: 100%;
+            height: 100dvh;
+            min-height: 0;
+
+            margin: 0;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 0;
+
+            padding: 0;
+
+            overflow: hidden;
+        }
+
+        /* Chat becomes primary mobile surface */
+
+        .ai-chat {
+            order: 1;
+
+            flex:
+                1 1
+                auto;
+
+            width: 100%;
+            min-height: 0;
+
+            border: 0;
+            border-radius: 0;
+
+            box-shadow: none;
+        }
+
+        /* Sidebar becomes compact bottom section */
+
+        .ai-panel {
+            order: 2;
+
+            flex: 0 0 auto;
+
+            width: 100%;
+            max-height: 24dvh;
+
+            padding:
+                0.65rem
+                0.75rem
+                calc(
+                    0.65rem
+                    + var(--sd-ai-safe-bottom)
+                );
+
+            border-inline-start: 0;
+            border-top:
+                1px solid
+                var(--sd-ai-border);
+
+            border-radius: 0;
+
+            gap: 0.45rem;
+
+            background:
+                rgba(18, 18, 26, 0.98);
+        }
+
+        .ai-panel__brand {
+            display: none;
+        }
+
+        .ai-panel-sub {
+            display: none;
+        }
+
+        .ai-panel .ai-section-label {
+            margin-top: 0.1rem;
+        }
+
+        .ai-panel-divider {
+            display: none;
+        }
+
+        #new-chat {
+            order: 0;
+        }
+
+        #history {
+            display: none;
+        }
+
+        .ai-provider {
+            min-height: 38px;
+        }
+
+        .ai-panel > .prompt {
+            min-height: 38px;
+        }
+
+        /* Header */
+
+        .ai-chat-header {
+            min-height: 58px;
+
+            padding:
+                0.65rem
+                0.8rem;
+
+            background:
+                rgba(18, 18, 26, 0.98);
+        }
+
+        .ai-chat-header__identity img {
+            width: 28px;
+            height: 28px;
+        }
+
+        .ai-chat-header__title {
+            font-size: 0.98rem;
+        }
+
+        .ai-chat-header__meta {
+            font-size: 0.68rem;
+        }
+
+        #clear-chat {
+            min-width: 36px;
+            width: 36px;
+            height: 36px;
+
+            padding: 0;
+        }
+
+        #clear-chat .clear-label {
+            display: none;
+        }
+
+        /* Guest */
+
+        .ai-guest-banner {
+            margin:
+                0.55rem
+                0.7rem
+                0;
+
+            padding:
+                0.5rem
+                0.65rem;
+
+            font-size: 0.71rem;
+        }
+
+        /* Messages */
+
+        .ai-messages {
+            padding:
+                0.8rem;
+
+            overscroll-behavior:
+                contain;
+
+            -webkit-overflow-scrolling:
+                touch;
+        }
+
+        .ai-empty {
+            min-height: 100%;
+
+            padding:
+                1.5rem
+                0.75rem;
+        }
+
+        .ai-empty-icon {
+            width: 44px;
+            height: 44px;
+        }
+
+        .ai-empty h2 {
+            font-size: 1rem;
+        }
+
+        .ai-empty p {
+            font-size: 0.78rem;
+        }
+
+        .ai-quick {
+            grid-template-columns:
+                1fr;
+
+            width: min(
+                100%,
+                24rem
+            );
+        }
+
+        .msg {
+            max-width: 94%;
+
+            padding:
+                0.65rem
+                0.8rem;
+
+            font-size: 0.85rem;
+
+            line-height: 1.8;
+        }
+
+        /* Composer */
+
+        .ai-compose {
+            gap: 0.4rem;
+
+            padding:
+                0.55rem
+                0.65rem
+                calc(
+                    0.55rem
+                    + var(--sd-ai-safe-bottom)
+                );
+
+            background:
+                rgba(18, 18, 26, 0.98);
+        }
+
+        .ai-compose textarea {
+            flex:
+                1 1
+                calc(100% - 88px);
+
+            min-height: 44px;
+
+            max-height: 120px;
+
+            font-size: 0.83rem;
+        }
+
+        .ai-attach {
+            width: 44px;
+            min-width: 44px;
+
+            padding: 0;
+
+            font-size: 0;
+        }
+
+        .ai-attach i {
+            font-size: 0.9rem;
+        }
+
+        .ai-send {
+            min-width: 44px;
+            width: 44px;
+
+            padding: 0;
+
+            font-size: 0;
+        }
+
+        .ai-send i {
+            font-size: 0.9rem;
+        }
+
+        .ai-file-chips {
+            gap: 0.3rem;
+        }
+
+        .ai-file-chip {
+            max-width: calc(100vw - 1.5rem);
+        }
+    }
+
+    /* =========================================================
+       SMALL PHONES
+       ========================================================= */
+
+    @media (max-width: 480px) {
+
+        .ai-panel {
+            max-height: 22dvh;
+        }
+
+        .ai-chat-header {
+            padding-inline: 0.65rem;
+        }
+
+        .ai-messages {
+            padding:
+                0.65rem;
+        }
+
+        .msg {
+            max-width: 96%;
+        }
+
+        .ai-empty {
+            padding-inline: 0.5rem;
+        }
+
+        .ai-compose {
+            padding-inline: 0.5rem;
+        }
+    }
+
+    /* =========================================================
+       VERY SMALL PHONES
+       ========================================================= */
+
+    @media (max-width: 360px) {
+
+        .ai-chat-header {
+            min-height: 54px;
+        }
+
+        .ai-chat-header__title {
+            font-size: 0.92rem;
+        }
+
+        .ai-chat-header__meta {
+            display: none;
+        }
+
+        .ai-messages {
+            padding:
+                0.5rem;
+        }
+
+        .msg {
+            max-width: 97%;
+
+            padding:
+                0.6rem
+                0.7rem;
+
+            font-size: 0.82rem;
+        }
+
+        .ai-compose {
+            gap: 0.3rem;
+        }
+
+        .ai-compose textarea {
+            flex-basis:
+                calc(100% - 92px);
+
+            font-size: 0.8rem;
+        }
+
+        .ai-attach,
+        .ai-send {
+            width: 42px;
+            min-width: 42px;
+            min-height: 42px;
+        }
+    }
+
+    /* =========================================================
+       LANDSCAPE MOBILE
+       ========================================================= */
+
+    @media (max-width: 760px) and (orientation: landscape) {
+
+        .ai-panel {
+            max-height: 30dvh;
+
+            display: grid;
+
+            grid-template-columns:
+                auto
+                minmax(130px, 1fr)
+                repeat(2, minmax(0, 1fr));
+
+            align-items: center;
+
+            gap: 0.4rem;
+        }
+
+        .ai-panel .ai-section-label {
+            display: none;
+        }
+
+        .ai-panel > .prompt:nth-of-type(n + 3) {
+            display: none;
+        }
+    }
+
+    /* =========================================================
+       REDUCED MOTION
+       ========================================================= */
+
+    @media (prefers-reduced-motion: reduce) {
+
+        .ai-panel button,
+        .prompt,
+        .ai-send,
+        .ai-attach,
+        .ai-provider,
+        #clear-chat {
+            transition: none;
+        }
+
+        .ai-messages {
+            scroll-behavior: auto;
+        }
+    }
 </style>
+
 {% endblock %}
+
 
 {% block content %}
+
 <section class="ai-shell" dir="rtl">
-  <aside class="ai-panel">
-    <div style="display:flex; align-items:center; gap:.6rem;">
-      <img src="{{ url_for('static', filename='images/sadeem-ai-logo.png') }}" alt="Sadeem AI" style="width:32px; height:32px; object-fit:contain;">
-      <h1 style="font-family: var(--sd-font-display); font-size: 1.35rem; color: var(--sd-ai-gold); margin:0;">Sadeem AI</h1>
-    </div>
-    <p class="ai-panel-sub">{% if is_guest %}محادثة زائر{% else %}ذكاء داخل شبكة سديم{% endif %}</p>
 
-    {% if not is_guest %}
-    <button type="button" id="new-chat"><i class="fas fa-plus" aria-hidden="true"></i> محادثة جديدة</button>
-    <div id="history"></div>
-    {% endif %}
+    <!-- =====================================================
+         SIDEBAR
+         ===================================================== -->
 
-    <label class="ai-section-label" for="provider-select">المزوّد</label>
-    <select id="provider-select" class="ai-provider" aria-label="اختيار مزود الذكاء الاصطناعي">
-      <option value="">تلقائي (مع احتياطي)</option>
-      {% for p in providers %}
-        {% if p.configured %}
-        <option value="{{ p.id }}">{{ p.id }} — {{ p.model }}</option>
+    <aside class="ai-panel">
+
+        <div class="ai-panel__brand">
+
+            <img
+                src="{{ url_for('static', filename='images/sadeem-ai-logo.png') }}"
+                alt="Sadeem AI"
+                width="34"
+                height="34"
+                decoding="async"
+            >
+
+            <h1>Sadeem AI</h1>
+
+        </div>
+
+        <p class="ai-panel-sub">
+            {% if is_guest %}
+                محادثة زائر
+            {% else %}
+                ذكاء داخل شبكة سديم
+            {% endif %}
+        </p>
+
+
+        {% if not is_guest %}
+
+            <button
+                type="button"
+                id="new-chat"
+                aria-label="بدء محادثة جديدة"
+            >
+                <i
+                    class="fas fa-plus"
+                    aria-hidden="true"
+                ></i>
+
+                محادثة جديدة
+            </button>
+
+            <div
+                id="history"
+                aria-label="المحادثات السابقة"
+            ></div>
+
         {% endif %}
-      {% endfor %}
-    </select>
 
-    <hr style="border:0;border-top:1px solid var(--sd-ai-border);margin:.6rem 0;">
-    <p class="ai-section-label">اقتراحات</p>
-    <button type="button" class="prompt">ابحث داخل سديم</button>
-    <button type="button" class="prompt">ساعدني في اختيار كتاب</button>
-    <button type="button" class="prompt">لخّص لي منشوراً</button>
-    <button type="button" class="prompt">ساعدني في بوت Telegram</button>
-  </aside>
 
-  <div class="ai-chat">
-    <div class="ai-chat-header">
-      <div style="display:flex; align-items:center; gap:.6rem;">
-        <img src="{{ url_for('static', filename='images/sadeem-ai-logo.png') }}" alt="Sadeem AI" style="width:28px; height:28px; object-fit:contain;">
-        <div>
-          <div class="ai-chat-header__title">Sadeem AI</div>
-          <div class="ai-chat-header__meta">{% if is_guest %}زائر{% else %}حساب موثوق{% endif %}</div>
+        <label
+            class="ai-section-label"
+            for="provider-select"
+        >
+            المزوّد
+        </label>
+
+        <select
+            id="provider-select"
+            class="ai-provider"
+            aria-label="اختيار مزود الذكاء الاصطناعي"
+        >
+
+            <option value="">
+                تلقائي (مع احتياطي)
+            </option>
+
+            {% for p in providers %}
+
+                {% if p.configured %}
+
+                    <option value="{{ p.id }}">
+                        {{ p.id }} — {{ p.model }}
+                    </option>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </select>
+
+
+        <hr class="ai-panel-divider">
+
+
+        <p class="ai-section-label">
+            اقتراحات
+        </p>
+
+
+        <button
+            type="button"
+            class="prompt"
+        >
+            ابحث داخل سديم
+        </button>
+
+        <button
+            type="button"
+            class="prompt"
+        >
+            ساعدني في اختيار كتاب
+        </button>
+
+        <button
+            type="button"
+            class="prompt"
+        >
+            لخّص لي منشوراً
+        </button>
+
+        <button
+            type="button"
+            class="prompt"
+        >
+            ساعدني في بوت Telegram
+        </button>
+
+    </aside>
+
+
+    <!-- =====================================================
+         CHAT
+         ===================================================== -->
+
+    <div class="ai-chat">
+
+        <!-- Header -->
+
+        <header class="ai-chat-header">
+
+            <div class="ai-chat-header__identity">
+
+                <img
+                    src="{{ url_for('static', filename='images/sadeem-ai-logo.png') }}"
+                    alt=""
+                    width="30"
+                    height="30"
+                    decoding="async"
+                >
+
+                <div class="ai-chat-header__copy">
+
+                    <div class="ai-chat-header__title">
+                        Sadeem AI
+                    </div>
+
+                    <div class="ai-chat-header__meta">
+
+                        {% if is_guest %}
+                            زائر
+                        {% else %}
+                            حساب موثوق
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="clear-chat"
+                aria-label="مسح المحادثة"
+                title="مسح المحادثة"
+            >
+
+                <i
+                    class="fas fa-broom"
+                    aria-hidden="true"
+                ></i>
+
+                <span class="clear-label">
+                    مسح المحادثة
+                </span>
+
+            </button>
+
+        </header>
+
+
+        <!-- Guest notice -->
+
+        {% if is_guest %}
+
+            <div
+                class="ai-guest-banner"
+                role="status"
+            >
+
+                <i
+                    class="fas fa-circle-info"
+                    aria-hidden="true"
+                ></i>
+
+                <span>
+
+                    محادثة زائر — لن تُحفظ بعد إغلاق الصفحة.
+
+                    <a
+                        href="{{ url_for('loading_bp.login') }}"
+                    >
+                        سجّل الدخول
+                    </a>
+
+                    لحفظ محادثاتك.
+
+                </span>
+
+            </div>
+
+        {% endif %}
+
+
+        <!-- Messages -->
+
+        <div
+            id="messages"
+            class="ai-messages"
+            role="log"
+            aria-live="polite"
+            aria-relevant="additions"
+        >
+
+            <div
+                class="ai-empty"
+                id="ai-empty"
+            >
+
+                <div
+                    class="ai-empty-icon"
+                    aria-hidden="true"
+                >
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                </div>
+
+                <h2>
+                    مرحباً، أنا Sadeem AI
+                </h2>
+
+                <p>
+                    اسألني عن محتوى وخدمات شبكة سديم،
+                    أو ابدأ بأحد الاقتراحات.
+                </p>
+
+
+                <div class="ai-quick">
+
+                    <button
+                        type="button"
+                        class="prompt"
+                    >
+                        ابحث داخل سديم
+                    </button>
+
+                    <button
+                        type="button"
+                        class="prompt"
+                    >
+                        ساعدني في اختيار كتاب
+                    </button>
+
+                    <button
+                        type="button"
+                        class="prompt"
+                    >
+                        لخّص لي منشوراً
+                    </button>
+
+                    <button
+                        type="button"
+                        class="prompt"
+                    >
+                        ساعدني في بوت Telegram
+                    </button>
+
+                </div>
+
+            </div>
+
         </div>
-      </div>
-      <button type="button" id="clear-chat" class="ai-panel-sub" style="display:none; background:transparent; border:1px solid var(--sd-ai-border-strong); border-radius:var(--sd-ai-radius-sm); padding:.35rem .7rem; cursor:pointer; color:var(--sd-ai-text-secondary); font:inherit; font-size:.78rem;">
-        <i class="fas fa-broom" aria-hidden="true"></i> مسح المحادثة
-      </button>
+
+
+        <!-- Composer -->
+
+        <form
+            id="compose"
+            class="ai-compose"
+        >
+
+            <div
+                class="ai-file-chips"
+                id="file-chips"
+                hidden
+            ></div>
+
+
+            <label
+                class="ai-attach"
+                for="file-input"
+                title="إرفاق ملف"
+            >
+
+                <i
+                    class="fas fa-paperclip"
+                    aria-hidden="true"
+                ></i>
+
+                <span>
+                    مرفق
+                </span>
+
+                <input
+                    type="file"
+                    id="file-input"
+                    accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,.jpg,.jpeg,.png,.webp,.gif,.pdf,.txt"
+                    multiple
+                    aria-label="إرفاق ملفات"
+                >
+
+            </label>
+
+
+            <textarea
+                id="input"
+                maxlength="4000"
+                placeholder="اكتب رسالتك إلى Sadeem AI..."
+                aria-label="رسالتك"
+                autocomplete="off"
+                rows="1"
+            ></textarea>
+
+
+            <button
+                id="send"
+                class="ai-send"
+                type="submit"
+                aria-label="إرسال الرسالة"
+            >
+
+                <i
+                    class="fas fa-paper-plane"
+                    aria-hidden="true"
+                ></i>
+
+                <span>
+                    إرسال
+                </span>
+
+            </button>
+
+        </form>
+
     </div>
 
-    {% if is_guest %}
-    <div class="ai-guest-banner" role="status">
-      <i class="fas fa-circle-info" aria-hidden="true"></i>
-      <span>محادثة زائر — لن تُحفظ بعد إغلاق الصفحة. <a href="{{ url_for('loading_bp.login') }}">سجّل الدخول</a> لحفظ محادثاتك.</span>
-    </div>
-    {% endif %}
-
-    <div id="messages" class="ai-messages">
-      <div class="ai-empty" id="ai-empty">
-        <div class="ai-empty-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
-        <h2>مرحباً، أنا Sadeem AI</h2>
-        <p>اسألني عن محتوى وخدمات شبكة سديم، أو ابدأ بأحد الاقتراحات.</p>
-        <div class="ai-quick">
-          <button type="button" class="prompt">ابحث داخل سديم</button>
-          <button type="button" class="prompt">ساعدني في اختيار كتاب</button>
-          <button type="button" class="prompt">لخّص لي منشوراً</button>
-          <button type="button" class="prompt">ساعدني في بوت Telegram</button>
-        </div>
-      </div>
-    </div>
-
-    <form id="compose" class="ai-compose">
-      <div class="ai-file-chips" id="file-chips" hidden></div>
-      <label class="ai-attach">
-        <i class="fas fa-paperclip" aria-hidden="true"></i>
-        <span>مرفق</span>
-        <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,text/plain,.jpg,.jpeg,.png,.webp,.gif,.pdf,.txt" multiple>
-      </label>
-      <textarea id="input" maxlength="4000" placeholder="اكتب رسالتك إلى Sadeem AI..." aria-label="رسالتك"></textarea>
-      <button id="send" class="ai-send" type="submit"><i class="fas fa-paper-plane" aria-hidden="true"></i> إرسال</button>
-    </form>
-  </div>
 </section>
+
 {% endblock %}
 
+
 {% block extra_scripts %}
+
 <script>
-const isGuest = {{ 'true' if is_guest else 'false' }};
-const initialContext = {{ initial_context|tojson }};
-const $ = id => document.getElementById(id);
-let conversationId = null;
-let sending = false;
-let pendingFiles = [];
-let hasMessages = false;
+    /* =========================================================
+       STATE
+       ========================================================= */
 
-function setEmpty(show) {
-  const el = $('ai-empty');
-  if (!el) return;
-  el.style.display = show ? '' : 'none';
-}
+    const isGuest = {{ 'true' if is_guest else 'false' }};
+    const initialContext = {{ initial_context|tojson }};
 
-function updateClearButton() {
-  const btn = $('clear-chat');
-  if (!btn) return;
-  const shouldShow = hasMessages && isGuest;
-  btn.style.display = shouldShow ? 'inline-flex' : 'none';
-}
+    const $ = id => document.getElementById(id);
 
-function add(role, text) {
-  if (!hasMessages) {
-    hasMessages = true;
-    setEmpty(false);
-    updateClearButton();
-  }
-  const el = document.createElement('div');
-  el.className = 'msg ' + role;
-  if (role === 'assistant' && window.marked && window.DOMPurify) {
-    el.innerHTML = DOMPurify.sanitize(marked.parse(text, { breaks: true }));
-  } else {
-    el.textContent = text;
-  }
-  const container = $('messages');
-  container.appendChild(el);
-  const shouldAutoScroll = container.scrollHeight - container.scrollTop - container.clientHeight < 120;
-  if (shouldAutoScroll) {
-    container.scrollTop = container.scrollHeight;
-  }
-}
+    let conversationId = null;
+    let sending = false;
+    let pendingFiles = [];
+    let hasMessages = false;
 
-function pageContextPayload() {
-  if (initialContext && initialContext.type) {
-    return { type: initialContext.type, id: initialContext.id };
-  }
-  return document.title;
-}
 
-function selectedProvider() {
-  return ($('provider-select') && $('provider-select').value) || '';
-}
+    /* =========================================================
+       EMPTY STATE
+       ========================================================= */
 
-function renderChips() {
-  const wrap = $('file-chips');
-  if (!pendingFiles.length) { wrap.hidden = true; wrap.innerHTML = ''; return; }
-  wrap.hidden = false;
-  wrap.innerHTML = pendingFiles.map((f, i) =>
-    `<span class="ai-file-chip">${f.name} <button type="button" data-i="${i}" aria-label="إزالة">×</button></span>`
-  ).join('');
-  wrap.querySelectorAll('button').forEach(btn => {
-    btn.onclick = () => { pendingFiles.splice(Number(btn.dataset.i), 1); renderChips(); };
-  });
-}
+    function setEmpty(show) {
 
-$('file-input').addEventListener('change', () => {
-  const files = Array.from($('file-input').files || []);
-  const max = 5 * 1024 * 1024;
-  for (const f of files) {
-    if (f.size > max) { add('assistant', 'الملف أكبر من 5 ميغابايت: ' + f.name); continue; }
-    pendingFiles.push(f);
-  }
-  $('file-input').value = '';
-  renderChips();
-});
+        const el = $('ai-empty');
 
-async function ensureConversation() {
-  if (!isGuest && !conversationId) {
-    const r = await fetch('/ai/conversations', { method: 'POST' });
-    if (!r.ok) throw new Error('تعذر إنشاء المحادثة');
-    const d = await r.json();
-    conversationId = d.id;
-  }
-}
+        if (!el) return;
 
-async function newChat() {
-  const r = await fetch('/ai/conversations', { method: 'POST' });
-  if (!r.ok) throw new Error('تعذر إنشاء المحادثة');
-  const d = await r.json();
-  conversationId = d.id;
-  $('messages').innerHTML = '';
-  hasMessages = false;
-  setEmpty(true);
-  updateClearButton();
-  await loadHistory();
-}
-
-async function loadHistory() {
-  if (isGuest) {
-    const r = await fetch('/ai/guest/messages');
-    if (!r.ok) return;
-    const list = await r.json();
-    $('messages').innerHTML = '';
-    if (!list.length) {
-      hasMessages = false;
-      setEmpty(true);
-      updateClearButton();
-      return;
+        el.style.display = show ? '' : 'none';
     }
-    hasMessages = true;
-    setEmpty(false);
-    updateClearButton();
-    list.forEach(m => add(m.role === 'user' ? 'user' : 'assistant', m.content || ''));
-    return;
-  }
-  const r = await fetch('/ai/conversations');
-  if (!r.ok) return;
-  const list = await r.json();
-  $('history').innerHTML = '';
-  list.forEach(c => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.textContent = c.title;
-    b.className = 'sd-btn sd-btn-secondary';
-    b.style.cssText = 'width:100%;margin:.25rem 0;font-size:.82rem;min-height:36px;';
-    b.onclick = () => loadChat(c.id);
-    $('history').append(b);
-  });
-  if (!conversationId && list[0]) loadChat(list[0].id);
-}
 
-async function loadChat(id) {
-  conversationId = id;
-  $('messages').innerHTML = '';
-  setEmpty(true);
-  const r = await fetch('/ai/conversations/' + id);
-  if (!r.ok) { add('assistant', 'تعذر فتح هذه المحادثة.'); return; }
-  const items = await r.json();
-  if (!items.length) {
-    hasMessages = false;
+
+    function updateClearButton() {
+
+        const btn = $('clear-chat');
+
+        if (!btn) return;
+
+        const shouldShow =
+            hasMessages &&
+            isGuest;
+
+        btn.style.display =
+            shouldShow
+                ? 'inline-flex'
+                : 'none';
+    }
+
+
+    /* =========================================================
+       MESSAGE RENDERING
+       ========================================================= */
+
+    function add(role, text) {
+
+        if (!hasMessages) {
+
+            hasMessages = true;
+
+            setEmpty(false);
+
+            updateClearButton();
+        }
+
+
+        const el =
+            document.createElement('div');
+
+        el.className =
+            'msg ' + role;
+
+
+        if (
+            role === 'assistant' &&
+            window.marked &&
+            window.DOMPurify
+        ) {
+
+            el.innerHTML =
+                DOMPurify.sanitize(
+                    marked.parse(
+                        text,
+                        {
+                            breaks: true
+                        }
+                    )
+                );
+
+        } else {
+
+            el.textContent =
+                text;
+        }
+
+
+        const container =
+            $('messages');
+
+        if (!container) return;
+
+
+        const shouldAutoScroll =
+            container.scrollHeight -
+            container.scrollTop -
+            container.clientHeight <
+            120;
+
+
+        container.appendChild(el);
+
+
+        if (shouldAutoScroll) {
+
+            requestAnimationFrame(() => {
+
+                container.scrollTop =
+                    container.scrollHeight;
+
+            });
+        }
+    }
+
+
+    /* =========================================================
+       PAGE CONTEXT
+       ========================================================= */
+
+    function pageContextPayload() {
+
+        if (
+            initialContext &&
+            initialContext.type
+        ) {
+
+            return {
+                type: initialContext.type,
+                id: initialContext.id
+            };
+        }
+
+        return document.title;
+    }
+
+
+    /* =========================================================
+       PROVIDER
+       ========================================================= */
+
+    function selectedProvider() {
+
+        const select =
+            $('provider-select');
+
+        return select
+            ? select.value
+            : '';
+    }
+
+
+    /* =========================================================
+       FILE CHIPS
+       ========================================================= */
+
+    function renderChips() {
+
+        const wrap =
+            $('file-chips');
+
+        if (!wrap) return;
+
+
+        if (!pendingFiles.length) {
+
+            wrap.hidden = true;
+            wrap.innerHTML = '';
+
+            return;
+        }
+
+
+        wrap.hidden = false;
+
+
+        wrap.innerHTML =
+            pendingFiles
+                .map(
+                    (file, index) => `
+                        <span
+                            class="ai-file-chip"
+                            title="${escapeHtml(file.name)}"
+                        >
+                            <span>
+                                ${escapeHtml(file.name)}
+                            </span>
+
+                            <button
+                                type="button"
+                                data-i="${index}"
+                                aria-label="إزالة ${escapeHtml(file.name)}"
+                            >
+                                ×
+                            </button>
+                        </span>
+                    `
+                )
+                .join('');
+
+
+        wrap
+            .querySelectorAll('button')
+            .forEach(button => {
+
+                button.onclick = () => {
+
+                    pendingFiles.splice(
+                        Number(button.dataset.i),
+                        1
+                    );
+
+                    renderChips();
+                };
+            });
+    }
+
+
+    function escapeHtml(value) {
+
+        const div =
+            document.createElement('div');
+
+        div.textContent =
+            value;
+
+        return div.innerHTML;
+    }
+
+
+    /* =========================================================
+       FILE INPUT
+       ========================================================= */
+
+    $('file-input')
+        .addEventListener(
+            'change',
+            () => {
+
+                const files =
+                    Array.from(
+                        $('file-input').files || []
+                    );
+
+                const max =
+                    5 * 1024 * 1024;
+
+
+                for (const file of files) {
+
+                    if (file.size > max) {
+
+                        add(
+                            'assistant',
+                            'الملف أكبر من 5 ميغابايت: ' +
+                            file.name
+                        );
+
+                        continue;
+                    }
+
+
+                    pendingFiles.push(file);
+                }
+
+
+                $('file-input').value = '';
+
+                renderChips();
+            }
+        );
+
+
+    /* =========================================================
+       CONVERSATION
+       ========================================================= */
+
+    async function ensureConversation() {
+
+        if (
+            !isGuest &&
+            !conversationId
+        ) {
+
+            const response =
+                await fetch(
+                    '/ai/conversations',
+                    {
+                        method: 'POST'
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    'تعذر إنشاء المحادثة'
+                );
+            }
+
+
+            const data =
+                await response.json();
+
+            conversationId =
+                data.id;
+        }
+    }
+
+
+    async function newChat() {
+
+        const response =
+            await fetch(
+                '/ai/conversations',
+                {
+                    method: 'POST'
+                }
+            );
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                'تعذر إنشاء المحادثة'
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+        conversationId =
+            data.id;
+
+
+        $('messages').innerHTML = '';
+
+        hasMessages = false;
+
+        setEmpty(true);
+
+        updateClearButton();
+
+
+        await loadHistory();
+    }
+
+
+    /* =========================================================
+       HISTORY
+       ========================================================= */
+
+    async function loadHistory() {
+
+        if (isGuest) {
+
+            const response =
+                await fetch(
+                    '/ai/guest/messages'
+                );
+
+
+            if (!response.ok) return;
+
+
+            const list =
+                await response.json();
+
+
+            $('messages').innerHTML = '';
+
+
+            if (!list.length) {
+
+                hasMessages = false;
+
+                setEmpty(true);
+
+                updateClearButton();
+
+                return;
+            }
+
+
+            hasMessages = true;
+
+            setEmpty(false);
+
+            updateClearButton();
+
+
+            list.forEach(message => {
+
+                add(
+                    message.role === 'user'
+                        ? 'user'
+                        : 'assistant',
+
+                    message.content || ''
+                );
+            });
+
+
+            return;
+        }
+
+
+        const response =
+            await fetch(
+                '/ai/conversations'
+            );
+
+
+        if (!response.ok) return;
+
+
+        const list =
+            await response.json();
+
+
+        $('history').innerHTML = '';
+
+
+        list.forEach(conversation => {
+
+            const button =
+                document.createElement('button');
+
+            button.type =
+                'button';
+
+            button.textContent =
+                conversation.title;
+
+            button.className =
+                'sd-btn sd-btn-secondary';
+
+
+            button.style.cssText =
+                [
+                    'width:100%',
+                    'margin:0',
+                    'font-size:.78rem',
+                    'min-height:38px',
+                    'text-align:right',
+                    'overflow:hidden',
+                    'text-overflow:ellipsis',
+                    'white-space:nowrap'
+                ].join(';');
+
+
+            button.onclick =
+                () => loadChat(
+                    conversation.id
+                );
+
+
+            $('history').append(button);
+        });
+
+
+        if (
+            !conversationId &&
+            list[0]
+        ) {
+
+            loadChat(
+                list[0].id
+            );
+        }
+    }
+
+
+    /* =========================================================
+       LOAD CHAT
+       ========================================================= */
+
+    async function loadChat(id) {
+
+        conversationId = id;
+
+        $('messages').innerHTML = '';
+
+        hasMessages = false;
+
+        setEmpty(true);
+
+        updateClearButton();
+
+
+        const response =
+            await fetch(
+                '/ai/conversations/' +
+                encodeURIComponent(id)
+            );
+
+
+        if (!response.ok) {
+
+            add(
+                'assistant',
+                'تعذر فتح هذه المحادثة.'
+            );
+
+            return;
+        }
+
+
+        const items =
+            await response.json();
+
+
+        if (!items.length) {
+
+            hasMessages = false;
+
+            setEmpty(true);
+
+            updateClearButton();
+
+            return;
+        }
+
+
+        hasMessages = true;
+
+        setEmpty(false);
+
+        updateClearButton();
+
+
+        items.forEach(message => {
+
+            add(
+                message.role === 'user'
+                    ? 'user'
+                    : 'assistant',
+
+                message.content || ''
+            );
+        });
+    }
+
+
+    /* =========================================================
+       NEW CHAT
+       ========================================================= */
+
+    if ($('new-chat')) {
+
+        $('new-chat').onclick =
+            () => {
+
+                if (sending) return;
+
+                newChat()
+                    .catch(
+                        error =>
+                            add(
+                                'assistant',
+                                error.message
+                            )
+                    );
+            };
+    }
+
+
+    /* =========================================================
+       CLEAR GUEST CHAT
+       ========================================================= */
+
+    if ($('clear-chat')) {
+
+        $('clear-chat').onclick =
+            async () => {
+
+                if (sending) return;
+
+
+                try {
+
+                    await fetch(
+                        '/ai/guest/messages',
+                        {
+                            method: 'DELETE'
+                        }
+                    );
+
+                } catch (error) {
+
+                    add(
+                        'assistant',
+                        'تعذر مسح المحادثة حالياً.'
+                    );
+
+                    return;
+                }
+
+
+                $('messages').innerHTML = '';
+
+                hasMessages = false;
+
+                setEmpty(true);
+
+                updateClearButton();
+            };
+    }
+
+
+    /* =========================================================
+       SEND
+       ========================================================= */
+
+    $('compose').onsubmit =
+        async event => {
+
+            event.preventDefault();
+
+
+            if (sending) return;
+
+
+            const input =
+                $('input');
+
+            const text =
+                input.value.trim();
+
+
+            if (
+                !text &&
+                !pendingFiles.length
+            ) {
+
+                return;
+            }
+
+
+            sending = true;
+
+            $('send').disabled = true;
+
+
+            if (
+                !isGuest &&
+                !conversationId
+            ) {
+
+                try {
+
+                    await ensureConversation();
+
+                } catch (error) {
+
+                    add(
+                        'assistant',
+                        error.message
+                    );
+
+                    sending = false;
+
+                    $('send').disabled = false;
+
+                    return;
+                }
+            }
+
+
+            const display =
+                text ||
+                (
+                    '[مرفق: ' +
+                    pendingFiles
+                        .map(file => file.name)
+                        .join(', ') +
+                    ']'
+                );
+
+
+            add(
+                'user',
+                display
+            );
+
+
+            input.value = '';
+
+
+            add(
+                'assistant',
+                'جارٍ البحث داخل سديم...'
+            );
+
+
+            const pending =
+                $('messages').lastElementChild;
+
+
+            try {
+
+                let response;
+                let data;
+
+                const provider =
+                    selectedProvider();
+
+
+                /* -----------------------------------------
+                   FILE REQUEST
+                   ----------------------------------------- */
+
+                if (pendingFiles.length) {
+
+                    const formData =
+                        new FormData();
+
+
+                    formData.append(
+                        'message',
+                        text
+                    );
+
+
+                    if (provider) {
+
+                        formData.append(
+                            'provider',
+                            provider
+                        );
+                    }
+
+
+                    formData.append(
+                        'page_context',
+                        JSON.stringify(
+                            pageContextPayload()
+                        )
+                    );
+
+
+                    pendingFiles.forEach(
+                        file =>
+                            formData.append(
+                                'files',
+                                file
+                            )
+                    );
+
+
+                    pendingFiles = [];
+
+                    renderChips();
+
+
+                    response =
+                        await fetch(
+                            isGuest
+                                ? '/ai/guest/messages'
+                                : '/ai/conversations/' +
+                                  conversationId +
+                                  '/messages',
+                            {
+                                method: 'POST',
+                                body: formData
+                            }
+                        );
+
+                }
+
+                /* -----------------------------------------
+                   TEXT REQUEST
+                   ----------------------------------------- */
+
+                else {
+
+                    const url =
+                        isGuest
+                            ? '/ai/guest/messages'
+                            : '/ai/conversations/' +
+                              conversationId +
+                              '/messages';
+
+
+                    response =
+                        await fetch(
+                            url,
+                            {
+                                method: 'POST',
+
+                                headers: {
+                                    'Content-Type':
+                                        'application/json'
+                                },
+
+                                body:
+                                    JSON.stringify({
+                                        message: text,
+                                        page_context:
+                                            pageContextPayload(),
+                                        provider
+                                    })
+                            }
+                        );
+                }
+
+
+                data =
+                    await response.json();
+
+
+                if (pending) {
+
+                    pending.remove();
+                }
+
+
+                /* -----------------------------------------
+                   SUCCESS
+                   ----------------------------------------- */
+
+                if (response.ok) {
+
+                    add(
+                        'assistant',
+                        data.content || ''
+                    );
+
+                }
+
+                /* -----------------------------------------
+                   ERROR
+                   ----------------------------------------- */
+
+                else {
+
+                    const errorMap = {
+
+                        daily_limit:
+                            'تم استهلاك حدك اليومي من الرسائل.',
+
+                        guest_limit:
+                            'وصلتَ حد رسائل الزائر لهذه الجلسة. سجّل دخولك للمتابعة.',
+
+                        file_too_large:
+                            'حجم الملف أكبر من المسموح (5 ميغابايت).',
+
+                        file_type_not_allowed:
+                            'نوع الملف غير مدعوم.',
+
+                        ai_unavailable:
+                            'خدمة الذكاء الاصطناعي غير متاحة حالياً. حاول مرة أخرى بعد قليل.',
+
+                        missing_context:
+                            'بيانات السياق غير مكتملة.',
+
+                        invalid_id:
+                            'معرف العنصر غير صالح.',
+
+                        not_found:
+                            'لم يتم العثور على المحتوى المطلوب.',
+
+                        quota_exceeded:
+                            'تم استهلاك حدك المجاني لهذه الميزة.'
+                    };
+
+
+                    const message =
+                        data.message ||
+                        data.content ||
+                        errorMap[data.error] ||
+                        'تعذر تنفيذ الطلب حالياً.';
+
+
+                    add(
+                        'assistant',
+                        message
+                    );
+                }
+
+
+                if (!isGuest) {
+
+                    await loadHistory();
+                }
+
+            } catch (error) {
+
+                if (pending) {
+
+                    pending.remove();
+                }
+
+
+                add(
+                    'assistant',
+                    'تعذر الاتصال بخدمة Sadeem AI.'
+                );
+
+            } finally {
+
+                sending = false;
+
+                $('send').disabled = false;
+
+                input.focus();
+            }
+        };
+
+
+    /* =========================================================
+       QUICK PROMPTS
+       ========================================================= */
+
+    document
+        .querySelectorAll('.prompt')
+        .forEach(button => {
+
+            button.onclick =
+                () => {
+
+                    const input =
+                        $('input');
+
+                    if (!input) return;
+
+
+                    input.value =
+                        button.textContent.trim();
+
+
+                    input.focus();
+
+
+                    autoResizeTextarea();
+                };
+        });
+
+
+    /* =========================================================
+       TEXTAREA AUTO RESIZE
+       ========================================================= */
+
+    function autoResizeTextarea() {
+
+        const textarea =
+            $('input');
+
+        if (!textarea) return;
+
+
+        textarea.style.height = 'auto';
+
+
+        textarea.style.height =
+            Math.min(
+                textarea.scrollHeight,
+                150
+            ) + 'px';
+    }
+
+
+    $('input')
+        .addEventListener(
+            'input',
+            autoResizeTextarea
+        );
+
+
+    /* =========================================================
+       ENTER / SHIFT+ENTER
+       ========================================================= */
+
+    $('input')
+        .addEventListener(
+            'keydown',
+            event => {
+
+                if (
+                    event.key === 'Enter' &&
+                    !event.shiftKey &&
+                    !event.isComposing
+                ) {
+
+                    event.preventDefault();
+
+                    $('compose')
+                        .requestSubmit();
+                }
+            }
+        );
+
+
+    /* =========================================================
+       INITIAL STATE
+       ========================================================= */
+
     setEmpty(true);
+
     updateClearButton();
-    return;
-  }
-  hasMessages = true;
-  setEmpty(false);
-  updateClearButton();
-  items.forEach(m => add(m.role === 'user' ? 'user' : 'assistant', m.content || ''));
-}
 
-if ($('new-chat')) {
-  $('new-chat').onclick = () => newChat().catch(error => add('assistant', error.message));
-}
-if ($('clear-chat')) {
-  $('clear-chat').onclick = async () => {
-    await fetch('/ai/guest/messages', { method: 'DELETE' });
-    $('messages').innerHTML = '';
-    hasMessages = false;
-    setEmpty(true);
-    updateClearButton();
-  };
-}
 
-$('compose').onsubmit = async e => {
-  e.preventDefault();
-  if (sending) return;
-  const input = $('input');
-  const text = input.value.trim();
-  if (!text && !pendingFiles.length) return;
-  sending = true;
-  $('send').disabled = true;
+    /* =========================================================
+       KEYBOARD / VISUAL VIEWPORT
+       ========================================================= */
 
-  if (!isGuest && !conversationId) {
-    try {
-      await ensureConversation();
-    } catch (err) {
-      add('assistant', err.message);
-      sending = false;
-      $('send').disabled = false;
-      return;
+    if ('visualViewport' in window) {
+
+        const viewport =
+            window.visualViewport;
+
+
+        const updateKeyboard =
+            () => {
+
+                const ratio =
+                    viewport.height /
+                    window.innerHeight;
+
+
+                document.body.classList.toggle(
+                    'ai-keyboard-open',
+                    ratio < 0.85
+                );
+            };
+
+
+        viewport.addEventListener(
+            'resize',
+            updateKeyboard
+        );
+
+
+        viewport.addEventListener(
+            'scroll',
+            updateKeyboard
+        );
+
+
+        updateKeyboard();
     }
-  }
 
-  const display = text || ('[مرفق: ' + pendingFiles.map(f => f.name).join(', ') + ']');
-  add('user', display);
-  input.value = '';
-  add('assistant', 'جارٍ البحث داخل سديم...');
-  const pending = $('messages').lastElementChild;
 
-  try {
-    let r, d;
-    const provider = selectedProvider();
-    if (pendingFiles.length) {
-      const fd = new FormData();
-      fd.append('message', text);
-      if (provider) fd.append('provider', provider);
-      fd.append('page_context', JSON.stringify(pageContextPayload()));
-      pendingFiles.forEach(f => fd.append('files', f));
-      pendingFiles = [];
-      renderChips();
-      r = await fetch(isGuest ? '/ai/guest/messages' : '/ai/conversations/' + conversationId + '/messages', {
-        method: 'POST', body: fd
-      });
-    } else {
-      const url = isGuest ? '/ai/guest/messages' : '/ai/conversations/' + conversationId + '/messages';
-      r = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, page_context: pageContextPayload(), provider })
-      });
+    /* =========================================================
+       INITIAL LOAD
+       ========================================================= */
+
+    if (!isGuest) {
+
+        loadHistory()
+            .catch(() => {});
     }
-    d = await r.json();
-    pending.remove();
-    if (r.ok) {
-      add('assistant', d.content);
-    } else {
-      const errMap = {
-        daily_limit: 'تم استهلاك حدك اليومي من الرسائل.',
-        guest_limit: 'وصلتَ حد رسائل الزائر لهذه الجلسة. سجّل دخولك للمتابعة.',
-        file_too_large: 'حجم الملف أكبر من المسموح (5 ميغابايت).',
-        file_type_not_allowed: 'نوع الملف غير مدعوم.',
-        ai_unavailable: 'خدمة الذكاء الاصطناعي غير متاحة حالياً. حاول مرة أخرى بعد قليل.',
-        missing_context: 'بيانات السياق غير مكتملة.',
-        invalid_id: 'معرف العنصر غير صالح.',
-        not_found: 'لم يتم العثور على المحتوى المطلوب.',
-        quota_exceeded: 'تم استهلاك حدك المجاني لهذه الميزة.',
-      };
-      const msg = d.message || d.content || errMap[d.error] || 'تعذر تنفيذ الطلب حالياً.';
-      add('assistant', msg);
-    }
-    if (!isGuest) await loadHistory();
-  } catch (error) {
-    pending.remove();
-    add('assistant', 'تعذر الاتصال بخدمة Sadeem AI.');
-  } finally {
-    sending = false;
-    $('send').disabled = false;
-  }
-};
-
-document.querySelectorAll('.prompt').forEach(b => b.onclick = () => {
-  $('input').value = b.textContent.trim();
-  $('input').focus();
-});
-setEmpty(true);
-updateClearButton();
-
-if ('visualViewport' in window) {
-    const vv = window.visualViewport;
-    const updateKeyboard = () => {
-        const ratio = vv.height / window.innerHeight;
-        document.body.classList.toggle('ai-keyboard-open', ratio < 0.85);
-    };
-    vv.addEventListener('resize', updateKeyboard);
-    vv.addEventListener('scroll', updateKeyboard);
-    updateKeyboard();
-}
 </script>
+
 {% endblock %}
