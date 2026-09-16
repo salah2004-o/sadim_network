@@ -6,129 +6,419 @@
 {% endblock %}
 
 {% block content %}
-<div class="sd-container" style="padding-block: var(--sd-sp-4) var(--sd-sp-12);">
+<div class="sd-container sd-articles-page">
+
+    <!-- Hero -->
     <header class="sd-articles-hero">
-        <div>
+        <div class="sd-articles-hero__content">
             <p class="sd-eyebrow">معرفة من شبكة سديم</p>
+
             <h1>المنشورات</h1>
-            <p class="sd-text-secondary" style="margin:0; max-width:36rem;">منشورات تقنية وفكرية ضمن منظومة تجمع التقنية والأدب البوليسي.</p>
+
+            <p class="sd-articles-hero__description">
+                أفكار وتجارب ومنشورات تقنية وفكرية ضمن منظومة تجمع التقنية والأدب البوليسي.
+            </p>
         </div>
+
         {% if session.get('user_id') %}
-        <a href="{{ url_for('articles.new_article') }}" class="sd-btn sd-btn-primary">
-            <i class="fas fa-plus" aria-hidden="true"></i> منشور جديد
+        <a href="{{ url_for('articles.new_article') }}" class="sd-btn sd-btn-primary sd-articles-create">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+            <span>منشور جديد</span>
         </a>
         {% endif %}
     </header>
 
+
+    <!-- Search -->
+    <section class="sd-articles-search" aria-label="البحث في المنشورات">
+        <form method="get"
+              action="{{ url_for('articles.list_articles') }}"
+              class="sd-articles-search__form">
+
+            <div class="sd-articles-search__field">
+                <i class="fas fa-search" aria-hidden="true"></i>
+
+                <input
+                    type="search"
+                    name="q"
+                    value="{{ request.args.get('q', '') }}"
+                    placeholder="ابحث في المنشورات..."
+                    aria-label="البحث في المنشورات"
+                    autocomplete="off"
+                >
+
+                {% if request.args.get('q') %}
+                <a
+                    href="{{ url_for('articles.list_articles') }}"
+                    class="sd-articles-search__clear"
+                    aria-label="مسح البحث"
+                    title="مسح البحث"
+                >
+                    <i class="fas fa-xmark" aria-hidden="true"></i>
+                </a>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="sd-btn sd-btn-primary">
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <span>بحث</span>
+            </button>
+        </form>
+
+        {% if request.args.get('q') %}
+        <div class="sd-articles-search__result">
+            <span>
+                نتائج البحث عن:
+                <strong>{{ request.args.get('q') }}</strong>
+            </span>
+
+            {% if posts %}
+            <span class="sd-text-muted">
+                {{ posts|length }} نتيجة
+            </span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </section>
+
+
     {% if posts %}
-        {% if featured %}
-        <a href="{{ url_for('articles.view_article', post_id=featured.id) }}" class="sd-articles-featured">
+
+        <!-- Featured -->
+        {% if featured and not request.args.get('q') %}
+        <a
+            href="{{ url_for('articles.view_article', post_id=featured.id) }}"
+            class="sd-articles-featured"
+        >
             <div class="sd-articles-featured__media">
                 {% if featured.image_path %}
-                <img src="{{ url_for('static', filename=featured.image_path) }}" alt="">
+                <img
+                    src="{{ url_for('static', filename=featured.image_path) }}"
+                    alt=""
+                    loading="lazy"
+                >
                 {% else %}
-                <div style="display:grid;place-items:center;height:100%;min-height:260px;color:var(--sd-mist-soft);font-size:2.5rem;">
+                <div class="sd-articles-featured__placeholder">
                     <i class="fas fa-feather-pointed" aria-hidden="true"></i>
                 </div>
                 {% endif %}
             </div>
+
             <div class="sd-articles-featured__body">
-                <span class="sd-articles-featured__label"><i class="fas fa-star" aria-hidden="true"></i> المنشور المميز</span>
-                <h2 class="sd-articles-featured__title">{{ featured.title }}</h2>
-                <p class="sd-text-secondary" style="margin:0 0 var(--sd-sp-4);">{{ featured.content|truncate(220) }}</p>
-                <div style="display:flex;align-items:center;gap:0.6rem;font-size:var(--sd-fs-sm);color:var(--sd-text-muted);flex-wrap:wrap;">
+
+                <span class="sd-articles-featured__label">
+                    <i class="fas fa-star" aria-hidden="true"></i>
+                    المنشور المميز
+                </span>
+
+                <h2 class="sd-articles-featured__title">
+                    {{ featured.title }}
+                </h2>
+
+                <p class="sd-articles-featured__excerpt">
+                    {{ featured.content|truncate(220) }}
+                </p>
+
+                <div class="sd-articles-meta">
+
                     {% set author_img = featured.profile_image if featured.profile_image else 'default_user.png' %}
-                    <img src="{{ url_for('static', filename='uploads/' + author_img) }}" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover;">
-                    <span>{{ featured.username }}</span>
-                    <span>{{ featured.created_at.strftime('%Y-%m-%d') if featured.created_at else '—' }}</span>
-                    <span>{{ ((featured.content.split()|length / 200)|round(0,'ceil')|int) or 1 }} د قراءة</span>
-                    <span><i class="fas fa-comment" aria-hidden="true"></i> {{ comment_counts.get(featured.id, 0) }}</span>
+
+                    <span class="sd-articles-author">
+                        <img
+                            src="{{ url_for('static', filename='uploads/' + author_img) }}"
+                            alt=""
+                            loading="lazy"
+                        >
+                        <span>{{ featured.username }}</span>
+                    </span>
+
+                    <span>
+                        <i class="fas fa-calendar" aria-hidden="true"></i>
+                        {{ featured.created_at.strftime('%Y-%m-%d') if featured.created_at else '—' }}
+                    </span>
+
+                    <span>
+                        <i class="fas fa-book-open" aria-hidden="true"></i>
+                        {{ ((featured.content.split()|length / 200)|round(0,'ceil')|int) or 1 }} د
+                    </span>
+
+                    <span>
+                        <i class="fas fa-eye" aria-hidden="true"></i>
+                        {{ featured.views|default(0) }}
+                    </span>
+
+                    <span>
+                        <i class="fas fa-comment" aria-hidden="true"></i>
+                        {{ comment_counts.get(featured.id, 0) }}
+                    </span>
+
                 </div>
             </div>
         </a>
         {% endif %}
 
-        {% if comment_counts.values()|list|sum > 0 %}
-        <h2 class="sd-h4" style="margin:0 0 var(--sd-sp-3); color:var(--sd-text-secondary);">
-            <i class="fas fa-fire" aria-hidden="true" style="color:var(--sd-brass);"></i> الأكثر نقاشاً
-        </h2>
-        <div class="sd-articles-discussed">
-            {% for p in most_discussed %}
-                {% if comment_counts.get(p.id, 0) > 0 %}
-                <a href="{{ url_for('articles.view_article', post_id=p.id) }}">
-                    <span class="sd-articles-discussed__rank">#{{ loop.index }}</span>
-                    <span style="flex:1;font-weight:600;">{{ p.title }}</span>
-                    <span class="sd-text-muted"><i class="fas fa-comment" aria-hidden="true"></i> {{ comment_counts.get(p.id, 0) }}</span>
-                </a>
-                {% endif %}
-            {% endfor %}
-        </div>
+
+        <!-- Most Discussed -->
+        {% if comment_counts.values()|list|sum > 0 and not request.args.get('q') %}
+        <section class="sd-articles-section">
+            <div class="sd-section-heading">
+                <div>
+                    <span class="sd-eyebrow">تفاعل القرّاء</span>
+                    <h2>
+                        <i class="fas fa-comments" aria-hidden="true"></i>
+                        الأكثر نقاشاً
+                    </h2>
+                </div>
+            </div>
+
+            <div class="sd-articles-discussed">
+                {% for p in most_discussed %}
+                    {% if comment_counts.get(p.id, 0) > 0 %}
+                    <a href="{{ url_for('articles.view_article', post_id=p.id) }}">
+
+                        <span class="sd-articles-discussed__rank">
+                            {{ "%02d"|format(loop.index) }}
+                        </span>
+
+                        <span class="sd-articles-discussed__title">
+                            {{ p.title }}
+                        </span>
+
+                        <span class="sd-articles-discussed__count">
+                            <i class="fas fa-comment" aria-hidden="true"></i>
+                            {{ comment_counts.get(p.id, 0) }}
+                        </span>
+
+                    </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </section>
         {% endif %}
 
-        <h2 class="sd-h4" style="margin:0 0 var(--sd-sp-4); color:var(--sd-text-secondary);">
-            <i class="fas fa-clock" aria-hidden="true" style="color:var(--sd-mist-soft);"></i> الأحدث
-        </h2>
-        <div class="sd-articles-grid">
-        {% for post in feed_posts %}
-            <article class="sd-article-card">
-                <a href="{{ url_for('articles.view_article', post_id=post.id) }}" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;flex:1;">
-                    <div class="sd-article-card__thumb">
-                        {% if post.image_path %}
-                        <img src="{{ url_for('static', filename=post.image_path) }}" alt="">
+
+        <!-- Latest / Search Results -->
+        <section class="sd-articles-section">
+
+            <div class="sd-section-heading">
+                <div>
+                    <span class="sd-eyebrow">
+                        {% if request.args.get('q') %}
+                            نتائج البحث
                         {% else %}
-                        <i class="fas fa-newspaper" aria-hidden="true"></i>
+                            من أرشيف سديم
                         {% endif %}
-                    </div>
-                    <div class="sd-article-card__body">
-                        <h3 class="sd-article-card__title">{{ post.title }}</h3>
-                        <p class="sd-article-card__excerpt">{{ post.content|truncate(120) }}</p>
-                        <div class="sd-article-card__meta">
-                            <a href="{{ url_for('articles.author_profile', user_id=post.user_id) }}" class="sd-article-card__author" onclick="event.stopPropagation()">
-                                {% set author_img = post.profile_image if post.profile_image else 'default_user.png' %}
-                                <img src="{{ url_for('static', filename='uploads/' + author_img) }}" alt="">
-                                <span>{{ post.username }}</span>
-                            </a>
-                            <span>
-                                <i class="fas fa-book-open" aria-hidden="true"></i>
-                                {{ ((post.content.split()|length / 200)|round(0,'ceil')|int) or 1 }} د
-                                <i class="fas fa-comment" aria-hidden="true" style="margin-inline-start:.4rem;"></i>
-                                {{ comment_counts.get(post.id, 0) }}
-                            </span>
-                        </div>
-                    </div>
-                </a>
-            </article>
-        {% endfor %}
-        </div>
+                    </span>
 
-        <div class="sd-card" style="margin-top:var(--sd-sp-10); display:flex; align-items:center; justify-content:space-between; gap:var(--sd-sp-4); flex-wrap:wrap; border-inline-start-color:var(--sd-brass);">
-            <div>
-                <h3 class="sd-h4" style="margin:0 0 6px;"><i class="fas fa-book" aria-hidden="true"></i> مكتبة أجاثا كريستي</h3>
-                <p class="sd-text-secondary" style="margin:0;font-size:var(--sd-fs-sm);">روايات بوليسية كلاسيكية ضمن نفس شبكة سديم.</p>
+                    <h2>
+                        {% if request.args.get('q') %}
+                            المنشورات المطابقة
+                        {% else %}
+                            منشورات مختارة لك
+                        {% endif %}
+                    </h2>
+                </div>
+
+                {% if not request.args.get('q') %}
+                <span class="sd-articles-personalized">
+                    <i class="fas fa-shuffle" aria-hidden="true"></i>
+                    ترتيب متجدد
+                </span>
+                {% endif %}
             </div>
-            <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-btn sd-btn-secondary">
-                <i class="fas fa-book-open" aria-hidden="true"></i> استكشف المكتبة
+
+
+            <div class="sd-articles-grid">
+
+                {% for post in feed_posts %}
+
+                <article class="sd-article-card">
+
+                    <a
+                        href="{{ url_for('articles.view_article', post_id=post.id) }}"
+                        class="sd-article-card__link"
+                    >
+
+                        <div class="sd-article-card__thumb">
+
+                            {% if post.image_path %}
+                            <img
+                                src="{{ url_for('static', filename=post.image_path) }}"
+                                alt=""
+                                loading="lazy"
+                            >
+                            {% else %}
+                            <div class="sd-article-card__placeholder">
+                                <i class="fas fa-newspaper" aria-hidden="true"></i>
+                            </div>
+                            {% endif %}
+
+                            <span class="sd-article-card__views">
+                                <i class="fas fa-eye" aria-hidden="true"></i>
+                                {{ post.views|default(0) }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="sd-article-card__body">
+
+                            <h3 class="sd-article-card__title">
+                                {{ post.title }}
+                            </h3>
+
+                            <p class="sd-article-card__excerpt">
+                                {{ post.content|truncate(120) }}
+                            </p>
+
+
+                            <div class="sd-article-card__meta">
+
+                                <span class="sd-article-card__author">
+
+                                    {% set author_img = post.profile_image if post.profile_image else 'default_user.png' %}
+
+                                    <img
+                                        src="{{ url_for('static', filename='uploads/' + author_img) }}"
+                                        alt=""
+                                        loading="lazy"
+                                    >
+
+                                    <span>{{ post.username }}</span>
+
+                                </span>
+
+
+                                <span class="sd-article-card__stats">
+
+                                    <span>
+                                        <i class="fas fa-book-open" aria-hidden="true"></i>
+                                        {{ ((post.content.split()|length / 200)|round(0,'ceil')|int) or 1 }} د
+                                    </span>
+
+                                    <span>
+                                        <i class="fas fa-eye" aria-hidden="true"></i>
+                                        {{ post.views|default(0) }}
+                                    </span>
+
+                                    <span>
+                                        <i class="fas fa-comment" aria-hidden="true"></i>
+                                        {{ comment_counts.get(post.id, 0) }}
+                                    </span>
+
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                </article>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+
+        <!-- Library -->
+        {% if not request.args.get('q') %}
+        <section class="sd-articles-library">
+
+            <div>
+                <span class="sd-eyebrow">من عالم سديم</span>
+
+                <h2>
+                    <i class="fas fa-book" aria-hidden="true"></i>
+                    مكتبة أجاثا كريستي
+                </h2>
+
+                <p>
+                    روايات بوليسية كلاسيكية ضمن منظومة شبكة سديم.
+                </p>
+            </div>
+
+            <a
+                href="{{ url_for('Library_Agatha.agatha_christie') }}"
+                class="sd-btn sd-btn-secondary"
+            >
+                <i class="fas fa-book-open" aria-hidden="true"></i>
+                استكشف المكتبة
             </a>
+
+        </section>
+        {% endif %}
+
+
+        <!-- Pagination -->
+        <nav class="sd-pagination" aria-label="التنقل بين صفحات المنشورات">
+
+            {% if has_prev %}
+            <a
+                class="sd-btn sd-btn-outline sd-btn-sm"
+                href="{{ url_for('articles.list_articles', page=page-1, q=request.args.get('q', '')) }}"
+            >
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+                السابق
+            </a>
+            {% endif %}
+
+            <span class="sd-pagination__current">
+                {{ page }}
+            </span>
+
+            {% if has_next %}
+            <a
+                class="sd-btn sd-btn-outline sd-btn-sm"
+                href="{{ url_for('articles.list_articles', page=page+1, q=request.args.get('q', '')) }}"
+            >
+                التالي
+                <i class="fas fa-chevron-left" aria-hidden="true"></i>
+            </a>
+            {% endif %}
+
+        </nav>
+
+
+    {% else %}
+
+        <div class="sd-state sd-state-empty">
+
+            <div class="sd-state-icon">
+                <i class="fas fa-search" aria-hidden="true"></i>
+            </div>
+
+            {% if request.args.get('q') %}
+            <h2 class="sd-state-title">
+                لم نجد منشورات مطابقة
+            </h2>
+
+            <p class="sd-state-desc">
+                جرّب كلمة أخرى أو ابحث بعنوان مختلف.
+            </p>
+
+            <a
+                href="{{ url_for('articles.list_articles') }}"
+                class="sd-btn sd-btn-secondary"
+            >
+                عرض جميع المنشورات
+            </a>
+
+            {% else %}
+            <h2 class="sd-state-title">
+                لا توجد منشورات بعد
+            </h2>
+
+            <p class="sd-state-desc">
+                كن أول من ينشر في شبكة سديم.
+            </p>
+            {% endif %}
+
         </div>
 
-        <div class="sd-pagination" style="margin-top:var(--sd-sp-8);">
-            {% if has_prev %}
-            <a class="sd-btn sd-btn-outline sd-btn-sm" href="{{ url_for('articles.list_articles', page=page-1) }}">
-                <i class="fas fa-chevron-right" aria-hidden="true"></i> السابق
-            </a>
-            {% endif %}
-            {% if has_next %}
-            <a class="sd-btn sd-btn-outline sd-btn-sm" href="{{ url_for('articles.list_articles', page=page+1) }}">
-                التالي <i class="fas fa-chevron-left" aria-hidden="true"></i>
-            </a>
-            {% endif %}
-        </div>
-    {% else %}
-        <div class="sd-state sd-state-empty">
-            <div class="sd-state-icon"><i class="fas fa-newspaper" aria-hidden="true"></i></div>
-            <h2 class="sd-state-title">لا توجد منشورات بعد</h2>
-            <p class="sd-state-desc">كن أول من ينشر في شبكة سديم.</p>
-        </div>
     {% endif %}
+
 </div>
 {% endblock %}
