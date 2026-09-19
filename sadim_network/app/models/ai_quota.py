@@ -1,3 +1,6 @@
+
+from psycopg2.extras import Json
+
 from app.db.sadim_db import get_db_connection
 
 
@@ -73,7 +76,14 @@ class AIQuota:
             cur.execute(
                 """INSERT INTO ai_usage (user_id, visitor_id, conversation_id, event_type, model, metadata)
                    VALUES (%s, %s, %s, %s, %s, %s)""",
-                (user_id, visitor_id, conversation_id, event_type, model, metadata or {})
+                (
+                    user_id,
+                    visitor_id,
+                    conversation_id,
+                    event_type,
+                    model,
+                    Json(metadata or {})
+                )
             )
             conn.commit()
         finally:
