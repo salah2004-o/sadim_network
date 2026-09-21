@@ -1,3 +1,4 @@
+
 {% extends "layouts/public.html" %}
 
 {% block title %}{{ author.username }} — شبكة سديم{% endblock %}
@@ -9,6 +10,7 @@
 {% block content %}
 <main class="sd-container sd-author-page">
 
+    <!-- Author Header -->
     <section class="author-profile" aria-labelledby="author-name">
 
         <div class="author-avatar-wrap">
@@ -27,12 +29,14 @@
 
         <div class="author-info">
 
-            <h1 id="author-name" class="author-name">
-                {{ author.name or author.username }}
-            </h1>
+            <div class="author-heading">
+                <h1 id="author-name" class="author-name">
+                    {{ author.name or author.username }}
+                </h1>
 
-            <div class="author-username" dir="ltr">
-                @{{ author.username }}
+                <div class="author-username" dir="ltr">
+                    @{{ author.username }}
+                </div>
             </div>
 
             {% if author.bio %}
@@ -63,13 +67,24 @@
     </section>
 
 
+    <!-- Author Posts -->
     <section class="author-posts" aria-labelledby="posts-heading">
 
-        <div class="section-heading">
-            <h2 id="posts-heading" class="section-title">
-                منشورات {{ author.username }}
-            </h2>
-        </div>
+        <header class="section-heading">
+            <div>
+                <span class="section-eyebrow">المحتوى</span>
+
+                <h2 id="posts-heading" class="section-title">
+                    منشورات {{ author.username }}
+                </h2>
+            </div>
+
+            {% if posts %}
+            <span class="posts-count" aria-label="عدد المنشورات">
+                {{ posts|length }}
+            </span>
+            {% endif %}
+        </header>
 
 
         {% if posts %}
@@ -86,22 +101,29 @@
 
                 <div class="post-content">
 
-                    <h3 class="post-title">
-                        {{ post.title }}
-                    </h3>
+                    <div class="post-title-row">
+                        <h3 class="post-title">
+                            {{ post.title }}
+                        </h3>
+
+                        <span class="post-arrow" aria-hidden="true">
+                            <i class="fas fa-arrow-left"></i>
+                        </span>
+                    </div>
 
                     <p class="post-excerpt">
-                        {{ post.content|striptags|truncate(140, True, '…') }}
+                        {{ post.content|striptags|truncate(180, True, '…') }}
                     </p>
 
-                </div>
+                    <time
+                        class="post-date"
+                        datetime="{{ post.created_at.isoformat() if post.created_at else '' }}"
+                    >
+                        <i class="far fa-calendar" aria-hidden="true"></i>
+                        {{ post.created_at.strftime('%Y-%m-%d') if post.created_at else '—' }}
+                    </time>
 
-                <time
-                    class="post-date"
-                    datetime="{{ post.created_at.isoformat() if post.created_at else '' }}"
-                >
-                    {{ post.created_at.strftime('%Y-%m-%d') if post.created_at else '—' }}
-                </time>
+                </div>
 
             </a>
 
@@ -112,13 +134,21 @@
         {% else %}
 
         <div class="empty-state">
+
             <div class="empty-icon" aria-hidden="true">
                 <i class="fas fa-newspaper"></i>
             </div>
 
-            <p class="empty-text">
-                لم ينشر هذا المؤلف أي منشور بعد.
-            </p>
+            <div>
+                <p class="empty-title">
+                    لا توجد منشورات بعد
+                </p>
+
+                <p class="empty-text">
+                    لم ينشر هذا المؤلف أي محتوى حتى الآن.
+                </p>
+            </div>
+
         </div>
 
         {% endif %}
