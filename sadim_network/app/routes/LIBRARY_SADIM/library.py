@@ -38,6 +38,39 @@ BASE_DIR = os.path.abspath(os.path.join(current_dir, "..", ".."))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
 
 
+# =========================
+# تحويلات الروابط القديمة — الروابط منتشرة على تيليجرام والسوشيال، ما نكسرها
+# =========================
+@library_bp.route('/library/agatha_christie')
+def redirect_old_library():
+    return redirect(url_for('library.library'))
+
+
+@library_bp.route('/Library/Agatha_Christie/<int:book_id>')
+def redirect_old_book(book_id):
+    return redirect(url_for('library.view_book', book_id=book_id))
+
+
+@library_bp.route('/Library/Agatha_Christie/<int:book_id>/like', methods=['POST'])
+def redirect_old_like(book_id):
+    return redirect(url_for('library.toggle_like', book_id=book_id))
+
+
+@library_bp.route('/Library/Agatha_Christie/<int:book_id>/read')
+def redirect_old_read(book_id):
+    return redirect(url_for('library.read_book', book_id=book_id))
+
+
+@library_bp.route('/library/download/<int:book_id>')
+def redirect_old_download(book_id):
+    return redirect(url_for('library.download_file', book_id=book_id))
+
+
+@library_bp.route('/search')
+def redirect_old_search():
+    return redirect(url_for('library.search', **request.args))
+
+
 def _download_limit_key(prefix="download"):
     book_id = request.view_args.get("book_id", "unknown") if request.view_args else "unknown"
     return f"{prefix}:{session.get('user_id', 'guest')}:{request.remote_addr}:{book_id}"

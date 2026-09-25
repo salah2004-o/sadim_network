@@ -432,7 +432,7 @@
       </div>
 
       <div class="book-meta">
-        <p class="book-author">{{ book.get('author', 'مؤلف غير محدد') }}</p>
+        <p class="book-author">{{ book.get('author') or 'أجاثا كريستي' }}</p>
         <h1 class="book-title">{{ book['title'] }}</h1>
         <div class="divider"></div>
         <p class="book-desc">{{ book['desc_text'] }}</p>
