@@ -93,7 +93,7 @@ class Comments:
             return count > 0
     @staticmethod
     def get_book_comment_counts():
-        """عدد التعليقات لكل كتاب (دفعة واحدة، لا استعلام لكل كتاب) — لعرض 'المناقشات' بمكتبة أجاثا."""
+        """عدد التعليقات لكل كتاب (دفعة واحدة، لا استعلام لكل كتاب) — لعرض 'المناقشات' بالمكتبة."""
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute("SELECT book_id, COUNT(*) FROM comments WHERE book_id IS NOT NULL GROUP BY book_id")
@@ -115,7 +115,7 @@ class Comments:
 
     @staticmethod
     def get_recent_book_discussions(limit=6):
-        """أحدث التعليقات على الروايات (مع عنوان الرواية وصاحب التعليق) — لتبويب 'المناقشات' بمكتبة أجاثا."""
+        """أحدث التعليقات على الروايات (مع عنوان الرواية وصاحب التعليق) — لتبويب 'المناقشات' بالمكتبة."""
         conn = get_db_connection()
         cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cur.execute("""

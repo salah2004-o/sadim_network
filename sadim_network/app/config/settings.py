@@ -58,3 +58,7 @@ BOOK_ANNOUNCE_INTERVAL_HOURS = int(os.getenv("BOOK_ANNOUNCE_INTERVAL_HOURS", 24)
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
 SADEEM_AI_DAILY_LIMIT = int(os.getenv("SADEEM_AI_DAILY_LIMIT", 20))
 RATELIMIT_STORAGE_URI = os.getenv("RATELIMIT_STORAGE_URI", REDIS_URL or "memory://")
+
+# ===== إعدادات رواية اليوم للبوت =====
+DAILY_NOVEL_HOUR = int(os.getenv("DAILY_NOVEL_HOUR", 9))
+DAILY_NOVEL_MINUTE = int(os.getenv("DAILY_NOVEL_MINUTE", 0))

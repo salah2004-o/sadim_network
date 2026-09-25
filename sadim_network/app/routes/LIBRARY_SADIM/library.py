@@ -19,8 +19,8 @@ from app.models.comments import Comments  # تأكد من استيراد الم�
 from app.models.analytics_model import log_event
 from flask import g
 # إنشاء البلوبرينت مع تحديد مجلد الملفات الثابتة بشكل صريح
-Library_Agatha_bp = Blueprint(
-    'Library_Agatha',
+library_bp = Blueprint(
+    'library',
     __name__,
     template_folder='templates',
     static_folder='static'
@@ -63,10 +63,10 @@ def _log_lib_event(event_type, metadata=None):
 # =========================
 # عرض المكتبة للجمهور
 # =========================
-@Library_Agatha_bp.route('/library/agatha_christie')
+@library_bp.route('/library')
 @limiter.limit("5 per minute")
 
-def agatha_christie():
+def library():
     # التحقق من تسجيل الدخول (اختياري حسب رغبتك)
 #    if 'user_id' not in session:
 #        return redirect(url_for('loading_bp.login'))
@@ -99,7 +99,7 @@ def agatha_christie():
 
     user = User.get_by_id(session['user_id']) if 'user_id' in session else None
     return render_template(
-        "Agatha Christie/Agatha.html",
+        "library/library.html",
         books=books, user=user, sort=sort,
         comment_counts=comment_counts,
         total_downloads=total_downloads,
@@ -108,7 +108,7 @@ def agatha_christie():
     )
 
 
-@Library_Agatha_bp.route("/Library/Agatha_Christie/<int:book_id>")
+@library_bp.route('/library/<int:book_id>')
 @limiter.limit("5 per minute")
 def view_book(book_id):
     book = Library.get_book_id(book_id)
@@ -137,7 +137,7 @@ def view_book(book_id):
     conn.close()
 
     return render_template(
-        "Agatha Christie/book_detail.html",
+        "library/book_detail.html",
         book=book,
         comments=comments,
         other_books=other_books,
@@ -147,7 +147,7 @@ def view_book(book_id):
     )
 
 
-@Library_Agatha_bp.route('/Library/Agatha_Christie/<int:book_id>/like', methods=['POST'])
+@library_bp.route('/library/<int:book_id>/like', methods=['POST'])
 @limiter.limit("20 per minute")
 def toggle_like(book_id):
     """تبديل إعجاب/إلغاء إعجاب لرواية — منفصل عمداً عن user_favorites
@@ -184,13 +184,13 @@ def toggle_like(book_id):
 
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or 'application/json' in (request.headers.get('Accept') or ''):
         return {'liked': liked, 'likes_count': likes_count}
-    return redirect(url_for('Library_Agatha.view_book', book_id=book_id))
+    return redirect(url_for('library.view_book', book_id=book_id))
 # =========================
 # 2. تحميل الملف الفعلي — طلب واحد ذرّي: يتحقق من الملف، يزيد العداد، يسجّل الحدث، ثم يرسل الملف.
 # لا يعتمد على أي طلب منفصل قبله (كان فيه طلبان غير مرتبطين: زيادة عداد + تحميل فعلي، ممكن الأول
 # ينجح دون الثاني). العداد وحدث download.success الآن لا يُسجَّلان إلا لو الملف فعلاً موجود ووصل للمستخدم.
 # =========================
-@Library_Agatha_bp.route('/library/download/<int:book_id>')
+@library_bp.route('/library/<int:book_id>/download')
 @limiter.limit("10 per hour", key_func=_download_limit_key)
 def download_file(book_id):
     conn = get_db_connection()
@@ -249,7 +249,7 @@ def download_file(book_id):
     )
 
 
-@Library_Agatha_bp.route('/Library/Agatha_Christie/<int:book_id>/read')
+@library_bp.route('/library/<int:book_id>/read')
 @limiter.limit("20 per minute")
 def read_book(book_id):
     book = Library.get_book_id(book_id)
@@ -288,9 +288,9 @@ def read_book(book_id):
     _log_lib_event("book.read", metadata={"book_id": book_id, "title": book.get('title')})
 
     return render_template(
-        "Agatha Christie/read_book.html",
+        "library/read_book.html",
         book=book,
-        pdf_url=url_for('Library_Agatha.static', filename='uploads/' + relative_pdf_path),
+        pdf_url=url_for('library.static', filename='uploads/' + relative_pdf_path),
     )
 
 
@@ -299,7 +299,7 @@ def read_book(book_id):
 # حتى لو فشل التحميل الفعلي بعده). العداد الآن جزء من download_file() نفسها (طلب واحد ذرّي).
 # الراوت باقٍ فقط توافقاً مع أي استدعاء قديم مخزَّن بمتصفح، لا يُستدعى من أي قالب حالياً.
 # =========================
-@Library_Agatha_bp.route('/library/increment_download/<int:book_id>', methods=['POST'])
+@library_bp.route('/library/increment_download/<int:book_id>', methods=['POST'])
 @limiter.limit("2 per hour", key_func=lambda: _download_limit_key("legacy"))
 def increment_download(book_id):
     return {"success": False, "error": "deprecated"}, 410
@@ -307,7 +307,7 @@ def increment_download(book_id):
 # =========================
 # 3. البحث (تمت إضافة حقل download_count)
 # =========================
-@Library_Agatha_bp.route('/search')
+@library_bp.route('/library/search')
 def search():
     query = request.args.get('q', '')
 
@@ -330,7 +330,7 @@ def search():
     _log_lib_event("book.search", metadata={"query": query, "results_count": len(books)})
 
     return render_template(
-        "Agatha Christie/search_results.html",
+        "library/search_results.html",
         query=query,
         books=books
     )
@@ -340,7 +340,7 @@ def search():
 # 3-ب. بحث فوري (Live/Typeahead) — معاينة سريعة فقط بالرئيسية، بدون تسجيل حدث تحليلي
 # (البحث "الحقيقي" اللي يُسجَّل بالتحليلات يبقى فقط عبر /search أعلاه عند الضغط فعلياً على نتيجة/إرسال النموذج)
 # =========================
-@Library_Agatha_bp.route('/library/quick_search')
+@library_bp.route('/library/quick_search')
 def quick_search():
     query = request.args.get('q', '').strip()
     if len(query) < 2:
@@ -363,8 +363,8 @@ def quick_search():
         {
             "id": b["id"],
             "title": b["title"],
-            "cover_url": url_for('Library_Agatha.static', filename='uploads/' + b["cover_path"]) if b["cover_path"] else None,
-            "url": url_for('Library_Agatha.view_book', book_id=b["id"]),
+            "cover_url": url_for('library.static', filename='uploads/' + b["cover_path"]) if b["cover_path"] else None,
+            "url": url_for('library.view_book', book_id=b["id"]),
         }
         for b in books
     ]}
@@ -373,7 +373,7 @@ def quick_search():
 # =========================
 # إضافة تعليق جديد
 # =========================
-@Library_Agatha_bp.route('/library/add_comment/<int:book_id>', methods=['POST'])
+@library_bp.route('/library/add_comment/<int:book_id>', methods=['POST'])
 def add_comment(book_id):
     if 'user_id' not in session:
         flash("يجب تسجيل الدخول لإضافة تعليق.", "danger")
@@ -384,7 +384,7 @@ def add_comment(book_id):
 
     if not content or len(content.strip()) < 2:
         flash("محتوى التعليق قصير جداً.", "warning")
-        return redirect(url_for('Library_Agatha.view_book', book_id=book_id))
+        return redirect(url_for('library.view_book', book_id=book_id))
 
     result = Comments.add_comment(user_id=user_id, content=content, book_id=book_id)
     
@@ -393,9 +393,9 @@ def add_comment(book_id):
     else:
         flash(f"فشل نشر التعليق: {result['message']}", "danger")
 
-    return redirect(url_for('Library_Agatha.view_book', book_id=book_id))
+    return redirect(url_for('library.view_book', book_id=book_id))
 
-@Library_Agatha_bp.route('/library/delete_comment/<int:comment_id>/<int:book_id>')
+@library_bp.route('/library/delete_comment/<int:comment_id>/<int:book_id>')
 def delete_comment(comment_id, book_id):
     if 'user_id' not in session:
         return redirect(url_for('loading_bp.login'))
@@ -405,4 +405,4 @@ def delete_comment(comment_id, book_id):
     else:
         flash("لا تملك صلاحية حذف هذا التعليق", "danger")
         
-    return redirect(url_for('Library_Agatha.view_book', book_id=book_id))
+    return redirect(url_for('library.view_book', book_id=book_id))

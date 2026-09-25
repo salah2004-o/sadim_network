@@ -50,7 +50,7 @@
   </div>
 
   <header class="read-header" id="reader-header">
-    <a href="{{ url_for('Library_Agatha.view_book', book_id=book.id) }}" class="read-header__brand">
+    <a href="{{ url_for('library.view_book', book_id=book.id) }}" class="read-header__brand">
       <i class="fas fa-arrow-right" aria-hidden="true"></i> العودة
     </a>
     <span class="read-header__title" title="{{ book.title }}">{{ book.title }}</span>
@@ -58,7 +58,7 @@
       <button class="reader-button reader-button--ghost" id="ai-trigger" type="button" aria-label="فتح سديم AI">
         <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> <span class="hide-mobile">سديم AI</span>
       </button>
-      <a href="{{ url_for('Library_Agatha.download_file', book_id=book.id) }}" class="reader-button reader-button--primary reader-button--icon" title="تحميل PDF" aria-label="تحميل PDF">
+      <a href="{{ url_for('library.download_file', book_id=book.id) }}" class="reader-button reader-button--primary reader-button--icon" title="تحميل PDF" aria-label="تحميل PDF">
         <i class="fas fa-download" aria-hidden="true"></i>
       </a>
     </div>
@@ -72,7 +72,7 @@
     {% endif %}
     <div class="read-hero__info">
       <h1 class="read-hero__title" id="reader-title">{{ book.title }}</h1>
-      <div class="read-hero__author">Agatha Christie</div>
+      <div class="read-hero__author">{{ book.author or book.get('author') or 'مؤلف غير محدد' }}</div>
       {% if book.desc_text %}
         <p class="read-hero__desc">{{ book.desc_text }}</p>
       {% endif %}

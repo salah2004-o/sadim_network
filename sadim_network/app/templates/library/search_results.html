@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نتائج البحث: {{ query }} — مكتبة أجاثا</title>
+    <title>نتائج البحث: {{ query }} — المكتبة</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/Agatha.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/library.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;700&family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -20,7 +20,7 @@
 {% include 'partials/_page_nav.html' %}
 
 <div class="search-header">
-    <a href="{{ url_for('Library_Agatha.agatha_christie') }}" style="color: var(--text-muted); text-decoration:none; font-size:0.85rem;">
+    <a href="{{ url_for('library.library') }}" style="color: var(--text-muted); text-decoration:none; font-size:0.85rem;">
         <i class="fa-solid fa-arrow-right"></i> العودة للمكتبة
     </a>
     <h1 style="margin-top:14px;">نتائج البحث</h1>
@@ -31,10 +31,10 @@
 <div class="book-grid">
     {% for book in books %}
     <div class="book-card">
-        <a href="{{ url_for('Library_Agatha.view_book', book_id=book.id) }}" style="text-decoration:none;">
+        <a href="{{ url_for('library.view_book', book_id=book.id) }}" style="text-decoration:none;">
             <div class="cover-container">
                 {% if book.cover_path %}
-                <img src="{{ url_for('Library_Agatha.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" alt="{{ book.title }}" loading="lazy">
+                <img src="{{ url_for('library.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" alt="{{ book.title }}" loading="lazy">
                 {% endif %}
             </div>
             <h3 class="book-title">{{ book.title }}</h3>
@@ -45,10 +45,10 @@
         <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 15px; height: 3.2em; overflow: hidden; opacity: 0.7;">
             {{ book.desc_text | truncate(75) }}
         </p>
-        <a href="{{ url_for('Library_Agatha.view_book', book_id=book.id) }}">
+        <a href="{{ url_for('library.view_book', book_id=book.id) }}">
             عرض التفاصيل ←
         </a>
-        <a href="{{ url_for('Library_Agatha.download_file', book_id=book.id) }}" class="btn-royal">
+        <a href="{{ url_for('library.download_file', book_id=book.id) }}" class="btn-royal">
             <i class="fa-solid fa-download"></i> تحميل PDF ملكي
         </a>
     </div>

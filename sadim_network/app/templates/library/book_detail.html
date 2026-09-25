@@ -417,7 +417,7 @@
     <div class="book-layout">
 
       <div class="cover-wrap">
-        <img src="{{ url_for('Library_Agatha.static', filename='uploads/' + book['cover_path']) }}?v={{ book['id'] }}" alt="{{ book['title'] }}">
+        <img src="{{ url_for('library.static', filename='uploads/' + book['cover_path']) }}?v={{ book['id'] }}" alt="{{ book['title'] }}">
         <div class="download-badge">
           <i class="fa-solid fa-cloud-arrow-down"></i>
           <span><span id="download-count-number">{{ book['download_count'] or 0 }}</span> تحميل</span>
@@ -426,25 +426,25 @@
           <i class="fa-solid fa-comment"></i>
           <span>{{ comments|length }} رأي</span>
         </div>
-        <button type="button" class="btn-back" style="width:100%; justify-content:center; margin-top:0.5rem; cursor:pointer;" onclick="shareBook(this)" data-url="{{ request.url_root.rstrip('/') + url_for('Library_Agatha.view_book', book_id=book['id']) }}" data-title="{{ book['title'] }}">
+        <button type="button" class="btn-back" style="width:100%; justify-content:center; margin-top:0.5rem; cursor:pointer;" onclick="shareBook(this)" data-url="{{ request.url_root.rstrip('/') + url_for('library.view_book', book_id=book['id']) }}" data-title="{{ book['title'] }}">
           <i class="fa-solid fa-share-nodes"></i> مشاركة
         </button>
       </div>
 
       <div class="book-meta">
-        <p class="book-author">أجاثا كريستي</p>
+        <p class="book-author">{{ book.get('author', 'مؤلف غير محدد') }}</p>
         <h1 class="book-title">{{ book['title'] }}</h1>
         <div class="divider"></div>
         <p class="book-desc">{{ book['desc_text'] }}</p>
 
         <div class="actions">
-          <a href="{{ url_for('Library_Agatha.read_book', book_id=book['id']) }}" class="btn-download" style="background: linear-gradient(135deg, #7c4dff, #b388ff); color: #fff;">
+          <a href="{{ url_for('library.read_book', book_id=book['id']) }}" class="btn-download" style="background: linear-gradient(135deg, #7c4dff, #b388ff); color: #fff;">
             <i class="fa-solid fa-book-open"></i> قراءة مباشرة
           </a>
-          <a href="{{ url_for('Library_Agatha.download_file', book_id=book['id']) }}" class="btn-download">
+          <a href="{{ url_for('library.download_file', book_id=book['id']) }}" class="btn-download">
             <i class="fa-solid fa-download"></i> تحميل PDF
           </a>
-          <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="btn-back">
+          <a href="{{ url_for('library.library') }}" class="btn-back">
             <i class="fa-solid fa-books"></i> روايات أخرى
           </a>
           {% if session.get('user_id') %}
@@ -472,7 +472,7 @@
         </div>
 
         {% if session.get('user_id') %}
-        <form action="{{ url_for('Library_Agatha.add_comment', book_id=book.id) }}" method="POST" class="comment-form">
+        <form action="{{ url_for('library.add_comment', book_id=book.id) }}" method="POST" class="comment-form">
           <textarea name="content" rows="3" placeholder="اكتب انطباعك الملكي عن هذه الرواية..." required></textarea>
           <button type="submit" class="btn-download" style="width: 100%; padding: 10px;">نشر التعليق</button>
         </form>
@@ -499,7 +499,7 @@
                 </span>
                 
                 {% if session.get('user_id') == comment.user_id or session.get('role') == 'admin' %}
-                <a href="{{ url_for('Library_Agatha.delete_comment', comment_id=comment.id, book_id=book.id) }}" 
+                <a href="{{ url_for('library.delete_comment', comment_id=comment.id, book_id=book.id) }}" 
                    class="delete-btn"
                    onclick="return confirm('هل أنت متأكد من الحذف؟')">
                   <i class="fa-solid fa-trash"></i>
@@ -532,8 +532,8 @@
       <h3 style="font-family:'Amiri',serif; color:var(--gold); font-size:1.3rem; margin-bottom:1.2rem;">روايات أخرى من المجموعة</h3>
       <div class="related-books-grid">
         {% for rb in other_books %}
-        <a href="{{ url_for('Library_Agatha.view_book', book_id=rb.id) }}" class="related-book-card">
-          <img src="{{ url_for('Library_Agatha.static', filename='uploads/' + rb.cover_path) }}?v={{ rb.id }}" alt="{{ rb.title }}">
+        <a href="{{ url_for('library.view_book', book_id=rb.id) }}" class="related-book-card">
+          <img src="{{ url_for('library.static', filename='uploads/' + rb.cover_path) }}?v={{ rb.id }}" alt="{{ rb.title }}">
           <span>{{ rb.title }}</span>
         </a>
         {% endfor %}
@@ -597,7 +597,7 @@ setReading('reading');
 function toggleLike(btn){
   if(btn.dataset.busy==='1')return;
   btn.dataset.busy='1';
-  fetch("{{ url_for('Library_Agatha.toggle_like', book_id=book['id']) }}",{method:'POST',headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}})
+  fetch("{{ url_for('library.toggle_like', book_id=book['id']) }}",{method:'POST',headers:{'X-Requested-With':'XMLHttpRequest','Accept':'application/json'}})
     .then(r=>{if(!r.ok)throw Error();return r.json();})
     .then(data=>{
       const icon=btn.querySelector('i');

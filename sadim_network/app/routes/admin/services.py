@@ -12,7 +12,7 @@ from app.utlis.timezone_utils import Timezone
 from app.models.product import service
 import pytz
 
-@admin_bp.route("/serverss")
+@admin_bp.route("/services-dashboard")
 @login_required
 @admin_required
 def services_dashboard():
@@ -129,10 +129,20 @@ def delete_service(service_id):
 @admin_bp.route('/service/<string:type>/<int:item_id>')
 def service_detail(type, item_id):
     item = None
+    ai_context_type = ''
+    ai_context_id = ''
     if type == 'book':
         item = service.get_book_by_id(item_id) # افترضت اسم النموذج Book
+        ai_context_type = 'book'
+        ai_context_id = item_id
     elif type == 'tool':
         item = service.get_tool_by_id(item_id) # افترضت اسم النموذج TechTool
 
-    return render_template('dashboard/s.html', item=item, type=type)
+    return render_template(
+        'dashboard/s.html',
+        item=item,
+        type=type,
+        ai_context_type=ai_context_type,
+        ai_context_id=ai_context_id,
+    )
 

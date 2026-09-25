@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة أجاثا</title>
+    <title>المكتبة</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/Agatha.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/library.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
@@ -21,7 +21,7 @@
     justify-content: center;
     overflow: hidden;      /* لإخفاء أي أجزاء خارج الدائرة */
     border-radius: 50%;    /* جعل الحاوية دائرية */
-    border: 2px solid var(--gold, #d4af37); /* إطار ذهبي خفيف ليناسب طابع أجاثا */
+    border: 2px solid var(--gold, #d4af37); /* إطار ذهبي خفيف للمكتبة */
     background-color: #f0f0f0;
 }
 
@@ -102,11 +102,11 @@
 
 <!-- ============ Collection Header ============ -->
 <section class="collection-hero">
-    <img src="{{ url_for('Library_Agatha.static', filename='images/اغاثا.webp') }}" alt="Agatha Christie" class="collection-portrait">
+    <img src="{{ url_for('library.static', filename='images/logo.png') }}" alt="المكتبة" class="collection-portrait">
     <div class="collection-info">
-        <div class="collection-kicker">مؤلفة / مجموعة أدبية</div>
-        <h1 class="collection-title">أجاثا كريستي — سيدة الغموض</h1>
-        <p class="collection-bio">الروائية الأكثر مبيعاً في التاريخ؛ صاحبة أشهر ألغاز الجريمة الأدبية عبر العالم. اكتشف عالم الذكاء والتشويق عبر مكتبتنا الملكية ضمن شبكة سديم.</p>
+        <div class="collection-kicker">مكتبة شبكة سديم</div>
+        <h1 class="collection-title">المكتبة — منصة المحتوى العربي</h1>
+        <p class="collection-bio">مكتبة رقمية ضمن شبكة سديم تقدم روايات وكتب متاحة للقراءة والتحميل.</p>
 
         <div class="collection-stats">
             <div class="collection-stat"><b>{{ books|length }}</b><span>رواية بالمكتبة</span></div>
@@ -115,11 +115,11 @@
         </div>
 
         <div class="collection-actions">
-            <button type="button" class="btn-ghost-gold" onclick="shareCollection(this)" data-url="{{ request.url_root.rstrip('/') + url_for('Library_Agatha.agatha_christie') }}">
+            <button type="button" class="btn-ghost-gold" onclick="shareCollection(this)" data-url="{{ request.url_root.rstrip('/') + url_for('library.library') }}">
                 <i class="fa-solid fa-share-nodes"></i> مشاركة المكتبة
             </button>
             <a href="https://t.me/hx5cb" target="_blank" class="btn-ghost-gold">
-                <i class="fab fa-telegram"></i> قناة روايات أجاثا
+                <i class="fab fa-telegram"></i> قناة المكتبة
             </a>
         </div>
     </div>
@@ -151,13 +151,13 @@
 <div id="tab-books" class="tab-pane active">
 
     <div class="sort-bar">
-        <a href="{{ url_for('Library_Agatha.agatha_christie', sort='downloads') }}" class="sort-link {{ 'active' if sort == 'downloads' }}">
+        <a href="{{ url_for('library.library', sort='downloads') }}" class="sort-link {{ 'active' if sort == 'downloads' }}">
             <i class="fa-solid fa-fire"></i> الأكثر تحميلاً
         </a>
-        <a href="{{ url_for('Library_Agatha.agatha_christie', sort='newest') }}" class="sort-link {{ 'active' if sort == 'newest' }}">
+        <a href="{{ url_for('library.library', sort='newest') }}" class="sort-link {{ 'active' if sort == 'newest' }}">
             <i class="fa-solid fa-clock"></i> الأحدث
         </a>
-        <a href="{{ url_for('Library_Agatha.agatha_christie', sort='discussed') }}" class="sort-link {{ 'active' if sort == 'discussed' }}">
+        <a href="{{ url_for('library.library', sort='discussed') }}" class="sort-link {{ 'active' if sort == 'discussed' }}">
             <i class="fa-solid fa-comments"></i> الأكثر نقاشاً
         </a>
     </div>
@@ -165,9 +165,9 @@
     <div class="book-grid">
         {% for book in books %}
         <div class="book-card">
-            <a href="{{ url_for('Library_Agatha.view_book', book_id=book['id']) }}" style="text-decoration:none;">
+            <a href="{{ url_for('library.view_book', book_id=book['id']) }}" style="text-decoration:none;">
                 <div class="cover-container">
-                    <img src="{{ url_for('Library_Agatha.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" alt="{{ book.title }}" loading="lazy">
+                    <img src="{{ url_for('library.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" alt="{{ book.title }}" loading="lazy">
                 </div>
                 <h3 class="book-title">{{ book.title }}</h3>
             </a>
@@ -180,10 +180,10 @@
             <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 15px; height: 3.2em; overflow: hidden; opacity: 0.7;">
                 {{ book.desc_text | truncate(75) }}
             </p>
-            <a href="{{ url_for('Library_Agatha.view_book', book_id=book['id']) }}">
+            <a href="{{ url_for('library.view_book', book_id=book['id']) }}">
                 عرض التفاصيل ←
             </a>
-            <a href="{{ url_for('Library_Agatha.download_file', book_id=book.id) }}"
+            <a href="{{ url_for('library.download_file', book_id=book.id) }}"
                class="btn-royal">
                 <i class="fa-solid fa-download"></i> تحميل PDF ملكي
             </a>
@@ -205,12 +205,12 @@
                 <div class="discussion-head">
                     <b>{{ d.username }}</b>
                     عن رواية
-                    <a href="{{ url_for('Library_Agatha.view_book', book_id=d.book_id) }}">{{ d.book_title }}</a>
+                    <a href="{{ url_for('library.view_book', book_id=d.book_id) }}">{{ d.book_title }}</a>
                 </div>
                 <p class="discussion-text">{{ d.content }}</p>
                 <span class="discussion-date">{{ d.created_at.strftime('%Y-%m-%d %H:%M') if d.created_at else '' }}</span>
             </div>
-            <img src="{{ url_for('Library_Agatha.static', filename='uploads/' + d.book_cover) }}" class="discussion-book-thumb" alt="">
+            <img src="{{ url_for('library.static', filename='uploads/' + d.book_cover) }}" class="discussion-book-thumb" alt="">
         </div>
         {% else %}
         <p style="text-align:center; color:var(--text-muted); padding:3rem 0;">لا توجد مناقشات بعد — كن أول من يشارك رأيه في إحدى الروايات.</p>
@@ -243,7 +243,7 @@
 
 <section style="max-width: 600px; margin: 2rem auto; padding: 0 1.5rem; text-align: center;">
     <a href="https://t.me/hx5cb" target="_blank" style="display:inline-flex; align-items:center; gap:0.6rem; padding:0.9rem 1.6rem; border-radius:14px; background:rgba(255,255,255,0.04); border:1px solid rgba(212,175,55,0.25); color:var(--soft-gold); text-decoration:none; font-weight:600;">
-        <i class="fab fa-telegram"></i> تابعنا على قناة روايات أجاثا بتيليجرام
+        <i class="fab fa-telegram"></i> تابعنا على قناة المكتبة بتيليجرام
     </a>
 </section>
 
@@ -271,7 +271,7 @@
     // مشاركة رابط المكتبة (Web Share API مع بديل نسخ الرابط)
     function shareCollection(btn) {
         const url = btn.getAttribute('data-url');
-        const shareData = { title: 'مكتبة أجاثا كريستي — شبكة سديم', url };
+        const shareData = { title: 'المكتبة — شبكة سديم', url };
         if (navigator.share) {
             navigator.share(shareData).catch(() => {});
             return;

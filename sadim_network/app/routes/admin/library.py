@@ -12,7 +12,7 @@ import os
 from flask import render_template, request, redirect, url_for, flash
 from models.library_mdl import Library
 # ==========================================
-# قسم إدارة مكتبة أجاثا كريستي (الدمج الجديد)
+# قسم إدارة المكتبة (الدمج الجديد)
 # ==========================================
 @admin_bp.route('/library/manage')
 @login_required

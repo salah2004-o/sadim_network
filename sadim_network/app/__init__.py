@@ -39,7 +39,7 @@ def inject_ai_page_context():
     article = re.search(r'^/articles/(\d+)/?$', path)
     if article:
         return {'ai_context_type': 'article', 'ai_context_id': article.group(1)}
-    book = re.search(r'^/Library/Agatha_Christie/(\d+)/?$', path, re.I)
+    book = re.search(r'^/library/(\d+)/?$', path, re.I)
     if book:
         return {'ai_context_type': 'book', 'ai_context_id': book.group(1)}
     return {'ai_context_type': '', 'ai_context_id': ''}
@@ -60,7 +60,7 @@ from app.routes.errors import errors_bp
 from app.routes.admin.admin import admin_bp
 from app.routes.loding import loading_bp
 from app.routes.register import register_bp
-from app.routes.LIBRARY_SADIM.Agatha_Christie import Library_Agatha_bp
+from app.routes.LIBRARY_SADIM.library import library_bp
 from app.routes.admin.profile import profile_bp
 from app.routes.menu_route import menu_bp
 from app.routes.bots.bot import bot_bp as bots_bp
@@ -77,7 +77,7 @@ app.register_blueprint(menu_bp)
 app.register_blueprint(errors_bp)
 app.register_blueprint(main_bp)
 app.register_blueprint(register_bp)
-app.register_blueprint(Library_Agatha_bp)
+app.register_blueprint(library_bp)
 app.register_blueprint(bots_bp)
 app.register_blueprint(articles_bp)
 app.register_blueprint(shortlinks_bp)

@@ -50,6 +50,7 @@
 		</select>
 	</div>
 	<button class="sd-btn sd-btn-primary" type="submit"><i class="fas fa-search"></i> بحث</button>
+	{% if query or status %}<a href="{{ url_for('admin.ai_conversations') }}" class="sd-btn sd-btn-secondary sd-btn-sm">كل المحادثات</a>{% endif %}
 </form>
 
 <div class="sd-card" style="padding:0; overflow:hidden;">

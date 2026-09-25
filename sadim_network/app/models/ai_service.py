@@ -152,7 +152,7 @@ def validate_upload(file_storage):
 
 def _ground_links(answer):
     for row in _rows("SELECT id, title FROM books ORDER BY id DESC LIMIT 200"):
-        answer = re.sub(rf"(?<!\]){re.escape(row['title'])}(?!\()", f"[{row['title']}](/Library/Agatha_Christie/{row['id']})", answer)
+        answer = re.sub(rf"(?<!\]){re.escape(row['title'])}(?!\()", f"[{row['title']}](/library/{row['id']})", answer)
     for row in _rows("SELECT id, title FROM posts ORDER BY created_at DESC LIMIT 200"):
         answer = re.sub(rf"(?<!\]){re.escape(row['title'])}(?!\()", f"[{row['title']}](/articles/{row['id']})", answer)
     return answer
@@ -167,7 +167,7 @@ def _validate_links(answer):
         article_id = int(match.group(2))
         return match.group(0) if _rows("SELECT 1 FROM posts WHERE id = %s", (article_id,)) else match.group(1)
 
-    answer = re.sub(r"\[([^\]]+)\]\(/Library/Agatha_Christie/(\d+)\)", valid_book, answer)
+    answer = re.sub(r"\[([^\]]+)\]\(/library/(\d+)\)", valid_book, answer)
     return re.sub(r"\[([^\]]+)\]\(/articles/(\d+)\)", valid_article, answer)
 
 
@@ -201,14 +201,14 @@ def _database_fallback(message):
     if any(phrase in lowered for phrase in ('عطني رواية', 'اعطني رواية', 'أعطني رواية', 'اختار لي كتاب', 'اختر لي كتاب', 'ماذا أقرأ', 'ماذا اقرا', 'رواية او منشور', 'رواية أو منشور', 'شيء اقرأه')):
         books = _rows("SELECT id, title FROM books ORDER BY download_count DESC NULLS LAST, id DESC LIMIT 3")
         articles = _rows("SELECT id, title FROM posts ORDER BY created_at DESC LIMIT 3")
-        suggestions = [f"- [{row['title']}](/Library/Agatha_Christie/{row['id']})" for row in books]
+        suggestions = [f"- [{row['title']}](/library/{row['id']})" for row in books]
         suggestions += [f"- [{row['title']}](/articles/{row['id']})" for row in articles]
         if suggestions:
             return 'هذه اقتراحات حقيقية من شبكة سديم:\n' + '\n'.join(suggestions)
     if any(word in lowered for word in ('كتاب', 'رواية', 'قراءة', 'book')):
         rows = search_library(message, limit=3)
         if rows:
-            return 'هذه نتائج من مكتبة سديم:\n' + '\n'.join(f"- [{row['title']}](/Library/Agatha_Christie/{row['id']})" for row in rows)
+            return 'هذه نتائج من مكتبة سديم:\n' + '\n'.join(f"- [{row['title']}](/library/{row['id']})" for row in rows)
     if any(word in lowered for word in ('خدمة', 'cv', 'سيرة', 'service')):
         rows = search_services(message, limit=3)
         if rows:
@@ -217,7 +217,7 @@ def _database_fallback(message):
         rows = search_articles(message, limit=3)
         if rows:
             return 'هذه منشورات سديم الأقرب لطلبك:\n' + '\n'.join(f"- [{row['title']}](/articles/{row['id']})" for row in rows)
-    return 'لم أتمكن من الوصول إلى الذكاء الاصطناعي الآن، ولم أجد نتيجة مباشرة مناسبة في شبكة سديم.'
+    return "ممكن توضح ماذا تقصد؟"
 
 
 def _instant_response(message):

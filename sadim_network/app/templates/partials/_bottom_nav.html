@@ -12,7 +12,7 @@
         <i class="fas fa-newspaper" aria-hidden="true"></i>
         <span>المنشورات</span>
     </a>
-    <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-bottom-nav__item {% if 'agatha' in path.lower() or path.startswith('/library') or path.startswith('/Library') %}is-active{% endif %}">
+    <a href="{{ url_for('library.library') }}" class="sd-bottom-nav__item {% if path.startswith('/library') %}is-active{% endif %}">
         <i class="fas fa-book-open" aria-hidden="true"></i>
         <span>المكتبة</span>
     </a>

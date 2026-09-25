@@ -186,7 +186,7 @@ def manage_bot(bot_id):
         for feat in get_all_features()
     ]
 
-    return render_template("manage_bot.html", bot=bot_data, quotes=quotes, features=features)
+    return render_template("manage_bot.html", bot=bot_data, quotes=quotes, features=features, username=session.get('username', ''))
 
 
 @bot_bp.route("/<int:bot_id>/feature/toggle", methods=["POST"])

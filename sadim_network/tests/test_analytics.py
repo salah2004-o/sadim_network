@@ -246,7 +246,7 @@ def test_session_without_explicit_logout_stays_open(client):
 # ==================== 7. مشاهدة رواية ====================
 
 def test_book_view_logs_correct_book_id(client, temp_book):
-    r = client.get(f"/Library/Agatha_Christie/{temp_book}", headers={"User-Agent": DESKTOP_UA})
+    r = client.get(f"/library/{temp_book}", headers={"User-Agent": DESKTOP_UA})
     assert r.status_code == 200
     rows = _events(event_type="book.view")
     assert len(rows) == 1
@@ -258,7 +258,7 @@ def test_book_view_logs_correct_book_id(client, temp_book):
 # ==================== 8. تحميل رواية (نجاح حقيقي، لا مجرد فتح الرابط) ====================
 
 def test_book_download_increments_counter_atomically_with_real_file(client, temp_book):
-    r = client.get(f"/library/download/{temp_book}", headers={"User-Agent": DESKTOP_UA})
+    r = client.get(f"/library/{temp_book}/download", headers={"User-Agent": DESKTOP_UA})
     assert r.status_code == 200
     assert "attachment" in r.headers.get("Content-Disposition", "")
 
@@ -290,7 +290,7 @@ def test_book_download_missing_file_does_not_increment_counter(client):
     conn.close()
 
     try:
-        r = client.get(f"/library/download/{book_id}", headers={"User-Agent": DESKTOP_UA})
+        r = client.get(f"/library/{book_id}/download", headers={"User-Agent": DESKTOP_UA})
         assert r.status_code == 404
 
         conn = get_db_connection()
@@ -323,7 +323,7 @@ def test_admin_dashboard_activity_excluded_from_engagement(client, temp_user):
         sess["username"] = "pytest_analytics_user"
         sess["email"] = "pytest_analytics_user@example.com"
         sess["role"] = "admin"
-    client.get("/dashboard/serverss", headers={"User-Agent": DESKTOP_UA})
+    client.get("/dashboard/services-dashboard", headers={"User-Agent": DESKTOP_UA})
     client.get("/dashboard/analytics", headers={"User-Agent": DESKTOP_UA})
 
     # هل dashboard activity تدخل في User Analytics؟ لا — صفر جلسات بالكامل.
@@ -344,7 +344,7 @@ def test_admin_public_page_visit_still_tracked_normally(client, temp_user):
         sess["email"] = "pytest_analytics_user@example.com"
         sess["role"] = "admin"
     client.get("/about", headers={"User-Agent": DESKTOP_UA})
-    client.get("/dashboard/serverss", headers={"User-Agent": DESKTOP_UA})
+    client.get("/dashboard/services-dashboard", headers={"User-Agent": DESKTOP_UA})
 
     sessions = _sessions()
     assert len(sessions) == 1
@@ -395,7 +395,7 @@ def test_csv_export_has_real_sortable_timestamps(client, temp_user):
         sess["user_id"] = 1
         sess["role"] = "admin"
     # زيارة "/" وحدها تلمس الجلسة فقط، ما تُنشئ analytics_events — لازم فعل حقيقي يُنتج حدثاً
-    client.get("/library/agatha_christie", headers={"User-Agent": DESKTOP_UA})
+    client.get("/library", headers={"User-Agent": DESKTOP_UA})
 
     r = client.get("/dashboard/analytics/export.csv")
     assert r.status_code == 200
@@ -420,7 +420,7 @@ def test_excel_export_has_real_datetime_cells_not_strings(client):
     with client.session_transaction() as sess:
         sess["user_id"] = 1
         sess["role"] = "admin"
-    client.get("/library/agatha_christie", headers={"User-Agent": DESKTOP_UA})
+    client.get("/library", headers={"User-Agent": DESKTOP_UA})
 
     r = client.get("/dashboard/analytics/export.xlsx")
     assert r.status_code == 200

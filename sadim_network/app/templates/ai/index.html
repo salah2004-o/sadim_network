@@ -2389,6 +2389,13 @@
 
         list.forEach(conversation => {
 
+            const wrapper =
+                document.createElement('div');
+
+            wrapper.style.cssText =
+                'display:flex; align-items:center; gap:0.35rem;';
+
+
             const button =
                 document.createElement('button');
 
@@ -2421,7 +2428,107 @@
                 );
 
 
-            $('history').append(button);
+            const delBtn =
+                document.createElement('button');
+
+            delBtn.type =
+                'button';
+
+            delBtn.innerHTML =
+                '<i class="fas fa-trash" style="color:#ff5252;"></i>';
+
+            delBtn.title =
+                'حذف المحادثة';
+
+            delBtn.style.cssText =
+                [
+                    'width:32px',
+                    'height:32px',
+                    'flex-shrink:0',
+                    'border:none',
+                    'background:rgba(255,82,82,0.1)',
+                    'border-radius:8px',
+                    'cursor:pointer',
+                    'display:grid',
+                    'place-items:center',
+                    'transition:border-color 180ms ease'
+                ].join(';');
+
+            delBtn.onclick =
+                async (e) => {
+
+                    e.stopPropagation();
+
+                    if (
+                        !confirm(
+                            'حذف هذه المحادثة؟ لا يمكن التراجع.'
+                        )
+                    ) {
+
+                        return;
+                    }
+
+                    try {
+
+                        const res =
+                            await fetch(
+                                '/ai/conversations/' +
+                                encodeURIComponent(conversation.id),
+                                {
+                                    method: 'DELETE'
+                                }
+                            );
+
+                        if (
+                            res.ok
+                        ) {
+
+                            wrapper.remove();
+
+                            if (
+                                conversationId ===
+                                conversation.id
+                            ) {
+
+                                conversationId =
+                                    null;
+
+                                $('messages').innerHTML = '';
+
+                                hasMessages =
+                                    false;
+
+                                setEmpty(
+                                    true
+                                );
+
+                                updateClearButton();
+                            }
+
+                        } else {
+
+                            add(
+                                'assistant',
+                                'تعذر حذف المحادثة.'
+                            );
+                        }
+
+                    } catch (error) {
+
+                        add(
+                            'assistant',
+                            'حدث خطأ أثناء حذف المحادثة.'
+                        );
+                    }
+                };
+
+
+            wrapper.append(
+                button,
+                delBtn
+            );
+
+            $('history').append(wrapper);
         });
 
 

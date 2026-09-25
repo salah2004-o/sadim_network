@@ -17,7 +17,7 @@
 
 <div id="agatha-admin-scope">
 <header>
-    <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="nav-back">
+    <a href="{{ url_for('library.library') }}" class="nav-back">
         <i class="fas fa-arrow-right"></i> العودة للمكتبة
     </a>
     <div class="admin-title">SADEEM <span>ADMIN</span></div>
@@ -72,7 +72,7 @@
                 <tr id="book-row-{{ book.id }}">
                     <td>
                         <div class="book-info">
-                            <img src="{{ url_for('Library_Agatha.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" class="book-img-sm">
+                            <img src="{{ url_for('library.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" class="book-img-sm">
                             <div>
                                 <div style="font-weight: 700; color: #fff;">{{ book.title }}</div>
                                 <div style="font-size: 0.75rem; opacity: 0.5;">ID: #{{ book.id }}</div>

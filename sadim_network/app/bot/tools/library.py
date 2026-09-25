@@ -4,8 +4,8 @@ from models.library_mdl import Library
 from ._paths import UPLOAD_FOLDER
 
 FEATURES = [
-    {"key": "library", "label": "مكتبة أجاثا كريستي", "description": "تصفح وتحميل روايات أجاثا كريستي.",
-     "help_line": "/library — مكتبة أجاثا كريستي"},
+    {"key": "library", "label": "المكتبة", "description": "تصفح وتحميل الروايات.",
+     "help_line": "/library — المكتبة"},
 ]
 
 

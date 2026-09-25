@@ -68,7 +68,7 @@
         ابحث عن رواية الآن مباشرة بدون تسجيل دخول، أو أنشئ حسابك المجاني وابدأ ببوتك الخاص على تيليجرام.
     </p>
 
-    <form class="sd-live-search" action="{{ url_for('Library_Agatha.search') }}" method="GET" autocomplete="off">
+    <form class="sd-live-search" action="{{ url_for('library.search') }}" method="GET" autocomplete="off">
         <div class="sd-live-search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" name="q" id="heroSearchInput" placeholder="ابحث عن رواية... مثلاً: جريمة في قطار الشرق">
@@ -90,7 +90,7 @@
 
     <div class="sd-hero-actions">
         <a href="{{ url_for('register.register_user') }}" class="sd-btn sd-btn-primary sd-btn-lg sd-ripple">أنشئ حسابك مجاناً</a>
-        <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-btn sd-btn-secondary sd-btn-lg sd-ripple">استكشف المكتبة</a>
+        <a href="{{ url_for('library.library') }}" class="sd-btn sd-btn-secondary sd-btn-lg sd-ripple">استكشف المكتبة</a>
     </div>
 </section>
 

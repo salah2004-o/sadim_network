@@ -47,7 +47,7 @@ def test_private_conversation_isolated(client):
 
 def test_link_validation_removes_unknown_ids():
     with patch("app.models.ai_service._rows", side_effect=[[], []]):
-        result = ai_service._validate_links("[كتاب غير موجود](/Library/Agatha_Christie/999)")
+        result = ai_service._validate_links("[كتاب غير موجود](/library/999)")
     assert result == "كتاب غير موجود"
 
 

@@ -34,7 +34,7 @@ if (/^\/ai(\/|$)/.test(window.location.pathname)) {
         <ul class="sd-navbar-links" id="sd-desktop-nav">
             <li><a href="{{ url_for('main.discover') }}"><i class="fas fa-compass"></i> اكتشف</a></li>
             <li><a href="{{ url_for('articles.list_articles') }}"><i class="fas fa-newspaper"></i> المنشورات</a></li>
-            <li><a href="{{ url_for('Library_Agatha.agatha_christie') }}"><i class="fas fa-book-open"></i> المكتبة</a></li>
+            <li><a href="{{ url_for('library.library') }}"><i class="fas fa-book-open"></i> المكتبة</a></li>
             {% if session.get('user_id') %}
             <li><a href="{{ url_for('bots.my_bots') }}"><i class="fas fa-toolbox"></i> أدواتي</a></li>
             {% endif %}
@@ -76,7 +76,7 @@ if (/^\/ai(\/|$)/.test(window.location.pathname)) {
     <button id="close-sidebar" class="sd-btn sd-btn-icon sd-btn-ghost" style="align-self:flex-end;" aria-label="إغلاق القائمة"><i class="fas fa-xmark"></i></button>
     <a href="{{ url_for('main.discover') }}" class="sd-sidebar-item"><i class="fas fa-compass"></i> اكتشف</a>
     <a href="{{ url_for('articles.list_articles') }}" class="sd-sidebar-item"><i class="fas fa-newspaper"></i> المنشورات</a>
-    <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-sidebar-item"><i class="fas fa-book-open"></i> المكتبة</a>
+    <a href="{{ url_for('library.library') }}" class="sd-sidebar-item"><i class="fas fa-book-open"></i> المكتبة</a>
     {% if session.get('user_id') %}
     <a href="{{ url_for('bots.my_bots') }}" class="sd-sidebar-item"><i class="fas fa-toolbox"></i> أدواتي</a>
     {% endif %}

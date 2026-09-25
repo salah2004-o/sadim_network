@@ -119,9 +119,9 @@
     <p style="color: var(--sd-text-secondary); margin-top:0; margin-bottom: var(--sd-sp-5);">أدوات وأنظمة شبكة سديم</p>
 
     <div class="sd-quick-grid" style="margin-bottom: var(--sd-sp-8);">
-        <a href="{{ url_for('Library_Agatha.agatha_christie') }}" class="sd-card sd-card-hover sd-quick-card">
+        <a href="{{ url_for('library.library') }}" class="sd-card sd-card-hover sd-quick-card">
             <div class="sd-quick-icon"><i class="fas fa-book"></i></div>
-            <div><h3>مكتبة أجاثا</h3><p>الروايات والأرشيف</p></div>
+            <div><h3>المكتبة</h3><p>الروايات والأرشيف</p></div>
         </a>
         <a href="{{ url_for('bots.my_bots') }}" class="sd-card sd-card-hover sd-quick-card">
             <div class="sd-quick-icon"><i class="fas fa-robot"></i></div>
@@ -151,58 +151,6 @@
         </div>
     </div>
 
-    <h2 style="font-size: var(--sd-fs-lg); margin-bottom: var(--sd-sp-1);">قادم قريباً</h2>
-    <p style="color: var(--sd-text-secondary); margin-top:0; margin-bottom: var(--sd-sp-5);">أنظمة قيد التطوير — سجّل اهتمامك بالطلب المسبق</p>
-
-    <div class="sd-tools-grid sd-coming-soon">
-
-        <div class="sd-card">
-            <div class="sd-tool-image"><img src="{{ url_for('static', filename='images/5976816295606946887_121.jpg') }}" alt=""></div>
-            <span class="sd-badge sd-badge-neutral" style="margin-bottom: var(--sd-sp-3);">DATA</span>
-            <h3 style="margin: 0 0 var(--sd-sp-2);">بوت جلب البيانات</h3>
-            <p style="color: var(--sd-text-secondary); margin: 0 0 var(--sd-sp-4);">ربط APIs وأنظمة بيانات تلقائية.</p>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="sd-badge sd-badge-neutral">قريباً</span>
-                <a href="https://t.me/SAP1O" target="_blank" style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm);">طلب مسبق ←</a>
-            </div>
-        </div>
-
-        <div class="sd-card">
-            <div class="sd-tool-image"><img src="{{ url_for('static', filename='images/5976816295606946888_120.jpg') }}" alt=""></div>
-            <span class="sd-badge sd-badge-neutral" style="margin-bottom: var(--sd-sp-3);">LIBRARY</span>
-            <h3 style="margin: 0 0 var(--sd-sp-2);">أنظمة المكتبات</h3>
-            <p style="color: var(--sd-text-secondary); margin: 0 0 var(--sd-sp-4);">أرشفة وتنظيم المكتبات الرقمية.</p>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="sd-badge sd-badge-neutral">قريباً</span>
-                <a href="https://t.me/SAP1O" target="_blank" style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm);">طلب مسبق ←</a>
-            </div>
-        </div>
-
-        {% set soon_items = [
-            ('fa-server', 'HOSTING', 'استضافة المواقع', 'استضافة سريعة وموثوقة لمواقعك ومشاريعك.'),
-            ('fa-layer-group', 'NO-CODE', 'إنشاء مواقع بدون كود', 'بناء موقعك الاحترافي بدون أي خبرة برمجية.'),
-            ('fa-briefcase', 'BUSINESS', 'أنظمة إدارة الأعمال', 'إدارة فريقك ومشاريعك من مكان واحد.'),
-            ('fa-cart-shopping', 'E-COMMERCE', 'أنظمة المتاجر الإلكترونية', 'متجرك الرقمي جاهز للبيع والدفع أونلاين.'),
-            ('fa-box-archive', 'ARCHIVE', 'أنظمة الأرشفة', 'حفظ وتنظيم مستنداتك بشكل آمن ومنظّم.'),
-            ('fa-brain', 'AI', 'حلول الذكاء الاصطناعي', 'أدوات ذكاء اصطناعي مخصصة لمشروعك.'),
-            ('fa-gears', 'AUTOMATION', 'أتمتة الأعمال', 'أتمتة مهامك المتكررة وتوفير وقتك.'),
-            ('fa-plug', 'API', 'خدمات API', 'ربط أنظمتك ببعض عبر واجهات برمجية.'),
-            ('fa-cloud', 'CLOUD', 'الاستضافة السحابية', 'بنية سحابية مرنة تنمو مع مشروعك.'),
-        ] %}
-        {% for icon, tag, title, desc in soon_items %}
-        <div class="sd-card">
-            <div class="sd-tool-image icon-style"><i class="fas {{ icon }}"></i></div>
-            <span class="sd-badge sd-badge-neutral" style="margin-bottom: var(--sd-sp-3);">{{ tag }}</span>
-            <h3 style="margin: 0 0 var(--sd-sp-2);">{{ title }}</h3>
-            <p style="color: var(--sd-text-secondary); margin: 0 0 var(--sd-sp-4);">{{ desc }}</p>
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span class="sd-badge sd-badge-neutral">قريباً</span>
-                <a href="https://t.me/SAP1O" target="_blank" style="color: var(--sd-text-secondary); font-size: var(--sd-fs-sm);">طلب مسبق ←</a>
-            </div>
-        </div>
-        {% endfor %}
-
-    </div>
 </div>
 
 {% endblock %}

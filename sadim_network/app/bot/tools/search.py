@@ -2,7 +2,7 @@ from telebot import types
 from models.library_mdl import Library
 
 FEATURES = [
-    {"key": "search", "label": "البحث داخل المكتبة", "description": "بحث عن رواية بالاسم داخل مكتبة أجاثا كريستي.",
+    {"key": "search", "label": "البحث داخل المكتبة", "description": "بحث عن رواية بالاسم داخل المكتبة.",
      "help_line": "/search <كلمة> — بحث داخل المكتبة"},
 ]
 
