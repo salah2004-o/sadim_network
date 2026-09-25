@@ -1,4 +1,16 @@
 import os
+import sys
+
+# Ensure both app/ and project root are on sys.path so that both
+#   from models...     (needs app/ in path)
+#   from app.bot...    (needs project root in path)
+# resolve correctly regardless of CWD.
+_APP_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_PROJECT_ROOT = os.path.dirname(_APP_DIR)
+for _p in (_PROJECT_ROOT, _APP_DIR):
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
+
 import json
 import time
 import pytz
