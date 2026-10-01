@@ -146,6 +146,13 @@ EVENT_LABELS = {
     "ai_chat_started": "بدأ محادثة مع Sadeem AI",
     "ai_message_sent": "رسالة إلى Sadeem AI",
     "ai_summarize_used": "طلب تلخيص من Sadeem AI",
+    "ai_summarize.from_book_page": "تلخيص من صفحة الرواية",
+    "book.read": "فتح القارئ",
+    "book.read.progress": "تقدّم في القراءة",
+    "signup.prompt.shown": "ظهرت له دعوة التسجيل",
+    "signup.prompt.clicked": "ضغط دعوة التسجيل",
+    "share.clicked": "مشاركة",
+    "search.result.clicked": "فتح نتيجة بحث",
 }
 
 

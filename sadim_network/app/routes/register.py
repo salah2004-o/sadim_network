@@ -17,6 +17,8 @@ _STATIC_EXACT_PATHS = {"/favicon.ico", "/robots.txt", "/apple-touch-icon.png", "
 _STATIC_EXTENSIONS = (".css", ".js", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico", ".webp", ".woff", ".woff2", ".ttf")
 # مسارات إدارية — تُبقي الجلسة حيّة (last_seen) لكن لا تُحتسب كـ"مشاهدة صفحة" بمقاييس تفاعل الزوار
 _ADMIN_PATH_PREFIXES = ("/dashboard", "/profile")
+# طلبات خلفية من JS (أحداث الواجهة، حفظ تقدم القراءة) — تُبقي الجلسة حيّة لكنها ليست مشاهدة صفحة
+_BACKGROUND_PATH_PREFIXES = ("/api/events", "/api/personal/progress")
 
 
 def _is_excluded_path(path):
@@ -192,7 +194,7 @@ def track_session():
             user_agent=request.headers.get("User-Agent"),
             referrer=request.referrer if is_new else None,
             landing_page=request.path if is_new else None,
-            count_pageview=not is_admin_path,
+            count_pageview=not is_admin_path and not request.path.startswith(_BACKGROUND_PATH_PREFIXES),
             visitor_type=g.sd_visitor_type,
             utm_source=request.args.get('utm_source') if is_new else None,
             utm_medium=request.args.get('utm_medium') if is_new else None,
