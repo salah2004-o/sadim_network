@@ -228,3 +228,75 @@ def test_book_page_shows_summary_button_to_guests(client, temp_book):
     html = client.get(f"/library/{temp_book}", headers=BROWSER_HEADERS).get_data(as_text=True)
     assert 'id="summarize-btn"' in html
     assert "source: 'book_page'" in html
+
+
+# ==================== المهمة 5: المشاركة و Open Graph ====================
+
+def _with_real_cover(book_id):
+    from PIL import Image
+    from app.routes.shared import UPLOAD_FOLDER
+    Image.new("RGB", (400, 600), (40, 70, 110)).save(os.path.join(UPLOAD_FOLDER, "pytest_cover.jpg"))
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE books SET cover_path = 'pytest_cover.jpg' WHERE id = %s", (book_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def test_book_page_has_full_open_graph_with_clean_url(client, temp_book):
+    _with_real_cover(temp_book)
+    html = client.get(f"/library/{temp_book}?ref=share", headers=BROWSER_HEADERS).get_data(as_text=True)
+    assert f'<meta property="og:url" content="http://localhost/library/{temp_book}">' in html
+    assert '<meta property="og:image" content="http://localhost/static/uploads/pytest_cover.jpg">' in html
+    assert '<meta property="og:image:width" content="400">' in html
+    assert '<meta property="og:image:height" content="600">' in html
+    assert '<meta property="og:locale" content="ar_AR">' in html
+    assert f'data-share-url="http://localhost/library/{temp_book}?ref=share"' in html
+
+
+def test_download_page_has_open_graph_for_link_previews(client, temp_book):
+    _with_real_cover(temp_book)
+    html = client.get(f"/library/{temp_book}/download", headers={"User-Agent": "WhatsApp/2.23"}).get_data(as_text=True)
+    assert 'property="og:image"' in html and "PYTEST_TEST_BOOK" in html
+    assert 'data-placement="download_page"' in html
+
+
+def test_ref_share_landing_sets_session_source(client, temp_book):
+    client.get(f"/library/{temp_book}?ref=share", headers=BROWSER_HEADERS)
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT utm_source, utm_medium FROM analytics_sessions")
+    assert cur.fetchone() == ("share", "share_link")
+    cur.close()
+    conn.close()
+    from app.models.analytics_dashboard import get_dashboard_stats
+    assert get_dashboard_stats("today")["sources"]["share"] == 1
+
+
+def test_explicit_utm_wins_over_ref_share(client, temp_book):
+    client.get(f"/library/{temp_book}?ref=share&utm_source=telegram_channel", headers=BROWSER_HEADERS)
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT utm_source FROM analytics_sessions")
+    assert cur.fetchone()[0] == "telegram_channel"
+    cur.close()
+    conn.close()
+
+
+def test_article_share_links_carry_ref_share(client, temp_user):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO posts (user_id, title, content) VALUES (%s, 'PYTEST_POST', 'محتوى تجريبي') RETURNING id", (temp_user,))
+    post_id = cur.fetchone()[0]
+    conn.commit()
+    try:
+        html = client.get(f"/articles/{post_id}", headers=BROWSER_HEADERS).get_data(as_text=True)
+        assert f'<meta property="og:url" content="http://localhost/articles/{post_id}">' in html
+        assert f"ref%3Dshare" in html                      # روابط واتساب/تيليجرام مُرمَّزة
+        assert 'data-share-link="whatsapp"' in html
+    finally:
+        cur.execute("DELETE FROM posts WHERE id = %s", (post_id,))
+        conn.commit()
+        cur.close()
+        conn.close()

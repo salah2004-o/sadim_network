@@ -6,6 +6,14 @@
 {% block extra_head %}
 <meta name="description" content="{{ book.desc_text|striptags|truncate(160) }}">
 <meta name="robots" content="noindex, follow">
+{% set og_type = 'book' %}
+{% set og_title = book.title ~ ' — ' ~ (book.get('author') or 'أجاثا كريستي') ~ ' | تحميل PDF مجاناً' %}
+{% set og_description = book.desc_text|striptags|truncate(155) %}
+{% set og_url = url_for('library.view_book', book_id=book.id, _external=True) %}
+{% set og_image_path = 'uploads/' ~ book.cover_path if book.cover_path else '' %}
+{% set og_image_alt = 'غلاف ' ~ book.title %}
+{% set og_twitter_card = 'summary' %}
+{% include 'partials/_og.html' %}
 {% if cover_url %}<link rel="preload" as="image" href="{{ cover_url }}" fetchpriority="high">{% endif %}
 <style>
 .dl-page { max-width: 560px; margin: 0 auto; padding: var(--sd-sp-4) var(--sd-sp-4) var(--sd-sp-10); display: flex; flex-direction: column; gap: var(--sd-sp-5); }
@@ -21,6 +29,7 @@
 .dl-book__desc { margin: 0; color: var(--sd-text-secondary); font-size: 1rem; line-height: 1.7; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
 .dl-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sd-sp-3); }
 .dl-actions .sd-btn { min-height: 52px; font-size: 1rem; font-weight: 700; }
+.dl-actions .dl-share { grid-column: 1 / -1; min-height: 44px; font-weight: 500; color: var(--sd-accent-light); }
 .dl-more h2 { margin: 0 0 var(--sd-sp-3); font-family: var(--sd-font-display); font-size: 1.25rem; color: var(--sd-accent-light); }
 .dl-more__grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sd-sp-3); }
 .dl-more__card { display: flex; flex-direction: column; gap: var(--sd-sp-2); text-decoration: none; color: var(--sd-text); }
@@ -60,6 +69,12 @@
     <a href="{{ book_url }}" class="sd-btn sd-btn-secondary">
       <i class="fas fa-comments" aria-hidden="true"></i> صفحة الرواية
     </a>
+    <button type="button" class="sd-btn sd-btn-ghost dl-share"
+            data-share data-share-url="{{ url_for('library.view_book', book_id=book.id, _external=True) }}?ref=share"
+            data-share-title="{{ book.title }}" data-share-text="«{{ book.title }}» — اقرأها أو حمّلها مجاناً على شبكة سديم"
+            data-content-type="book" data-content-id="{{ book.id }}" data-placement="download_page">
+      <i class="fas fa-share-nodes" aria-hidden="true"></i> شاركها مع صديق
+    </button>
   </div>
 
   {% if similar_books %}

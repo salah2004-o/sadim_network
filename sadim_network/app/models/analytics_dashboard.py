@@ -143,6 +143,7 @@ def get_dashboard_stats(range_key="7d"):
     cur.execute(f"""
         SELECT
             CASE
+                WHEN utm_source = 'share' THEN 'share'
                 WHEN referrer IS NULL OR referrer = '' THEN 'direct'
                 WHEN referrer ILIKE '%%google.%%' THEN 'google'
                 WHEN referrer ILIKE '%%t.me%%' OR referrer ILIKE '%%telegram%%' THEN 'telegram'
@@ -154,7 +155,7 @@ def get_dashboard_stats(range_key="7d"):
         {since_clause('started_at')}
         GROUP BY source
     """)
-    sources = {"direct": 0, "google": 0, "telegram": 0, "instagram": 0, "other": 0}
+    sources = {"direct": 0, "share": 0, "google": 0, "telegram": 0, "instagram": 0, "other": 0}
     for source, count in cur.fetchall():
         sources[source] = count
     stats["sources"] = sources

@@ -18,6 +18,10 @@ def add_security_headers(response):
     return response
 
 
+from app.utlis.media import static_image_size
+app.add_template_global(static_image_size)
+
+
 @app.context_processor
 def inject_nav_user():
     """يوفر بيانات المستخدم الحالي (وأهمها صورة البروفايل) لكل القوالب تلقائياً —

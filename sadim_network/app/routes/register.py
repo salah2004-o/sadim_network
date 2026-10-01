@@ -186,6 +186,12 @@ def track_session():
             print("Failed to write audit log:", e)
         return
 
+    utm_source = request.args.get('utm_source') if is_new else None
+    utm_medium = request.args.get('utm_medium') if is_new else None
+    # روابط زر "شارك" تحمل ?ref=share — تُحفظ كمصدر الجلسة (بدون عمود جديد) ما لم يوجد utm صريح
+    if is_new and not utm_source and request.args.get('ref') == 'share':
+        utm_source, utm_medium = 'share', 'share_link'
+
     try:
         touch_session(
             session_id,
@@ -196,8 +202,8 @@ def track_session():
             landing_page=request.path if is_new else None,
             count_pageview=not is_admin_path and not request.path.startswith(_BACKGROUND_PATH_PREFIXES),
             visitor_type=g.sd_visitor_type,
-            utm_source=request.args.get('utm_source') if is_new else None,
-            utm_medium=request.args.get('utm_medium') if is_new else None,
+            utm_source=utm_source,
+            utm_medium=utm_medium,
             utm_campaign=request.args.get('utm_campaign') if is_new else None,
             utm_content=request.args.get('utm_content') if is_new else None,
         )

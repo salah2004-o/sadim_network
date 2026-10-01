@@ -7,10 +7,16 @@
   <title>{{ book.title }} | SADEEM</title>
   <meta name="description" content="{{ book.desc_text|striptags|truncate(160) }}">
   <link rel="canonical" href="{{ request.url }}">
-  <meta property="og:type" content="book">
-  <meta property="og:title" content="{{ book.title }} | شبكة سديم">
-  <meta property="og:description" content="{{ book.desc_text|striptags|truncate(160) }}">
-  <meta property="og:url" content="{{ request.url }}">
+  {% set book_author = book.get('author') or 'أجاثا كريستي' %}
+  {% set book_url_clean = url_for('library.view_book', book_id=book.id, _external=True) %}
+  {% set og_type = 'book' %}
+  {% set og_title = book.title ~ ' — ' ~ book_author ~ ' | شبكة سديم' %}
+  {% set og_description = book.desc_text|striptags|truncate(155) %}
+  {% set og_url = book_url_clean %}
+  {% set og_image_path = 'uploads/' ~ book.cover_path if book.cover_path else '' %}
+  {% set og_image_alt = 'غلاف ' ~ book.title %}
+  {% set og_twitter_card = 'summary' %}
+  {% include 'partials/_og.html' %}
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
@@ -453,8 +459,11 @@
           <i class="fa-solid fa-comment"></i>
           <span>{{ comments|length }} رأي</span>
         </div>
-        <button type="button" class="btn-back" style="width:100%; justify-content:center; margin-top:0.5rem; cursor:pointer;" onclick="shareBook(this)" data-url="{{ request.url_root.rstrip('/') + url_for('library.view_book', book_id=book['id']) }}" data-title="{{ book['title'] }}">
-          <i class="fa-solid fa-share-nodes"></i> مشاركة
+        <button type="button" class="btn-back" style="width:100%; justify-content:center; margin-top:0.5rem; cursor:pointer;"
+                data-share data-share-url="{{ book_url_clean }}?ref=share" data-share-title="{{ book['title'] }}"
+                data-share-text="«{{ book['title'] }}» — اقرأها أو حمّلها مجاناً على شبكة سديم"
+                data-content-type="book" data-content-id="{{ book['id'] }}" data-placement="book_page">
+          <i class="fa-solid fa-share-nodes" aria-hidden="true"></i> مشاركة
         </button>
       </div>
 
@@ -610,23 +619,9 @@
       items.forEach(item => list.appendChild(item));
     }
 
-    function shareBook(btn) {
-      const url = btn.getAttribute('data-url');
-      const title = btn.getAttribute('data-title');
-      if (navigator.share) {
-        navigator.share({ title, url }).catch(() => {});
-        return;
-      }
-      const original = btn.innerHTML;
-      const done = () => {
-        btn.innerHTML = '<i class="fa-solid fa-check"></i> تم نسخ الرابط';
-        setTimeout(() => { btn.innerHTML = original; }, 1800);
-      };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(done).catch(() => {});
-      }
-    }
   </script>
+  <script src="{{ url_for('static', filename='js/sd-track.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/sd-share.js') }}" defer></script>
 {% if session.get('user_id') %}<script>
 function toggleFavorite(button){fetch('/api/personal/favorite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'book',content_id:{{ book['id'] }}})}).then(r=>{if(!r.ok)throw Error();button.innerHTML='<i class="fa-solid fa-bookmark"></i> تمت الإضافة';button.disabled=true;}).catch(()=>{});}
 function setReading(status){fetch('/api/personal/reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'book',content_id:{{ book['id'] }},status})});}

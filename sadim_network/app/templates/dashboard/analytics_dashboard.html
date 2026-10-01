@@ -153,7 +153,7 @@
     <h3 class="an-section-title"><i class="fas fa-diagram-project"></i> مصدر الزيارة</h3>
     {% if source_total %}
     <div class="an-breakdown">
-        {% for label, key in [('مباشر', 'direct'), ('Google', 'google'), ('Telegram', 'telegram'), ('Instagram', 'instagram'), ('أخرى', 'other')] %}
+        {% for label, key in [('مباشر', 'direct'), ('رابط مشاركة', 'share'), ('Google', 'google'), ('Telegram', 'telegram'), ('Instagram', 'instagram'), ('أخرى', 'other')] %}
         <div class="an-bar-row">
             <span class="an-bar-label">{{ label }}</span>
             <div class="an-bar-track"><div class="an-bar-fill" style="width: {{ (stats.sources[key] / source_total * 100) | round(1) }}%;"></div></div>

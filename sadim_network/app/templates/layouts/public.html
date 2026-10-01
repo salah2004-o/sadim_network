@@ -127,6 +127,8 @@ if (/^\/ai(\/|$)/.test(window.location.pathname)) {
 
 <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
 <script src="{{ url_for('static', filename='js/ui-kit.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sd-track.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/sd-share.js') }}" defer></script>
 <script>
 function sdGoBack(event) {
     event.preventDefault();

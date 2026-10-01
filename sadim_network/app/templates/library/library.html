@@ -115,7 +115,10 @@
         </div>
 
         <div class="collection-actions">
-            <button type="button" class="btn-ghost-gold" onclick="shareCollection(this)" data-url="{{ request.url_root.rstrip('/') + url_for('library.library') }}">
+            <button type="button" class="btn-ghost-gold"
+                    data-share data-share-url="{{ url_for('library.library', _external=True) }}?ref=share"
+                    data-share-title="مكتبة أجاثا كريستي — شبكة سديم" data-share-text="روايات أجاثا كريستي مترجمة، للقراءة والتحميل مجاناً"
+                    data-content-type="library" data-placement="library">
                 <i class="fa-solid fa-share-nodes"></i> مشاركة المكتبة
             </button>
             <a href="https://t.me/hx5cb" target="_blank" class="btn-ghost-gold">
@@ -268,25 +271,9 @@
         btn.classList.add('active');
     }
 
-    // مشاركة رابط المكتبة (Web Share API مع بديل نسخ الرابط)
-    function shareCollection(btn) {
-        const url = btn.getAttribute('data-url');
-        const shareData = { title: 'المكتبة — شبكة سديم', url };
-        if (navigator.share) {
-            navigator.share(shareData).catch(() => {});
-            return;
-        }
-        const done = () => {
-            const original = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> تم نسخ الرابط';
-            setTimeout(() => { btn.innerHTML = original; }, 1800);
-        };
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(url).then(done).catch(() => {});
-        }
-    }
-
 </script>
+<script src="{{ url_for('static', filename='js/sd-track.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/sd-share.js') }}" defer></script>
 
 {% include 'partials/_ai_float.html' %}
 {% include 'partials/_bottom_nav.html' %}
