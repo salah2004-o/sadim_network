@@ -157,6 +157,9 @@ def create_tables():
             cover_path TEXT NOT NULL
         );
     """)
+    # ملخص Sadeem AI المخزّن لكل كتاب — المدخل (العنوان+الوصف) نفسه لكل الزوار، فيُولَّد مرة واحدة
+    # ويُمسح تلقائياً عند تعديل الكتاب من لوحة الإدارة
+    cur.execute("ALTER TABLE books ADD COLUMN IF NOT EXISTS ai_summary TEXT;")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS posts (
           id SERIAL PRIMARY KEY,

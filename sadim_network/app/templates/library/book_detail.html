@@ -194,6 +194,33 @@
       margin-bottom: 2.5rem;
     }
 
+    /* الإجراءان الأساسيان: قراءة وتحميل بنفس الحجم والوزن */
+    .primary-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.75rem; }
+    .btn-primary-action {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 52px; padding: 0 1rem; border-radius: 10px;
+      font-family: 'IBM Plex Sans Arabic', sans-serif; font-size: 16px; font-weight: 700;
+      text-decoration: none; transition: opacity 0.15s, transform 0.15s;
+    }
+    .btn-primary-action:active { transform: scale(0.98); }
+    .btn-primary-action:hover { opacity: 0.9; }
+    .btn-read { background: var(--gold); color: #0d0b08; }
+    .btn-dl { background: #4a7d95; color: #fff; }
+
+    /* ملخص Sadeem AI تحت الوصف */
+    .quick-summary { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 2rem; }
+    .quick-summary__head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+    .quick-summary__head h2 { font-size: 1rem; font-weight: 500; color: var(--gold-light); display: flex; align-items: center; gap: 8px; }
+    .btn-summary {
+      min-height: 44px; padding: 0 1rem; border-radius: 8px; border: 1px solid var(--gold);
+      background: transparent; color: var(--gold-light); font-family: inherit; font-size: 15px; cursor: pointer;
+    }
+    .btn-summary:disabled { opacity: 0.6; cursor: wait; }
+    .quick-summary__body { margin-top: 0.9rem; font-size: 16px; line-height: 1.9; color: var(--text); }
+    .quick-summary__body p + p, .quick-summary__body ul + p, .quick-summary__body p + ul { margin-top: 0.6rem; }
+    .quick-summary__body ul { padding-inline-start: 1.25rem; }
+    .quick-summary__body li + li { margin-top: 0.35rem; }
+
     /* ACTIONS */
     .actions { display: flex; gap: 12px; flex-wrap: wrap; }
     .btn-download, .btn-back {
@@ -434,16 +461,28 @@
       <div class="book-meta">
         <p class="book-author">{{ book.get('author') or 'أجاثا كريستي' }}</p>
         <h1 class="book-title">{{ book['title'] }}</h1>
+
+        <div class="primary-actions">
+          <a href="{{ url_for('library.read_book', book_id=book['id']) }}" class="btn-primary-action btn-read">
+            <i class="fa-solid fa-book-open" aria-hidden="true"></i> اقرأ الآن
+          </a>
+          <a href="{{ url_for('library.download_file', book_id=book['id']) }}" class="btn-primary-action btn-dl" data-download-link>
+            <i class="fa-solid fa-download" aria-hidden="true"></i> تحميل PDF
+          </a>
+        </div>
+
         <div class="divider"></div>
         <p class="book-desc">{{ book['desc_text'] }}</p>
 
+        <section class="quick-summary" aria-labelledby="quick-summary-title">
+          <div class="quick-summary__head">
+            <h2 id="quick-summary-title"><i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i> ملخص سريع</h2>
+            <button type="button" class="btn-summary" id="summarize-btn">لخّص لي هذا الكتاب</button>
+          </div>
+          <div id="summarize-result" class="quick-summary__body" aria-live="polite" hidden></div>
+        </section>
+
         <div class="actions">
-          <a href="{{ url_for('library.read_book', book_id=book['id']) }}" class="btn-download" style="background: linear-gradient(135deg, #7c4dff, #b388ff); color: #fff;">
-            <i class="fa-solid fa-book-open"></i> قراءة مباشرة
-          </a>
-          <a href="{{ url_for('library.download_file', book_id=book['id']) }}" class="btn-download">
-            <i class="fa-solid fa-download"></i> تحميل PDF
-          </a>
           <a href="{{ url_for('library.library') }}" class="btn-back">
             <i class="fa-solid fa-books"></i> روايات أخرى
           </a>
@@ -457,8 +496,6 @@
           </a>
           {% endif %}
           {% if session.get('user_id') %}<button type="button" class="btn-back" data-content-type="book" data-content-id="{{ book['id'] }}" onclick="toggleFavorite(this)"><i class="fa-regular fa-bookmark"></i> أضف للمفضلة</button><button type="button" class="btn-back" onclick="setReading('finished')"><i class="fa-solid fa-check"></i> أنهيت القراءة</button>{% endif %}
-          {% if session.get('user_id') %}<button type="button" class="btn-back" id="summarize-btn" onclick="summarizeBook()"><i class="fas fa-wand-magic-sparkles"></i> تلخيص AI</button>{% endif %}
-          <div id="summarize-result" style="display:none; margin-top:1rem; padding:1rem; background:var(--bg-secondary); border:1px solid var(--border); border-radius:8px; font-size:0.9rem; line-height:1.8; white-space:pre-wrap;"></div>
         </div>
       </div>
 
@@ -612,25 +649,51 @@ function toggleLike(btn){
     .catch(()=>{})
     .finally(()=>{btn.dataset.busy='0';});
 }
-function summarizeBook(){
-  const result = document.getElementById('summarize-result');
-  if(!result) return;
-  result.textContent = 'جارٍ التلخيص...';
-  result.style.display = 'block';
-  fetch('/ai/summarize', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({type:'book', id:{{ book['id'] }}})
-  })
-  .then(r => r.json())
-  .then(d => {
-    result.textContent = d.content || d.error || 'لم يتم إنشاء ملخص.';
-  })
-  .catch(() => {
-    result.textContent = 'تعذر الاتصال بخدمة التلخيص.';
+</script>{% endif %}
+<script>
+(function () {
+  const btn = document.getElementById('summarize-btn');
+  const out = document.getElementById('summarize-result');
+  if (!btn || !out) return;
+
+  const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+  // تنسيق Markdown بسيط (نقاط + عريض) بدون تحميل مكتبة كاملة — النص يُهرَّب أولاً
+  function render(text) {
+    let html = '', inList = false;
+    text.split(/\n+/).map((l) => l.trim()).filter(Boolean).forEach((line) => {
+      const item = line.match(/^(?:[-*•]|\d+[.)])\s+(.*)$/);
+      const content = escapeHtml(item ? item[1] : line).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      if (item) { if (!inList) { html += '<ul>'; inList = true; } html += '<li>' + content + '</li>'; }
+      else { if (inList) { html += '</ul>'; inList = false; } html += '<p>' + content + '</p>'; }
+    });
+    return inList ? html + '</ul>' : html;
+  }
+
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    out.hidden = false;
+    out.textContent = 'جارٍ التلخيص…';
+    try {
+      const res = await fetch('/ai/summarize', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({type: 'book', id: {{ book['id'] }}, source: 'book_page'})
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.content) {
+        out.innerHTML = render(data.content);
+        if (!data.quota_exceeded) btn.hidden = true;
+      } else {
+        out.textContent = res.status === 429 ? 'وصلت حد التلخيص لليوم، جرّب غداً.' : 'تعذر التلخيص حالياً، حاول بعد قليل.';
+      }
+    } catch (error) {
+      out.textContent = 'تعذر الاتصال بـ Sadeem AI.';
+    } finally {
+      btn.disabled = false;
+    }
   });
-}
-</script>{% endif %}{% include 'partials/_ai_float.html' %}
+})();
+</script>{% include 'partials/_ai_float.html' %}
 {% include 'partials/_bottom_nav.html' %}
 <script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>
 </body>

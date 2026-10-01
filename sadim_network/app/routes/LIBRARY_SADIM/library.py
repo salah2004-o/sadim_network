@@ -11,6 +11,7 @@ from flask import (
 from app.limiter import limiter
 from app.db.sadim_db import get_db_connection
 import os
+from urllib.parse import urlparse
 from psycopg2.extras import RealDictCursor
 import psycopg2.extras
 from app.models.library_mdl import Library
@@ -255,9 +256,38 @@ def toggle_like(book_id):
 # لا يعتمد على أي طلب منفصل قبله (كان فيه طلبان غير مرتبطين: زيادة عداد + تحميل فعلي، ممكن الأول
 # ينجح دون الثاني). العداد وحدث download.success الآن لا يُسجَّلان إلا لو الملف فعلاً موجود ووصل للمستخدم.
 # =========================
+# زواحف معاينة الروابط — تحصل على صفحة HTML (فيها الغلاف والعنوان) بدل ملف PDF بلا معاينة
+_LINK_PREVIEW_BOTS = (
+    "telegrambot", "whatsapp", "facebookexternalhit", "twitterbot", "slackbot",
+    "discordbot", "linkedinbot", "skypeuripreview", "viber", "vkshare",
+)
+
+
+def _wants_download_page():
+    """صفحة التحميل الوسيطة تظهر فقط لمن وصل لرابط التحميل من خارج الموقع (رابط مشاركة بتيليجرام/واتساب
+    أو مكتوب يدوياً). داخل الموقع، أو من برنامج تحميل، أو مع ?direct=1: يُرسل الملف مباشرة كالسابق."""
+    if request.args.get('direct') == '1':
+        return False
+    ua = (request.headers.get('User-Agent') or '').lower()
+    if any(bot in ua for bot in _LINK_PREVIEW_BOTS):
+        return True
+    # متصفح يفتح الرابط كصفحة (لا fetch ولا برنامج تحميل — هذه لا ترسل Sec-Fetch-Dest: document)
+    if request.headers.get('Sec-Fetch-Dest') != 'document':
+        return False
+    site = request.headers.get('Sec-Fetch-Site')
+    if site == 'same-origin':
+        return False
+    if site is None and urlparse(request.referrer or '').netloc == request.host:
+        return False
+    return True
+
+
 @library_bp.route('/library/<int:book_id>/download')
-@limiter.limit("10 per hour", key_func=_download_limit_key)
+@limiter.limit("10 per hour", key_func=_download_limit_key, exempt_when=_wants_download_page)
 def download_file(book_id):
+    if _wants_download_page():
+        return _download_page(book_id)
+
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
@@ -308,16 +338,33 @@ def download_file(book_id):
     cur2.close()
     conn2.close()
 
-    _log_lib_event("download.success", metadata={
+    metadata = {
         "book_id": book_id, "title": book.get('title'), "file": relative_pdf_path, "new_count": new_count,
         "counted": counted,
-    })
+    }
+    if request.args.get('direct') == '1':
+        metadata["via"] = "download_page"
+    _log_lib_event("download.success", metadata=metadata)
 
     return send_from_directory(
         UPLOAD_FOLDER,
         relative_pdf_path,
         as_attachment=True,
         download_name=f"{book['title']}.pdf"
+    )
+
+
+def _download_page(book_id):
+    """صفحة خفيفة: يبدأ التحميل فوراً (بلا عدّاد)، ومعها بطاقة الكتاب واقتراحان.
+    لا تسجّل download.success ولا تستهلك حد التحميل — هذا يحدث فقط عند إرسال الملف الفعلي."""
+    book = Library.get_book_id(book_id)
+    if not book:
+        return "الكتاب غير موجود", 404
+    return render_template(
+        "library/download_start.html",
+        book=book,
+        similar_books=Library.get_similar_books(book_id, limit=2),
+        direct_url=url_for('library.download_file', book_id=book_id, direct=1),
     )
 
 

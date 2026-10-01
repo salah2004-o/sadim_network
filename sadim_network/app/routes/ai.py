@@ -13,6 +13,7 @@ from app.models.ai_service import (
 from app.models.ai_providers import list_available_providers as providers_status
 from app.models.ai_quota import AIQuota
 from app.models.analytics_model import log_event
+from app.models.library_mdl import Library
 from app.utlis.login_required import login_required
 from app.limiter import limiter
 
@@ -352,7 +353,17 @@ def summarize():
     except (TypeError, ValueError):
         return jsonify({'error': 'invalid_id'}), 400
 
+    source = data.get('source') if data.get('source') in SUMMARIZE_SOURCES else None
     user_id = session.get('user_id')
+
+    # ملخص الكتاب المخزّن يُخدم فوراً وبلا استهلاك حصة — المدخل (العنوان+الوصف) واحد لكل الزوار
+    if context_type == 'book':
+        cached = Library.get_ai_summary(context_id)
+        if cached:
+            result = {'content': cached, 'provider': 'cache', 'tools': []}
+            _log_summarize_events(context_type, context_id, result, source, cached=True)
+            return jsonify(result)
+
     if user_id:
         allowed, quota_info = AIQuota.check_quota(user_id, 'daily_summaries')
         if not allowed:
@@ -370,10 +381,30 @@ def summarize():
             return jsonify({'error': 'not_found'}), 404
         record = rows[0]
         result = summarize_content(record.get('title', ''), record.get('desc_text', ''), 'book', preferred, user_id=user_id)
+        # لا نخزّن البديل المحلي (فشل النموذج) ولا رسالة تجاوز الحصة
+        if result.get('content') and result.get('provider') not in ('local', 'quota') and not result.get('quota_exceeded'):
+            try:
+                Library.set_ai_summary(context_id, result['content'])
+            except Exception as e:
+                print('Failed to cache book summary:', e)
     else:
         return jsonify({'error': 'unsupported_type'}), 400
 
-    _log_ai_event('ai_summarize_used', metadata={
-        'context_type': context_type, 'context_id': context_id, 'provider': result.get('provider'),
-    })
+    _log_summarize_events(context_type, context_id, result, source, cached=False)
     return jsonify(result)
+
+
+SUMMARIZE_SOURCES = {'book_page'}
+
+
+def _log_summarize_events(context_type, context_id, result, source, cached):
+    """ai_summarize_used يبقى كما هو لكل تلخيص (source/cached مفاتيح إضافية فقط).
+    ai_summarize.from_book_page حدث إضافي لتلخيص من صفحة الرواية — لا تجمع الحدثين عند عدّ استخدام AI."""
+    metadata = {'context_type': context_type, 'context_id': context_id, 'provider': result.get('provider')}
+    if source:
+        metadata['source'] = source
+    if cached:
+        metadata['cached'] = True
+    _log_ai_event('ai_summarize_used', metadata=metadata)
+    if source == 'book_page' and context_type == 'book':
+        _log_ai_event('ai_summarize.from_book_page', metadata={'book_id': context_id, 'cached': cached})

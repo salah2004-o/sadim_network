@@ -1,0 +1,91 @@
+{% extends "layouts/public.html" %}
+{% set book_url = url_for('library.view_book', book_id=book.id) %}
+{% set cover_url = url_for('library.static', filename='uploads/' + book.cover_path) if book.cover_path else '' %}
+{% block title %}تحميل {{ book.title }} — شبكة سديم{% endblock %}
+
+{% block extra_head %}
+<meta name="description" content="{{ book.desc_text|striptags|truncate(160) }}">
+<meta name="robots" content="noindex, follow">
+{% if cover_url %}<link rel="preload" as="image" href="{{ cover_url }}" fetchpriority="high">{% endif %}
+<style>
+.dl-page { max-width: 560px; margin: 0 auto; padding: var(--sd-sp-4) var(--sd-sp-4) var(--sd-sp-10); display: flex; flex-direction: column; gap: var(--sd-sp-5); }
+.dl-status { display: flex; gap: var(--sd-sp-3); align-items: flex-start; padding: var(--sd-sp-4); border-radius: var(--sd-radius-lg); background: var(--sd-success-soft); border: 1px solid rgba(61, 154, 106, 0.35); }
+.dl-status__icon { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--sd-success); color: #fff; font-size: 1.1rem; }
+.dl-status__title { margin: 0 0 var(--sd-sp-1); font-size: 1.05rem; line-height: 1.5; color: var(--sd-text); }
+.dl-status__hint { margin: 0; font-size: 1rem; line-height: 1.7; color: var(--sd-text-secondary); }
+.dl-status__hint a { color: var(--sd-accent-light); font-weight: 600; display: inline-block; padding-block: 0.6rem; }
+.dl-book { display: grid; grid-template-columns: 110px 1fr; gap: var(--sd-sp-4); align-items: start; }
+.dl-book__cover { width: 110px; height: 165px; object-fit: cover; border-radius: var(--sd-radius-md); border: 1px solid var(--sd-border-strong); background: var(--sd-bg-elevated-2); }
+.dl-book__author { margin: 0 0 var(--sd-sp-1); color: var(--sd-accent); font-size: 0.85rem; }
+.dl-book__title { margin: 0 0 var(--sd-sp-2); font-family: var(--sd-font-display); font-size: 1.4rem; line-height: 1.4; color: var(--sd-text); }
+.dl-book__desc { margin: 0; color: var(--sd-text-secondary); font-size: 1rem; line-height: 1.7; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
+.dl-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sd-sp-3); }
+.dl-actions .sd-btn { min-height: 52px; font-size: 1rem; font-weight: 700; }
+.dl-more h2 { margin: 0 0 var(--sd-sp-3); font-family: var(--sd-font-display); font-size: 1.25rem; color: var(--sd-accent-light); }
+.dl-more__grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sd-sp-3); }
+.dl-more__card { display: flex; flex-direction: column; gap: var(--sd-sp-2); text-decoration: none; color: var(--sd-text); }
+.dl-more__card img { width: 100%; aspect-ratio: 2 / 3; height: auto; object-fit: cover; border-radius: var(--sd-radius-md); border: 1px solid var(--sd-border); background: var(--sd-bg-elevated-2); }
+.dl-more__card span { font-size: 1rem; line-height: 1.5; }
+@media (max-width: 380px) {
+  .dl-actions { grid-template-columns: 1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dl-page">
+  <div class="dl-status" role="status">
+    <span class="dl-status__icon" aria-hidden="true"><i class="fas fa-arrow-down"></i></span>
+    <div>
+      <h1 class="dl-status__title">بدأ تحميل «{{ book.title }}»</h1>
+      <p class="dl-status__hint">ستجده في مجلد التنزيلات على جهازك. لم يبدأ التحميل؟ <a href="{{ direct_url }}" data-download-link>اضغط هنا</a></p>
+    </div>
+  </div>
+
+  <article class="dl-book">
+    {% if cover_url %}
+    <img class="dl-book__cover" src="{{ cover_url }}" alt="غلاف {{ book.title }}" width="110" height="165" fetchpriority="high">
+    {% endif %}
+    <div>
+      <p class="dl-book__author">{{ book.get('author') or 'أجاثا كريستي' }}</p>
+      <h2 class="dl-book__title">{{ book.title }}</h2>
+      <p class="dl-book__desc">{{ book.desc_text }}</p>
+    </div>
+  </article>
+
+  <div class="dl-actions">
+    <a href="{{ url_for('library.read_book', book_id=book.id) }}" class="sd-btn sd-btn-primary">
+      <i class="fas fa-book-open" aria-hidden="true"></i> اقرأ الآن
+    </a>
+    <a href="{{ book_url }}" class="sd-btn sd-btn-secondary">
+      <i class="fas fa-comments" aria-hidden="true"></i> صفحة الرواية
+    </a>
+  </div>
+
+  {% if similar_books %}
+  <section class="dl-more" aria-labelledby="dl-more-title">
+    <h2 id="dl-more-title">اقرأ أيضاً</h2>
+    <div class="dl-more__grid">
+      {% for sb in similar_books %}
+      <a href="{{ url_for('library.view_book', book_id=sb.id) }}" class="dl-more__card">
+        <img src="{{ url_for('library.static', filename='uploads/' + sb.cover_path) }}" alt="" width="200" height="300" loading="lazy">
+        <span>{{ sb.title }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  // يبدأ التحميل فوراً بعد أول رسم للصفحة (بلا عدّاد ولا انتظار للخطوط والصور)
+  var url = {{ direct_url|tojson }};
+  requestAnimationFrame(function () {
+    setTimeout(function () { window.location.href = url; }, 0);
+  });
+})();
+</script>
+{% endblock %}
