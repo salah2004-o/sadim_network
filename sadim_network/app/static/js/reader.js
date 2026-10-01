@@ -45,6 +45,8 @@
     outlineClose: document.getElementById("reader-outline-close"),
     outlineList: document.getElementById("reader-outline-list"),
     immersiveToggle: document.getElementById("immersive-toggle"),
+    brightnessRange: document.getElementById("brightness-range"),
+    brightnessOutput: document.getElementById("brightness-output"),
     startReading: document.getElementById("start-reading")
   };
 
@@ -54,6 +56,8 @@
     page: 1,
     totalPages: 0,
     zoom: 1,
+    brightness: 1,
+    fullscreen: false,
     theme: "dark",
     renderTask: null,
     renderGeneration: 0,
@@ -111,6 +115,7 @@
     state.bookId = els.canvas.dataset.bookId || "";
     state.loggedIn = els.canvas.dataset.loggedIn === "1";
     state.zoom = finiteNumber(readStorage("zoom", "1"), 1, 0.6, 1.8);
+    state.brightness = finiteNumber(readStorage("brightness", "1"), 1, 0.5, 1);
     // بلا اختيار سابق: مظهر الصفحة يتبع وضع الموقع (فاتح/ليلي حسب الجهاز)
     const siteTheme = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
     const storedTheme = readStorage("theme", siteTheme);
@@ -196,6 +201,7 @@
     bindEvents();
     applyTheme(false);
     applyZoom(false);
+    setBrightness(state.brightness, false);
     updatePageUI();
     loadPdfScript().then(function (pdfjsLib) {
       pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER;
@@ -236,7 +242,11 @@
     els.reset.addEventListener("click", resetPreferences);
     els.outlineToggle.addEventListener("click", toggleOutline);
     els.outlineClose.addEventListener("click", closeOutline);
-    els.immersiveToggle.addEventListener("click", function () { setImmersive(!state.immersive); });
+    els.immersiveToggle.addEventListener("click", toggleFullscreen);
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+    els.brightnessRange.addEventListener("input", function () { setBrightness(Number(els.brightnessRange.value), false); });
+    els.brightnessRange.addEventListener("change", function () { setBrightness(Number(els.brightnessRange.value), true); });
     els.retry.addEventListener("click", retryLoad);
     els.startReading.addEventListener("click", function () {
       els.main.scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
@@ -515,7 +525,46 @@
     setTheme(state.theme, false);
   }
 
+  // ---------- السطوع: فلتر brightness على الصفحة فقط (لا يعتم أدوات القارئ) ----------
+  function setBrightness(value, persist) {
+    state.brightness = Math.round(finiteNumber(value, 1, 0.5, 1) * 100) / 100;
+    document.documentElement.style.setProperty("--reader-brightness", String(state.brightness));
+    els.brightnessRange.value = String(state.brightness);
+    els.brightnessOutput.value = Math.round(state.brightness * 100) + "%";
+    if (persist !== false) writeStorage("brightness", state.brightness);
+  }
+
+  // ---------- ملء الشاشة: Fullscreen API + إخفاء الأدوات. حيث لا يُدعم (iPhone) يكفي وضع القراءة العميقة ----------
+  function fullscreenElement() {
+    return document.fullscreenElement || document.webkitFullscreenElement || null;
+  }
+
+  function toggleFullscreen() {
+    const root = document.documentElement;
+    if (fullscreenElement()) {
+      (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      return;
+    }
+    const request = root.requestFullscreen || root.webkitRequestFullscreen;
+    if (!request) {
+      setImmersive(!state.immersive);
+      return;
+    }
+    Promise.resolve(request.call(root, { navigationUI: "hide" })).then(function () {
+      state.fullscreen = true;
+      setImmersive(true);
+    }).catch(function () { setImmersive(!state.immersive); });
+  }
+
+  function onFullscreenChange() {
+    if (!fullscreenElement() && state.fullscreen) {
+      state.fullscreen = false;
+      setImmersive(false);
+    }
+  }
+
   function resetPreferences() {
+    setBrightness(1, true);
     state.zoom = 1;
     try { window.localStorage.removeItem(STORAGE_PREFIX + "theme"); } catch (error) { }
     setTheme(document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark", false);
@@ -669,7 +718,7 @@
     state.immersive = Boolean(value);
     document.body.classList.toggle("reader-immersive", state.immersive);
     els.immersiveToggle.setAttribute("aria-pressed", String(state.immersive));
-    els.immersiveToggle.setAttribute("aria-label", state.immersive ? "الخروج من وضع القراءة العميقة" : "الدخول في وضع القراءة العميقة");
+    els.immersiveToggle.setAttribute("aria-label", state.immersive ? "الخروج من ملء الشاشة" : "ملء الشاشة");
     els.toolbar.inert = Boolean(state.immersive);
     els.header.inert = Boolean(state.immersive);
     els.toolbar.setAttribute("aria-hidden", String(state.immersive));
@@ -705,6 +754,8 @@
 
   function onTouchEnd(event) {
     if (event.changedTouches.length !== 1) return;
+    // صفحة مكبّرة أعرض من الشاشة: السحب الأفقي للتنقل داخل الصفحة لا لتقليبها
+    if (els.canvasWrap.scrollWidth > els.canvasWrap.clientWidth + 2) return;
     const deltaX = event.changedTouches[0].clientX - state.touchStartX;
     const deltaY = event.changedTouches[0].clientY - state.touchStartY;
     if (Math.abs(deltaX) < 55 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) return;

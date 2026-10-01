@@ -857,9 +857,10 @@ body.reader-page {
 }
 .reader-canvas-wrap.is-rendering { cursor: progress; }
 .reader-canvas { display: block; max-width: none; height: auto; margin-inline: auto; border: 1px solid rgba(255,255,255,0.08); background: #fff; box-shadow: 0 8px 28px rgba(0,0,0,0.32); transition: filter 0.2s ease; }
-html[data-reader-theme="light"] .reader-canvas { filter: none; }
-html[data-reader-theme="dark"] .reader-canvas { filter: invert(0.9) hue-rotate(180deg) saturate(1.08); }
-html[data-reader-theme="sepia"] .reader-canvas { filter: sepia(0.42) saturate(1.18) brightness(1.03); }
+/* --reader-brightness من شريط "السطوع" في إعدادات القراءة (0.5 – 1) */
+html[data-reader-theme="light"] .reader-canvas { filter: brightness(var(--reader-brightness, 1)); }
+html[data-reader-theme="dark"] .reader-canvas { filter: invert(0.9) hue-rotate(180deg) saturate(1.08) brightness(var(--reader-brightness, 1)); }
+html[data-reader-theme="sepia"] .reader-canvas { filter: sepia(0.42) saturate(1.18) brightness(calc(1.03 * var(--reader-brightness, 1))); }
 .read-progress { position: fixed; inset-inline: 0; inset-block-start: 0; z-index: 900; height: 3px; background: rgba(255,255,255,0.06); }
 .read-progress__bar { display: block; width: 0; height: 100%; background: var(--reader-accent); box-shadow: 0 0 8px rgba(217,188,116,0.42); transition: width 0.18s ease; }
 .reader-toolbar {

@@ -126,7 +126,7 @@
       <button class="reader-button reader-button--icon" id="page-prev" type="button" aria-label="الصفحة السابقة" aria-keyshortcuts="ArrowRight ArrowLeft"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
       <label class="reader-page-picker">
         <span class="reader-sr-only">رقم الصفحة</span>
-        <input id="page-number" type="number" min="1" value="1" inputmode="numeric" aria-label="رقم الصفحة الحالية">
+        <input id="page-number" type="number" min="1" value="1" inputmode="numeric" lang="en" aria-label="رقم الصفحة الحالية">
         <span>من</span>
         <strong id="page-total">-</strong>
       </label>
@@ -138,7 +138,7 @@
       <button class="reader-button reader-button--icon" id="zoom-in" type="button" aria-label="تكبير العرض"><i class="fas fa-magnifying-glass-plus" aria-hidden="true"></i></button>
       <button class="reader-button reader-button--icon" id="preferences-toggle" type="button" aria-label="إعدادات القراءة" aria-expanded="false"><i class="fas fa-sliders" aria-hidden="true"></i></button>
       <button class="reader-button reader-button--icon" id="outline-toggle" type="button" aria-label="فتح فهرس الكتاب" aria-expanded="false"><i class="fas fa-list" aria-hidden="true"></i></button>
-      <button class="reader-button reader-button--icon" id="immersive-toggle" type="button" aria-label="الدخول في وضع القراءة العميقة" aria-pressed="false"><i class="fas fa-up-right-and-down-left-from-center" aria-hidden="true"></i></button>
+      <button class="reader-button reader-button--icon" id="immersive-toggle" type="button" aria-label="ملء الشاشة" aria-pressed="false"><i class="fas fa-up-right-and-down-left-from-center" aria-hidden="true"></i></button>
     </div>
   </nav>
 
@@ -150,11 +150,19 @@
       </div>
       <div class="reader-sheet__body">
         <fieldset class="reader-preference">
-          <legend>مستوى التكبير <output id="zoom-output" for="zoom-range">100%</output></legend>
+          <legend>حجم الخط (تكبير الصفحة) <output id="zoom-output" for="zoom-range">100%</output></legend>
           <div class="reader-preference__control">
-            <button class="reader-button reader-button--icon" id="sheet-zoom-out" type="button" aria-label="تصغير التكبير"><i class="fas fa-minus" aria-hidden="true"></i></button>
+            <button class="reader-button reader-button--icon" id="sheet-zoom-out" type="button" aria-label="تصغير الخط"><i class="fas fa-minus" aria-hidden="true"></i></button>
             <input id="zoom-range" type="range" min="0.6" max="1.8" step="0.1" value="1" aria-label="مستوى تكبير الصفحة">
-            <button class="reader-button reader-button--icon" id="sheet-zoom-in" type="button" aria-label="تكبير التكبير"><i class="fas fa-plus" aria-hidden="true"></i></button>
+            <button class="reader-button reader-button--icon" id="sheet-zoom-in" type="button" aria-label="تكبير الخط"><i class="fas fa-plus" aria-hidden="true"></i></button>
+          </div>
+        </fieldset>
+        <fieldset class="reader-preference">
+          <legend>السطوع <output id="brightness-output" for="brightness-range">100%</output></legend>
+          <div class="reader-preference__control">
+            <i class="fas fa-moon" aria-hidden="true"></i>
+            <input id="brightness-range" type="range" min="0.5" max="1" step="0.05" value="1" aria-label="سطوع الصفحة">
+            <i class="fas fa-sun" aria-hidden="true"></i>
           </div>
         </fieldset>
         <fieldset class="reader-preference">
