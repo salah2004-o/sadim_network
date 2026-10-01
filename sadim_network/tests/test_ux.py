@@ -77,3 +77,35 @@ def test_client_event_does_not_count_as_pageview(client):
                 content_type="text/plain", headers=BROWSER_HEADERS)
     after = _sessions()[0][4]
     assert after == before
+
+
+# ==================== عدم مضاعفة عدّ التحميل ====================
+
+def test_repeat_download_same_session_counts_once_but_logs_both(client, temp_book):
+    r1 = client.get(f"/library/{temp_book}/download", headers={"User-Agent": DESKTOP_UA})
+    r2 = client.get(f"/library/{temp_book}/download", headers={"User-Agent": DESKTOP_UA})
+    assert r1.status_code == 200 and r2.status_code == 200
+    assert _download_count(temp_book) == 1
+
+    rows = _events(event_type="download.success")
+    assert len(rows) == 2                         # السجل الخام كامل
+    assert sorted(r[5]["counted"] for r in rows) == [False, True]
+
+
+def test_repeat_download_other_session_counts_again(client, temp_book):
+    client.get(f"/library/{temp_book}/download", headers={"User-Agent": DESKTOP_UA})
+    client.delete_cookie("sd_sid")                # زائر/جلسة أخرى
+    client.get(f"/library/{temp_book}/download", headers={"User-Agent": DESKTOP_UA})
+    assert _download_count(temp_book) == 2
+
+
+def test_repeat_download_after_window_counts_again(client, temp_book):
+    client.get(f"/library/{temp_book}/download", headers={"User-Agent": DESKTOP_UA})
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE analytics_events SET occurred_at = NOW() - INTERVAL '31 minutes' WHERE event_type = 'download.success'")
+    conn.commit()
+    cur.close()
+    conn.close()
+    client.get(f"/library/{temp_book}/download", headers={"User-Agent": DESKTOP_UA})
+    assert _download_count(temp_book) == 2

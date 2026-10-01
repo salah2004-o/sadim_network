@@ -93,6 +93,38 @@ def _log_lib_event(event_type, metadata=None):
     except Exception as e:
         print(f"Failed to log analytics event '{event_type}':", e)
 
+
+REPEAT_DOWNLOAD_WINDOW = "30 minutes"
+
+
+def _is_repeat_download(session_id, book_id):
+    """هل حمّلت نفس الجلسة نفس الكتاب تحميلاً محتسَباً خلال آخر 30 دقيقة؟
+    الأحداث القديمة بلا مفتاح counted تُعامل كمحتسَبة. فشل الاستعلام = نحتسب (السلوك القديم)."""
+    if not session_id:
+        return False
+    try:
+        conn = get_db_connection()
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                f"""
+                SELECT 1 FROM analytics_events
+                WHERE session_id = %s
+                  AND event_type = 'download.success'
+                  AND metadata->>'book_id' = %s
+                  AND COALESCE(metadata->>'counted', 'true') = 'true'
+                  AND occurred_at > NOW() - INTERVAL '{REPEAT_DOWNLOAD_WINDOW}'
+                LIMIT 1
+                """,
+                (session_id, str(book_id)),
+            )
+            return cur.fetchone() is not None
+        finally:
+            conn.close()
+    except Exception as e:
+        print("Failed to check repeat download:", e)
+        return False
+
 # =========================
 # عرض المكتبة للجمهور
 # =========================
@@ -259,19 +291,26 @@ def download_file(book_id):
         })
         return "الملف غير موجود على السيرفر", 404
 
+    # العداد الظاهر للزوار لا يُضاعَف: نفس الكتاب من نفس الجلسة خلال 30 دقيقة من آخر تحميل محتسَب
+    # = تحميل واحد. حدث download.success نفسه (السجل الخام) يُسجَّل دائماً، مع counted للتمييز.
+    counted = not _is_repeat_download(g.get('sd_session_id'), book_id)
     conn2 = get_db_connection()
     cur2 = conn2.cursor()
-    cur2.execute(
-        "UPDATE books SET download_count = COALESCE(download_count, 0) + 1 WHERE id = %s RETURNING download_count",
-        (book_id,)
-    )
+    if counted:
+        cur2.execute(
+            "UPDATE books SET download_count = COALESCE(download_count, 0) + 1 WHERE id = %s RETURNING download_count",
+            (book_id,)
+        )
+    else:
+        cur2.execute("SELECT COALESCE(download_count, 0) FROM books WHERE id = %s", (book_id,))
     new_count = cur2.fetchone()[0]
     conn2.commit()
     cur2.close()
     conn2.close()
 
     _log_lib_event("download.success", metadata={
-        "book_id": book_id, "title": book.get('title'), "file": relative_pdf_path, "new_count": new_count
+        "book_id": book_id, "title": book.get('title'), "file": relative_pdf_path, "new_count": new_count,
+        "counted": counted,
     })
 
     return send_from_directory(
