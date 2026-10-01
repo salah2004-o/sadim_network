@@ -300,3 +300,89 @@ def test_article_share_links_carry_ref_share(client, temp_user):
         conn.commit()
         cur.close()
         conn.close()
+
+
+# ==================== المهمة 6: SEO ====================
+
+import re
+import xml.etree.ElementTree as ET
+
+
+def _json_ld(html):
+    blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)
+    return [json.loads(b) for b in blocks]
+
+
+def test_robots_txt_allows_search_engines_and_lists_sitemap(client):
+    r = client.get("/robots.txt")
+    assert r.status_code == 200 and r.mimetype == "text/plain"
+    body = r.get_data(as_text=True)
+    assert "User-agent: *\nAllow: /" in body
+    assert "Sitemap: http://localhost/sitemap.xml" in body
+    assert "Disallow: /dashboard" in body
+    assert "Disallow: /library\n" not in body          # المكتبة وصفحات الكتب مسموحة
+    assert _sessions() == []                           # لا جلسة تحليلية لطلبات الزواحف لهذا الملف
+
+
+def test_sitemap_lists_books_and_articles(client, temp_book, temp_user):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO posts (user_id, title, content) VALUES (%s, 'PYTEST_POST', 'محتوى') RETURNING id", (temp_user,))
+    post_id = cur.fetchone()[0]
+    conn.commit()
+    try:
+        r = client.get("/sitemap.xml")
+        assert r.status_code == 200 and r.mimetype == "application/xml"
+        ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        locs = [el.text for el in ET.fromstring(r.data).findall("s:url/s:loc", ns)]
+        assert f"http://localhost/library/{temp_book}" in locs
+        assert f"http://localhost/articles/{post_id}" in locs
+        assert "http://localhost/library" in locs
+        assert _sessions() == []
+    finally:
+        cur.execute("DELETE FROM posts WHERE id = %s", (post_id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+
+
+def test_book_page_has_clean_canonical_hreflang_and_book_schema(client, temp_book):
+    html = client.get(f"/library/{temp_book}?ref=share&utm_source=x", headers=BROWSER_HEADERS).get_data(as_text=True)
+    assert f'<link rel="canonical" href="http://localhost/library/{temp_book}">' in html
+    assert f'<link rel="alternate" hreflang="ar" href="http://localhost/library/{temp_book}">' in html
+    graph = _json_ld(html)[0]["@graph"]
+    book = next(node for node in graph if node["@type"] == "Book")
+    assert book["name"] == "PYTEST_TEST_BOOK" and book["inLanguage"] == "ar"
+    assert any(node["@type"] == "BreadcrumbList" for node in graph)
+
+
+def test_article_page_has_article_schema(client, temp_user):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO posts (user_id, title, content) VALUES (%s, 'PYTEST_POST', 'محتوى') RETURNING id", (temp_user,))
+    post_id = cur.fetchone()[0]
+    conn.commit()
+    try:
+        html = client.get(f"/articles/{post_id}?ref=share", headers=BROWSER_HEADERS).get_data(as_text=True)
+        article = _json_ld(html)[0]
+        assert article["@type"] == "Article" and article["headline"] == "PYTEST_POST"
+        assert article["datePublished"]
+        assert f'<link rel="canonical" href="http://localhost/articles/{post_id}">' in html
+    finally:
+        cur.execute("DELETE FROM posts WHERE id = %s", (post_id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+
+
+def test_public_layout_canonical_drops_tracking_keeps_page(client):
+    html = client.get("/about?ref=share&utm_source=x", headers=BROWSER_HEADERS).get_data(as_text=True)
+    assert '<link rel="canonical" href="http://localhost/about">' in html
+    html = client.get("/articles/?page=2", headers=BROWSER_HEADERS).get_data(as_text=True)
+    assert '<link rel="canonical" href="http://localhost/articles/?page=2">' in html
+
+
+def test_download_page_canonical_points_to_book(client, temp_book):
+    html = client.get(f"/library/{temp_book}/download", headers=EXTERNAL_NAV).get_data(as_text=True)
+    assert f'<link rel="canonical" href="http://localhost/library/{temp_book}">' in html
+    assert 'content="noindex, follow"' in html

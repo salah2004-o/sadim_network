@@ -18,6 +18,23 @@
     {% set og_image_alt = post.title %}
     {% include 'partials/_og.html' %}
     {% if post.created_at %}<meta property="article:published_time" content="{{ post.created_at.isoformat() }}">{% endif %}
+    <meta name="description" content="{{ og_description }}">
+    {% with canonical = article_url %}{% include 'partials/_canonical.html' %}{% endwith %}
+    {% set article_ld = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": post.title|truncate(110),
+        "description": og_description,
+        "inLanguage": "ar",
+        "mainEntityOfPage": article_url,
+        "url": article_url,
+        "author": {"@type": "Person", "name": post.username, "url": url_for('articles.author_profile', user_id=post.user_id, _external=True)},
+        "publisher": {"@type": "Organization", "name": "شبكة سديم", "logo": {"@type": "ImageObject", "url": url_for('static', filename='images/logo.png', _external=True)}},
+        "datePublished": post.created_at.isoformat() if post.created_at else None,
+        "dateModified": (post.updated_at or post.created_at).isoformat() if (post.updated_at or post.created_at) else None,
+        "image": url_for('static', filename=post.image_path, _external=True) if post.image_path else url_for('static', filename='images/logo.png', _external=True)
+    } %}
+    <script type="application/ld+json">{{ article_ld|tojson }}</script>
     <style>
         :root {
             --color-bg: #0a1018;

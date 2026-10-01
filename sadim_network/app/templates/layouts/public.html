@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}شبكة سديم{% endblock %}</title>
+{% block meta_description %}<meta name="description" content="شبكة سديم: روايات أجاثا كريستي مترجمة للقراءة والتحميل مجاناً، ومقالات تقنية، ومساعد ذكاء اصطناعي عربي.">{% endblock %}
+{% block canonical %}{% include 'partials/_canonical.html' %}{% endblock %}
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

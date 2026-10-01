@@ -13,7 +13,7 @@ from app.models.referral_model import Referral
 register_bp = Blueprint('register', __name__)
 
 # مسارات لا تُحتسب كنشاط تحليلي إطلاقاً — ملفات ثابتة وطلبات المتصفح الآلية
-_STATIC_EXACT_PATHS = {"/favicon.ico", "/robots.txt", "/apple-touch-icon.png", "/apple-touch-icon-precomposed.png"}
+_STATIC_EXACT_PATHS = {"/favicon.ico", "/robots.txt", "/sitemap.xml", "/apple-touch-icon.png", "/apple-touch-icon-precomposed.png"}
 _STATIC_EXTENSIONS = (".css", ".js", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".ico", ".webp", ".woff", ".woff2", ".ttf")
 # مسارات إدارية — تُبقي الجلسة حيّة (last_seen) لكن لا تُحتسب كـ"مشاهدة صفحة" بمقاييس تفاعل الزوار
 _ADMIN_PATH_PREFIXES = ("/dashboard", "/profile")

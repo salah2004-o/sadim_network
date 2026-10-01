@@ -73,6 +73,7 @@ from app.routes.shortlinks import shortlinks_bp
 from app.routes.ai import ai_bp
 from app.routes.personal import personal_bp
 from app.routes.events import events_bp
+from app.routes.seo import seo_bp, canonical_url
 
 #blueprint
 app.register_blueprint(loading_bp)
@@ -89,6 +90,8 @@ app.register_blueprint(shortlinks_bp)
 app.register_blueprint(ai_bp)
 app.register_blueprint(personal_bp)
 app.register_blueprint(events_bp)
+app.register_blueprint(seo_bp)
+app.add_template_global(canonical_url)
 
 from app.bot.bot_runner import restore_all_bots
 restore_all_bots()

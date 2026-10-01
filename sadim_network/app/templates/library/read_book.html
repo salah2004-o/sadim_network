@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#0a1018">
   <meta name="color-scheme" content="dark light">
   <title>{{ book.title }} | قراءة — شبكة سديم</title>
+  {# صفحة القارئ عرض للملف فقط — صفحة الكتاب هي الصفحة المفهرَسة #}
+  <meta name="robots" content="noindex, follow">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

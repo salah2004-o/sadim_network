@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة أجاثا كريستي</title>
+    <title>روايات أجاثا كريستي مترجمة — قراءة وتحميل PDF مجاناً | شبكة سديم</title>
+    {% set books_noun = 'روايات' if 3 <= books|length <= 10 else 'رواية' %}
+    {% set og_description = books|length ~ ' ' ~ books_noun ~ ' لأجاثا كريستي مترجمة للعربية، تقرؤها على الموقع أو تحمّلها PDF مجاناً.' %}
+    <meta name="description" content="{{ og_description }}">
+    {% with canonical = url_for('library.library', _external=True) %}{% include 'partials/_canonical.html' %}{% endwith %}
+    {% set og_type = 'website' %}
+    {% set og_title = 'مكتبة أجاثا كريستي — شبكة سديم' %}
+    {% set og_url = url_for('library.library', _external=True) %}
+    {% set og_image_path = 'images/agatha-og.jpg' %}
+    {% set og_image_alt = 'أجاثا كريستي' %}
+    {% include 'partials/_og.html' %}
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/library.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">

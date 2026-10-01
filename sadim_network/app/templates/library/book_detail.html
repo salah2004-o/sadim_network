@@ -6,9 +6,42 @@
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
   <title>{{ book.title }} | SADEEM</title>
   <meta name="description" content="{{ book.desc_text|striptags|truncate(160) }}">
-  <link rel="canonical" href="{{ request.url }}">
   {% set book_author = book.get('author') or 'أجاثا كريستي' %}
   {% set book_url_clean = url_for('library.view_book', book_id=book.id, _external=True) %}
+  {% with canonical = book_url_clean %}{% include 'partials/_canonical.html' %}{% endwith %}
+  {% set book_ld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Book",
+        "@id": book_url_clean ~ "#book",
+        "name": book.title,
+        "author": {"@type": "Person", "name": book_author},
+        "description": book.desc_text|striptags|truncate(500),
+        "image": url_for('static', filename='uploads/' ~ book.cover_path, _external=True),
+        "inLanguage": "ar",
+        "url": book_url_clean,
+        "bookFormat": "https://schema.org/EBook",
+        "isAccessibleForFree": true,
+        "publisher": {"@type": "Organization", "name": "شبكة سديم", "url": url_for('main.index', _external=True)},
+        "interactionStatistic": {
+          "@type": "InteractionCounter",
+          "interactionType": "https://schema.org/DownloadAction",
+          "userInteractionCount": book.download_count or 0
+        },
+        "potentialAction": {"@type": "ReadAction", "target": url_for('library.read_book', book_id=book.id, _external=True)}
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {"@type": "ListItem", "position": 1, "name": "شبكة سديم", "item": url_for('main.index', _external=True)},
+          {"@type": "ListItem", "position": 2, "name": "المكتبة", "item": url_for('library.library', _external=True)},
+          {"@type": "ListItem", "position": 3, "name": book.title, "item": book_url_clean}
+        ]
+      }
+    ]
+  } %}
+  <script type="application/ld+json">{{ book_ld|tojson }}</script>
   {% set og_type = 'book' %}
   {% set og_title = book.title ~ ' — ' ~ book_author ~ ' | شبكة سديم' %}
   {% set og_description = book.desc_text|striptags|truncate(155) %}

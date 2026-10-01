@@ -3,8 +3,10 @@
 {% set cover_url = url_for('library.static', filename='uploads/' + book.cover_path) if book.cover_path else '' %}
 {% block title %}تحميل {{ book.title }} — شبكة سديم{% endblock %}
 
+{% block meta_description %}<meta name="description" content="{{ book.desc_text|striptags|truncate(160) }}">{% endblock %}
+{% block canonical %}{% with canonical = url_for('library.view_book', book_id=book.id, _external=True) %}{% include 'partials/_canonical.html' %}{% endwith %}{% endblock %}
+
 {% block extra_head %}
-<meta name="description" content="{{ book.desc_text|striptags|truncate(160) }}">
 <meta name="robots" content="noindex, follow">
 {% set og_type = 'book' %}
 {% set og_title = book.title ~ ' — ' ~ (book.get('author') or 'أجاثا كريستي') ~ ' | تحميل PDF مجاناً' %}
