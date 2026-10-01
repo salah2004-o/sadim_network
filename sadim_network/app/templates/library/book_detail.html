@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include 'partials/_theme_head.html' %}
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
   <title>{{ book.title }} | SADEEM</title>
   <meta name="description" content="{{ book.desc_text|striptags|truncate(160) }}">
@@ -70,6 +71,24 @@
       --border: rgba(196,163,90,0.18);
       --border-light: rgba(255,255,255,0.06);
     }
+
+    /* الوضع الفاتح: نفس المتغيرات المحلية مربوطة برموز design-system */
+    :root[data-theme="light"] {
+      --bg: var(--sd-bg);
+      --bg-secondary: var(--sd-bg-elevated-2);
+      --bg-card: var(--sd-bg-elevated);
+      --gold: #7d5f1a;
+      --gold-light: #7a5c16;
+      --gold-dim: rgba(196,163,90,0.16);
+      --text: var(--sd-text);
+      --text-secondary: var(--sd-text-secondary);
+      --text-muted: var(--sd-text-muted);
+      --border: rgba(125,95,26,0.22);
+      --border-light: rgba(27,34,48,0.10);
+    }
+    /* الأزرار الذهبية تبقى ذهبية زاهية بنص داكن (التباين) */
+    :root[data-theme="light"] .btn-read,
+    :root[data-theme="light"] .btn-download { background: linear-gradient(135deg, #d9bc74, #c4a35a); color: #1b1406; }
 
     body {
       font-family: 'IBM Plex Sans Arabic', sans-serif;

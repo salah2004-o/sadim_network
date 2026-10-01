@@ -113,8 +113,61 @@
     --sd-tap-min: 44px;
     --sd-bottom-nav-h: 64px;
 
+    /* أسطح زجاجية ثابتة (الشريط العلوي والسفلي) */
+    --sd-glass-bg: rgba(10, 16, 24, 0.88);
+    --sd-glass-bg-strong: rgba(10, 16, 24, 0.94);
+
     color-scheme: dark;
 }
+
+/* ==================== 1-ب. الوضع الفاتح ====================
+   يُفعَّل بـ data-theme="light" على <html> (partials/_theme_head.html): تلقائياً من إعداد الجهاز
+   أو يدوياً. نفس الهوية (نحاس + حبر) على ورق دافئ؛ ألوان النص والنحاس مُعتَمة لتباين ≥ 4.5:1. */
+:root[data-theme="light"] {
+    --sd-bg: #f7f4ee;
+    --sd-bg-elevated: #ffffff;
+    --sd-bg-elevated-2: #efe9dd;
+    --sd-bg-overlay: rgba(20, 24, 30, 0.45);
+    --sd-bg-pattern:
+        radial-gradient(ellipse 80% 50% at 10% -10%, rgba(74, 125, 149, 0.08), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(196, 163, 90, 0.10), transparent 50%);
+    --sd-border: rgba(27, 34, 48, 0.10);
+    --sd-border-strong: rgba(27, 34, 48, 0.18);
+    --sd-text: #1b2230;
+    --sd-text-secondary: #46505f;
+    --sd-text-muted: #5f6a79;
+    --sd-text-on-accent: #1b1406;
+    --sd-brass-bright: #a8862f;
+    --sd-accent: #7d5f1a;
+    --sd-accent-hover: #6b5014;
+    --sd-accent-light: #7a5c16;
+    --sd-accent-soft: rgba(196, 163, 90, 0.16);
+    --sd-accent-soft-strong: rgba(196, 163, 90, 0.30);
+    --sd-gradient: linear-gradient(135deg, #d9bc74, #c4a35a);
+    --sd-secondary: #3b6a80;
+    --sd-secondary-soft: rgba(59, 106, 128, 0.12);
+    --sd-mist-soft: #3b6a80;
+    --sd-success: #2e7d55;
+    --sd-success-soft: rgba(46, 125, 85, 0.12);
+    --sd-warning: #8a6100;
+    --sd-warning-soft: rgba(212, 160, 23, 0.14);
+    --sd-danger: #b23b3b;
+    --sd-danger-soft: rgba(178, 59, 59, 0.10);
+    --sd-info: #2f6f8a;
+    --sd-info-soft: rgba(47, 111, 138, 0.10);
+    --sd-shadow-sm: 0 2px 8px rgba(27, 34, 48, 0.08);
+    --sd-shadow-md: 0 10px 28px rgba(27, 34, 48, 0.12);
+    --sd-shadow-lg: 0 22px 48px rgba(27, 34, 48, 0.18);
+    --sd-shadow-glow: 0 0 0 1px rgba(196, 163, 90, 0.35), 0 10px 28px rgba(74, 125, 149, 0.12);
+    --sd-glass-bg: rgba(255, 253, 248, 0.90);
+    --sd-glass-bg-strong: rgba(255, 253, 248, 0.96);
+    color-scheme: light;
+}
+
+/* زر تبديل الوضع: الشمس في الليلي (للانتقال للفاتح) والقمر في الفاتح */
+.sd-theme-toggle .sd-theme-toggle__moon { display: none; }
+:root[data-theme="light"] .sd-theme-toggle .sd-theme-toggle__sun { display: none; }
+:root[data-theme="light"] .sd-theme-toggle .sd-theme-toggle__moon { display: inline-block; }
 
 /* ==================== 2. القواعد الأساسية ==================== */
 .sd-root, body.sd-app {
@@ -380,7 +433,7 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
 /* ==================== 11. الشريط الجانبي والعلوي (Sidebar / Navbar / Footer) ==================== */
 .sd-navbar {
     position: sticky; top: 0; z-index: var(--sd-z-sticky); display: flex; align-items: center; justify-content: space-between;
-    gap: var(--sd-sp-3); padding: var(--sd-sp-4) var(--sd-sp-6); background: rgba(10, 16, 24, 0.88);
+    gap: var(--sd-sp-3); padding: var(--sd-sp-4) var(--sd-sp-6); background: var(--sd-glass-bg);
     backdrop-filter: blur(16px); border-bottom: 1px solid var(--sd-border); flex-wrap: nowrap; min-width: 0;
 }
 .sd-navbar-links-wrap { min-width: 0; }
@@ -489,7 +542,7 @@ html, body.sd-app { overflow-x: hidden; max-width: 100%; }
     display: none;
     height: calc(var(--sd-bottom-nav-h) + env(safe-area-inset-bottom, 0px));
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    background: rgba(10, 16, 24, 0.94);
+    background: var(--sd-glass-bg-strong);
     backdrop-filter: blur(18px);
     border-top: 1px solid var(--sd-border-strong);
     grid-template-columns: repeat(5, 1fr);
@@ -648,10 +701,13 @@ body.reader-page {
     --reader-border: rgba(228, 233, 240, 0.12);
     --reader-accent: #d9bc74;
     --reader-accent-soft: rgba(217, 188, 116, 0.14);
+    --reader-page-bg: #0a1018;
+    --reader-glass: rgba(9, 13, 20, 0.94);
+    --reader-toolbar-bg: rgba(15, 22, 33, 0.96);
     min-height: 100vh;
     min-height: 100dvh;
     overflow-x: hidden;
-    background: #0a1018;
+    background: var(--reader-page-bg);
     color: var(--reader-text);
     font-family: var(--sd-font);
     padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -689,7 +745,7 @@ body.reader-page {
     min-height: 64px;
     padding: 0.65rem max(1rem, env(safe-area-inset-left, 0px)) 0.65rem max(1rem, env(safe-area-inset-right, 0px));
     border-bottom: 1px solid var(--reader-border);
-    background: rgba(9, 13, 20, 0.94);
+    background: var(--reader-glass);
     backdrop-filter: blur(14px);
     transition: transform 0.2s ease, opacity 0.2s ease;
 }
@@ -820,7 +876,7 @@ html[data-reader-theme="sepia"] .reader-canvas { filter: sepia(0.42) saturate(1.
     overflow-x: auto;
     border: 1px solid var(--reader-border);
     border-radius: 999px;
-    background: rgba(15, 22, 33, 0.96);
+    background: var(--reader-toolbar-bg);
     box-shadow: var(--sd-shadow-md);
     backdrop-filter: blur(14px);
     transition: transform 0.2s ease, opacity 0.2s ease;
@@ -1125,3 +1181,22 @@ html[data-reader-theme="sepia"] .reader-canvas { filter: sepia(0.42) saturate(1.
 @media (prefers-reduced-motion: reduce) { .sd-signup-sheet { transition: none; } }
 .sd-alert-toggle { width: 100%; min-height: 44px; color: var(--sd-accent-light); border: 1px dashed var(--sd-accent-soft-strong); font-size: 0.95rem; white-space: normal; text-align: center; line-height: 1.5; }
 .sd-alert-toggle[aria-pressed="true"] { border-style: solid; background: var(--sd-accent-soft); }
+.sd-theme-toggle[hidden] { display: none; }
+
+/* واجهة القارئ تتبع مظهر الصفحة الذي يختاره القارئ (فاتح/داكن/سبيا)؛ الافتراضي = وضع الموقع */
+html[data-reader-theme="light"] .reader-page {
+    --reader-bg: #f4f1ea; --reader-surface: #ffffff; --reader-surface-strong: #efe9dd;
+    --reader-text: #1b2230; --reader-text-secondary: #46505f; --reader-border: rgba(27, 34, 48, 0.14);
+    --reader-accent: #7d5f1a; --reader-accent-soft: rgba(196, 163, 90, 0.18);
+    --reader-page-bg: #e9e5dc; --reader-glass: rgba(255, 253, 248, 0.94); --reader-toolbar-bg: rgba(255, 253, 248, 0.97);
+    color-scheme: light;
+}
+html[data-reader-theme="sepia"] .reader-page {
+    --reader-bg: #f1e7d0; --reader-surface: #fbf4e4; --reader-surface-strong: #efe2c6;
+    --reader-text: #3b2f1e; --reader-text-secondary: #6b5a40; --reader-border: rgba(59, 47, 30, 0.16);
+    --reader-accent: #7d5f1a; --reader-accent-soft: rgba(125, 95, 26, 0.14);
+    --reader-page-bg: #e8dcc0; --reader-glass: rgba(251, 244, 228, 0.95); --reader-toolbar-bg: rgba(251, 244, 228, 0.97);
+    color-scheme: light;
+}
+html[data-reader-theme="light"] .reader-page .reader-button--primary,
+html[data-reader-theme="sepia"] .reader-page .reader-button--primary { background: linear-gradient(135deg, #d9bc74, #c4a35a); color: #1b1406; }

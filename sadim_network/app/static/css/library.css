@@ -320,3 +320,41 @@ header {
     font-size: 0.8rem; font-weight: 700; white-space: nowrap; backdrop-filter: blur(6px);
 }
 .book-meta-line { margin: -4px 0 10px; color: var(--text-muted); font-size: 0.8rem; }
+
+/* --- الوضع الفاتح (data-theme="light" من partials/_theme_head.html) --- */
+.book-card-desc { font-size: 0.8rem; color: #ccc; margin-bottom: 15px; height: 3.2em; overflow: hidden; opacity: 0.7; }
+:root[data-theme="light"] {
+    --sadeem-bg: #f7f4ee;
+    --glass: rgba(255, 255, 255, 0.92);
+    --soft-gold: #7d5f1a;
+    --border-gold: rgba(125, 95, 26, 0.22);
+    --text-muted: #5f6a79;
+    --shadow: 0 8px 24px rgba(27, 34, 48, 0.08);
+}
+:root[data-theme="light"] body { color: #1b2230; }
+:root[data-theme="light"] body::before { opacity: 0.5; }
+:root[data-theme="light"] .book-title,
+:root[data-theme="light"] .source-content h4,
+:root[data-theme="light"] .collection-title,
+:root[data-theme="light"] .collection-stat b,
+:root[data-theme="light"] .collection-tab:hover,
+:root[data-theme="light"] .discussion-head a:hover,
+:root[data-theme="light"] .ecosystem-bridge h4,
+:root[data-theme="light"] .sidebar ul li a { color: #1b2230; }
+:root[data-theme="light"] .book-card-desc,
+:root[data-theme="light"] .discussion-text,
+:root[data-theme="light"] .related-book-card span,
+:root[data-theme="light"] .nav-links-desktop a,
+:root[data-theme="light"] .lib-chip { color: #46505f; }
+:root[data-theme="light"] .sidebar { background: #ffffff; }
+:root[data-theme="light"] .legal-footer { background: #efe9dd; border-top-color: rgba(27, 34, 48, 0.08); }
+:root[data-theme="light"] .book-card:hover { box-shadow: 0 12px 24px rgba(27, 34, 48, 0.12); }
+:root[data-theme="light"] .lib-search__form input { background: #ffffff; color: #1b2230; border-color: rgba(125, 95, 26, 0.35); }
+:root[data-theme="light"] .lib-suggest { background: #ffffff; }
+:root[data-theme="light"] .lib-suggest li a,
+:root[data-theme="light"] .lib-suggest li button { color: #1b2230; }
+:root[data-theme="light"] .lib-chip[aria-pressed="true"] { background: #d9bc74; border-color: #c4a35a; color: #1b1406; }
+:root[data-theme="light"] .sort-link.active { background: #d9bc74; border-color: #c4a35a; color: #1b1406; }
+:root[data-theme="light"] .btn-royal:hover { background: #d9bc74; color: #1b1406; }
+:root[data-theme="light"] .week-badge { background: rgba(255, 253, 248, 0.92); }
+:root[data-theme="light"] .progress-bar-bg { background: rgba(27, 34, 48, 0.06); }

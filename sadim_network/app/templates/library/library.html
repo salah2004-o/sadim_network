@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include 'partials/_theme_head.html' %}
     <title>روايات أجاثا كريستي مترجمة — قراءة وتحميل PDF مجاناً | شبكة سديم</title>
     {% set books_noun = 'روايات' if 3 <= books|length <= 10 else 'رواية' %}
     {% set og_description = books|length ~ ' ' ~ books_noun ~ ' لأجاثا كريستي مترجمة للعربية، تقرؤها على الموقع أو تحمّلها PDF مجاناً.' %}
@@ -232,7 +233,7 @@
                 <span><i class="fa-solid fa-comment"></i> {{ comment_counts.get(book.id, 0) }}</span>
             </div>
 
-            <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 15px; height: 3.2em; overflow: hidden; opacity: 0.7;">
+            <p class="book-card-desc">
                 {{ book.desc_text | truncate(75) }}
             </p>
             <a href="{{ url_for('library.view_book', book_id=book['id']) }}">

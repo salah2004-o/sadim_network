@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% include 'partials/_theme_head.html' %}
 <title>{% block title %}شبكة سديم{% endblock %}</title>
 {% block meta_description %}<meta name="description" content="شبكة سديم: روايات أجاثا كريستي مترجمة للقراءة والتحميل مجاناً، ومقالات تقنية، ومساعد ذكاء اصطناعي عربي.">{% endblock %}
 {% block canonical %}{% include 'partials/_canonical.html' %}{% endblock %}
@@ -69,6 +70,10 @@ if (/^\/ai(\/|$)/.test(window.location.pathname)) {
         </a>
         {% endif %}
 
+        <button type="button" class="sd-btn sd-btn-icon sd-btn-ghost sd-theme-toggle" data-theme-toggle aria-label="تبديل الوضع الفاتح والليلي" hidden>
+            <i class="fas fa-sun sd-theme-toggle__sun" aria-hidden="true"></i><i class="fas fa-moon sd-theme-toggle__moon" aria-hidden="true"></i>
+        </button>
+
         <button type="button" id="menu-toggle" class="sd-btn sd-btn-icon sd-btn-ghost" aria-expanded="false" aria-controls="mobile-sidebar" aria-label="فتح القائمة" style="display:none;">
             <i class="fas fa-bars"></i>
         </button>
@@ -131,6 +136,7 @@ if (/^\/ai(\/|$)/.test(window.location.pathname)) {
 
 <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
 <script src="{{ url_for('static', filename='js/ui-kit.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sd-theme.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/sd-track.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/sd-share.js') }}" defer></script>
 {% include 'partials/_signup_prompt.html' %}

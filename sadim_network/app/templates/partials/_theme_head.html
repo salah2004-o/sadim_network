@@ -1,0 +1,15 @@
+{# الوضع الفاتح/الليلي: يتبع إعداد الجهاز تلقائياً، ويُحفظ الاختيار اليدوي فقط إن خالف الجهاز.
+   يُنفَّذ قبل رسم الصفحة (بلا وميض ولا CLS). يوضع أول عنصر في <head>. #}
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0a1018" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f4ee" media="(prefers-color-scheme: light)">
+<script>
+(function () {
+  var theme = null;
+  try { theme = localStorage.getItem("sd-theme"); } catch (e) { }
+  if (theme !== "light" && theme !== "dark") {
+    theme = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  }
+  document.documentElement.setAttribute("data-theme", theme);
+})();
+</script>

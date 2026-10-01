@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% include 'partials/_theme_head.html' %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
@@ -49,6 +50,17 @@
             --radius-sm: 8px;
             --red: #c45c5c;
         }
+        :root[data-theme="light"] {
+            --color-bg: var(--sd-bg);
+            --color-primary: rgba(255, 255, 255, 0.92);
+            --color-accent: #7d5f1a;
+            --color-light: #7a5c16;
+            --color-deep: var(--sd-text);
+            --text-muted: var(--sd-text-muted);
+            --border-color: rgba(27, 34, 48, 0.10);
+            --red: #b23b3b;
+        }
+        :root[data-theme="light"] .page-header { background: var(--sd-glass-bg); }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--color-bg); color: var(--color-deep); font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, sans-serif; min-height: 100vh; padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px)); }
         .page-header {

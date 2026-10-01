@@ -111,7 +111,10 @@
     state.bookId = els.canvas.dataset.bookId || "";
     state.loggedIn = els.canvas.dataset.loggedIn === "1";
     state.zoom = finiteNumber(readStorage("zoom", "1"), 1, 0.6, 1.8);
-    state.theme = ["light", "dark", "sepia"].includes(readStorage("theme", "dark")) ? readStorage("theme", "dark") : "dark";
+    // بلا اختيار سابق: مظهر الصفحة يتبع وضع الموقع (فاتح/ليلي حسب الجهاز)
+    const siteTheme = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+    const storedTheme = readStorage("theme", siteTheme);
+    state.theme = ["light", "dark", "sepia"].includes(storedTheme) ? storedTheme : siteTheme;
     const localPage = Math.max(1, Math.floor(finiteNumber(readStorage("page-" + state.bookId, "1"), 1, 1, Number.MAX_SAFE_INTEGER)));
     // الصفحة المحفوظة بالحساب تتقدّم (تكمل من جهاز آخر)؛ بدونها نستخدم المحفوظة محلياً،
     // وأول مزامنة بعد التسجيل تنقلها للحساب
@@ -496,7 +499,7 @@
     setZoom(state.zoom, persist);
   }
 
-  function setTheme(theme) {
+  function setTheme(theme, persist) {
     if (!["light", "dark", "sepia"].includes(theme)) theme = "dark";
     state.theme = theme;
     document.documentElement.dataset.readerTheme = theme;
@@ -504,17 +507,18 @@
       button.setAttribute("aria-pressed", String(button.dataset.readerTheme === theme));
       button.classList.toggle("is-active", button.dataset.readerTheme === theme);
     });
-    writeStorage("theme", theme);
+    // يُحفظ فقط عند اختيار القارئ صراحةً، حتى يبقى الافتراضي تابعاً لوضع الموقع
+    if (persist !== false) writeStorage("theme", theme);
   }
 
-  function applyTheme(persist) {
-    setTheme(state.theme);
-    if (persist === false) writeStorage("theme", state.theme);
+  function applyTheme() {
+    setTheme(state.theme, false);
   }
 
   function resetPreferences() {
     state.zoom = 1;
-    setTheme("dark");
+    try { window.localStorage.removeItem(STORAGE_PREFIX + "theme"); } catch (error) { }
+    setTheme(document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark", false);
     setZoom(1);
     writeStorage("zoom", 1);
   }

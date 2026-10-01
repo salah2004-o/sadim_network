@@ -40,11 +40,16 @@
         </a>
         {% endif %}
 
+        <button type="button" class="sd-btn sd-btn-icon sd-btn-ghost sd-theme-toggle" data-theme-toggle aria-label="تبديل الوضع الفاتح والليلي" hidden>
+            <i class="fas fa-sun sd-theme-toggle__sun" aria-hidden="true"></i><i class="fas fa-moon sd-theme-toggle__moon" aria-hidden="true"></i>
+        </button>
+
         <button type="button" id="menu-toggle" class="sd-btn sd-btn-icon sd-btn-ghost" aria-expanded="false" aria-controls="mobile-sidebar" aria-label="فتح القائمة" style="display:none;">
             <i class="fas fa-bars"></i>
         </button>
     </nav>
 </header>
+<script src="{{ url_for('static', filename='js/sd-theme.js') }}" defer></script>
 <script>
 function sdSyncNavForWidth() {
     const toggle = document.getElementById('menu-toggle');
