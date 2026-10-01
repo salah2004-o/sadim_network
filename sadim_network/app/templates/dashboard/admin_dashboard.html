@@ -40,6 +40,14 @@
                 <label><i class="fa-solid fa-image"></i> صورة الغلاف</label>
                 <input type="file" name="cover_file" accept="image/*" required>
             </div>
+            <div class="input-group">
+                <label><i class="fa-solid fa-user-pen"></i> المؤلف</label>
+                <input type="text" name="author" value="{{ default_author }}" required>
+            </div>
+            <div class="input-group">
+                <label><i class="fa-solid fa-tags"></i> النوع</label>
+                <input type="text" name="genre" value="{{ default_genre }}" list="genre-options" required>
+            </div>
             <div class="input-group full-width">
                 <label><i class="fa-solid fa-quote-right"></i> وصف الرواية</label>
                 <textarea name="desc" placeholder="نبذة عن أحداث الرواية..." rows="3" required></textarea>
@@ -75,7 +83,7 @@
                             <img src="{{ url_for('library.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" class="book-img-sm">
                             <div>
                                 <div style="font-weight: 700; color: #fff;">{{ book.title }}</div>
-                                <div style="font-size: 0.75rem; opacity: 0.5;">ID: #{{ book.id }}</div>
+                                <div style="font-size: 0.75rem; opacity: 0.5;">ID: #{{ book.id }} · {{ book.author or '—' }} · {{ book.genre or '—' }} · {{ book.page_count or '?' }} صفحة</div>
                             </div>
                         </div>
                     </td>
@@ -104,6 +112,14 @@
                                 <label>تحديث الغلاف (اختياري)</label>
                                 <input type="file" name="cover_file-{{ book.id }}" accept="image/*">
                             </div>
+                            <div class="input-group">
+                                <label>المؤلف</label>
+                                <input type="text" name="author-{{ book.id }}" value="{{ book.author or default_author }}" required>
+                            </div>
+                            <div class="input-group">
+                                <label>النوع</label>
+                                <input type="text" name="genre-{{ book.id }}" value="{{ book.genre or default_genre }}" list="genre-options" required>
+                            </div>
                             <div class="input-group full">
                                 <label>تعديل الوصف</label>
                                 <textarea name="desc-{{ book.id }}" rows="3" required>{{ book.desc_text }}</textarea>
@@ -119,6 +135,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        <datalist id="genre-options">{% for g in genre_options %}<option value="{{ g }}">{% endfor %}</datalist>
     </div>
 </div>
 </div>

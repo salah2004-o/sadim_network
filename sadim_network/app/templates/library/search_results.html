@@ -31,7 +31,7 @@
 {% if books %}
 <div class="book-grid">
     {% for book in books %}
-    <div class="book-card">
+    <div class="book-card" data-search-result data-book-id="{{ book.id }}" data-position="{{ loop.index }}">
         <a href="{{ url_for('library.view_book', book_id=book.id) }}" style="text-decoration:none;">
             <div class="cover-container">
                 {% if book.cover_path %}
@@ -68,5 +68,19 @@
 
 {% include 'partials/_ai_float.html' %}
 <script src="{{ url_for('static', filename='js/ai-float.js') }}"></script>
+<script src="{{ url_for('static', filename='js/sd-track.js') }}" defer></script>
+<script>
+document.addEventListener('click', function (event) {
+    var link = event.target.closest('[data-search-result] a');
+    if (!link || !window.sdTrack) return;
+    var card = link.closest('[data-search-result]');
+    window.sdTrack('search.result.clicked', {
+        query: {{ query[:100]|tojson }},
+        book_id: Number(card.dataset.bookId),
+        position: Number(card.dataset.position),
+        source: 'search_page'
+    });
+});
+</script>
 </body>
 </html>

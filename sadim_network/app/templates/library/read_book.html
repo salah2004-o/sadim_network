@@ -75,7 +75,7 @@
     {% endif %}
     <div class="read-hero__info">
       <h1 class="read-hero__title" id="reader-title">{{ book.title }}</h1>
-      <div class="read-hero__author">{{ book.author or book.get('author') or 'Agatha Christie' }}</div>
+      <div class="read-hero__author">{{ book.get('author') or 'أجاثا كريستي' }}</div>
       {% if book.desc_text %}
         <p class="read-hero__desc">{{ book.desc_text }}</p>
       {% endif %}

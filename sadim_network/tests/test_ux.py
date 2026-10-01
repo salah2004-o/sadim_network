@@ -14,11 +14,22 @@ os.environ.setdefault("BOT_WORKER", "false")
 
 import json
 
+import pytest
+
 from app.db.sadim_db import get_db_connection
 # fixtures مشتركة (clean_analytics تلقائية لكل اختبار هنا أيضاً)
 from test_analytics import client, clean_analytics, temp_user, temp_book, _events, _sessions, DESKTOP_UA, MOBILE_UA  # noqa: F401
 
 BROWSER_HEADERS = {"User-Agent": MOBILE_UA, "Accept": "text/html", "Accept-Language": "ar"}
+
+
+@pytest.fixture(autouse=True)
+def reset_rate_limits():
+    """حدود الطلبات تبقى مفعّلة، لكن عدّادها يبدأ من الصفر لكل اختبار
+    (صفحة الكتاب مثلاً 5 طلبات/دقيقة لكل IP، وكل الاختبارات من نفس العنوان)."""
+    from app.limiter import limiter
+    limiter.reset()
+    yield
 
 
 def _login(client, user_id):
@@ -542,6 +553,8 @@ def test_admin_adding_book_triggers_alert_thread(client, temp_user, monkeypatch)
     try:
         assert r.status_code == 302
         assert len(calls) == 1 and calls[0][0] == "PYTEST_ALERT_BOOK"
+        cur.execute("SELECT author, genre FROM books WHERE title = 'PYTEST_ALERT_BOOK'")
+        assert cur.fetchone() == ("أجاثا كريستي", "رواية بوليسية")   # القيم الافتراضية من النموذج
         assert "/library/" in calls[0][1] and "/static/uploads/cover_" in calls[0][2]
     finally:
         cur.execute("SELECT pdf_path, cover_path FROM books WHERE title = 'PYTEST_ALERT_BOOK'")
@@ -555,3 +568,94 @@ def test_admin_adding_book_triggers_alert_thread(client, temp_user, monkeypatch)
         conn.commit()
         cur.close()
         conn.close()
+
+
+# ==================== المهمة 4: الاكتشاف والبحث ====================
+
+def _reset_weekly_cache():
+    from app.models import library_mdl
+    library_mdl._weekly_cache.update(at=0.0, data=None)
+
+
+def test_normalize_ar_handles_hamza_taa_and_diacritics():
+    from app.utlis.arabic import normalize_ar
+    assert normalize_ar("ثلاثة عشر لغزاً") == normalize_ar("ثلاثه عشر لغزا")
+    assert normalize_ar("الأزرق") == normalize_ar("الازرق") == normalize_ar("الإزرق")
+    assert normalize_ar("مَقتلُ") == "مقتل"
+    assert normalize_ar("يبقى") == normalize_ar("يبقي")
+
+
+def test_search_matches_without_hamza_and_logs_book_search(client):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO books (title, desc_text, pdf_path, cover_path, author) VALUES ('PYTEST لغز القطار الأزرق', 'وصف', 'p.pdf', 'p.jpg', 'مؤلفة إختبارية') RETURNING id")
+    book_id = cur.fetchone()[0]
+    conn.commit()
+    try:
+        html = client.get("/library/search?q=الازرق", headers=BROWSER_HEADERS).get_data(as_text=True)
+        assert "PYTEST لغز القطار الأزرق" in html
+        assert 'data-search-result' in html
+        assert len(_events(event_type="book.search")) == 1          # الحدث القائم كما هو
+        quick = client.get("/library/quick_search?q=اختباريه", headers=BROWSER_HEADERS).get_json()["results"]
+        assert any(r["id"] == book_id for r in quick)                # البحث بالمؤلف بدون همزة
+    finally:
+        cur.execute("DELETE FROM books WHERE id = %s", (book_id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+
+
+def test_weekly_top_counts_distinct_human_sessions(temp_book):
+    from app.models.library_mdl import Library
+    _reset_weekly_cache()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    rows = [("s1", "human"), ("s1", "human"), ("s2", "human"), ("bot1", "crawler"), ("bot2", "bot")]
+    for session_id, vtype in rows:
+        cur.execute("INSERT INTO analytics_events (event_type, session_id, visitor_type, metadata) VALUES ('download.success', %s, %s, %s)",
+                    (session_id, vtype, json.dumps({"book_id": temp_book})))
+    cur.execute("INSERT INTO analytics_events (event_type, session_id, visitor_type, metadata, occurred_at) VALUES ('download.success', 's3', 'human', %s, NOW() - INTERVAL '8 days')",
+                (json.dumps({"book_id": temp_book}),))
+    conn.commit()
+    cur.close()
+    conn.close()
+    top = Library.get_weekly_top(limit=5)
+    assert top[temp_book] == {"rank": 1, "downloads": 2}   # s1 مرة واحدة + s2، بدون الزواحف والأقدم من أسبوع
+    _reset_weekly_cache()
+
+
+def test_library_page_shows_weekly_badge_and_filters(client, temp_book):
+    _reset_weekly_cache()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE books SET genre = 'رواية بوليسية', page_count = 150 WHERE id = %s", (temp_book,))
+    cur.execute("INSERT INTO books (title, desc_text, pdf_path, cover_path, genre, page_count) VALUES ('PYTEST_STORIES', 'و', 'q.pdf', 'q.jpg', 'مجموعة قصصية', 320) RETURNING id")
+    other_id = cur.fetchone()[0]
+    cur.execute("INSERT INTO analytics_events (event_type, session_id, visitor_type, metadata) VALUES ('download.success', 'w1', 'human', %s)",
+                (json.dumps({"book_id": temp_book}),))
+    conn.commit()
+    try:
+        html = client.get("/library?sort=week", headers=BROWSER_HEADERS).get_data(as_text=True)
+        assert 'class="week-badge"' in html
+        assert 'data-filter="genre" data-value="مجموعة قصصية"' in html
+        assert 'data-filter="length" data-value="short"' in html and 'data-value="long"' in html
+        assert 'data-filter="author"' not in html                 # مؤلف واحد فقط ← لا فلتر مؤلف
+        assert html.index(f'data-book-id="{temp_book}"') < html.index(f'data-book-id="{other_id}"')  # الأول أسبوعياً أولاً
+        assert 'id="lib-q"' in html
+    finally:
+        cur.execute("DELETE FROM books WHERE id = %s", (other_id,))
+        conn.commit()
+        cur.close()
+        conn.close()
+        _reset_weekly_cache()
+
+
+def test_book_page_shows_genre_and_pages(client, temp_book):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE books SET author = 'مؤلف تجريبي', genre = 'مسرحية', page_count = 99 WHERE id = %s", (temp_book,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    html = client.get(f"/library/{temp_book}", headers=BROWSER_HEADERS).get_data(as_text=True)
+    assert "مؤلف تجريبي · مسرحية · 99 صفحة" in html

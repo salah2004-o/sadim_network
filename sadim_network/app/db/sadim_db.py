@@ -160,6 +160,10 @@ def create_tables():
     # ملخص Sadeem AI المخزّن لكل كتاب — المدخل (العنوان+الوصف) نفسه لكل الزوار، فيُولَّد مرة واحدة
     # ويُمسح تلقائياً عند تعديل الكتاب من لوحة الإدارة
     cur.execute("ALTER TABLE books ADD COLUMN IF NOT EXISTS ai_summary TEXT;")
+    # فلاتر المكتبة: المؤلف والنوع والطول. تعبئة الكتب الموجودة: python app/db/backfill_book_meta.py
+    cur.execute("ALTER TABLE books ADD COLUMN IF NOT EXISTS author TEXT;")
+    cur.execute("ALTER TABLE books ADD COLUMN IF NOT EXISTS genre TEXT;")
+    cur.execute("ALTER TABLE books ADD COLUMN IF NOT EXISTS page_count INTEGER;")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS posts (
           id SERIAL PRIMARY KEY,

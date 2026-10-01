@@ -110,6 +110,37 @@
     </ul>
 </nav>
 
+<!-- ============ البحث أعلى المكتبة + الفلاتر ============ -->
+<section class="lib-search" role="search" aria-label="البحث في المكتبة">
+    <form action="{{ url_for('library.search') }}" method="get" class="lib-search__form" autocomplete="off">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input id="lib-q" name="q" type="search" placeholder="ابحث باسم الرواية أو المؤلف…" enterkeyhint="search"
+               role="combobox" aria-label="ابحث في المكتبة" aria-autocomplete="list" aria-controls="lib-suggest" aria-expanded="false">
+        <button type="button" class="lib-search__clear" id="lib-clear" aria-label="مسح البحث" hidden><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+    </form>
+    <ul id="lib-suggest" class="lib-suggest" role="listbox" aria-label="اقتراحات" hidden></ul>
+
+    {% if filters.author|length > 1 or filters.genre|length > 1 or filters.length|length > 1 %}
+    <div class="lib-filters" role="group" aria-label="تصفية الروايات">
+        {% if filters.author|length > 1 %}
+        <div class="lib-filter-row"><span>المؤلف</span>
+            {% for value in filters.author %}<button type="button" class="lib-chip" data-filter="author" data-value="{{ value }}" aria-pressed="false">{{ value }}</button>{% endfor %}
+        </div>
+        {% endif %}
+        {% if filters.genre|length > 1 %}
+        <div class="lib-filter-row"><span>النوع</span>
+            {% for value in filters.genre %}<button type="button" class="lib-chip" data-filter="genre" data-value="{{ value }}" aria-pressed="false">{{ value }}</button>{% endfor %}
+        </div>
+        {% endif %}
+        {% if filters.length|length > 1 %}
+        <div class="lib-filter-row"><span>الطول</span>
+            {% for key, label in filters.length %}<button type="button" class="lib-chip" data-filter="length" data-value="{{ key }}" aria-pressed="false">{{ label }}</button>{% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</section>
+
 <!-- ============ Collection Header ============ -->
 <section class="collection-hero">
     <img src="{{ url_for('library.static', filename='images/اغاثا.webp') }}" alt="Agatha Christie" class="collection-portrait">
@@ -164,6 +195,9 @@
 <div id="tab-books" class="tab-pane active">
 
     <div class="sort-bar">
+        <a href="{{ url_for('library.library', sort='week') }}" class="sort-link {{ 'active' if sort == 'week' }}">
+            <i class="fa-solid fa-chart-line"></i> الأكثر تحميلاً هذا الأسبوع
+        </a>
         <a href="{{ url_for('library.library', sort='downloads') }}" class="sort-link {{ 'active' if sort == 'downloads' }}">
             <i class="fa-solid fa-fire"></i> الأكثر تحميلاً
         </a>
@@ -177,13 +211,21 @@
 
     <div class="book-grid">
         {% for book in books %}
-        <div class="book-card">
+        {% set wk = weekly_top.get(book.id) %}
+        <div class="book-card" data-book-id="{{ book.id }}" data-title="{{ book.title }}" data-author="{{ book.author }}"
+             data-genre="{{ book.genre or '' }}" data-length="{{ book.length or '' }}"
+             data-cover="{{ url_for('library.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}"
+             data-url="{{ url_for('library.view_book', book_id=book['id']) }}">
             <a href="{{ url_for('library.view_book', book_id=book['id']) }}" style="text-decoration:none;">
                 <div class="cover-container">
+                    {% if wk %}<span class="week-badge" title="الأكثر تحميلاً هذا الأسبوع"><i class="fa-solid fa-fire" aria-hidden="true"></i> {{ wk.rank }}<span class="sd-sr-only"> في الأكثر تحميلاً هذا الأسبوع</span></span>{% endif %}
                     <img src="{{ url_for('library.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" alt="{{ book.title }}" loading="lazy">
                 </div>
                 <h3 class="book-title">{{ book.title }}</h3>
             </a>
+            {% if book.genre or book.page_count %}
+            <p class="book-meta-line">{{ book.genre or '' }}{% if book.genre and book.page_count %} · {% endif %}{% if book.page_count %}{{ book.page_count }} صفحة{% endif %}</p>
+            {% endif %}
 
             <div class="book-engagement">
                 <span><i class="fa-solid fa-cloud-arrow-down"></i> <span id="count-{{ book.id }}">{{ book.download_count if book.download_count else 0 }}</span></span>
@@ -204,7 +246,12 @@
         {% else %}
         <p style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:3rem 0;">لا توجد روايات مرفوعة بعد.</p>
         {% endfor %}
+        <div class="lib-empty" id="lib-empty" hidden>
+            لا توجد رواية تطابق بحثك.<br>
+            <button type="button" id="lib-reset">مسح البحث والفلاتر</button>
+        </div>
     </div>
+    <p class="sd-sr-only" id="lib-count" aria-live="polite"></p>
 </div>
 
 <!-- ============ تبويب: المناقشات ============ -->
@@ -283,6 +330,7 @@
 
 </script>
 <script src="{{ url_for('static', filename='js/sd-track.js') }}" defer></script>
+<script src="{{ url_for('static', filename='js/library-search.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/sd-share.js') }}" defer></script>
 {% include 'partials/_signup_prompt.html' %}
 

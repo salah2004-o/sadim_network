@@ -13,7 +13,8 @@ import os
 from app.config import settings
 from app.models import shelf_model
 from flask import render_template, request, redirect, url_for, flash
-from models.library_mdl import Library
+from models.library_mdl import Library, DEFAULT_AUTHOR, DEFAULT_GENRE, GENRE_SUGGESTIONS, _KEEP
+from app.utlis.media import pdf_page_count
 # ==========================================
 # قسم إدارة المكتبة (الدمج الجديد)
 # ==========================================
@@ -29,7 +30,11 @@ def manage_library():
     cur.close()
     conn.close()
 
-    return render_template("dashboard/admin_dashboard.html", books=books)
+    genres = sorted(set(GENRE_SUGGESTIONS) | {b['genre'] for b in books if b.get('genre')})
+    return render_template(
+        "dashboard/admin_dashboard.html", books=books,
+        default_author=DEFAULT_AUTHOR, default_genre=DEFAULT_GENRE, genre_options=genres,
+    )
 # إضافة كتاب جديد للمكتبة
 @admin_bp.route('/library/add', methods=['POST'])
 @login_required
@@ -37,6 +42,8 @@ def manage_library():
 def add_book_to_library():
     title = request.form.get('title')
     desc = request.form.get('desc')
+    author = (request.form.get('author') or '').strip() or DEFAULT_AUTHOR
+    genre = (request.form.get('genre') or '').strip() or DEFAULT_GENRE
     pdf = request.files.get('pdf_file')
     cover = request.files.get('cover_file')
 
@@ -68,7 +75,8 @@ def add_book_to_library():
             print(f"⚠️ فشل إضافة الشعار: {e}")
 
         # حفظ البيانات (العنوان العربي سيحفظ في خانة title)
-        book_id = Library.add_book(title, desc, pdf_name, cover_name)
+        book_id = Library.add_book(title, desc, pdf_name, cover_name,
+                                   author=author, genre=genre, page_count=pdf_page_count(pdf_full_path))
 
         # تنبيه المشتركين بالبريد في خيط خلفي — لا يؤخّر رد لوحة الإدارة ولا يكسرها لو فشل
         app_url = (settings.APP_URL or request.url_root).rstrip('/')
@@ -93,6 +101,8 @@ def edit_book_in_library(book_id):
     """تعديل كتاب في المكتبة مباشرة من لوحة الإدارة"""
     title = request.form.get(f"title-{book_id}")
     desc = request.form.get(f"desc-{book_id}")
+    author = (request.form.get(f"author-{book_id}") or '').strip() or DEFAULT_AUTHOR
+    genre = (request.form.get(f"genre-{book_id}") or '').strip() or DEFAULT_GENRE
 
     if not title:
         flash("❌ العنوان مطلوب", "danger")
@@ -135,8 +145,9 @@ def edit_book_in_library(book_id):
         except Exception as e:
             print(f"⚠️ فشل إضافة الشعار: {e}")
 
-    # تحديث قاعدة البيانات
-    Library.edit_book(title, desc, cover_name, pdf_name, book_id)
+    # تحديث قاعدة البيانات (عدد الصفحات يُعاد حسابه فقط عند رفع PDF جديد)
+    page_count = pdf_page_count(os.path.join(UPLOAD_FOLDER, pdf_name)) if pdf and allowed_file(pdf.filename) else _KEEP
+    Library.edit_book(title, desc, cover_name, pdf_name, book_id, author=author, genre=genre, page_count=page_count)
 
     flash("✅ تم تحديث بيانات الكتاب بنجاح", "success")
     return redirect(url_for('admin.manage_library'))

@@ -14,7 +14,7 @@ import os
 from urllib.parse import urlparse
 from psycopg2.extras import RealDictCursor
 import psycopg2.extras
-from app.models.library_mdl import Library
+from app.models.library_mdl import Library, DEFAULT_AUTHOR, LENGTH_BUCKETS, length_bucket
 from app.models.user import User
 from app.models.comments import Comments  # تأكد من استيراد المودل الذي صممناه سابقاً
 from app.models.analytics_model import log_event
@@ -158,6 +158,21 @@ def library():
     if sort == 'discussed':
         books = sorted(books, key=lambda b: comment_counts.get(b['id'], 0), reverse=True)
 
+    # الأكثر تحميلاً هذا الأسبوع: شارة على أول 5 بكل الترتيبات، وترتيب مستقل (sort=week)
+    weekly_top = Library.get_weekly_top(limit=5)
+    if sort == 'week':
+        books = sorted(books, key=lambda b: (weekly_top.get(b['id'], {}).get('rank', 99), -(b['download_count'] or 0)))
+
+    # فلاتر بسيطة: تظهر كل مجموعة فقط إن كان فيها أكثر من قيمة واحدة
+    for b in books:
+        b['author'] = b.get('author') or DEFAULT_AUTHOR
+        b['length'] = length_bucket(b.get('page_count'))
+    filters = {
+        'author': sorted({b['author'] for b in books}),
+        'genre': sorted({b['genre'] for b in books if b.get('genre')}),
+        'length': [(key, label) for key, label, _low, _high in LENGTH_BUCKETS if any(b['length'] == key for b in books)],
+    }
+
     total_downloads = sum(b['download_count'] or 0 for b in books)
     total_comments = sum(comment_counts.values())
     recent_discussions = Comments.get_recent_book_discussions(limit=6)
@@ -172,6 +187,8 @@ def library():
         total_downloads=total_downloads,
         total_comments=total_comments,
         recent_discussions=recent_discussions,
+        weekly_top=weekly_top,
+        filters=filters,
     )
 
 
@@ -458,22 +475,8 @@ def increment_download(book_id):
 @library_bp.route('/library/search')
 def search():
     query = request.args.get('q', '')
-
-    conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-
-    # أضفنا id و cover_path و download_count لتعمل نتائج البحث بنفس كفاءة الصفحة الرئيسية
-    cur.execute("""
-        SELECT id, title, desc_text, pdf_path, cover_path, download_count
-        FROM books
-        WHERE title ILIKE %s
-        ORDER BY id DESC
-    """, (f"%{query}%",))
-
-    books = cur.fetchall()
-
-    cur.close()
-    conn.close()
+    # تطبيع عربي (همزات، تاء مربوطة، تشكيل) في العنوان والمؤلف ثم الوصف
+    books = Library.search(query)
 
     _log_lib_event("book.search", metadata={"query": query, "results_count": len(books)})
 
@@ -494,18 +497,7 @@ def quick_search():
     if len(query) < 2:
         return {"results": []}
 
-    conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("""
-        SELECT id, title, cover_path
-        FROM books
-        WHERE title ILIKE %s
-        ORDER BY download_count DESC NULLS LAST
-        LIMIT 5
-    """, (f"%{query}%",))
-    books = cur.fetchall()
-    cur.close()
-    conn.close()
+    books = Library.search(query, limit=5)
 
     return {"results": [
         {

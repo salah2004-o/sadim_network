@@ -501,7 +501,7 @@
       </div>
 
       <div class="book-meta">
-        <p class="book-author">{{ book.get('author') or 'أجاثا كريستي' }}</p>
+        <p class="book-author">{{ book_author }}{% if book.get('genre') %} · {{ book.genre }}{% endif %}{% if book.get('page_count') %} · {{ book.page_count }} صفحة{% endif %}</p>
         <h1 class="book-title">{{ book['title'] }}</h1>
 
         <div class="primary-actions">

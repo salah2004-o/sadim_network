@@ -12,6 +12,17 @@ def _read_size(full_path, mtime):
         return image.size
 
 
+def pdf_page_count(full_path):
+    """عدد صفحات ملف PDF (لفلتر الطول في المكتبة). None لو تعذّرت القراءة."""
+    try:
+        import fitz
+        with fitz.open(full_path) as doc:
+            return doc.page_count
+    except Exception as e:
+        print(f"Failed to count PDF pages for {full_path}:", e)
+        return None
+
+
 def static_image_size(rel_path):
     """(عرض، ارتفاع) لصورة داخل static — لوسوم og:image:width/height وأبعاد <img> (تمنع CLS).
     يقرأ ترويسة الصورة فقط، مع كاش حسب وقت التعديل. None لو الملف غير موجود أو غير صالح."""
