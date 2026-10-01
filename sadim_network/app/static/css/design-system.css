@@ -60,14 +60,14 @@
     --sd-font-display: "Amiri", "IBM Plex Sans Arabic", Georgia, serif;
     --sd-fs-xs: 0.75rem;
     --sd-fs-sm: 0.85rem;
-    --sd-fs-base: 0.95rem;
+    --sd-fs-base: 1rem;
     --sd-fs-md: 1.05rem;
     --sd-fs-lg: 1.25rem;
     --sd-fs-xl: 1.55rem;
     --sd-fs-2xl: 1.95rem;
     --sd-fs-3xl: 2.55rem;
     --sd-lh-tight: 1.25;
-    --sd-lh-normal: 1.65;
+    --sd-lh-normal: 1.7;
     --sd-lh-loose: 1.9;
     --sd-fw-regular: 400;
     --sd-fw-medium: 500;
@@ -794,7 +794,7 @@ body.reader-page {
 .read-hero__info { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
 .read-hero__title { margin: 0; color: var(--reader-accent); font-family: var(--sd-font-display); font-size: 1.4rem; line-height: 1.4; }
 .read-hero__author { color: var(--reader-text-secondary); font-size: 0.9rem; }
-.read-hero__desc { max-width: 75ch; margin: 0; color: var(--reader-text-secondary); font-size: 0.86rem; line-height: 1.75; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.read-hero__desc { max-width: 75ch; margin: 0; color: var(--reader-text-secondary); font-size: 1rem; line-height: 1.75; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
 .read-hero__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.4rem; }
 .reader-button {
     display: inline-flex;
@@ -1097,7 +1097,7 @@ html[data-reader-theme="sepia"] .reader-canvas { filter: sepia(0.42) saturate(1.
     .read-header__actions .reader-button { min-width: 42px; padding-inline: 0.5rem; }
     .read-hero__cover, .read-hero__cover-placeholder { width: 108px; height: 144px; }
     .read-hero__title { font-size: clamp(1.08rem, 5vw, 1.25rem); }
-    .read-hero__desc { font-size: 0.82rem; }
+    .read-hero__desc { font-size: 1rem; }
     .reader-canvas-wrap { padding-top: 0.7rem; }
     .reader-toolbar { bottom: calc(env(safe-area-inset-bottom, 0px) + 0.45rem); }
     .reader-page-picker { font-size: 0.68rem; }
@@ -1201,3 +1201,13 @@ html[data-reader-theme="sepia"] .reader-page {
 }
 html[data-reader-theme="light"] .reader-page .reader-button--primary,
 html[data-reader-theme="sepia"] .reader-page .reader-button--primary { background: linear-gradient(135deg, #d9bc74, #c4a35a); color: #1b1406; }
+
+/* ==================== الجوال: أهداف لمس ≥ 44px ==================== */
+.sd-navbar-brand { min-height: var(--sd-tap-min); }
+@media (max-width: 860px), (pointer: coarse) {
+    .sd-btn-sm { min-height: var(--sd-tap-min); }
+}
+/* القارئ على شاشات 360px: أزرار الأيقونات وحقل رقم الصفحة لا تقل عن 44px */
+.reader-page .reader-button--icon { min-width: var(--sd-tap-min); }
+.reader-page .reader-page-picker input { min-width: 3rem; }
+.reader-page .read-header__actions .reader-button { min-width: var(--sd-tap-min); }

@@ -1,5 +1,6 @@
 # FILE: app/__init__.py
 # sadim_network/app/__init__.py
+import os
 from flask import Flask, render_template
 from werkzeug.middleware.proxy_fix import ProxyFix
 from app import config
@@ -15,6 +16,33 @@ limiter.init_app(app)
 @app.after_request
 def add_security_headers(response):
     response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    return response
+
+
+@app.url_defaults
+def _version_static_assets(endpoint, values):
+    """?v=<وقت تعديل الملف> لكل CSS/JS من static — كل نشر يغيّر الرابط تلقائياً،
+    فيصير الكاش الطويل آمناً (لا CSS قديم بعد التحديث)."""
+    if endpoint != 'static' or 'v' in values:
+        return
+    filename = values.get('filename') or ''
+    if filename.endswith(('.css', '.js')):
+        try:
+            values['v'] = int(os.path.getmtime(os.path.join(app.static_folder, filename)))
+        except OSError:
+            pass
+
+
+@app.after_request
+def add_static_cache_headers(response):
+    """ملفات static المُرقّمة (?v=) أو المكتبات المثبتة (vendor/) لا تتغير: كاش سنة.
+    الصور والرفع: يوم. (لو كان nginx يخدم /static مباشرة فهذا يُضبط هناك.)"""
+    from flask import request
+    if request.path.startswith('/static/') and response.status_code == 200:
+        if request.args.get('v') or request.path.startswith('/static/vendor/'):
+            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+        else:
+            response.headers['Cache-Control'] = 'public, max-age=86400'
     return response
 
 

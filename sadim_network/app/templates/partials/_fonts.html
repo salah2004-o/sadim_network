@@ -1,0 +1,8 @@
+{# خطوط Google موحّدة لكل الصفحات (رابط واحد = كاش واحد) ولا تمنع رسم الصفحة:
+   النص يظهر فوراً بخط النظام ثم يتبدّل، فلا تبقى الصفحة فارغة على شبكة جوال بطيئة.
+   fonts_cinzel=True للصفحات التي تستخدم شعار SADEEM اللاتيني (المكتبة) #}
+{% set _fonts_url = 'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700' ~ ('&family=Cinzel:wght@700' if fonts_cinzel else '') ~ '&display=swap' %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="{{ _fonts_url }}" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="{{ _fonts_url }}"></noscript>

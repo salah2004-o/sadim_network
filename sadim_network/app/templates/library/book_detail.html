@@ -10,6 +10,8 @@
   {% set book_author = book.get('author') or 'أجاثا كريستي' %}
   {% set book_url_clean = url_for('library.view_book', book_id=book.id, _external=True) %}
   {% with canonical = book_url_clean %}{% include 'partials/_canonical.html' %}{% endwith %}
+  {# الغلاف هو أكبر عنصر في الشاشة الأولى (LCP): يبدأ تحميله مع CSS لا بعده #}
+  <link rel="preload" as="image" href="{{ url_for('library.static', filename='uploads/' + book['cover_path']) }}?v={{ book['id'] }}" fetchpriority="high">
   {% set book_ld = {
     "@context": "https://schema.org",
     "@graph": [
@@ -51,8 +53,8 @@
   {% set og_image_alt = 'غلاف ' ~ book.title %}
   {% set og_twitter_card = 'summary' %}
   {% include 'partials/_og.html' %}
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  {% include 'partials/_fonts.html' %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome-6.5.2/css/all.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
   <style>
@@ -202,6 +204,7 @@
     .cover-wrap img {
       width: 100%;
       max-width: 220px;
+      height: auto;
       border-radius: 6px;
       border: 0.5px solid var(--border);
       display: block;
@@ -246,7 +249,7 @@
       opacity: 0.5;
     }
     .book-desc {
-      font-size: 15px;
+      font-size: 16px;
       color: var(--text-secondary);
       line-height: 2;
       margin-bottom: 2.5rem;
@@ -302,6 +305,7 @@
     .btn-download:hover { opacity: 0.85; }
     
     .btn-back {
+      min-height: 44px;
       background: transparent;
       color: var(--text-secondary);
       border: 0.5px solid var(--border-light);
@@ -330,8 +334,9 @@
       background: var(--bg-secondary);
       color: var(--gold);
       border: 0.5px solid var(--border);
-      padding: 5px 10px;
-      font-size: 12px;
+      min-height: 44px;
+      padding: 0 10px;
+      font-size: 14px;
       border-radius: 4px;
       cursor: pointer;
       outline: none;
@@ -347,7 +352,7 @@
       font-family: inherit;
       resize: none;
       margin-bottom: 1rem;
-      font-size: 13px;
+      font-size: 16px; /* أقل من 16px يجعل iPhone يكبّر الصفحة عند الكتابة */
     }
     .comment-form textarea:focus {
       outline: none;
@@ -395,15 +400,15 @@
     }
     .comment-username {
       color: var(--gold-light);
-      font-size: 12px;
+      font-size: 14px;
       display: flex;
       align-items: center;
       gap: 5px;
     }
     .comment-text {
       color: var(--text-secondary);
-      font-size: 13px;
-      line-height: 1.6;
+      font-size: 16px;
+      line-height: 1.75;
       margin-bottom: 5px;
     }
     .comment-meta-footer {
@@ -413,7 +418,7 @@
     }
     .comment-date {
       color: var(--text-muted);
-      font-size: 10px;
+      font-size: 12px;
     }
     .delete-btn {
       color: var(--text-muted);
@@ -468,7 +473,7 @@
 /* روايات أخرى من المجموعة */
 .related-books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem; }
 .related-book-card { text-decoration: none; display: block; }
-.related-book-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; border-radius: 6px; border: 0.5px solid var(--border); transition: 0.2s; margin-bottom: 8px; }
+.related-book-card img { width: 100%; height: auto; aspect-ratio: 2/3; object-fit: cover; border-radius: 6px; border: 0.5px solid var(--border); transition: 0.2s; margin-bottom: 8px; }
 .related-book-card:hover img { border-color: var(--gold); transform: translateY(-4px); }
 .related-book-card span { color: var(--text-secondary); font-size: 0.8rem; line-height: 1.4; }
 
@@ -480,9 +485,9 @@
   border: 1px solid rgba(124,77,255,0.3); border-radius: 16px; padding: 1.6rem 1.8rem;
 }
 .ecosystem-bridge-inner h4 { color: var(--text); margin: 0 0 6px; font-size: 1.05rem; }
-.ecosystem-bridge-inner p { color: var(--text-secondary); margin: 0; font-size: 0.85rem; }
+.ecosystem-bridge-inner p { color: var(--text-secondary); margin: 0; font-size: 1rem; line-height: 1.7; }
 .btn-bridge {
-  display: inline-flex; align-items: center; gap: 8px; padding: 0.7rem 1.4rem; border-radius: 8px;
+  display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0.7rem 1.4rem; border-radius: 8px;
   background: linear-gradient(135deg, #7c4dff, #b388ff); color: #fff; text-decoration: none;
   font-weight: 700; font-size: 0.85rem; white-space: nowrap; transition: 0.2s;
 }
@@ -490,6 +495,12 @@
 
 @media (max-width: 600px) {
   .ecosystem-bridge-inner { flex-direction: column; text-align: center; }
+  .container { padding: 1.25rem 1rem 2rem; }
+  .book-layout { gap: 1.25rem; }
+  .cover-wrap img { max-width: 150px; margin-inline: auto; }
+  .cover-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 1rem; }
+  .cover-meta > * { margin-top: 0 !important; min-height: 44px; font-size: 14px; }
+  .book-title { font-size: 1.7rem; margin-bottom: 1rem; }
 }
   </style>
 </head>
@@ -502,7 +513,10 @@
     <div class="book-layout">
 
       <div class="cover-wrap">
-        <img src="{{ url_for('library.static', filename='uploads/' + book['cover_path']) }}?v={{ book['id'] }}" alt="{{ book['title'] }}">
+        {% set cover_size = static_image_size('uploads/' ~ book['cover_path']) or (400, 600) %}
+        <img src="{{ url_for('library.static', filename='uploads/' + book['cover_path']) }}?v={{ book['id'] }}" alt="{{ book['title'] }}"
+             width="{{ cover_size[0] }}" height="{{ cover_size[1] }}" fetchpriority="high">
+        <div class="cover-meta">
         <div class="download-badge">
           <i class="fa-solid fa-cloud-arrow-down"></i>
           <span><span id="download-count-number">{{ book['download_count'] or 0 }}</span> تحميل</span>
@@ -517,6 +531,7 @@
                 data-content-type="book" data-content-id="{{ book['id'] }}" data-placement="book_page">
           <i class="fa-solid fa-share-nodes" aria-hidden="true"></i> مشاركة
         </button>
+        </div>
       </div>
 
       <div class="book-meta">
@@ -576,7 +591,7 @@
           <button type="submit" class="btn-download" style="width: 100%; padding: 10px;">نشر التعليق</button>
         </form>
         {% else %}
-        <p class="book-desc" style="font-size: 13px; text-align: center; margin-bottom: 1rem;">
+        <p class="book-desc" style="text-align: center; margin-bottom: 1rem;">
           يرجى <a href="{{ url_for('loading_bp.login') }}" style="color: var(--gold); text-decoration: none;">تسجيل الدخول</a> لترك تعليق.
         </p>
         {% endif %}
@@ -617,7 +632,7 @@
 
           </div>
           {% else %}
-          <p class="book-desc" style="font-size: 13px; text-align: center;">لا توجد تعليقات بعد. كن أول من يضع بصمته.</p>
+          <p class="book-desc" style="text-align: center;">لا توجد تعليقات بعد. كن أول من يضع بصمته.</p>
           {% endfor %}
         </div>
       </div>
@@ -632,7 +647,7 @@
       <div class="related-books-grid">
         {% for rb in other_books %}
         <a href="{{ url_for('library.view_book', book_id=rb.id) }}" class="related-book-card">
-          <img src="{{ url_for('library.static', filename='uploads/' + rb.cover_path) }}?v={{ rb.id }}" alt="{{ rb.title }}">
+          <img src="{{ url_for('library.static', filename='uploads/' + rb.cover_path) }}?v={{ rb.id }}" alt="{{ rb.title }}" width="200" height="300" loading="lazy">
           <span>{{ rb.title }}</span>
         </a>
         {% endfor %}

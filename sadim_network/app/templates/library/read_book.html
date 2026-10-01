@@ -8,10 +8,8 @@
   {# صفحة القارئ عرض للملف فقط — صفحة الكتاب هي الصفحة المفهرَسة #}
   <meta name="robots" content="noindex, follow">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com"/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  {% include 'partials/_fonts.html' %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome-6.5.2/css/all.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js" defer></script>
   <script src="{{ url_for('static', filename='js/sd-track.js') }}" defer></script>

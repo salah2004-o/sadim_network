@@ -8,16 +8,14 @@
 {% block meta_description %}<meta name="description" content="شبكة سديم: روايات أجاثا كريستي مترجمة للقراءة والتحميل مجاناً، ومقالات تقنية، ومساعد ذكاء اصطناعي عربي.">{% endblock %}
 {% block canonical %}{% include 'partials/_canonical.html' %}{% endblock %}
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+{% include 'partials/_fonts.html' %}
+<link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome-6.5.2/css/all.min.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/interactions.css') }}">
 {% if not request.path.startswith('/ai') %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
-<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js" defer></script>
 {% endif %}
 {% block extra_head %}{% endblock %}
 </head>

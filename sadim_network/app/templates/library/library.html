@@ -19,8 +19,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/library.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/ai-float.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    {% with fonts_cinzel = True %}{% include 'partials/_fonts.html' %}{% endwith %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/fontawesome-6.5.2/css/all.min.css') }}">
     <style>body{padding-bottom:calc(64px + env(safe-area-inset-bottom,0px));}</style>
 <style>
     /* الحاوية الخارجية للصورة */
@@ -144,7 +144,7 @@
 
 <!-- ============ Collection Header ============ -->
 <section class="collection-hero">
-    <img src="{{ url_for('library.static', filename='images/اغاثا.webp') }}" alt="Agatha Christie" class="collection-portrait">
+    <img src="{{ url_for('library.static', filename='images/اغاثا.webp') }}" alt="أجاثا كريستي" class="collection-portrait" width="347" height="239" fetchpriority="high">
     <div class="collection-info">
         <div class="collection-kicker">مؤلفة / مجموعة أدبية</div>
         <h1 class="collection-title">أجاثا كريستي — سيدة الغموض</h1>
@@ -220,7 +220,7 @@
             <a href="{{ url_for('library.view_book', book_id=book['id']) }}" style="text-decoration:none;">
                 <div class="cover-container">
                     {% if wk %}<span class="week-badge" title="الأكثر تحميلاً هذا الأسبوع"><i class="fa-solid fa-fire" aria-hidden="true"></i> {{ wk.rank }}<span class="sd-sr-only"> في الأكثر تحميلاً هذا الأسبوع</span></span>{% endif %}
-                    <img src="{{ url_for('library.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" alt="{{ book.title }}" loading="lazy">
+                    <img src="{{ url_for('library.static', filename='uploads/' + book.cover_path) }}?v={{ book.id }}" alt="{{ book.title }}" width="200" height="300" {% if loop.index > 2 %}loading="lazy"{% endif %}>
                 </div>
                 <h3 class="book-title">{{ book.title }}</h3>
             </a>
@@ -236,7 +236,7 @@
             <p class="book-card-desc">
                 {{ book.desc_text | truncate(75) }}
             </p>
-            <a href="{{ url_for('library.view_book', book_id=book['id']) }}">
+            <a href="{{ url_for('library.view_book', book_id=book['id']) }}" class="book-card-more">
                 عرض التفاصيل ←
             </a>
             <a href="{{ url_for('library.download_file', book_id=book.id) }}"

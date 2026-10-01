@@ -659,3 +659,23 @@ def test_book_page_shows_genre_and_pages(client, temp_book):
     conn.close()
     html = client.get(f"/library/{temp_book}", headers=BROWSER_HEADERS).get_data(as_text=True)
     assert "مؤلف تجريبي · مسرحية · 99 صفحة" in html
+
+
+# ==================== المهمة 3: الأداء ====================
+
+def test_static_css_is_versioned_and_long_cached(client):
+    html = client.get("/about", headers=BROWSER_HEADERS).get_data(as_text=True)
+    assert re.search(r'/static/css/design-system\.css\?v=\d+', html)
+    assert "/static/vendor/fontawesome-6.5.2/css/all.min.css" in html
+    assert "cdnjs.cloudflare.com/ajax/libs/font-awesome" not in html
+    assert 'media="print" onload="this.media=\'all\'"' in html          # خطوط Google غير مانعة للرسم
+    r = client.get("/static/css/design-system.css?v=1")
+    assert "immutable" in r.headers["Cache-Control"]
+    r = client.get("/static/images/logo.png")
+    assert r.headers["Cache-Control"] == "public, max-age=86400"
+
+
+def test_book_cover_has_dimensions_and_preload(client, temp_book):
+    html = client.get(f"/library/{temp_book}", headers=BROWSER_HEADERS).get_data(as_text=True)
+    assert 'rel="preload" as="image"' in html
+    assert 'fetchpriority="high"' in html and 'width="400" height="600"' in html

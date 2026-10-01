@@ -700,7 +700,8 @@
     margin: 0;
 
     color: var(--sd-text-secondary);
-    font-size: var(--sd-fs-sm);
+    font-size: var(--sd-fs-base);
+    line-height: 1.7;
 }
 
 
@@ -768,7 +769,7 @@
     }
 
     .sd-articles-hero__description {
-        font-size: var(--sd-fs-sm);
+        font-size: var(--sd-fs-base);
     }
 
     .sd-articles-create {
