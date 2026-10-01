@@ -18,6 +18,7 @@ from app.models.library_mdl import Library
 from app.models.user import User
 from app.models.comments import Comments  # تأكد من استيراد المودل الذي صممناه سابقاً
 from app.models.analytics_model import log_event
+from app.models import shelf_model
 from flask import g
 # إنشاء البلوبرينت مع تحديد مجلد الملفات الثابتة بشكل صريح
 library_bp = Blueprint(
@@ -365,6 +366,7 @@ def _download_page(book_id):
         book=book,
         similar_books=Library.get_similar_books(book_id, limit=2),
         direct_url=url_for('library.download_file', book_id=book_id, direct=1),
+        alerts_on=shelf_model.is_subscribed(session['user_id']) if session.get('user_id') else False,
     )
 
 
@@ -410,7 +412,34 @@ def read_book(book_id):
         "library/read_book.html",
         book=book,
         pdf_url=url_for('library.static', filename='uploads/' + relative_pdf_path),
+        saved_page=shelf_model.get_saved_page(user.id, book_id) if user else None,
     )
+
+
+# =========================
+# رفّي: ما يقرؤه وما حمّله وما أعجبه + تنبيه الكتب الجديدة
+# الزائر يرى ما حمّله من هذا المتصفح، مع سبب واضح للتسجيل
+# =========================
+@library_bp.route('/shelf')
+def shelf():
+    user_id = session.get('user_id')
+    if not user_id:
+        return render_template(
+            "library/shelf.html",
+            is_guest=True,
+            downloaded=shelf_model.get_downloads(session_id=g.get('sd_session_id')),
+        )
+    data = shelf_model.get_shelf(user_id)
+    return render_template("library/shelf.html", is_guest=False, **data)
+
+
+@library_bp.route('/alerts/unsubscribe/<token>')
+def unsubscribe_alerts(token):
+    if shelf_model.unsubscribe_by_token(token):
+        flash("أوقفنا تنبيهات الكتب الجديدة. تقدر تفعّلها مجدداً من رفّك.", "success")
+    else:
+        flash("الرابط غير صالح أو أن التنبيه موقوف مسبقاً.", "info")
+    return redirect(url_for('library.shelf'))
 
 
 # =========================

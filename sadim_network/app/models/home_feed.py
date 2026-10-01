@@ -25,6 +25,7 @@ def get_resume_items(user_id, limit=3):
             SELECT h.content_type,
                    COALESCE(h.book_id, h.article_id) AS content_id,
                    COALESCE(b.title, p.title) AS title,
+                   h.last_page,
                    h.last_updated
             FROM reading_history h
             LEFT JOIN books b ON b.id = h.book_id

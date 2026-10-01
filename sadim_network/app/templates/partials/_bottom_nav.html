@@ -4,10 +4,13 @@
         <i class="fas fa-house" aria-hidden="true"></i>
         <span>الرئيسية</span>
     </a>
+    {% if not session.get('user_id') %}
+    {# العضو يرى "رفّي" مكان "اكتشف" (الشبكة 5 خانات) — اكتشف يبقى في القائمة الجانبية #}
     <a href="{{ url_for('main.discover') }}" class="sd-bottom-nav__item {% if path.startswith('/discover') %}is-active{% endif %}">
         <i class="fas fa-compass" aria-hidden="true"></i>
         <span>اكتشف</span>
     </a>
+    {% endif %}
     <a href="{{ url_for('articles.list_articles') }}" class="sd-bottom-nav__item {% if path.startswith('/articles') %}is-active{% endif %}">
         <i class="fas fa-newspaper" aria-hidden="true"></i>
         <span>المنشورات</span>
@@ -15,6 +18,10 @@
     <a href="{{ url_for('library.library') }}" class="sd-bottom-nav__item {% if path.startswith('/library') %}is-active{% endif %}">
         <i class="fas fa-book-open" aria-hidden="true"></i>
         <span>المكتبة</span>
+    </a>
+    <a href="{{ url_for('library.shelf') }}" class="sd-bottom-nav__item {% if path.startswith('/shelf') %}is-active{% endif %}">
+        <i class="fas fa-bookmark" aria-hidden="true"></i>
+        <span>رفّي</span>
     </a>
     {% if session.get('user_id') %}
     <a href="{{ url_for('loading_bp.account') }}" class="sd-bottom-nav__item {% if path.startswith('/account') %}is-active{% endif %}">

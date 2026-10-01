@@ -7,8 +7,11 @@ from utlis.login_required import login_required
 from app.utlis.apply_sadim_brand import apply_sadim_brand
 
 import psycopg2
+import threading
 import time
 import os
+from app.config import settings
+from app.models import shelf_model
 from flask import render_template, request, redirect, url_for, flash
 from models.library_mdl import Library
 # ==========================================
@@ -65,8 +68,16 @@ def add_book_to_library():
             print(f"⚠️ فشل إضافة الشعار: {e}")
 
         # حفظ البيانات (العنوان العربي سيحفظ في خانة title)
-        Library.add_book(title, desc, pdf_name, cover_name)
+        book_id = Library.add_book(title, desc, pdf_name, cover_name)
 
+        # تنبيه المشتركين بالبريد في خيط خلفي — لا يؤخّر رد لوحة الإدارة ولا يكسرها لو فشل
+        app_url = (settings.APP_URL or request.url_root).rstrip('/')
+        threading.Thread(
+            target=shelf_model.notify_new_book,
+            args=(title, f"{app_url}{url_for('library.view_book', book_id=book_id)}",
+                  f"{app_url}{url_for('static', filename='uploads/' + cover_name)}", app_url),
+            daemon=True,
+        ).start()
 
         flash("✅ تم رفع الرواية بنجاح!", "success")
     else:

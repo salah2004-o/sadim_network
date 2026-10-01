@@ -10,13 +10,15 @@ class Library:
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute(
-            "INSERT INTO books (title, desc_text, pdf_path, cover_path) VALUES (%s, %s, %s, %s)",
-            (title, desc, pdf_name, cover_name) # title هنا هو الاسم العربي الذي أدخلته في الفورم   
+            "INSERT INTO books (title, desc_text, pdf_path, cover_path) VALUES (%s, %s, %s, %s) RETURNING id",
+            (title, desc, pdf_name, cover_name) # title هنا هو الاسم العربي الذي أدخلته في الفورم
         )
+        book_id = cur.fetchone()[0]
 
         conn.commit()
         cur.close()
         conn.close()
+        return book_id
 
 
     @staticmethod

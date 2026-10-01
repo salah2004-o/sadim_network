@@ -14,6 +14,8 @@ from werkzeug.utils import secure_filename
 from werkzeug.utils import secure_filename
 from PIL import Image
 from app.models.analytics_model import log_event, end_session, SESSION_COOKIE_NAME
+from app.models import shelf_model
+from urllib.parse import urlparse
 
 loading_bp = Blueprint('loading_bp', __name__)
 
@@ -83,14 +85,46 @@ def login():
     except Exception as e:
         return render_template("auth/login.html", error="حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.")
     
+def _safe_next(target):
+    """مسار داخلي فقط (يبدأ بـ / وليس //) — يمنع استخدام next لإعادة توجيه لموقع خارجي."""
+    if not target or not isinstance(target, str) or len(target) > 500:
+        return None
+    if not target.startswith('/') or target.startswith('//') or '\\' in target:
+        return None
+    parsed = urlparse(target)
+    if parsed.scheme or parsed.netloc:
+        return None
+    return target
+
+
+_LOGIN_SOURCE_CHARS = set("abcdefghijklmnopqrstuvwxyz_")
+
+
 @loading_bp.route('/auth/google')
 def google_login():
+    # next: يرجع المستخدم لنفس الكتاب/صفحة القارئ بعد التسجيل بدل صفحة الخدمات
+    # intent=book_alerts: يفعّل تنبيه الكتب الجديدة مباشرة بعد التسجيل (بلا خطوة إضافية)
+    # src: مكان دعوة التسجيل — يُضاف لـ metadata حدث auth.register/auth.login.success
+    for key in ('login_next', 'login_intent', 'login_src'):
+        session.pop(key, None)
+    next_url = _safe_next(request.args.get('next'))
+    if next_url:
+        session['login_next'] = next_url
+    if request.args.get('intent') == 'book_alerts':
+        session['login_intent'] = 'book_alerts'
+    src = (request.args.get('src') or '')[:40]
+    if src and set(src) <= _LOGIN_SOURCE_CHARS:
+        session['login_src'] = src
     redirect_uri = url_for('loading_bp.google_auth_callback', _external=True)
     return google_oauth.authorize_redirect(redirect_uri)
 
 
 @loading_bp.route('/auth/google/callback')
 def google_auth_callback():
+    # تُقرأ قبل session.clear() أدناه
+    next_url = session.pop('login_next', None)
+    intent = session.pop('login_intent', None)
+    src = session.pop('login_src', None)
     try:
         token = google_oauth.authorize_access_token()
         user_info = token.get('userinfo')
@@ -130,11 +164,23 @@ def google_auth_callback():
         session['username'] = username
         session['email'] = email
 
+        auth_metadata = {"email": email, "method": "google"}
+        if src:
+            auth_metadata["source"] = src
         if is_new_user:
-            _log_auth_event("auth.register", user_id=user_id, metadata={"email": email, "method": "google"})
+            _log_auth_event("auth.register", user_id=user_id, metadata=auth_metadata)
         else:
-            _log_auth_event("auth.login.success", user_id=user_id, metadata={"email": email, "method": "google"})
+            _log_auth_event("auth.login.success", user_id=user_id, metadata=auth_metadata)
 
+        if intent == 'book_alerts':
+            try:
+                shelf_model.subscribe(user_id)
+                flash('فعّلنا تنبيه الكتب الجديدة — سنراسلك على بريدك عند إضافة رواية.', 'success')
+            except Exception as e:
+                print('Failed to subscribe to book alerts:', e)
+
+        if next_url:
+            return redirect(next_url)
         if role == 'admin':
             return redirect(url_for('admin.services_dashboard'))
         else:

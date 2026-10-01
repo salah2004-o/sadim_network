@@ -1,0 +1,125 @@
+{% extends "layouts/public.html" %}
+{% block title %}رفّي — شبكة سديم{% endblock %}
+{% block meta_description %}<meta name="description" content="رفّك في شبكة سديم: الكتب التي تقرؤها وحمّلتها وأعجبتك، ومكانك في القراءة محفوظ على كل أجهزتك.">{% endblock %}
+
+{% macro book_card(book, href, meta='') %}
+<a class="shelf-card" href="{{ href }}">
+  <img src="{{ url_for('library.static', filename='uploads/' + book.cover_path) }}" alt="" width="200" height="300" loading="lazy">
+  <span class="shelf-card__title">{{ book.title }}</span>
+  {% if meta %}<span class="shelf-card__meta">{{ meta }}</span>{% endif %}
+</a>
+{% endmacro %}
+
+{% block extra_head %}
+<meta name="robots" content="noindex, follow">
+<style>
+.shelf { max-width: 860px; margin: 0 auto; padding: var(--sd-sp-4) var(--sd-sp-4) var(--sd-sp-12); display: flex; flex-direction: column; gap: var(--sd-sp-8); }
+.shelf h1 { margin: 0; font-family: var(--sd-font-display); font-size: 1.9rem; color: var(--sd-accent-light); }
+.shelf h2 { margin: 0 0 var(--sd-sp-3); font-size: 1.15rem; color: var(--sd-text); display: flex; align-items: center; gap: var(--sd-sp-2); }
+.shelf h2 i { color: var(--sd-accent); }
+.shelf-lead { margin: var(--sd-sp-2) 0 0; font-size: 1rem; line-height: 1.8; color: var(--sd-text-secondary); }
+.shelf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: var(--sd-sp-4) var(--sd-sp-3); }
+.shelf-card { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--sd-text); min-width: 0; }
+.shelf-card img { width: 100%; height: auto; aspect-ratio: 2 / 3; object-fit: cover; border-radius: var(--sd-radius-md); border: 1px solid var(--sd-border); background: var(--sd-bg-elevated-2); }
+.shelf-card__title { font-size: 0.95rem; line-height: 1.5; }
+.shelf-card__meta { font-size: 0.8rem; color: var(--sd-text-muted); }
+.shelf-reading { display: flex; flex-direction: column; gap: var(--sd-sp-3); }
+.shelf-progress { display: grid; grid-template-columns: 64px 1fr; gap: var(--sd-sp-3); align-items: center; padding: var(--sd-sp-3); border-radius: var(--sd-radius-lg); background: var(--sd-bg-elevated); border: 1px solid var(--sd-border); text-decoration: none; color: var(--sd-text); }
+.shelf-progress img { width: 64px; height: 96px; object-fit: cover; border-radius: var(--sd-radius-sm); }
+.shelf-progress__title { display: block; font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+.shelf-progress__meta { display: block; font-size: 0.85rem; color: var(--sd-text-secondary); margin-bottom: 8px; }
+.shelf-progress__bar { display: block; height: 6px; border-radius: 99px; background: var(--sd-bg-elevated-2); overflow: hidden; }
+.shelf-progress__bar span { display: block; height: 100%; background: var(--sd-gradient); }
+.shelf-perks { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sd-sp-3); }
+.shelf-perks li { display: grid; grid-template-columns: 40px 1fr; gap: var(--sd-sp-3); align-items: start; padding: var(--sd-sp-3); border-radius: var(--sd-radius-lg); background: var(--sd-bg-elevated); border: 1px solid var(--sd-border); }
+.shelf-perks i { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--sd-accent-soft); color: var(--sd-accent-light); }
+.shelf-perks b { display: block; margin-bottom: 2px; font-size: 1rem; }
+.shelf-perks span { font-size: 0.95rem; line-height: 1.7; color: var(--sd-text-secondary); }
+.shelf-empty { padding: var(--sd-sp-6); text-align: center; border: 1px dashed var(--sd-border-strong); border-radius: var(--sd-radius-lg); color: var(--sd-text-secondary); line-height: 1.8; }
+.shelf-empty a { color: var(--sd-accent-light); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="shelf">
+{% if is_guest %}
+  <header>
+    <h1>رفّك في سديم</h1>
+    <p class="shelf-lead">مكان واحد لكل كتبك: ما تقرؤه، وما حمّلته، وما أعجبك. يحتاج فقط تسجيلاً بحساب Google.</p>
+  </header>
+
+  {% if downloaded %}
+  <section aria-labelledby="guest-dl-title">
+    <h2 id="guest-dl-title"><i class="fas fa-download" aria-hidden="true"></i> حمّلتها من هذا الجهاز</h2>
+    <div class="shelf-grid">
+      {% for book in downloaded %}{{ book_card(book, url_for('library.view_book', book_id=book.id)) }}{% endfor %}
+    </div>
+    <p class="shelf-lead">سجّل لتبقى هذه الكتب في رفّك على كل أجهزتك.</p>
+  </section>
+  {% endif %}
+
+  <ul class="shelf-perks">
+    <li><i class="fas fa-bookmark" aria-hidden="true"></i><div><b>احفظ مكانك في القراءة</b><span>أغلق القارئ وارجع لاحقاً من الجوال أو الكمبيوتر، وتكمل من نفس الصفحة.</span></div></li>
+    <li><i class="fas fa-book" aria-hidden="true"></i><div><b>رفّك الخاص</b><span>كل ما حمّلته وأعجبك في مكان واحد، حتى ما حمّلته قبل التسجيل.</span></div></li>
+    <li><i class="fas fa-bell" aria-hidden="true"></i><div><b>نبّهني بالجديد</b><span>بريد قصير عند إضافة رواية جديدة للمكتبة، وتوقفه متى شئت.</span></div></li>
+  </ul>
+
+  <a class="sd-google-btn" href="{{ url_for('loading_bp.google_login', next=url_for('library.shelf'), src='shelf_page') }}"
+     data-signup-cta data-placement="shelf_page" data-value="shelf">
+    {% include 'partials/_google_g.html' %} المتابعة بحساب Google
+  </a>
+{% else %}
+  <header>
+    <h1>رفّي</h1>
+    <p class="shelf-lead">كتبك ومكانك في القراءة، محفوظة على كل أجهزتك.</p>
+  </header>
+
+  {% with alert_placement = 'shelf_page', alerts_on = alerts %}{% include 'partials/_book_alert_cta.html' %}{% endwith %}
+
+  {% if not reading and not downloaded and not liked %}
+  <div class="shelf-empty">
+    رفّك فارغ حالياً. ابدأ القراءة من <a href="{{ url_for('library.library') }}">المكتبة</a>، وكل كتاب تفتحه أو تحمّله أو يعجبك يُضاف هنا.
+  </div>
+  {% endif %}
+
+  {% if reading %}
+  <section aria-labelledby="shelf-reading-title">
+    <h2 id="shelf-reading-title"><i class="fas fa-book-open-reader" aria-hidden="true"></i> أكمل القراءة</h2>
+    <div class="shelf-reading">
+      {% for book in reading %}
+      {% set percent = ((book.last_page / book.total_pages) * 100)|round|int if book.last_page and book.total_pages else 0 %}
+      <a class="shelf-progress" href="{{ url_for('library.read_book', book_id=book.id) }}">
+        <img src="{{ url_for('library.static', filename='uploads/' + book.cover_path) }}" alt="" width="64" height="96" loading="lazy">
+        <span>
+          <span class="shelf-progress__title">{{ book.title }}</span>
+          <span class="shelf-progress__meta">
+            {% if book.status == 'finished' %}أنهيتها{% elif book.last_page %}الصفحة {{ book.last_page }} من {{ book.total_pages }} · {{ percent }}%{% else %}بدأتها{% endif %}
+          </span>
+          <span class="shelf-progress__bar" aria-hidden="true"><span style="width: {{ 100 if book.status == 'finished' else percent }}%"></span></span>
+        </span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if downloaded %}
+  <section aria-labelledby="shelf-dl-title">
+    <h2 id="shelf-dl-title"><i class="fas fa-download" aria-hidden="true"></i> حمّلتها</h2>
+    <div class="shelf-grid">
+      {% for book in downloaded %}{{ book_card(book, url_for('library.view_book', book_id=book.id)) }}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if liked %}
+  <section aria-labelledby="shelf-liked-title">
+    <h2 id="shelf-liked-title"><i class="fas fa-heart" aria-hidden="true"></i> أعجبتك</h2>
+    <div class="shelf-grid">
+      {% for book in liked %}{{ book_card(book, url_for('library.view_book', book_id=book.id)) }}{% endfor %}
+    </div>
+  </section>
+  {% endif %}
+{% endif %}
+</div>
+{% endblock %}

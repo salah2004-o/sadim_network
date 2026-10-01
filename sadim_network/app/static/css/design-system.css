@@ -1077,3 +1077,51 @@ html[data-reader-theme="sepia"] .reader-canvas { filter: sepia(0.42) saturate(1.
     .reader-page .reader-sheet,
     .reader-page .reader-outline { transition: none !important; }
 }
+
+/* ==================== دعوة التسجيل (Bottom sheet غير مانع) + زر Google ==================== */
+.sd-google-btn {
+    display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+    min-height: 52px; padding: 0 1.25rem; border-radius: var(--sd-radius-md);
+    background: #fff; color: #1f1f1f; border: 1px solid #dadce0;
+    font-family: var(--sd-font); font-size: 1rem; font-weight: 600; text-decoration: none;
+}
+.sd-google-btn:hover { background: #f5f7fa; }
+.reader-page .sd-google-btn { color: #1f1f1f; } /* يتجاوز .reader-page a { color: inherit } */
+.sd-google-btn svg { width: 20px; height: 20px; flex: none; }
+
+.sd-signup-sheet {
+    position: fixed; z-index: var(--sd-z-modal);
+    inset-inline: 0.75rem;
+    inset-block-end: calc(var(--sd-signup-offset, var(--sd-bottom-nav-h)) + env(safe-area-inset-bottom, 0px) + 0.75rem);
+    max-width: 440px; margin-inline: auto;
+    padding: 1.25rem 1.1rem 1rem;
+    background: var(--sd-bg-elevated); color: var(--sd-text);
+    border: 1px solid var(--sd-border-strong); border-radius: var(--sd-radius-xl);
+    box-shadow: var(--sd-shadow-lg);
+    font-family: var(--sd-font);
+    transform: translateY(16px); opacity: 0; transition: transform 0.22s ease, opacity 0.22s ease;
+}
+.sd-signup-sheet.is-open { transform: none; opacity: 1; }
+.sd-signup-sheet__close {
+    position: absolute; inset-block-start: 0.4rem; inset-inline-end: 0.4rem;
+    width: 44px; height: 44px; border: none; background: transparent; color: var(--sd-text-muted);
+    font-size: 1.1rem; cursor: pointer; border-radius: 50%;
+}
+.sd-signup-sheet__title { margin: 0 0 0.35rem; padding-inline-end: 2.5rem; font-family: var(--sd-font-display); font-size: 1.3rem; line-height: 1.45; color: var(--sd-accent-light); }
+.sd-signup-sheet__body { margin: 0 0 0.75rem; font-size: 1rem; line-height: 1.7; color: var(--sd-text-secondary); }
+.sd-signup-sheet__perks { list-style: none; margin: 0 0 1rem; padding: 0; display: grid; gap: 0.35rem; font-size: 0.95rem; line-height: 1.6; color: var(--sd-text); }
+.sd-signup-sheet__perks i { width: 1.4rem; color: var(--sd-accent); text-align: center; }
+.sd-signup-sheet__later {
+    display: block; width: 100%; min-height: 44px; margin-top: 0.35rem;
+    border: none; background: transparent; color: var(--sd-text-secondary);
+    font-family: inherit; font-size: 0.95rem; cursor: pointer;
+}
+.sd-signup-sheet__note { margin: 0.1rem 0 0; text-align: center; font-size: 0.8rem; color: var(--sd-text-muted); }
+.reader-page { --sd-signup-offset: 5rem; }
+@media (min-width: 861px) {
+    .sd-signup-sheet { inset-inline: auto 1.5rem; width: 440px; }
+    body:not(.reader-page) .sd-signup-sheet { --sd-signup-offset: 0px; }
+}
+@media (prefers-reduced-motion: reduce) { .sd-signup-sheet { transition: none; } }
+.sd-alert-toggle { width: 100%; min-height: 44px; color: var(--sd-accent-light); border: 1px dashed var(--sd-accent-soft-strong); font-size: 0.95rem; white-space: normal; text-align: center; line-height: 1.5; }
+.sd-alert-toggle[aria-pressed="true"] { border-style: solid; background: var(--sd-accent-soft); }

@@ -510,6 +510,19 @@ def create_tables():
     cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_user_favorite_article ON user_favorites(user_id, article_id) WHERE content_type = 'article';")
     cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_reading_book ON reading_history(user_id, book_id) WHERE content_type = 'book';")
     cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS uq_reading_article ON reading_history(user_id, article_id) WHERE content_type = 'article';")
+    # "احفظ مكانك": آخر صفحة وصلها القارئ — تتزامن من القارئ لتكمل من نفس الصفحة على أي جهاز
+    cur.execute("ALTER TABLE reading_history ADD COLUMN IF NOT EXISTS last_page INTEGER;")
+    cur.execute("ALTER TABLE reading_history ADD COLUMN IF NOT EXISTS total_pages INTEGER;")
+
+#----------BOOK ALERT SUBSCRIPTIONS (نبّهني عند إضافة كتاب جديد — بريد إلكتروني)----------#
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS book_alert_subscriptions (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            unsubscribe_token VARCHAR(64) UNIQUE NOT NULL,
+            created_at TIMESTAMP DEFAULT NOW()
+        );
+    """)
 
 #----------BOOK LIKES TABLE (إعجاب منفصل عن المفضلة)----------#
     cur.execute("""

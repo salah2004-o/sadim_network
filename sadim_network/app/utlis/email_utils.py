@@ -106,3 +106,24 @@ def send_bot_limit_reminder_email(to_email, username, days_left, expires_at, is_
 
 
 # لم اكتبه بنفسي بل كتبه ai 
+
+def send_new_book_email(to_email, book_title, book_url, cover_url, unsubscribe_url):
+    """تنبيه "رواية جديدة في المكتبة" للمشتركين — بنفس غلاف إيميلات سديم، مع رابط إلغاء بضغطة واحدة."""
+    from html import escape
+    title = escape(book_title)
+    body = f"""
+              <p>أُضيفت للتو رواية جديدة إلى مكتبة سديم:</p>
+              <div style="text-align:center; margin:24px 0;">
+                <img src="{escape(cover_url)}" alt="{title}" width="160" style="border-radius:8px; max-width:160px;">
+                <h3 style="margin:16px 0 0; color:#2b124c;">{title}</h3>
+              </div>
+              <div style="text-align:center; margin:24px 0;">
+                <a href="{escape(book_url)}" style="background:#854f6c; color:#ffffff; padding:15px 35px; text-decoration:none; border-radius:10px; display:inline-block; font-weight:bold;">اقرأها الآن</a>
+              </div>
+              <p style="font-size:12px; color:#666; border-top:1px solid #eee; padding-top:20px;">
+                وصلتك هذه الرسالة لأنك فعّلت تنبيه الكتب الجديدة من رفّك في سديم.
+                <a href="{escape(unsubscribe_url)}" style="color:#854f6c;">إيقاف التنبيهات</a>
+              </p>
+    """
+    html = _sadeem_email_shell("رواية جديدة في المكتبة 📚", body)
+    return _send_email(to_email, f'رواية جديدة: {book_title} — شبكة سديم', html)

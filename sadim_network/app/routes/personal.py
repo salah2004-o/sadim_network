@@ -2,6 +2,8 @@ from flask import Blueprint, jsonify, request, session
 
 from app.db.sadim_db import get_db_connection
 from app.utlis.login_required import login_required
+from app.limiter import limiter
+from app.models import shelf_model
 
 personal_bp = Blueprint('personal', __name__, url_prefix='/api/personal')
 
@@ -60,3 +62,30 @@ def reading():
         return jsonify({'status': status})
     finally:
         conn.close()
+
+@personal_bp.route('/progress', methods=['POST'])
+@login_required
+@limiter.limit("60 per minute", key_func=lambda: str(session.get('user_id')))
+def reading_progress():
+    """"احفظ مكانك": القارئ يرسل آخر صفحة (مع debounce) لتكمل منها على أي جهاز."""
+    data = request.get_json(silent=True) or {}
+    try:
+        book_id = int(data.get('book_id'))
+        page = int(data.get('page'))
+        total_pages = int(data.get('total_pages'))
+        if page < 1 or total_pages < 1 or page > total_pages or total_pages > 20000:
+            raise ValueError
+    except (ValueError, TypeError):
+        return jsonify({'error': 'invalid_progress'}), 400
+    status = shelf_model.save_progress(session['user_id'], book_id, page, total_pages)
+    return jsonify({'page': page, 'status': status})
+
+
+@personal_bp.route('/book-alerts', methods=['POST', 'DELETE'])
+@login_required
+def book_alerts():
+    if request.method == 'POST':
+        shelf_model.subscribe(session['user_id'])
+    else:
+        shelf_model.unsubscribe(session['user_id'])
+    return jsonify({'subscribed': request.method == 'POST'})

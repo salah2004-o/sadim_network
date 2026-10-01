@@ -533,8 +533,9 @@
             <i class="fa-{{ 'solid' if user_has_liked else 'regular' }} fa-heart"></i> <span id="like-label">{{ 'أعجبت' if user_has_liked else 'إعجاب' }}</span> (<span id="like-count">{{ likes_count }}</span>)
           </button>
           {% else %}
-          <a href="{{ url_for('loading_bp.login') }}" class="btn-back">
-            <i class="fa-regular fa-heart"></i> سجّل دخولك لتعجب (<span id="like-count">{{ likes_count }}</span>)
+          <a href="{{ url_for('loading_bp.google_login', next=url_for('library.view_book', book_id=book['id']), src='book_like') }}" class="btn-back"
+             data-signup-cta data-placement="book_like" data-value="shelf">
+            <i class="fa-regular fa-heart"></i> سجّل لتعجب وتحفظها في رفّك (<span id="like-count">{{ likes_count }}</span>)
           </a>
           {% endif %}
           {% if session.get('user_id') %}<button type="button" class="btn-back" data-content-type="book" data-content-id="{{ book['id'] }}" onclick="toggleFavorite(this)"><i class="fa-regular fa-bookmark"></i> أضف للمفضلة</button><button type="button" class="btn-back" onclick="setReading('finished')"><i class="fa-solid fa-check"></i> أنهيت القراءة</button>{% endif %}
@@ -655,6 +656,7 @@
   </script>
   <script src="{{ url_for('static', filename='js/sd-track.js') }}" defer></script>
   <script src="{{ url_for('static', filename='js/sd-share.js') }}" defer></script>
+  {% include 'partials/_signup_prompt.html' %}
 {% if session.get('user_id') %}<script>
 function toggleFavorite(button){fetch('/api/personal/favorite',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'book',content_id:{{ book['id'] }}})}).then(r=>{if(!r.ok)throw Error();button.innerHTML='<i class="fa-solid fa-bookmark"></i> تمت الإضافة';button.disabled=true;}).catch(()=>{});}
 function setReading(status){fetch('/api/personal/reading',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content_type:'book',content_id:{{ book['id'] }},status})});}

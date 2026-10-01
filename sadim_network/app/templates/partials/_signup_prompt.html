@@ -1,0 +1,20 @@
+{# دعوة التسجيل للزوار فقط — تُفتح من sd-engage.js في لحظة الحاجة (التحميل الثاني / الخروج من القارئ)،
+   لا عند الدخول. النص يُملأ حسب المكان. #}
+{% if not session.get('user_id') %}
+<div class="sd-signup-sheet" id="sd-signup-sheet" role="dialog" aria-labelledby="sd-signup-title" aria-describedby="sd-signup-body" hidden>
+  <button type="button" class="sd-signup-sheet__close" data-signup-dismiss aria-label="إغلاق"><i class="fas fa-xmark" aria-hidden="true"></i></button>
+  <h2 class="sd-signup-sheet__title" id="sd-signup-title"></h2>
+  <p class="sd-signup-sheet__body" id="sd-signup-body"></p>
+  <ul class="sd-signup-sheet__perks">
+    <li><i class="fas fa-bookmark" aria-hidden="true"></i> مكانك في القراءة محفوظ على كل أجهزتك</li>
+    <li><i class="fas fa-book" aria-hidden="true"></i> رفّ بكل ما حمّلته وأعجبك</li>
+    <li><i class="fas fa-bell" aria-hidden="true"></i> بريد عند إضافة رواية جديدة (اختياري)</li>
+  </ul>
+  <a class="sd-google-btn" href="{{ url_for('loading_bp.google_login') }}" data-signup-sheet-cta>
+    {% include 'partials/_google_g.html' %} المتابعة بحساب Google
+  </a>
+  <button type="button" class="sd-signup-sheet__later" data-signup-dismiss>ليس الآن</button>
+  <p class="sd-signup-sheet__note">بضغطة واحدة، بلا كلمة مرور ولا حقول إضافية.</p>
+</div>
+<script src="{{ url_for('static', filename='js/sd-engage.js') }}" defer></script>
+{% endif %}

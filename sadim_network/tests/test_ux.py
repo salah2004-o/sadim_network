@@ -386,3 +386,172 @@ def test_download_page_canonical_points_to_book(client, temp_book):
     html = client.get(f"/library/{temp_book}/download", headers=EXTERNAL_NAV).get_data(as_text=True)
     assert f'<link rel="canonical" href="http://localhost/library/{temp_book}">' in html
     assert 'content="noindex, follow"' in html
+
+
+# ==================== المهمة 2: سبب حقيقي للتسجيل ====================
+
+def _post_json(client, url, payload, method="post"):
+    return getattr(client, method)(url, data=json.dumps(payload), content_type="application/json", headers=BROWSER_HEADERS)
+
+
+def test_reading_progress_is_saved_and_restored_in_reader(client, temp_user, temp_book):
+    _login(client, temp_user)
+    r = _post_json(client, "/api/personal/progress", {"book_id": temp_book, "page": 37, "total_pages": 120})
+    assert r.status_code == 200 and r.get_json()["status"] == "reading"
+    html = client.get(f"/library/{temp_book}/read", headers=BROWSER_HEADERS).get_data(as_text=True)
+    assert 'data-saved-page="37"' in html
+    assert 'data-logged-in="1"' in html
+    assert 'id="sd-signup-sheet"' not in html            # لا دعوة تسجيل لعضو
+
+
+def test_reaching_last_page_marks_book_finished(client, temp_user, temp_book):
+    _login(client, temp_user)
+    r = _post_json(client, "/api/personal/progress", {"book_id": temp_book, "page": 120, "total_pages": 120})
+    assert r.get_json()["status"] == "finished"
+
+
+def test_invalid_progress_is_rejected(client, temp_user, temp_book):
+    _login(client, temp_user)
+    r = _post_json(client, "/api/personal/progress", {"book_id": temp_book, "page": 200, "total_pages": 120})
+    assert r.status_code == 400
+
+
+def test_progress_api_does_not_count_pageviews(client, temp_user, temp_book):
+    _login(client, temp_user)
+    client.get("/", headers=BROWSER_HEADERS)
+    before = _sessions()[0][4]
+    _post_json(client, "/api/personal/progress", {"book_id": temp_book, "page": 2, "total_pages": 10})
+    assert _sessions()[0][4] == before
+
+
+def test_guest_reader_has_signup_sheet_and_no_saved_page(client, temp_book):
+    html = client.get(f"/library/{temp_book}/read", headers=BROWSER_HEADERS).get_data(as_text=True)
+    assert 'id="sd-signup-sheet"' in html
+    assert 'data-saved-page=""' in html and 'data-logged-in="0"' in html
+
+
+def test_guest_shelf_shows_this_browser_downloads(client, temp_book):
+    client.get(f"/library/{temp_book}/download", headers={**BROWSER_HEADERS, "Sec-Fetch-Dest": "document", "Sec-Fetch-Site": "same-origin"})
+    html = client.get("/shelf", headers=BROWSER_HEADERS).get_data(as_text=True)
+    assert "PYTEST_TEST_BOOK" in html
+    assert 'data-placement="shelf_page"' in html
+
+
+def test_downloads_before_signup_appear_on_member_shelf(client, temp_user, temp_book):
+    # زائر يحمّل، ثم يسجّل دخوله في نفس المتصفح: الجلسة التحليلية تُربط بحسابه
+    client.get(f"/library/{temp_book}/download", headers={**BROWSER_HEADERS, "Sec-Fetch-Dest": "document", "Sec-Fetch-Site": "same-origin"})
+    _login(client, temp_user)
+    client.get("/", headers=BROWSER_HEADERS)
+    html = client.get("/shelf", headers=BROWSER_HEADERS).get_data(as_text=True)
+    assert "حمّلتها" in html and "PYTEST_TEST_BOOK" in html
+
+
+def test_book_alerts_subscribe_and_unsubscribe_by_token(client, temp_user):
+    from app.models import shelf_model
+    _login(client, temp_user)
+    assert client.post("/api/personal/book-alerts", headers=BROWSER_HEADERS).get_json() == {"subscribed": True}
+    assert shelf_model.is_subscribed(temp_user)
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT unsubscribe_token FROM book_alert_subscriptions WHERE user_id = %s", (temp_user,))
+    token = cur.fetchone()[0]
+    cur.close()
+    conn.close()
+    client.get(f"/alerts/unsubscribe/{token}", headers=BROWSER_HEADERS)
+    assert not shelf_model.is_subscribed(temp_user)
+
+
+def test_new_book_notification_reaches_subscribers(temp_user, monkeypatch):
+    from app.models import shelf_model
+    sent = []
+    monkeypatch.setattr("app.utlis.email_utils.send_new_book_email",
+                        lambda email, title, url, cover, unsub: sent.append((email, title, unsub)) or True)
+    shelf_model.subscribe(temp_user)
+    assert shelf_model.notify_new_book("رواية جديدة", "https://x/library/1", "https://x/c.jpg", "https://x") == 1
+    assert sent[0][0] == "pytest_analytics_user@example.com"
+    assert sent[0][2].startswith("https://x/alerts/unsubscribe/")
+
+
+class _FakeRedirect:
+    def __call__(self, redirect_uri):
+        from flask import redirect
+        return redirect("https://accounts.google.com/o/oauth2/auth")
+
+
+def test_google_login_keeps_only_internal_next(client, monkeypatch):
+    monkeypatch.setattr("app.routes.loding.google_oauth.authorize_redirect", _FakeRedirect())
+    client.get("/auth/google?next=/library/5/read&src=reader_exit&intent=book_alerts", headers=BROWSER_HEADERS)
+    with client.session_transaction() as sess:
+        assert sess["login_next"] == "/library/5/read"
+        assert sess["login_src"] == "reader_exit"
+        assert sess["login_intent"] == "book_alerts"
+    for evil in ("//evil.com", "https://evil.com", r"/\evil.com"):
+        client.get(f"/auth/google?next={evil}", headers=BROWSER_HEADERS)
+        with client.session_transaction() as sess:
+            assert "login_next" not in sess
+
+
+def test_google_signup_returns_to_next_with_source_and_alerts(client, monkeypatch):
+    from app.models import shelf_model
+    monkeypatch.setattr("app.routes.loding.google_oauth.authorize_redirect", _FakeRedirect())
+    monkeypatch.setattr("app.routes.loding.google_oauth.authorize_access_token", lambda: {"userinfo": {
+        "email": "pytest_google_signup@example.com", "sub": "pytest-google-sub", "name": "Google Tester", "picture": ""}})
+    client.get("/auth/google?next=/shelf&src=download_page&intent=book_alerts", headers=BROWSER_HEADERS)
+    try:
+        r = client.get("/auth/google/callback", headers=BROWSER_HEADERS)
+        assert r.status_code == 302 and r.headers["Location"].endswith("/shelf")
+        rows = _events(event_type="auth.register")
+        assert len(rows) == 1 and rows[0][5]["source"] == "download_page"
+        assert shelf_model.is_subscribed(rows[0][1])
+    finally:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("DELETE FROM users WHERE email = 'pytest_google_signup@example.com'")
+        conn.commit()
+        cur.close()
+        conn.close()
+
+
+def test_book_page_guest_like_goes_through_google_with_next(client, temp_book):
+    html = client.get(f"/library/{temp_book}", headers=BROWSER_HEADERS).get_data(as_text=True)
+    assert f"/auth/google?next=/library/{temp_book}&amp;src=book_like" in html
+    assert 'id="sd-signup-sheet"' in html
+
+
+def test_admin_adding_book_triggers_alert_thread(client, temp_user, monkeypatch):
+    import io as _io
+    import threading as _threading
+    from app.routes.shared import UPLOAD_FOLDER
+    calls = []
+    monkeypatch.setattr("app.models.shelf_model.notify_new_book", lambda *args: calls.append(args))
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("UPDATE users SET role = 'admin' WHERE id = %s", (temp_user,))
+    conn.commit()
+    with client.session_transaction() as sess:
+        sess["user_id"] = temp_user
+        sess["role"] = "admin"
+    r = client.post("/dashboard/library/add", data={
+        "title": "PYTEST_ALERT_BOOK", "desc": "وصف",
+        "pdf_file": (_io.BytesIO(b"%PDF-1.4 x"), "b.pdf"),
+        "cover_file": (_io.BytesIO(b"\xff\xd8\xff"), "c.jpg"),
+    }, content_type="multipart/form-data", headers=BROWSER_HEADERS)
+    for t in _threading.enumerate():
+        if t is not _threading.current_thread() and t.daemon:
+            t.join(timeout=2)
+    try:
+        assert r.status_code == 302
+        assert len(calls) == 1 and calls[0][0] == "PYTEST_ALERT_BOOK"
+        assert "/library/" in calls[0][1] and "/static/uploads/cover_" in calls[0][2]
+    finally:
+        cur.execute("SELECT pdf_path, cover_path FROM books WHERE title = 'PYTEST_ALERT_BOOK'")
+        for pdf, cover in cur.fetchall():
+            for name in (pdf, cover):
+                try:
+                    os.remove(os.path.join(UPLOAD_FOLDER, name))
+                except OSError:
+                    pass
+        cur.execute("DELETE FROM books WHERE title = 'PYTEST_ALERT_BOOK'")
+        conn.commit()
+        cur.close()
+        conn.close()

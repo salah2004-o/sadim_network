@@ -8,6 +8,9 @@ def _resume_url(item):
     """يبني رابط الاستئناف حسب نوع المحتوى — يستخدم endpoints الموجودة فعلاً
     (لا روتات جديدة)، متطابقاً مع أسماء المسارات الحقيقية في app/routes."""
     if item['content_type'] == 'book':
+        # عنده صفحة محفوظة؟ يرجع للقارئ مباشرة ويكمل من نفس الصفحة
+        if item.get('last_page'):
+            return url_for('library.read_book', book_id=item['content_id'])
         return url_for('library.view_book', book_id=item['content_id'])
     return url_for('articles.view_article', post_id=item['content_id'])
 

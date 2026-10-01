@@ -1,0 +1,32 @@
+{# "نبّهني عند إضافة كتاب جديد" — للزائر: تسجيل Google يفعّل التنبيه مباشرة (intent=book_alerts)،
+   وللعضو: زر تشغيل/إيقاف. المتغيرات: alert_placement، alerts_on (للعضو) #}
+{% if session.get('user_id') %}
+<button type="button" class="sd-btn sd-btn-ghost sd-alert-toggle" data-book-alert-toggle aria-pressed="{{ 'true' if alerts_on else 'false' }}">
+  <i class="fas {{ 'fa-bell' if alerts_on else 'fa-bell-slash' }}" aria-hidden="true"></i>
+  <span>{{ 'التنبيه مفعّل: نراسلك عند إضافة رواية جديدة' if alerts_on else 'نبّهني بالبريد عند إضافة رواية جديدة' }}</span>
+</button>
+<script>
+(function () {
+  var btn = document.currentScript.previousElementSibling;
+  btn.addEventListener("click", function () {
+    var on = btn.getAttribute("aria-pressed") !== "true";
+    btn.disabled = true;
+    fetch("/api/personal/book-alerts", { method: on ? "POST" : "DELETE", credentials: "same-origin" })
+      .then(function (r) { if (!r.ok) throw new Error(); return r.json(); })
+      .then(function (data) {
+        btn.setAttribute("aria-pressed", String(data.subscribed));
+        btn.querySelector("i").className = "fas " + (data.subscribed ? "fa-bell" : "fa-bell-slash");
+        btn.querySelector("span").textContent = data.subscribed ? "التنبيه مفعّل: نراسلك عند إضافة رواية جديدة" : "نبّهني بالبريد عند إضافة رواية جديدة";
+      })
+      .catch(function () {})
+      .finally(function () { btn.disabled = false; });
+  });
+})();
+</script>
+{% else %}
+<a class="sd-btn sd-btn-ghost sd-alert-toggle"
+   href="{{ url_for('loading_bp.google_login', next=url_for('library.shelf'), src=alert_placement, intent='book_alerts') }}"
+   data-signup-cta data-placement="{{ alert_placement }}" data-value="new_book_alert">
+  <i class="fas fa-bell" aria-hidden="true"></i> <span>نبّهني بالبريد عند إضافة رواية جديدة</span>
+</a>
+{% endif %}

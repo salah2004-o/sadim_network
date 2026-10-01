@@ -71,8 +71,18 @@
     zoomRenderTimer: null,
     resizeObserver: null,
     viewportResizeHandler: null,
-    bookId: ""
+    bookId: "",
+    loggedIn: false,
+    syncTimer: null,
+    syncPending: false,
+    lastSyncedPage: null,
+    progressPrimed: false,
+    readMs: 0,
+    lastInteraction: Date.now()
   };
+
+  const READ_TICK_MS = 5000;
+  const IDLE_LIMIT_MS = 2 * 60 * 1000;
 
   function readStorage(key, fallback) {
     try {
@@ -99,9 +109,61 @@
 
   function loadStoredState() {
     state.bookId = els.canvas.dataset.bookId || "";
+    state.loggedIn = els.canvas.dataset.loggedIn === "1";
     state.zoom = finiteNumber(readStorage("zoom", "1"), 1, 0.6, 1.8);
     state.theme = ["light", "dark", "sepia"].includes(readStorage("theme", "dark")) ? readStorage("theme", "dark") : "dark";
-    state.page = Math.max(1, Math.floor(finiteNumber(readStorage("page-" + state.bookId, "1"), 1, 1, Number.MAX_SAFE_INTEGER)));
+    const localPage = Math.max(1, Math.floor(finiteNumber(readStorage("page-" + state.bookId, "1"), 1, 1, Number.MAX_SAFE_INTEGER)));
+    // الصفحة المحفوظة بالحساب تتقدّم (تكمل من جهاز آخر)؛ بدونها نستخدم المحفوظة محلياً،
+    // وأول مزامنة بعد التسجيل تنقلها للحساب
+    const savedPage = Math.floor(Number(els.canvas.dataset.savedPage || 0));
+    state.page = savedPage >= 1 ? savedPage : localPage;
+    try { state.readMs = Number(window.sessionStorage.getItem(STORAGE_PREFIX + "read-ms-" + state.bookId)) || 0; } catch (error) { }
+  }
+
+  // ---------- "احفظ مكانك": مزامنة آخر صفحة مع الحساب ----------
+  function sendProgress() {
+    state.syncPending = false;
+    if (!state.loggedIn || !state.totalPages) return;
+    state.lastSyncedPage = state.page;
+    fetch("/api/personal/progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      keepalive: true,
+      body: JSON.stringify({ book_id: Number(state.bookId), page: state.page, total_pages: state.totalPages })
+    }).catch(function () {});
+  }
+
+  function scheduleProgressSync() {
+    if (!state.loggedIn || state.page === state.lastSyncedPage) return;
+    window.clearTimeout(state.syncTimer);
+    state.syncPending = true;
+    state.syncTimer = window.setTimeout(sendProgress, 1500);
+  }
+
+  // ---------- book.read.progress: حدث عند كل 10% (مرة لكل نسبة لكل كتاب في هذا المتصفح) ----------
+  function reportProgress(page) {
+    if (!state.totalPages) return;
+    const decile = Math.floor((page / state.totalPages) * 10) * 10;
+    const key = "progress-" + state.bookId;
+    const reported = Number(readStorage(key, "0")) || 0;
+    if (decile <= reported) return;
+    writeStorage(key, decile);
+    // أول عرض (استئناف من صفحة محفوظة) لا يُحتسب تقدّماً جديداً
+    if (!state.progressPrimed || !window.sdTrack) return;
+    for (let percent = reported + 10; percent <= decile; percent += 10) {
+      window.sdTrack("book.read.progress", { book_id: Number(state.bookId), percent: percent, page: page, total_pages: state.totalPages });
+    }
+  }
+
+  // ---------- وقت القراءة الفعلي: التبويب ظاهر + تفاعل خلال آخر دقيقتين ----------
+  function markInteraction() { state.lastInteraction = Date.now(); }
+
+  function tickReadingTime() {
+    if (!state.pdf || document.visibilityState !== "visible") return;
+    if (Date.now() - state.lastInteraction > IDLE_LIMIT_MS) return;
+    state.readMs += READ_TICK_MS;
+    try { window.sessionStorage.setItem(STORAGE_PREFIX + "read-ms-" + state.bookId, String(state.readMs)); } catch (error) { }
   }
 
   function loadPdfScript() {
@@ -188,6 +250,16 @@
     }
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("keydown", onKeydown);
+    ["pointerdown", "keydown", "wheel", "touchstart", "scroll"].forEach(function (type) {
+      window.addEventListener(type, markInteraction, { passive: true });
+    });
+    window.setInterval(tickReadingTime, READ_TICK_MS);
+    window.addEventListener("pagehide", function () {
+      if (state.syncPending) {
+        window.clearTimeout(state.syncTimer);
+        sendProgress();
+      }
+    });
     window.addEventListener("pagehide", destroyDocument);
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "hidden" && state.renderTask) {
@@ -367,6 +439,9 @@
       state.renderTask = null;
       els.canvas.setAttribute("aria-label", "الصفحة " + page + " من " + state.totalPages + " من " + (document.title || "الكتاب"));
       updatePageUI();
+      reportProgress(page);
+      state.progressPrimed = true;
+      scheduleProgressSync();
     } catch (error) {
       if (generation !== state.renderGeneration) return;
       state.renderTask = null;
@@ -680,5 +755,5 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 
-  window.Reader = { init: init, state: state, els: els };
+  window.Reader = { init: init, state: state, els: els, readingMs: function () { return state.readMs; } };
 })();

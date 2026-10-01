@@ -197,7 +197,7 @@
                 عرض التفاصيل ←
             </a>
             <a href="{{ url_for('library.download_file', book_id=book.id) }}"
-               class="btn-royal">
+               class="btn-royal" data-download-link>
                 <i class="fa-solid fa-download"></i> تحميل PDF ملكي
             </a>
         </div>
@@ -284,6 +284,7 @@
 </script>
 <script src="{{ url_for('static', filename='js/sd-track.js') }}" defer></script>
 <script src="{{ url_for('static', filename='js/sd-share.js') }}" defer></script>
+{% include 'partials/_signup_prompt.html' %}
 
 {% include 'partials/_ai_float.html' %}
 {% include 'partials/_bottom_nav.html' %}
