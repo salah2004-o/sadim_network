@@ -462,6 +462,10 @@ def test_book_alerts_subscribe_and_unsubscribe_by_token(client, temp_user):
     _login(client, temp_user)
     assert client.post("/api/personal/book-alerts", headers=BROWSER_HEADERS).get_json() == {"subscribed": True}
     assert shelf_model.is_subscribed(temp_user)
+    # الإيقاف بـ POST (nginx الإنتاج يرفض DELETE بـ 405)
+    off = _post_json(client, "/api/personal/book-alerts", {"subscribed": False})
+    assert off.get_json() == {"subscribed": False} and not shelf_model.is_subscribed(temp_user)
+    client.post("/api/personal/book-alerts", headers=BROWSER_HEADERS)
     conn = get_db_connection()
     cur = conn.cursor()
     cur.execute("SELECT unsubscribe_token FROM book_alert_subscriptions WHERE user_id = %s", (temp_user,))

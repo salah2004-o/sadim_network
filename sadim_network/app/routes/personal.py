@@ -84,8 +84,12 @@ def reading_progress():
 @personal_bp.route('/book-alerts', methods=['POST', 'DELETE'])
 @login_required
 def book_alerts():
-    if request.method == 'POST':
+    # nginx في الإنتاج يرفض كل الطرق عدا GET/POST/HEAD (405)، فالإيقاف يأتي كـ POST
+    # مع {"subscribed": false}. DELETE باقٍ للتوافق فقط.
+    data = request.get_json(silent=True) or {}
+    subscribed = request.method == 'POST' and data.get('subscribed', True) is not False
+    if subscribed:
         shelf_model.subscribe(session['user_id'])
     else:
         shelf_model.unsubscribe(session['user_id'])
-    return jsonify({'subscribed': request.method == 'POST'})
+    return jsonify({'subscribed': subscribed})
