@@ -4,7 +4,6 @@ import time
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 _DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 _HISTORY_PATH = _DATA_DIR / "daily_novels.json"
@@ -90,19 +89,19 @@ def _build_book_url(book_id):
 
 def _prepare_message(book):
     from app.bot.tools._paths import UPLOAD_FOLDER as _upload_dir
-    title = book.get("title", "بدون عنوان")
-    desc = (book.get("desc_text") or "")[:250]
-    book_url = _build_book_url(book["id"])
+    from app.bot.telegram_safety import h, book_buttons
+    title = h(book.get("title", "بدون عنوان"))
+    desc = h((book.get("desc_text") or "")[:250])
     cover_path = os.path.join(_upload_dir, book.get("cover_path") or "")
 
-    markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("📖 قراءة الرواية على سديم", url=book_url))
+    # HTML مُهرَّب بدل Markdown (عناوين فيها * و_ كانت تُفشل الإرسال)، وزرّان بقياس utm
+    markup = book_buttons(book["id"], "daily_novel")
 
     text = (
-        f"📚 **رواية اليوم — شبكة سديم**\n\n"
-        f"*{title}*\n\n"
+        f"📚 <b>رواية اليوم — شبكة سديم</b>\n\n"
+        f"<b>{title}</b>\n\n"
         f"{desc}\n\n"
-        f"_اضغط على الزر لتصفحها والقراءة._"
+        f"<i>اقرأها على الموقع من الزر، أو تصفّح صفحتها.</i>"
     )
     return text, markup, cover_path
 
@@ -112,9 +111,9 @@ def _send_to_user(bot, user_id, text, markup, cover_path):
     import telebot
     if os.path.exists(cover_path):
         with open(cover_path, "rb") as f:
-            bot.send_photo(user_id, f, caption=text, reply_markup=markup, parse_mode="Markdown")
+            bot.send_photo(user_id, f, caption=text, reply_markup=markup, parse_mode="HTML")
     else:
-        bot.send_message(user_id, text, reply_markup=markup, parse_mode="Markdown")
+        bot.send_message(user_id, text, reply_markup=markup, parse_mode="HTML")
 
 
 def _send_daily_novel(bot, force=False):

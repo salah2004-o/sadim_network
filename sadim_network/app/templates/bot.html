@@ -101,7 +101,7 @@
         <div class="sd-card sd-card-hover sd-bot-card">
             <div class="sd-bot-icon"><i class="fas fa-robot"></i></div>
             <div style="min-width:0;">
-                <div style="font-weight:700; margin-bottom: var(--sd-sp-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">بوت شبكة سديم</div>
+                <div style="font-weight:700; margin-bottom: var(--sd-sp-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ '@' ~ bot.telegram_username if bot.telegram_username else 'بوت شبكة سديم' }}</div>
                 <div style="display:flex; align-items:center; gap: var(--sd-sp-3); flex-wrap:wrap;">
                     <span style="font-size: var(--sd-fs-xs); color: var(--sd-accent-light);"><i class="fab fa-telegram"></i> {{ bot.channel }}</span>
                     <span style="font-size: var(--sd-fs-xs); color: var(--sd-text-secondary);"><i class="fas fa-calendar-alt"></i> {{ bot.created_at.strftime('%Y-%m-%d') if bot.created_at else '—' }}</span>
@@ -110,6 +110,7 @@
                     {% else %}
                         <span class="sd-badge sd-badge-danger"><span class="sd-badge-dot"></span> موقوف</span>
                     {% endif %}
+                    {% with status = statuses.get(bot.id) %}{% include 'partials/_bot_status.html' %}{% endwith %}
                     {% if not bot.owner_telegram_id %}
                     <a href="{{ url_for('bots.manage_bot', bot_id=bot.id) }}" class="sd-badge sd-badge-warning" style="text-decoration:none;">
                         <i class="fas fa-triangle-exclamation"></i> غير مكتمل الربط — أكمله

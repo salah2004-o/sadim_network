@@ -47,7 +47,7 @@ ADMIN_ID = int(os.getenv("ADMIN_ID"))
 # ===== إعدادات Google OAuth =====
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
-BOT_WORKER = os.getenv("BOT_WORKER", "true").lower() != "false"  # شغّل البوتات فقط من worker رقم 1
+BOT_WORKER = os.getenv("BOT_WORKER", "true").lower() != "false"  # false = لا يبدأ مشرف بوتات المستخدمين (app/bot/supervisor.py)
 # لأدوات الفحص/الاختبار المحلية: تشغيل `BOT_WORKER=false python ...` يمنع أي استيراد للتطبيق
 # من تشغيل بوتات تيليجرام حقيقية (يفادي تعارض 409 مع أي سيرفر حقيقي شغّال أصلاً بنفس التوكن).
 

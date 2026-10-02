@@ -146,7 +146,7 @@ def get_dashboard_stats(range_key="7d"):
                 WHEN utm_source = 'share' THEN 'share'
                 WHEN referrer IS NULL OR referrer = '' THEN 'direct'
                 WHEN referrer ILIKE '%%google.%%' THEN 'google'
-                WHEN referrer ILIKE '%%t.me%%' OR referrer ILIKE '%%telegram%%' THEN 'telegram'
+                WHEN utm_source = 'telegram' OR referrer ILIKE '%%t.me%%' OR referrer ILIKE '%%telegram%%' THEN 'telegram'
                 WHEN referrer ILIKE '%%instagram%%' THEN 'instagram'
                 ELSE 'other'
             END AS source,

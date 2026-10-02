@@ -121,5 +121,5 @@ app.register_blueprint(events_bp)
 app.register_blueprint(seo_bp)
 app.add_template_global(canonical_url)
 
-from app.bot.bot_runner import restore_all_bots
-restore_all_bots()
+# بوتات المستخدمين وجدولة النشر لا تُشغَّل هنا (عمّال الموقع) بل حصراً من خدمة sadim_bot
+# عبر app/bot/supervisor.py — انظر تعليق ذلك الملف لسبب النقل.

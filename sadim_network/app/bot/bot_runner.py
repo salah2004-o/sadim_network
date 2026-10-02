@@ -1,9 +1,11 @@
 import threading
-import redis
 import telebot
 from telebot import types
 from app.bot.tools import library, quotes, downloader, shortener, qr, binary, search, contact_owner, tts
+from app.bot.telegram_safety import harden, is_private, ALL_CONTENT_TYPES
 
+# بوتات المستخدمين المشغّلة في هذه العملية فقط. التشغيل نفسه يتم حصراً من مشرف البوتات
+# (app/bot/supervisor.py) داخل خدمة sadim_bot — لا من عمّال الموقع.
 _running_bots = {}
 _running_bots_lock = threading.Lock()
 
@@ -76,8 +78,12 @@ def _register_handlers(bot: telebot.TeleBot, bot_id: int):
     # تتبّع نشاط خفيف لإحصائيات لوحة الأدمن (مستخدمين/رسائل/أوامر) — يُسجَّل أولاً على كل رسالة
     # ثم يرجع ContinueHandling() حتى يكمل تيليجرام لبقية المعالجات المطابقة بشكل طبيعي (تيليجرام
     # يوقف عند أول معالج مطابق افتراضياً، وContinueHandling يلغي هذا التوقف لهذا المعالج فقط).
-    @bot.message_handler(func=lambda m: True)
+    @bot.message_handler(func=lambda m: True, content_types=ALL_CONTENT_TYPES)
     def _track_activity(message):
+        # البوت للمحادثات الخاصة فقط: رسائل القنوات ("رسائل القناة المباشرة") والمجموعات
+        # تُبتلع هنا — الرد عليها كان يفشل بـ "channel direct messages topic must be specified"
+        if not is_private(message):
+            return
         try:
             from app.models.bot_activity_model import BotActivity
             is_command = bool(message.text and message.text.startswith('/'))
@@ -177,22 +183,40 @@ def _register_handlers(bot: telebot.TeleBot, bot_id: int):
         tool.register(bot, bot_id, enabled_features)
 
 
-def start_bot(bot_id: int, bot_token: str, channel: str):
+class _StatusRecorder(telebot.ExceptionHandler):
+    """يسجّل آخر خطأ للبوت (لتعرضه لوحة "أدواتي") ثم يترك سلوك المكتبة الافتراضي كما هو
+    (handle يرجع False = نفس السجل وإعادة المحاولة)."""
+
+    def __init__(self, bot_id):
+        self.bot_id = bot_id
+
+    def handle(self, exception):
+        try:
+            from app.bot import supervisor
+            supervisor.record_error(self.bot_id, exception)
+        except Exception:
+            pass
+        return False
+
+
+def start_bot(bot_id: int, bot_token: str, channel: str, fingerprint=None):
     with _running_bots_lock:
         if bot_token in _running_bots:
             return
         _running_bots[bot_token] = None  # حجز فوري يمنع أي نداء متزامن ثاني لنفس التوكن
 
-    bot = telebot.TeleBot(bot_token, threaded=False)
+    bot = telebot.TeleBot(bot_token, threaded=False, exception_handler=_StatusRecorder(bot_id))
+    harden(bot)
     _register_handlers(bot, bot_id)
     t = threading.Thread(
-        target=lambda: bot.infinity_polling(skip_pending=True),
-        daemon=True
+        target=lambda: bot.infinity_polling(skip_pending=True, timeout=20, long_polling_timeout=20),
+        daemon=True,
+        name=f"user-bot-{bot_id}",
     )
     with _running_bots_lock:
         if bot_token not in _running_bots:
             return  # انحذف (stop_bot) وهو لسا قيد التجهيز — ما نشغّله
-        _running_bots[bot_token] = {"bot": bot, "thread": t}
+        _running_bots[bot_token] = {"bot": bot, "thread": t, "bot_id": bot_id, "fingerprint": fingerprint}
     t.start()
 
 
@@ -203,29 +227,11 @@ def stop_bot(bot_token: str):
         entry["bot"].stop_polling()
 
 
-def restore_all_bots():
-    from app.models.bot_model import Bot
-    from app.config import settings
-
-    if not settings.BOT_WORKER:
-        return
-
-    if settings.SESSION_REDIS:
-        try:
-            acquired = settings.SESSION_REDIS.set("sadim:bots:worker_lock", "1", nx=True, ex=3600)
-            if not acquired:
-                return  # عملية/worker ثانية شغّلت البوتات بالفعل
-        except redis.exceptions.RedisError as e:
-            print(f"⚠️ تعذر الاتصال بـ Redis لأخذ قفل تشغيل البوتات، سيتم المتابعة بدونه: {e}")
-
-    bots = Bot.get_all()
-    for b in bots:
-        if b.is_active:
-            try:
-                start_bot(b.id, b.bot_token, b.channel)
-            except Exception as e:
-                # بوت واحد معطوب (توكن فاسد، خطأ DB مؤقت...) ما يوقف بقية البوتات ولا يطيح التطبيق كامل
-                print(f"⚠️ فشل تشغيل البوت #{b.id} عند الإقلاع، سيتم تجاهله والمتابعة: {e}")
-
-    from app.bot.scheduler import start_scheduler
-    start_scheduler(interval_hours=settings.BOOK_ANNOUNCE_INTERVAL_HOURS)
+def running_snapshot():
+    """{bot_id: {"token", "fingerprint", "alive"}} للبوتات المشغّلة في هذه العملية."""
+    with _running_bots_lock:
+        items = [(token, entry) for token, entry in _running_bots.items() if entry]
+    return {
+        entry["bot_id"]: {"token": token, "fingerprint": entry.get("fingerprint"), "alive": entry["thread"].is_alive()}
+        for token, entry in items
+    }

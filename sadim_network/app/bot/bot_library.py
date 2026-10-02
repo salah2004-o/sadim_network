@@ -22,12 +22,21 @@ from config.settings import TOKEN, ADMIN_ID, DAILY_NOVEL_HOUR, DAILY_NOVEL_MINUT
 from app.db.sadim_db import get_db_connection
 from app.bot.services import users_db
 from app.bot.services import daily_novel as daily_novel_svc
+from app.bot.telegram_safety import harden, is_private, ALL_CONTENT_TYPES, book_buttons, h
 
 # ══════════════════════════════════════════
 #                الإعدادات والمتغيرات
 # ════════════════════════════════════════
 
 bot = telebot.TeleBot(TOKEN, threaded=True, num_threads=15)
+harden(bot)
+
+
+# أول معالج (الترتيب مهم): البوت للمحادثات الخاصة فقط. رسائل "المحادثات المباشرة للقنوات" والمجموعات
+# تُبتلع هنا — الرد عليها كان يفشل بـ "channel direct messages topic must be specified" (27 مرة/أسبوع)
+@bot.message_handler(func=lambda m: not is_private(m), content_types=ALL_CONTENT_TYPES)
+def _ignore_non_private(message):
+    return
 
 # التخزين المؤقت وحالات المستخدمين
 verified_cache = {}
@@ -107,7 +116,7 @@ def check_subscriptions(user_id: int) -> list:
     if is_admin(user_id):
         return []
 
-    now = time()
+    now = time.time()
     if user_id in verified_cache and (now - verified_cache[user_id] < 240):
         return []
 
@@ -484,9 +493,13 @@ def handle_book_sending(call):
     cover_path = os.path.join(UPLOAD_FOLDER, book.get('cover_path', ''))
     user_id = call.from_user.id
 
+    # زرّا القراءة على الموقع وصفحة الرواية تحت الغلاف (بقياس utm) — الملف يُرسل كما كان
+    markup = book_buttons(book['id'], "main_bot_library")
     if os.path.exists(cover_path):
         with open(cover_path, 'rb') as cover:
-            bot.send_photo(user_id, cover, caption=f"📖 {title}")
+            bot.send_photo(user_id, cover, caption=f"📖 <b>{h(title)}</b>", parse_mode="HTML", reply_markup=markup)
+    else:
+        bot.send_message(user_id, f"📖 <b>{h(title)}</b>", parse_mode="HTML", reply_markup=markup)
 
     if os.path.exists(pdf_path):
         with open(pdf_path, 'rb') as pdf:
@@ -664,4 +677,7 @@ except Exception as e:
 
 if __name__ == "__main__":
     print("--- SADIM NETWORK SYSTEM ONLINE ---")
+    # بوتات المستخدمين وجدولة نشر الروايات تعمل من هذه الخدمة فقط (لا من عمّال الموقع)
+    from app.bot import supervisor
+    supervisor.start()
     bot.infinity_polling(skip_pending=True)

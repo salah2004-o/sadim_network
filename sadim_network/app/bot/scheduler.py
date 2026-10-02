@@ -1,9 +1,19 @@
 # نشر تلقائي مجدوَل لروايات المكتبة الجديدة بقنوات البوتات المربوطة + تذكيرات حد البوتات
 from datetime import datetime
+import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.bot.bot_runner import _running_bots, _running_bots_lock
+from app.bot.telegram_safety import h, book_buttons
 
 _scheduler = None
+
+
+def announcement_message(book, bot_id):
+    """نص الإعلان (HTML مُهرَّب) + زرّا القراءة وصفحة الرواية بقياس utm لكل بوت."""
+    title = h(book.get('title') or 'بدون عنوان')
+    desc = h((book.get('desc_text') or '')[:250])
+    caption = f"📖 <b>رواية جديدة في مكتبتنا</b>\n\n<b>{title}</b>\n\n{desc}"
+    return caption, book_buttons(book['id'], "channel_announce", f"bot_{bot_id}")
 
 
 def announce_next_books():
@@ -26,9 +36,8 @@ def announce_next_books():
             continue  # البوت مو شغال بالذاكرة حالياً (موقوف/لسا قيد التجهيز) — نتجاهله هالدورة
 
         telebot_instance = entry["bot"]
-        title = book.get('title', 'بدون عنوان')
-        desc = (book.get('desc_text') or '')[:250]
-        caption = f"📖 **رواية جديدة بمكتبتنا:**\n\n*{title}*\n\n{desc}"
+        # HTML مُهرَّب بدل Markdown: عناوين فيها * أو _ كانت تُفشل الإرسال كاملاً
+        caption, markup = announcement_message(book, b.id)
 
         try:
             import os
@@ -36,9 +45,9 @@ def announce_next_books():
             cover_path = os.path.join(UPLOAD_FOLDER, book.get('cover_path') or '')
             if os.path.exists(cover_path):
                 with open(cover_path, 'rb') as f:
-                    telebot_instance.send_photo(b.channel, f, caption=caption, parse_mode="Markdown")
+                    telebot_instance.send_photo(b.channel, f, caption=caption, parse_mode="HTML", reply_markup=markup)
             else:
-                telebot_instance.send_message(b.channel, caption, parse_mode="Markdown")
+                telebot_instance.send_message(b.channel, caption, parse_mode="HTML", reply_markup=markup)
 
             Bot.update_last_announced(b.id, book['id'])
         except Exception as e:
@@ -71,7 +80,20 @@ def start_scheduler(interval_hours=24):
     global _scheduler
     if _scheduler is not None:
         return  # مشغّل أصلاً بهالعملية
-    _scheduler = BackgroundScheduler(daemon=True)
+    # منطقة زمنية من pytz صراحةً: APScheduler 3.6 على السيرفر يرفض منطقة tzlocal 5 الافتراضية
+    # ("Only timezones from the pytz library are supported") — هذا ما كان يُسقط العامل كاملاً
+    _scheduler = BackgroundScheduler(daemon=True, timezone=pytz.utc)
     _scheduler.add_job(announce_next_books, 'interval', hours=interval_hours, id='book_announce')
     _scheduler.add_job(check_bot_limit_reminders, 'interval', hours=24, id='bot_limit_reminders')
     _scheduler.start()
+
+
+def stop_scheduler():
+    """عند فقدان قفل مشرف البوتات: لا تبقى جدولتان تنشران نفس الرواية مرتين."""
+    global _scheduler
+    if _scheduler is not None:
+        try:
+            _scheduler.shutdown(wait=False)
+        except Exception:
+            pass
+        _scheduler = None

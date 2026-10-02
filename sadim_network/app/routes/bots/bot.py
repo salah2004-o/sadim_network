@@ -4,7 +4,9 @@ from app.models.bot_model import Bot
 from app.models.quote_model import Quote
 from app.models.bot_feature_model import BotFeature
 from app.models.bot_limit_model import BotLimitGrant
-from app.bot.bot_runner import start_bot, stop_bot, get_all_features
+from app.bot.bot_runner import get_all_features
+# البوتات تعمل في خدمة sadim_bot وحدها: لوحة التحكم تكتب في القاعدة ثم تطلب من المشرف التنفيذ فوراً
+from app.bot.supervisor import request_reconcile, request_restart, get_statuses
 
 bot_bp = Blueprint('bots', __name__, url_prefix='/bots')
 
@@ -32,7 +34,8 @@ def my_bots():
     user_id = session['user_id']
     bots = Bot.get_by_user(user_id)
     limit_status = BotLimitGrant.get_status_for_user(user_id, current_bot_count=len(bots))
-    return render_template("bot.html", bots=bots, username=session.get('username', ''), limit_status=limit_status)
+    return render_template("bot.html", bots=bots, username=session.get('username', ''), limit_status=limit_status,
+                           statuses=get_statuses())
 
 
 @bot_bp.route("/add", methods=["POST"])
@@ -68,9 +71,9 @@ def add_bot():
     new_bot = Bot(user_id=user_id, bot_token=bot_token, channel=channel, is_active=True)
     new_bot_id = new_bot.add()
     Bot.refresh_telegram_info(new_bot_id, bot_token)
-    start_bot(new_bot_id, bot_token, channel)
+    request_reconcile()
 
-    flash("✅ تم ربط البوت وتفعيله بنجاح!", "success")
+    flash("✅ تم ربط البوت وتفعيله — يبدأ العمل خلال ثوانٍ.", "success")
     return redirect(url_for('bots.my_bots'))
 
 
@@ -87,8 +90,8 @@ def delete_bot(bot_id):
         return redirect(url_for('bots.my_bots'))
 
     referrer = request.referrer
-    stop_bot(bot_data.bot_token)
     Bot.delete(bot_id)
+    request_reconcile()
     flash("🗑 تم حذف البوت.", "success")
     return redirect(referrer or url_for('bots.my_bots'))
 
@@ -109,11 +112,10 @@ def toggle_bot(bot_id):
     new_status = not bot_data.is_active
     Bot.update(bot_id, new_status)
 
+    request_reconcile()
     if new_status:
-        start_bot(bot_data.id, bot_data.bot_token, bot_data.channel)
-        flash("✅ تم تشغيل البوت.", "success")
+        flash("✅ تم تشغيل البوت — يبدأ العمل خلال ثوانٍ.", "success")
     else:
-        stop_bot(bot_data.bot_token)
         flash("⏸ تم إيقاف البوت.", "success")
 
     return redirect(request.referrer or url_for('bots.my_bots'))
@@ -133,9 +135,8 @@ def restart_bot(bot_id):
         return redirect(url_for('bots.my_bots'))
 
     if bot_data.is_active:
-        stop_bot(bot_data.bot_token)
-        start_bot(bot_data.id, bot_data.bot_token, bot_data.channel)
-        flash("🔄 تم إعادة تشغيل البوت.", "success")
+        request_restart(bot_data.id)
+        flash("🔄 تُعاد تشغيل البوت خلال ثوانٍ.", "success")
     else:
         flash("البوت موقوف حالياً، شغّله أولاً.", "error")
 
@@ -186,7 +187,8 @@ def manage_bot(bot_id):
         for feat in get_all_features()
     ]
 
-    return render_template("manage_bot.html", bot=bot_data, quotes=quotes, features=features, username=session.get('username', ''))
+    return render_template("manage_bot.html", bot=bot_data, quotes=quotes, features=features, username=session.get('username', ''),
+                           bot_status=get_statuses().get(bot_id))
 
 
 @bot_bp.route("/<int:bot_id>/feature/toggle", methods=["POST"])
@@ -210,10 +212,8 @@ def toggle_feature(bot_id):
     currently_enabled = BotFeature.is_enabled(bot_id, feature_key)
     BotFeature.set_enabled(bot_id, feature_key, not currently_enabled)
 
-    # نعيد تشغيل البوت فوراً حتى يطبّق التغيير مباشرة (الميزات المفعّلة تُقرأ مرة وحدة وقت تشغيل البوت)
-    if bot_data.is_active:
-        stop_bot(bot_data.bot_token)
-        start_bot(bot_data.id, bot_data.bot_token, bot_data.channel)
+    # تغيّر الميزات يغيّر بصمة البوت، فيعيد المشرف تشغيله تلقائياً بالميزات الجديدة
+    request_reconcile()
 
     flash("✅ تم تحديث الميزة.", "success")
     return redirect(url_for('bots.manage_bot', bot_id=bot_id))

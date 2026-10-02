@@ -1,0 +1,12 @@
+{# حالة تشغيل البوت الفعلية من مشرف البوتات (Redis). المتغيرات: status (قد يكون None)، bot #}
+{% if bot.is_active %}
+  {% if not status %}
+    <span class="sd-badge sd-badge-neutral" title="المشرف يشغّله خلال ثوانٍ"><i class="fas fa-hourglass-half"></i> قيد التشغيل</span>
+  {% elif status.state == 'running' %}
+    <span class="sd-badge sd-badge-success"><i class="fas fa-signal"></i> يعمل الآن</span>
+  {% elif status.state == 'token_invalid' %}
+    <span class="sd-badge sd-badge-danger" title="{{ status.detail }}"><i class="fas fa-key"></i> التوكن غير صالح — احذف البوت وأضفه بتوكن جديد من BotFather</span>
+  {% else %}
+    <span class="sd-badge sd-badge-warning" title="{{ status.detail }}"><i class="fas fa-triangle-exclamation"></i> مشكلة مؤقتة{% if status.detail %}: {{ status.detail|truncate(60) }}{% endif %}</span>
+  {% endif %}
+{% endif %}

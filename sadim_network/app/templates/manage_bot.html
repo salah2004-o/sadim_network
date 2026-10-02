@@ -710,7 +710,7 @@
         <div class="info-row">
             <span class="info-key"><i class="fas fa-circle"></i> الحالة</span>
             <span class="info-val" style="color: {{ '#00e676' if bot.is_active else '#ff5252' }}">
-                {{ 'يعمل' if bot.is_active else 'موقوف' }}
+                {% if bot.is_active %}{% with status = bot_status %}{% include 'partials/_bot_status.html' %}{% endwith %}{% else %}موقوف{% endif %}
             </span>
         </div>
     </div>

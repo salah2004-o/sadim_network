@@ -1,6 +1,7 @@
 import os
 from telebot import types
 from models.library_mdl import Library
+from app.bot.telegram_safety import book_buttons, h
 from ._paths import UPLOAD_FOLDER
 
 FEATURES = [
@@ -50,9 +51,13 @@ def register(bot, bot_id, enabled_features):
             cover_path = os.path.join(UPLOAD_FOLDER, book.get('cover_path', ''))
             user_id = call.from_user.id
 
+            # زرّا القراءة على الموقع وصفحة الرواية (utm_content يميّز كل بوت مستخدم)
+            markup = book_buttons(book['id'], "user_bot_library", f"bot_{bot_id}")
             if os.path.exists(cover_path):
                 with open(cover_path, 'rb') as f:
-                    bot.send_photo(user_id, f, caption=f"📖 {title}")
+                    bot.send_photo(user_id, f, caption=f"📖 <b>{h(title)}</b>", parse_mode="HTML", reply_markup=markup)
+            else:
+                bot.send_message(user_id, f"📖 <b>{h(title)}</b>", parse_mode="HTML", reply_markup=markup)
 
             if os.path.exists(pdf_path):
                 with open(pdf_path, 'rb') as f:
