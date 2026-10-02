@@ -196,7 +196,9 @@ def conversation(conversation_id):
         conn.close()
 
 
+# nginx في الإنتاج يرفض DELETE (405)، فالواجهة تستخدم POST .../delete. DELETE باقٍ للتوافق.
 @ai_bp.route('/conversations/<int:conversation_id>', methods=['DELETE'])
+@ai_bp.route('/conversations/<int:conversation_id>/delete', methods=['POST'])
 @login_required
 def delete_conversation(conversation_id):
     conn = get_db_connection()
@@ -275,6 +277,7 @@ def guest_messages():
 
 
 @ai_bp.route('/guest/messages', methods=['DELETE'])
+@ai_bp.route('/guest/messages/clear', methods=['POST'])
 def clear_guest_messages():
     session.pop(GUEST_SESSION_KEY, None)
     session.pop(GUEST_CONVERSATION_ID_KEY, None)  # يبدأ محادثة جديدة في القاعدة لاحقاً — لا يحذف المحادثة القديمة

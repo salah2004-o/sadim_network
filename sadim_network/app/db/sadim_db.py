@@ -176,6 +176,20 @@ def create_tables():
     """)
     # عمود صورة الغلاف — أُضيف لاحقاً، ALTER منفصل حتى يطبَّق على قاعدة بيانات موجودة فعلاً
     cur.execute("ALTER TABLE posts ADD COLUMN IF NOT EXISTS image_path TEXT;")
+    # عدّ المشاهدات (post_model.register_view): العدّاد على المقال + سجل يمنع العدّ المكرر خلال مدة التهدئة
+    cur.execute("ALTER TABLE posts ADD COLUMN IF NOT EXISTS views INTEGER NOT NULL DEFAULT 0;")
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS post_views (
+            id BIGSERIAL PRIMARY KEY,
+            post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+            user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+            session_id VARCHAR(64),
+            ip_address VARCHAR(64),
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+    """)
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_post_views_post_time ON post_views(post_id, created_at);")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_post_views_session ON post_views(post_id, session_id);")
 #----------COMMENTS TABLE----------#
     cur.execute("""
         CREATE TABLE IF NOT EXISTS comments (

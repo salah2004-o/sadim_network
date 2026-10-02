@@ -2492,9 +2492,9 @@
                         const res =
                             await fetch(
                                 '/ai/conversations/' +
-                                encodeURIComponent(conversation.id),
+                                encodeURIComponent(conversation.id) + '/delete',
                                 {
-                                    method: 'DELETE'
+                                    method: 'POST'
                                 }
                             );
 
@@ -2672,9 +2672,9 @@
                 try {
 
                     await fetch(
-                        '/ai/guest/messages',
+                        '/ai/guest/messages/clear',
                         {
-                            method: 'DELETE'
+                            method: 'POST'
                         }
                     );
 

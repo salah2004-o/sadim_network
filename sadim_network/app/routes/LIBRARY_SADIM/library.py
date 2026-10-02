@@ -131,7 +131,7 @@ def _is_repeat_download(session_id, book_id):
 # عرض المكتبة للجمهور
 # =========================
 @library_bp.route('/library')
-@limiter.limit("5 per minute")
+@limiter.limit("60 per minute")
 
 def library():
     # التحقق من تسجيل الدخول (اختياري حسب رغبتك)
@@ -193,7 +193,7 @@ def library():
 
 
 @library_bp.route('/library/<int:book_id>')
-@limiter.limit("5 per minute")
+@limiter.limit("60 per minute")
 def view_book(book_id):
     book = Library.get_book_id(book_id)
 
